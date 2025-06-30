@@ -1,0 +1,32 @@
+{
+  "name": "bropilot",
+  "version": "1.0.0",
+  "description": "https://www.notion.so/sdawka/Bropilot-Self-Aware-Application-Development-System-222edc0adcbc80b79b1def1e21d87821",
+  "main": "dist/index.js",
+  "bin": {
+    "bro": "dist/index.js"
+  },
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sdawka/bropilot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/sdawka/bropilot/issues"
+  },
+  "homepage": "https://github.com/sdawka/bropilot#readme",
+  "dependencies": {
+    "@types/node": "^24.0.7",
+    "commander": "^14.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
