@@ -1,39 +1,23 @@
 {
   "name": "bropilot",
-  "version": "1.0.0",
-  "description": "https://www.notion.so/sdawka/Bropilot-Self-Aware-Application-Development-System-222edc0adcbc80b79b1def1e21d87821",
-  "main": "dist/index.js",
-  "bin": {
-    "bro": "dist/index.js"
-  },
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts",
-    "build": "tsc",
-    "type-check": "tsc --noEmit",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/sdawka/bropilot.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/sdawka/bropilot/issues"
-  },
-  "homepage": "https://github.com/sdawka/bropilot#readme",
-  "dependencies": {
-    "@types/better-sqlite3": "^7.6.13",
-    "@types/node": "^24.0.7",
-    "better-sqlite3": "^12.2.0",
-    "commander": "^14.0.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write .",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/parser": "^8.35.1",
+    "eslint": "^9.30.0",
+    "eslint-config-prettier": "^10.1.5",
+    "husky": "^9.1.7",
+    "prettier": "^3.6.2",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.35.1"
   }
 }
