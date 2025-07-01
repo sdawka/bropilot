@@ -10,11 +10,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProcessingEngine = exports.BropilotDatabase = exports.BropilotCLI = void 0;
 const commander_1 = require("commander");
 const package_json_1 = require("../package.json");
 const logger_1 = require("./lib/logger");
 const init_1 = require("./commands/init");
-const commit_1 = require("./commands/commit");
+const chat_1 = require("./commands/chat");
+const process_1 = require("./commands/process");
+const tasks_1 = require("./commands/tasks");
+const code_1 = require("./commands/code");
+const status_1 = require("./commands/status");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const program = new commander_1.Command();
@@ -24,7 +29,18 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             .description('A CLI for everything a bro needs');
         // Add commands
         program.addCommand(init_1.initCommand);
-        program.addCommand(commit_1.commitCommand);
+        // TODO: Fix command conflicts before re-enabling
+        // program.addCommand(commitCommand);
+        // program.addCommand(chatCommand);
+        // program.addCommand(processCommand);
+        // program.addCommand(tasksCommand);
+        // program.addCommand(codeCommand);
+        // program.addCommand(statusCommand);
+        program.addCommand(chat_1.chatCommand);
+        program.addCommand(process_1.processCommand);
+        program.addCommand(tasks_1.tasksCommand);
+        program.addCommand(code_1.codeCommand);
+        program.addCommand(status_1.statusCommand);
         program.parse(process.argv);
     }
     catch (e) {
@@ -33,3 +49,10 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 main();
+// Export the main classes for external use
+var cli_1 = require("./cli");
+Object.defineProperty(exports, "BropilotCLI", { enumerable: true, get: function () { return cli_1.BropilotCLI; } });
+var database_1 = require("./lib/database");
+Object.defineProperty(exports, "BropilotDatabase", { enumerable: true, get: function () { return database_1.BropilotDatabase; } });
+var processor_1 = require("./lib/processor");
+Object.defineProperty(exports, "ProcessingEngine", { enumerable: true, get: function () { return processor_1.ProcessingEngine; } });

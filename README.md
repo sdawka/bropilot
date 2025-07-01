@@ -20,3 +20,65 @@ Bropilot transforms application development from code-first to concept-first, en
 1. **Genome Layer**: Abstract description of what the application is and does (knowledge graph as source of truth)
 2. **Proteome Layer**: Concrete implementation in code (generated from genome specifications)
 3. **Phenome Layer**: Running application serving users (deployed and measured)
+
+## Project Structure
+
+```
+bropilot/
+├── src/
+│   ├── types.ts      # TypeScript interfaces
+│   ├── database.ts   # SQLite operations  
+│   ├── processor.ts  # AI processing engine
+│   └── cli.ts        # CLI interface
+├── schema.sql        # Database schema
+├── package.json
+└── tsconfig.json
+```
+
+## Key Features
+
+- **Language Agnostic**: SQLite database, generates code in any language
+- **Reusable Core**: Same logic works for CLI and web UI
+- **Self-Improving**: Use Bropilot to build better Bropilot
+- **TypeScript**: Full type safety and excellent tooling
+- **Single Binary**: Can package with `pkg` or `nexe` if needed
+
+## Development
+
+```bash
+# Development mode with hot reload
+npm run dev
+
+# Type checking
+npm run type-check
+
+# Build for production  
+npm run build
+
+# Test
+npm test
+```
+
+## Architecture
+
+The core is designed for reuse:
+
+- `BropilotDatabase`: All SQLite operations
+- `ProcessingEngine`: AI workflow orchestration  
+- `BropilotCLI`: CLI interface using the core
+- `AIProvider`: Pluggable AI integration
+
+This same core can power:
+- CLI tool (`bro` command)
+- Web interface (import and use classes)
+- VS Code extension (reuse database and processing)
+- Desktop app (Electron with same code)
+
+## Self-Bootstrap Process
+
+1. **Manual Setup**: Create initial implementation (this code)
+2. **Self-Host**: Use `bro init bropilot` to manage Bropilot's development
+3. **Self-Improve**: Add features by chatting with Bropilot about what it should become
+4. **Meta-Development**: Bropilot generates code to improve itself
+
+The goal: Bropilot becomes increasingly sophisticated by using its own conversation-to-code pipeline to evolve.
