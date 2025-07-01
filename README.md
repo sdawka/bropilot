@@ -11,6 +11,7 @@ This is a monorepo for the Bropilot project, containing the core, cli, and gui p
 ## Getting Started
 
 1. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -18,3 +19,4 @@ This is a monorepo for the Bropilot project, containing the core, cli, and gui p
 2. Build all packages:
    ```bash
    npm run build --workspaces
+   ```

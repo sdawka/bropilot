@@ -1,0 +1,132 @@
+import { AppDatabase } from '../database/Database';
+import { FeatureRepository } from '../repositories/FeatureRepository';
+import { FeatureSchema, ApplicationSchema } from '../database/schema';
+import { ApplicationRepository } from '../repositories/ApplicationRepository';
+
+describe('FeatureRepository', () => {
+  let db: AppDatabase;
+  let applicationRepository: ApplicationRepository;
+  let featureRepository: FeatureRepository;
+  let testApp: ApplicationSchema;
+
+  beforeEach(async () => {
+    db = new AppDatabase(':memory:');
+    await db.migrate();
+    applicationRepository = new ApplicationRepository(db.getDB());
+    featureRepository = new FeatureRepository(db.getDB());
+
+    testApp = (await applicationRepository.create({
+      id: db.generateId(),
+      name: 'TestAppForFeatures',
+      purpose: 'To test feature repository',
+      current_phase: 1,
+      current_version: '1.0.0',
+      created_at: Date.now(),
+      updated_at: Date.now(),
+    })) as ApplicationSchema;
+  });
+
+  afterEach(() => {
+    db.close();
+  });
+
+  it('should create a new feature', async () => {
+    const newFeature: Partial<FeatureSchema> = {
+      id: db.generateId(),
+      application_id: testApp.id,
+      name: 'TestFeature',
+      purpose: 'Purpose of TestFeature',
+      requirements: JSON.stringify(['req1', 'req2']),
+      metrics: JSON.stringify(['metric1', 'metric2']),
+    };
+    const createdFeature = await featureRepository.create(newFeature);
+    expect(createdFeature).toEqual(newFeature);
+
+    const foundFeature = await featureRepository.findById(newFeature.id!);
+    expect(foundFeature).toEqual(newFeature);
+  });
+
+  it('should find a feature by ID', async () => {
+    const feature1: Partial<FeatureSchema> = {
+      id: db.generateId(),
+      application_id: testApp.id,
+      name: 'Feature1',
+      purpose: 'Purpose 1',
+      requirements: '[]',
+      metrics: '[]',
+    };
+    await featureRepository.create(feature1);
+
+    const found = await featureRepository.findById(feature1.id!);
+    expect(found).toEqual(feature1);
+
+    const notFound = await featureRepository.findById('non-existent-id');
+    expect(notFound).toBeNull();
+  });
+
+  it('should find all features', async () => {
+    const featureA: Partial<FeatureSchema> = {
+      id: db.generateId(),
+      application_id: testApp.id,
+      name: 'FeatureA',
+      purpose: 'Purpose A',
+      requirements: '[]',
+      metrics: '[]',
+    };
+    const featureB: Partial<FeatureSchema> = {
+      id: db.generateId(),
+      application_id: testApp.id,
+      name: 'FeatureB',
+      purpose: 'Purpose B',
+      requirements: '[]',
+      metrics: '[]',
+    };
+    await featureRepository.create(featureA);
+    await featureRepository.create(featureB);
+
+    const allFeatures = await featureRepository.findAll();
+    expect(allFeatures).toEqual(expect.arrayContaining([featureA, featureB]));
+    expect(allFeatures.length).toBe(2);
+  });
+
+  it('should update a feature', async () => {
+    const feature: Partial<FeatureSchema> = {
+      id: db.generateId(),
+      application_id: testApp.id,
+      name: 'OriginalFeature',
+      purpose: 'Original Purpose',
+      requirements: '[]',
+      metrics: '[]',
+    };
+    await featureRepository.create(feature);
+
+    const updatedPurpose = 'Updated Purpose';
+    const updatedFeature = await featureRepository.update(feature.id!, {
+      purpose: updatedPurpose,
+    });
+    expect(updatedFeature.purpose).toBe(updatedPurpose);
+    expect(updatedFeature.name).toBe(feature.name);
+
+    const foundFeature = await featureRepository.findById(feature.id!);
+    expect(foundFeature!.purpose).toBe(updatedPurpose);
+  });
+
+  it('should delete a feature', async () => {
+    const feature: Partial<FeatureSchema> = {
+      id: db.generateId(),
+      application_id: testApp.id,
+      name: 'FeatureToDelete',
+      purpose: 'To be deleted',
+      requirements: '[]',
+      metrics: '[]',
+    };
+    await featureRepository.create(feature);
+
+    let found = await featureRepository.findById(feature.id!);
+    expect(found).toBeDefined();
+
+    await featureRepository.delete(feature.id!);
+    found = await featureRepository.findById(feature.id!);
+    expect(found).toBeNull();
+  });
+});
