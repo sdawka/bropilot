@@ -13,12 +13,10 @@ import os from 'os';
 import { DocsManager } from 'bropilot-core/yamlgen/index';
 
 declare global {
-   
   var __TEST_DOCS_DIR__: string | undefined;
 }
 
 declare global {
-   
   var __TEST_DOCS_DIR__: string | undefined;
 }
 

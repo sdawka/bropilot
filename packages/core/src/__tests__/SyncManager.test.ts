@@ -124,25 +124,25 @@ describe.skip('SyncManager', () => {
       created_at: 0,
       updated_at: 0,
     };
-     
+
     console.log('codeEnt.properties:', JSON.stringify(codeEnt.properties));
-     
+
     console.log('kgEnt.properties:', JSON.stringify(kgEnt.properties));
-     
+
     console.log('codeEnt.methods:', JSON.stringify(codeEnt.methods));
-     
+
     console.log('kgEnt.methods:', JSON.stringify(kgEnt.methods));
     // Debug: print the summary and changes
-     
+
     console.log('status.summary:', status.summary);
-     
+
     console.log('changesInCode:', status.pendingChanges.inCode);
     // Print keys for code and KG entities
     const codeKey = `${codeEnt.module || ''}:${codeEnt.type}:${codeEnt.name}`;
     const kgKey = `${kgEnt.module || ''}:${kgEnt.type}:${kgEnt.name}`;
-     
+
     console.log('codeKey:', codeKey);
-     
+
     console.log('kgKey:', kgKey);
     expect(status.summary.codeAhead).toBe(0);
     expect(status.summary.kgAhead).toBe(0);

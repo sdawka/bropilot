@@ -507,7 +507,6 @@ export class WorkExecutor {
       );
       this.context.logs?.log('info', 'Execution state saved.');
     } catch (err) {
-       
       console.error('Failed to save execution state:', err);
     }
   }
@@ -540,7 +539,6 @@ export class WorkExecutor {
       ctx.agents = new AgentPool();
       return ctx;
     } catch (err) {
-       
       console.error('Failed to load execution state:', err);
       throw err;
     }
