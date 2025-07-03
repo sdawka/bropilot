@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import { FlowModuleSchema } from '../database/schema';
+import { FlowModuleSchema } from '../database/schema.js';
 
 export class FlowModuleRelationship {
   private db: Database.Database;

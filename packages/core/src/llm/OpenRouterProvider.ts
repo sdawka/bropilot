@@ -1,4 +1,4 @@
-import { OpenAIProvider } from './OpenAIProvider';
+import { OpenAIProvider } from './OpenAIProvider.js';
 import OpenAI from 'openai';
 
 export class OpenRouterProvider extends OpenAIProvider {

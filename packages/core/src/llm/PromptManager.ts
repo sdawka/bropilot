@@ -1,6 +1,6 @@
-import { LLMProvider, CompletionResult } from './LLMProvider';
-import { PromptTemplateRepository } from './PromptTemplateRepository';
-import { PromptTemplate } from './PromptTemplate';
+import { LLMProvider, CompletionResult } from './LLMProvider.js';
+import { PromptTemplateRepository } from './PromptTemplateRepository.js';
+import { PromptTemplate } from './PromptTemplate.js';
 import { z } from 'zod';
 
 export class PromptManager {
@@ -32,16 +32,25 @@ export class PromptManager {
       );
     }
 
-    // 3. Execute prompt with provider
-    let result: CompletionResult;
-    try {
-      result = await provider.complete(prompt, {
-        systemPrompt: template.system_prompt,
-        responseFormat: template.output_format as any,
-      });
-    } catch (err) {
-      // TODO: Retry logic, error handling
-      throw err;
+    // 3. Execute prompt with provider, with retry logic for rate limits
+    let result: CompletionResult | undefined;
+    const maxRetries = 3;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        result = await provider.complete(prompt, {
+          systemPrompt: template.system_prompt,
+          responseFormat: template.output_format as any,
+        });
+        break;
+      } catch (err: any) {
+        if (err.status === 429 && attempt < maxRetries) {
+          continue;
+        }
+        throw err;
+      }
+    }
+    if (!result) {
+      throw new Error('Failed to execute prompt');
     }
 
     // 4. Parse/validate response

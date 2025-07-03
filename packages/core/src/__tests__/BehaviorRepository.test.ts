@@ -1,16 +1,16 @@
-import { AppDatabase } from '../database/Database';
-import { BehaviorRepository } from '../repositories/BehaviorRepository';
+import { AppDatabase } from '../database/Database.js';
+import { BehaviorRepository } from '../repositories/BehaviorRepository.js';
 import {
   BehaviorSchema,
   ThingSchema,
   ModuleSchema,
   DomainSchema,
   ApplicationSchema,
-} from '../database/schema';
-import { ApplicationRepository } from '../repositories/ApplicationRepository';
-import { DomainRepository } from '../repositories/DomainRepository';
-import { ModuleRepository } from '../repositories/ModuleRepository';
-import { ThingRepository } from '../repositories/ThingRepository';
+} from '../database/schema.js';
+import { ApplicationRepository } from '../repositories/ApplicationRepository.js';
+import { DomainRepository } from '../repositories/DomainRepository.js';
+import { ModuleRepository } from '../repositories/ModuleRepository.js';
+import { ThingRepository } from '../repositories/ThingRepository.js';
 
 describe('BehaviorRepository', () => {
   let db: AppDatabase;
@@ -45,10 +45,12 @@ describe('BehaviorRepository', () => {
 
     testDomain = (await domainRepository.create({
       id: db.generateId(),
-      application_id: testApp.id,
+      application_id: testApp.id, // Added application_id
       name: 'TestDomainForBehaviors',
       description: 'Description for TestDomainForBehaviors',
-      responsibilities: JSON.stringify([]),
+      responsibilities: JSON.stringify(['general']), // Added responsibilities
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as DomainSchema;
 
     testModule = (await moduleRepository.create({
@@ -56,7 +58,17 @@ describe('BehaviorRepository', () => {
       domain_id: testDomain.id,
       name: 'TestModuleForBehaviors',
       description: 'Description for TestModuleForBehaviors',
-      type: 'backend',
+      type: 'core', // Changed from 'backend'
+      interface: JSON.stringify({
+        type: 'rpc_api',
+        description: 'REST API for module',
+      }), // Updated
+      state: JSON.stringify({
+        type: 'postgresql',
+        schema: 'testmoduleforbehaviors_schema',
+      }), // Updated
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as ModuleSchema;
 
     testThing = (await thingRepository.create({
@@ -64,8 +76,11 @@ describe('BehaviorRepository', () => {
       module_id: testModule.id,
       name: 'TestThingForBehaviors',
       description: 'Description for TestThingForBehaviors',
-      type: 'data_model',
-      properties: JSON.stringify([]),
+      schema: JSON.stringify({ type: 'object' }),
+      invariants: JSON.stringify([]),
+      relationships: JSON.stringify([]),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as ThingSchema;
   });
 
@@ -76,11 +91,15 @@ describe('BehaviorRepository', () => {
   it('should create a new behavior', async () => {
     const newBehavior: Partial<BehaviorSchema> = {
       id: db.generateId(),
-      thing_id: testThing.id,
+      module_id: testModule.id,
       name: 'TestBehavior',
       description: 'Description for TestBehavior',
-      trigger_event: 'click',
+      input_schema: JSON.stringify({ type: 'object' }),
+      output_schema: JSON.stringify({ type: 'object' }),
       actions: JSON.stringify(['action1', 'action2']),
+      trigger: 'onEvent',
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     const createdBehavior = await behaviorRepository.create(newBehavior);
     expect(createdBehavior).toEqual(newBehavior);
@@ -92,11 +111,15 @@ describe('BehaviorRepository', () => {
   it('should find a behavior by ID', async () => {
     const behavior1: Partial<BehaviorSchema> = {
       id: db.generateId(),
-      thing_id: testThing.id,
+      module_id: testModule.id,
       name: 'Behavior1',
       description: 'Description 1',
-      trigger_event: 'load',
-      actions: '[]',
+      input_schema: JSON.stringify({ type: 'string' }),
+      output_schema: JSON.stringify({ type: 'string' }),
+      actions: JSON.stringify([]),
+      trigger: 'onEvent',
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     await behaviorRepository.create(behavior1);
 
@@ -110,19 +133,27 @@ describe('BehaviorRepository', () => {
   it('should find all behaviors', async () => {
     const behaviorA: Partial<BehaviorSchema> = {
       id: db.generateId(),
-      thing_id: testThing.id,
+      module_id: testModule.id,
       name: 'BehaviorA',
       description: 'Description A',
-      trigger_event: 'submit',
-      actions: '[]',
+      input_schema: JSON.stringify({ type: 'number' }),
+      output_schema: JSON.stringify({ type: 'number' }),
+      actions: JSON.stringify([]),
+      trigger: 'onEvent',
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     const behaviorB: Partial<BehaviorSchema> = {
       id: db.generateId(),
-      thing_id: testThing.id,
+      module_id: testModule.id,
       name: 'BehaviorB',
       description: 'Description B',
-      trigger_event: 'change',
-      actions: '[]',
+      input_schema: JSON.stringify({ type: 'boolean' }),
+      output_schema: JSON.stringify({ type: 'boolean' }),
+      actions: JSON.stringify([]),
+      trigger: 'onEvent',
+      created_at: Date.now() + 1,
+      updated_at: Date.now() + 1,
     };
     await behaviorRepository.create(behaviorA);
     await behaviorRepository.create(behaviorB);
@@ -137,11 +168,15 @@ describe('BehaviorRepository', () => {
   it('should update a behavior', async () => {
     const behavior: Partial<BehaviorSchema> = {
       id: db.generateId(),
-      thing_id: testThing.id,
+      module_id: testModule.id,
       name: 'OriginalBehavior',
       description: 'Original Description',
-      trigger_event: 'focus',
-      actions: '[]',
+      input_schema: JSON.stringify({ type: 'array' }),
+      output_schema: JSON.stringify({ type: 'array' }),
+      actions: JSON.stringify([]),
+      trigger: 'onEvent',
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     await behaviorRepository.create(behavior);
 
@@ -159,11 +194,15 @@ describe('BehaviorRepository', () => {
   it('should delete a behavior', async () => {
     const behavior: Partial<BehaviorSchema> = {
       id: db.generateId(),
-      thing_id: testThing.id,
+      module_id: testModule.id,
       name: 'BehaviorToDelete',
       description: 'To be deleted',
-      trigger_event: 'blur',
-      actions: '[]',
+      input_schema: JSON.stringify({ type: 'null' }),
+      output_schema: JSON.stringify({ type: 'null' }),
+      actions: JSON.stringify([]),
+      trigger: 'onEvent',
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     await behaviorRepository.create(behavior);
 

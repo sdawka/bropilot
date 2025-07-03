@@ -97,4 +97,18 @@ export class QueryBuilder {
     `;
     return this.db.prepare(query);
   }
+
+  /**
+   * Finds all modules associated with a specific domain.
+   * @param domainId The ID of the domain.
+   * @returns A prepared statement to get modules.
+   */
+  findModulesForDomain(domainId: string): Database.Statement {
+    const query = `
+      SELECT M.*
+      FROM modules AS M
+      WHERE M.domain_id = ?;
+    `;
+    return this.db.prepare(query);
+  }
 }

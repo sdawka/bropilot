@@ -78,6 +78,134 @@ CREATE TABLE IF NOT EXISTS applications (
     updated_at INTEGER DEFAULT (unixepoch())
 );
 
+CREATE TABLE IF NOT EXISTS domains (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    created_at INTEGER DEFAULT (unixepoch()),
+    updated_at INTEGER DEFAULT (unixepoch())
+);
+
+CREATE TABLE IF NOT EXISTS modules (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    type TEXT NOT NULL CHECK(type IN ('api', 'ui', 'data', 'logic', 'integration')),
+    domain_id TEXT,
+    interface_type TEXT,
+    interface_description TEXT,
+    state_type TEXT,
+    state_schema JSON,
+    state_stores JSON,
+    created_at INTEGER DEFAULT (unixepoch()),
+    updated_at INTEGER DEFAULT (unixepoch()),
+    FOREIGN KEY(domain_id) REFERENCES domains(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS things (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    module_id TEXT NOT NULL,
+    schema JSON,
+    invariants JSON,
+    created_at INTEGER DEFAULT (unixepoch()),
+    updated_at INTEGER DEFAULT (unixepoch()),
+    FOREIGN KEY(module_id) REFERENCES modules(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS behaviors (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    module_id TEXT NOT NULL,
+    input_schema JSON,
+    output_schema JSON,
+    actions JSON,
+    created_at INTEGER DEFAULT (unixepoch()),
+    updated_at INTEGER DEFAULT (unixepoch()),
+    FOREIGN KEY(module_id) REFERENCES modules(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS flows (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    module_id TEXT NOT NULL,
+    steps JSON,
+    created_at INTEGER DEFAULT (unixepoch()),
+    updated_at INTEGER DEFAULT (unixepoch()),
+    FOREIGN KEY(module_id) REFERENCES modules(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS components (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    module_id TEXT NOT NULL,
+    props_schema JSON,
+    events_schema JSON,
+    created_at INTEGER DEFAULT (unixepoch()),
+    updated_at INTEGER DEFAULT (unixepoch()),
+    FOREIGN KEY(module_id) REFERENCES modules(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS screens (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    module_id TEXT NOT NULL,
+    route TEXT,
+    components JSON,
+    created_at INTEGER DEFAULT (unixepoch()),
+    updated_at INTEGER DEFAULT (unixepoch()),
+    FOREIGN KEY(module_id) REFERENCES modules(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS infrastructure (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    type TEXT NOT NULL,
+    configuration JSON,
+    created_at INTEGER DEFAULT (unixepoch()),
+    updated_at INTEGER DEFAULT (unixepoch())
+);
+
+CREATE TABLE IF NOT EXISTS contracts (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    type TEXT NOT NULL,
+    schema JSON,
+    endpoints JSON,
+    created_at INTEGER DEFAULT (unixepoch()),
+    updated_at INTEGER DEFAULT (unixepoch())
+);
+
+CREATE TABLE IF NOT EXISTS releases (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    version TEXT NOT NULL,
+    release_date INTEGER,
+    features_included JSON,
+    created_at INTEGER DEFAULT (unixepoch()),
+    updated_at INTEGER DEFAULT (unixepoch())
+);
+
+CREATE TABLE IF NOT EXISTS work_plans (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    status TEXT NOT NULL CHECK(status IN ('draft', 'active', 'completed', 'archived')),
+    start_date INTEGER,
+    end_date INTEGER,
+    tasks JSON,
+    created_at INTEGER DEFAULT (unixepoch()),
+    updated_at INTEGER DEFAULT (unixepoch())
+);
+
 CREATE TABLE IF NOT EXISTS features (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -124,6 +252,18 @@ CREATE INDEX IF NOT EXISTS idx_chat_messages_session ON chat_messages(session_id
 CREATE INDEX IF NOT EXISTS idx_features_app ON features(application_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_feature ON tasks(feature_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
+CREATE INDEX IF NOT EXISTS idx_domains_name ON domains(name);
+CREATE INDEX IF NOT EXISTS idx_modules_name ON modules(name);
+CREATE INDEX IF NOT EXISTS idx_modules_domain ON modules(domain_id);
+CREATE INDEX IF NOT EXISTS idx_things_module ON things(module_id);
+CREATE INDEX IF NOT EXISTS idx_behaviors_module ON behaviors(module_id);
+CREATE INDEX IF NOT EXISTS idx_flows_module ON flows(module_id);
+CREATE INDEX IF NOT EXISTS idx_components_module ON components(module_id);
+CREATE INDEX IF NOT EXISTS idx_screens_module ON screens(module_id);
+CREATE INDEX IF NOT EXISTS idx_infrastructure_name ON infrastructure(name);
+CREATE INDEX IF NOT EXISTS idx_contracts_name ON contracts(name);
+CREATE INDEX IF NOT EXISTS idx_releases_name ON releases(name);
+CREATE INDEX IF NOT EXISTS idx_work_plans_name ON work_plans(name);
 
 -- =============================================================================
 -- TRIGGERS
@@ -144,10 +284,87 @@ CREATE TRIGGER update_features_timestamp
     END;
 
 DROP TRIGGER IF EXISTS update_tasks_timestamp;
-CREATE TRIGGER update_tasks_timestamp 
+CREATE TRIGGER update_tasks_timestamp
     AFTER UPDATE ON tasks
     BEGIN
         UPDATE tasks SET updated_at = unixepoch() WHERE id = NEW.id;
+    END;
+
+DROP TRIGGER IF EXISTS update_domains_timestamp;
+CREATE TRIGGER update_domains_timestamp
+    AFTER UPDATE ON domains
+    BEGIN
+        UPDATE domains SET updated_at = unixepoch() WHERE id = NEW.id;
+    END;
+
+DROP TRIGGER IF EXISTS update_modules_timestamp;
+CREATE TRIGGER update_modules_timestamp
+    AFTER UPDATE ON modules
+    BEGIN
+        UPDATE modules SET updated_at = unixepoch() WHERE id = NEW.id;
+    END;
+
+DROP TRIGGER IF EXISTS update_things_timestamp;
+CREATE TRIGGER update_things_timestamp
+    AFTER UPDATE ON things
+    BEGIN
+        UPDATE things SET updated_at = unixepoch() WHERE id = NEW.id;
+    END;
+
+DROP TRIGGER IF EXISTS update_behaviors_timestamp;
+CREATE TRIGGER update_behaviors_timestamp
+    AFTER UPDATE ON behaviors
+    BEGIN
+        UPDATE behaviors SET updated_at = unixepoch() WHERE id = NEW.id;
+    END;
+
+DROP TRIGGER IF EXISTS update_flows_timestamp;
+CREATE TRIGGER update_flows_timestamp
+    AFTER UPDATE ON flows
+    BEGIN
+        UPDATE flows SET updated_at = unixepoch() WHERE id = NEW.id;
+    END;
+
+DROP TRIGGER IF EXISTS update_components_timestamp;
+CREATE TRIGGER update_components_timestamp
+    AFTER UPDATE ON components
+    BEGIN
+        UPDATE components SET updated_at = unixepoch() WHERE id = NEW.id;
+    END;
+
+DROP TRIGGER IF EXISTS update_screens_timestamp;
+CREATE TRIGGER update_screens_timestamp
+    AFTER UPDATE ON screens
+    BEGIN
+        UPDATE screens SET updated_at = unixepoch() WHERE id = NEW.id;
+    END;
+
+DROP TRIGGER IF EXISTS update_infrastructure_timestamp;
+CREATE TRIGGER update_infrastructure_timestamp
+    AFTER UPDATE ON infrastructure
+    BEGIN
+        UPDATE infrastructure SET updated_at = unixepoch() WHERE id = NEW.id;
+    END;
+
+DROP TRIGGER IF EXISTS update_contracts_timestamp;
+CREATE TRIGGER update_contracts_timestamp
+    AFTER UPDATE ON contracts
+    BEGIN
+        UPDATE contracts SET updated_at = unixepoch() WHERE id = NEW.id;
+    END;
+
+DROP TRIGGER IF EXISTS update_releases_timestamp;
+CREATE TRIGGER update_releases_timestamp
+    AFTER UPDATE ON releases
+    BEGIN
+        UPDATE releases SET updated_at = unixepoch() WHERE id = NEW.id;
+    END;
+
+DROP TRIGGER IF EXISTS update_work_plans_timestamp;
+CREATE TRIGGER update_work_plans_timestamp
+    AFTER UPDATE ON work_plans
+    BEGIN
+        UPDATE work_plans SET updated_at = unixepoch() WHERE id = NEW.id;
     END;
 
 -- Sync to knowledge graph

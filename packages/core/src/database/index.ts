@@ -1,3 +1,3 @@
-export * from './Database';
-export * from './schema';
-export * from './QueryBuilder';
+export * from './Database.js';
+export * from './schema.js';
+export * from './QueryBuilder.js';

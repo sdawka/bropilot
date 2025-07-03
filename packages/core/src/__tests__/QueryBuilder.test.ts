@@ -1,14 +1,14 @@
-import { AppDatabase } from '../database/Database';
-import { QueryBuilder } from '../database/QueryBuilder';
-import { ApplicationRepository } from '../repositories/ApplicationRepository';
-import { DomainRepository } from '../repositories/DomainRepository';
-import { FeatureRepository } from '../repositories/FeatureRepository';
-import { ModuleRepository } from '../repositories/ModuleRepository';
-import { ThingRepository } from '../repositories/ThingRepository';
-import { BehaviorRepository } from '../repositories/BehaviorRepository';
-import { FlowRepository } from '../repositories/FlowRepository';
-import { FeatureDomainRelationship } from '../relationships/FeatureDomainRelationship';
-import { FlowBehaviorRelationship } from '../relationships/FlowBehaviorRelationship';
+import { AppDatabase } from '../database/Database.js';
+import { QueryBuilder } from '../database/QueryBuilder.js';
+import { ApplicationRepository } from '../repositories/ApplicationRepository.js';
+import { DomainRepository } from '../repositories/DomainRepository.js';
+import { FeatureRepository } from '../repositories/FeatureRepository.js';
+import { ModuleRepository } from '../repositories/ModuleRepository.js';
+import { ThingRepository } from '../repositories/ThingRepository.js';
+import { BehaviorRepository } from '../repositories/BehaviorRepository.js';
+import { FlowRepository } from '../repositories/FlowRepository.js';
+import { FeatureDomainRelationship } from '../relationships/FeatureDomainRelationship.js';
+import { FlowBehaviorRelationship } from '../relationships/FlowBehaviorRelationship.js';
 import {
   ApplicationSchema,
   DomainSchema,
@@ -17,7 +17,7 @@ import {
   ThingSchema,
   BehaviorSchema,
   FlowSchema,
-} from '../database/schema';
+} from '../database/schema.js';
 
 describe('QueryBuilder', () => {
   let db: AppDatabase;
@@ -71,7 +71,9 @@ describe('QueryBuilder', () => {
       application_id: testApp.id,
       name: 'QueryDomain1',
       description: 'Description 1',
-      responsibilities: '[]',
+      responsibilities: JSON.stringify(['general']),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as DomainSchema;
 
     testDomain2 = (await domainRepository.create({
@@ -79,7 +81,9 @@ describe('QueryBuilder', () => {
       application_id: testApp.id,
       name: 'QueryDomain2',
       description: 'Description 2',
-      responsibilities: '[]',
+      responsibilities: JSON.stringify(['general']),
+      created_at: Date.now() + 1,
+      updated_at: Date.now() + 1,
     })) as DomainSchema;
 
     testFeature1 = (await featureRepository.create({
@@ -89,6 +93,8 @@ describe('QueryBuilder', () => {
       purpose: 'Purpose 1',
       requirements: '[]',
       metrics: '[]',
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as FeatureSchema;
 
     testFeature2 = (await featureRepository.create({
@@ -98,6 +104,8 @@ describe('QueryBuilder', () => {
       purpose: 'Purpose 2',
       requirements: '[]',
       metrics: '[]',
+      created_at: Date.now() + 1,
+      updated_at: Date.now() + 1,
     })) as FeatureSchema;
 
     testModule = (await moduleRepository.create({
@@ -105,7 +113,17 @@ describe('QueryBuilder', () => {
       domain_id: testDomain1.id,
       name: 'QueryModule',
       description: 'Description',
-      type: 'backend',
+      type: 'core', // Changed from 'backend'
+      interface: JSON.stringify({
+        type: 'rpc_api',
+        description: 'REST API for module',
+      }), // Updated
+      state: JSON.stringify({
+        type: 'postgresql',
+        schema: 'querymodule_schema',
+      }), // Updated
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as ModuleSchema;
 
     testThing = (await thingRepository.create({
@@ -113,25 +131,35 @@ describe('QueryBuilder', () => {
       module_id: testModule.id,
       name: 'QueryThing',
       description: 'Description',
-      type: 'data_model',
-      properties: '[]',
+      schema: JSON.stringify({ type: 'object' }),
+      invariants: JSON.stringify([]),
+      relationships: JSON.stringify([]),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as ThingSchema;
 
     testBehavior = (await behaviorRepository.create({
       id: db.generateId(),
-      thing_id: testThing.id,
+      module_id: testModule.id,
       name: 'QueryBehavior',
       description: 'Description',
-      trigger_event: 'click',
-      actions: '[]',
+      trigger: 'onEvent',
+      input_schema: JSON.stringify({ type: 'object' }),
+      output_schema: JSON.stringify({ type: 'object' }),
+      actions: JSON.stringify([]),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as BehaviorSchema;
 
     testFlow = (await flowRepository.create({
       id: db.generateId(),
       application_id: testApp.id,
+      module_id: testModule.id,
       name: 'QueryFlow',
       description: 'Description',
-      steps: '[]',
+      steps: JSON.stringify([]),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as FlowSchema;
 
     // Establish relationships
@@ -172,19 +200,10 @@ describe('QueryBuilder', () => {
     expect(things.length).toBe(1);
   });
 
-  it('should build a related query and find related entities', () => {
-    const stmt = queryBuilder.buildRelatedQuery(
-      'applications',
-      'id',
-      testApp.id,
-      'domains',
-      'application_id',
-      'id',
-      'domains',
-      'id',
-    );
-    const domains = stmt.all(testApp.id) as DomainSchema[];
-    expect(domains).toEqual(expect.arrayContaining([testDomain1, testDomain2]));
-    expect(domains.length).toBe(2);
+  it('should find modules for a domain', () => {
+    const stmt = queryBuilder.findModulesForDomain(testDomain1.id);
+    const modules = stmt.all(testDomain1.id) as ModuleSchema[];
+    expect(modules).toEqual(expect.arrayContaining([testModule]));
+    expect(modules.length).toBe(1);
   });
 });

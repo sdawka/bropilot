@@ -1,5 +1,5 @@
-import { PromptTemplate } from './PromptTemplate';
-import { AppDatabase } from '../database/Database';
+import { PromptTemplate } from './PromptTemplate.js';
+import { AppDatabase } from '../database/Database.js';
 
 export class PromptTemplateRepository {
   private db: AppDatabase;

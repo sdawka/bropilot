@@ -1,7 +1,17 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist"
+    "outDir": "../../dist/cli",
+    "baseUrl": ".",
+    "resolveJsonModule": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "bropilot-core/*": ["../../node_modules/bropilot-core/dist/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["src", "src/__tests__"],
+  "references": [{ "path": "../core" }]
 }

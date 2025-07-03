@@ -1,23 +1,148 @@
 {
-  "name": "@bropilot/core",
+  "name": "bropilot-core",
   "version": "0.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    "./database/Database": {
+      "import": "./dist/database/Database.js",
+      "types": "./dist/database/Database.d.ts"
+    },
+    "./database/DatabaseInitializer": {
+      "import": "./dist/database/DatabaseInitializer.js",
+      "types": "./dist/database/DatabaseInitializer.d.ts"
+    },
+    "./knowledgeGraph/KnowledgeGraph": {
+      "import": "./dist/knowledgeGraph/KnowledgeGraph.js",
+      "types": "./dist/knowledgeGraph/KnowledgeGraph.d.ts"
+    },
+    "./llm/PromptManager": {
+      "import": "./dist/llm/PromptManager.js",
+      "types": "./dist/llm/PromptManager.d.ts"
+    },
+    "./llm/PromptTemplateRepository": {
+      "import": "./dist/llm/PromptTemplateRepository.js",
+      "types": "./dist/llm/PromptTemplateRepository.d.ts"
+    },
+    "./repositories/ReleaseRepository": {
+      "import": "./dist/repositories/ReleaseRepository.js",
+      "types": "./dist/repositories/ReleaseRepository.d.ts"
+    },
+    "./yamlgen/index": {
+      "import": "./dist/yamlgen/index.js",
+      "types": "./dist/yamlgen/index.d.ts"
+    },
+    "./processing/ConversationProcessor": {
+      "import": "./dist/processing/ConversationProcessor.js",
+      "types": "./dist/processing/ConversationProcessor.d.ts"
+    },
+    "./processing/EntityValidator": {
+      "import": "./dist/processing/EntityValidator.js",
+      "types": "./dist/processing/EntityValidator.d.ts"
+    },
+    "./processing/types": {
+      "import": "./dist/processing/types.js",
+      "types": "./dist/processing/types.d.ts"
+    },
+    "./llm/getLLMProvider": {
+      "import": "./dist/llm/getLLMProvider.js",
+      "types": "./dist/llm/getLLMProvider.d.ts"
+    },
+    "./llm/PromptTemplate": {
+      "import": "./dist/llm/PromptTemplate.js",
+      "types": "./dist/llm/PromptTemplate.d.ts"
+    },
+    "./repositories/ChatSessionRepository": {
+      "import": "./dist/repositories/ChatSessionRepository.js",
+      "types": "./dist/repositories/ChatSessionRepository.d.ts"
+    },
+    "./repositories/ChatMessageRepository": {
+      "import": "./dist/repositories/ChatMessageRepository.js",
+      "types": "./dist/repositories/ChatMessageRepository.d.ts"
+    },
+    "./repositories/ProcessingRunRepository": {
+      "import": "./dist/repositories/ProcessingRunRepository.js",
+      "types": "./dist/repositories/ProcessingRunRepository.d.ts"
+    },
+    "./generation/ModuleGenerator": {
+      "import": "./dist/generation/ModuleGenerator.js",
+      "types": "./dist/generation/ModuleGenerator.d.ts"
+    },
+    "./repositories/ModuleRepository": {
+      "import": "./dist/repositories/ModuleRepository.js",
+      "types": "./dist/repositories/ModuleRepository.d.ts"
+    },
+    "./repositories/ThingRepository": {
+      "import": "./dist/repositories/ThingRepository.js",
+      "types": "./dist/repositories/ThingRepository.d.ts"
+    },
+    "./repositories/BehaviorRepository": {
+      "import": "./dist/repositories/BehaviorRepository.js",
+      "types": "./dist/repositories/BehaviorRepository.d.ts"
+    },
+    "./repositories/FlowRepository": {
+      "import": "./dist/repositories/FlowRepository.js",
+      "types": "./dist/repositories/FlowRepository.d.ts"
+    },
+    "./repositories/ComponentRepository": {
+      "import": "./dist/repositories/ComponentRepository.js",
+      "types": "./dist/repositories/ComponentRepository.d.ts"
+    },
+    "./repositories/ScreenRepository": {
+      "import": "./dist/repositories/ScreenRepository.js",
+      "types": "./dist/repositories/ScreenRepository.d.ts"
+    },
+    "./database/schema": {
+      "import": "./dist/database/schema.js",
+      "types": "./dist/database/schema.d.ts"
+    },
+    "./ReleaseManager": {
+      "import": "./dist/ReleaseManager.js",
+      "types": "./dist/ReleaseManager.d.ts"
+    },
+    "./sync/SyncManager": {
+      "import": "./dist/sync/SyncManager.js",
+      "types": "./dist/sync/SyncManager.d.ts"
+    },
+    "./database/migrations/MigrationRunner": {
+      "import": "./dist/database/migrations/MigrationRunner.js",
+      "types": "./dist/database/migrations/MigrationRunner.d.ts"
+    }
+  },
   "scripts": {
     "build": "tsc",
-    "test": "jest --config jest.config.js"
+    "test": "node --experimental-vm-modules $(which jest) --config jest.config.mjs"
   },
   "dependencies": {
     "better-sqlite3": "^12.2.0",
+    "deep-equal": "^2.2.3",
+    "diff": "^5.0.0",
+    "graphlib": "^2.1.8",
+    "natural": "^6.0.0",
     "openai": "^5.8.2",
+    "p-queue": "^7.4.1",
+    "pluralize": "^8.0.0",
+    "semver": "^7.7.2",
     "tiktoken": "^1.0.21",
     "uuid": "^9.0.0",
+    "winston": "^3.17.0",
     "zod": "^3.25.67"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.0",
     "@types/better-sqlite3": "^7.6.13",
+    "@types/chalk": "^2.2.0",
+    "@types/deep-equal": "^1.0.4",
+    "@types/diff": "^7.0.2",
+    "@types/inquirer": "^9.0.0",
     "@types/jest": "^29.0.0",
+    "@types/pluralize": "^0.0.33",
+    "@types/semver": "^7.7.0",
     "@types/uuid": "^9.0.0",
+    "babel-jest": "^29.7.0",
+    "chalk": "^4.1.2",
+    "inquirer": "^9.0.0",
     "jest": "^29.0.0",
     "ts-jest": "^29.0.0"
   }

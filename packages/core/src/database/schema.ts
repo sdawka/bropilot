@@ -10,10 +10,12 @@ export interface ApplicationSchema {
 
 export interface DomainSchema {
   id: string;
-  application_id: string;
+  application_id: string; // Added
   name: string;
   description: string;
-  responsibilities: string; // JSON array
+  responsibilities: string; // JSON array of strings
+  created_at: number;
+  updated_at: number;
 }
 
 export interface FeatureSchema {
@@ -21,8 +23,10 @@ export interface FeatureSchema {
   application_id: string;
   name: string;
   purpose: string;
-  requirements: string; // JSON array
+  requirements: string; // JSON array of strings
   metrics: string; // JSON array
+  created_at: number;
+  updated_at: number;
 }
 
 export interface ModuleSchema {
@@ -30,7 +34,27 @@ export interface ModuleSchema {
   domain_id: string;
   name: string;
   description: string;
-  type: string; // e.g., 'frontend', 'backend', 'shared'
+  type: 'core' | 'ui';
+  interface: string; // JSON string of ModuleInterface
+  state: string; // JSON string of ModuleState
+  things: string; // JSON string of Thing[]
+  behaviors: string; // JSON string of Behavior[]
+  flows: string; // JSON string of Flow[]
+  components: string; // JSON string of Component[]
+  screens: string; // JSON string of Screen[]
+  created_at: number;
+  updated_at: number;
+}
+
+export interface ModuleInterface {
+  type: 'web_app' | 'rpc_api';
+  description: string;
+}
+
+export interface ModuleState {
+  type: 'nanostores' | 'postgresql';
+  stores?: any[];
+  schema?: string;
 }
 
 export interface ThingSchema {
@@ -38,25 +62,101 @@ export interface ThingSchema {
   module_id: string;
   name: string;
   description: string;
-  type: string; // e.g., 'data_model', 'ui_component', 'service'
-  properties: string; // JSON array of key-value pairs
+  schema: string; // JSON
+  invariants: string; // JSON array of strings
+  relationships: string; // JSON array of any
+  created_at: number;
+  updated_at: number;
 }
 
 export interface BehaviorSchema {
   id: string;
-  thing_id: string;
+  module_id: string;
   name: string;
   description: string;
-  trigger_event: string;
-  actions: string; // JSON array of actions
+  input_schema: string; // JSON
+  output_schema: string; // JSON
+  actions: string; // JSON
+  trigger: string; // New field
+  created_at: number;
+  updated_at: number;
 }
 
 export interface FlowSchema {
   id: string;
   application_id: string;
+  module_id: string;
   name: string;
   description: string;
-  steps: string; // JSON array of flow steps
+  steps: string; // JSON
+  created_at: number;
+  updated_at: number;
+}
+
+export interface ComponentSchema {
+  id: string;
+  module_id: string;
+  name: string;
+  description: string;
+  props_schema: string; // JSON
+  events_schema: string; // JSON
+  created_at: number;
+  updated_at: number;
+}
+
+export interface ScreenSchema {
+  id: string;
+  module_id: string;
+  name: string;
+  description: string;
+  route: string;
+  components: string; // JSON
+  created_at: number;
+  updated_at: number;
+}
+
+export interface InfrastructureSchema {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  configuration: string; // JSON
+  created_at: number;
+  updated_at: number;
+}
+
+export interface ContractSchema {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  schema: string; // JSON
+  endpoints: string; // JSON
+  created_at: number;
+  updated_at: number;
+}
+
+export interface ReleaseSchema {
+  id: string;
+  name: string;
+  description: string;
+  version: string;
+  release_date: number; // Unix timestamp
+  features_included: string; // JSON
+  created_at: number;
+  updated_at: number;
+}
+
+export interface WorkPlanSchema {
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+  start_date: number; // Unix timestamp
+  end_date: number; // Unix timestamp
+  tasks: string; // JSON
+  created_at: number;
+  updated_at: number;
 }
 
 // Relationship tables
@@ -98,4 +198,30 @@ export interface DatabaseSchema {
   flow_features: FlowFeatureSchema;
   flow_modules: FlowModuleSchema;
   flow_things: FlowThingSchema;
+  components: ComponentSchema;
+  screens: ScreenSchema;
+  infrastructure: InfrastructureSchema;
+  contracts: ContractSchema;
+  releases: ReleaseSchema;
+  work_plans: WorkPlanSchema;
+  chat_sessions: ChatSessionSchema;
+  chat_messages: ChatMessageSchema;
+}
+
+export interface ChatSessionSchema {
+  id: string; // UUID
+  application_id: string; // Link to the application this session belongs to
+  name: string;
+  created_at: number;
+  updated_at: number;
+  last_processed_message_id: string | null; // ID of the last message processed in this session
+}
+
+export interface ChatMessageSchema {
+  id: string; // UUID
+  session_id: string; // Foreign key to chat_sessions
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number; // Unix timestamp
+  processed: boolean; // Flag to indicate if the message has been processed by the pipeline
 }

@@ -10,6 +10,10 @@
     "resolveJsonModule": true,
     "declaration": true,
     "sourceMap": true,
-    "composite": true
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "bropilot-core/*": ["packages/core/src/*"]
+    }
   }
 }

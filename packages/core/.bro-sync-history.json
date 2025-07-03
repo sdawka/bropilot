@@ -1,0 +1,10 @@
+[
+  {
+    "timestamp": "2025-07-03T18:30:13.622Z",
+    "action": "sync1",
+    "details": {
+      "foo": 1
+    },
+    "gitCommit": "commit1"
+  }
+]

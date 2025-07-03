@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
-import path from 'path';
-import fs from 'fs';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
+import * as fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 
 interface Migration {
@@ -13,11 +14,13 @@ export class AppDatabase {
   private db: Database.Database;
   private migrationsPath: string;
 
-  constructor(dbPath: string = ':memory:') {
+  constructor(dbPath: string = ':memory:', migrationsPath?: string) {
     this.db = new Database(dbPath);
     this.db.pragma('journal_mode = WAL');
     this.db.pragma('foreign_keys = ON');
-    this.migrationsPath = path.join(__dirname, 'migrations');
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    this.migrationsPath = migrationsPath || path.join(__dirname, 'migrations');
     this.initMigrationsTable();
   }
 

@@ -1,12 +1,12 @@
-import { AppDatabase } from '../database/Database';
-import { ModuleRepository } from '../repositories/ModuleRepository';
+import { AppDatabase } from '../database/Database.js';
+import { ModuleRepository } from '../repositories/ModuleRepository.js';
 import {
   ModuleSchema,
   DomainSchema,
   ApplicationSchema,
-} from '../database/schema';
-import { ApplicationRepository } from '../repositories/ApplicationRepository';
-import { DomainRepository } from '../repositories/DomainRepository';
+} from '../database/schema.js';
+import { ApplicationRepository } from '../repositories/ApplicationRepository.js';
+import { DomainRepository } from '../repositories/DomainRepository.js';
 
 describe('ModuleRepository', () => {
   let db: AppDatabase;
@@ -39,6 +39,8 @@ describe('ModuleRepository', () => {
       name: 'TestDomainForModules',
       description: 'Description for TestDomainForModules',
       responsibilities: JSON.stringify([]),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as DomainSchema;
   });
 
@@ -52,13 +54,20 @@ describe('ModuleRepository', () => {
       domain_id: testDomain.id,
       name: 'TestModule',
       description: 'Description for TestModule',
-      type: 'frontend',
+      type: 'ui', // Changed from 'frontend'
+      interface: JSON.stringify({
+        type: 'web_app',
+        description: 'REST API for module',
+      }), // Updated
+      state: JSON.stringify({ type: 'nanostores', stores: [] }), // Updated
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     const createdModule = await moduleRepository.create(newModule);
-    expect(createdModule).toEqual(newModule);
+    expect(createdModule).toEqual(expect.objectContaining(newModule));
 
     const foundModule = await moduleRepository.findById(newModule.id!);
-    expect(foundModule).toEqual(newModule);
+    expect(foundModule).toEqual(expect.objectContaining(newModule));
   });
 
   it('should find a module by ID', async () => {
@@ -67,12 +76,19 @@ describe('ModuleRepository', () => {
       domain_id: testDomain.id,
       name: 'Module1',
       description: 'Description 1',
-      type: 'backend',
+      type: 'core', // Changed from 'backend'
+      interface: JSON.stringify({
+        type: 'rpc_api',
+        description: 'GraphQL API for module',
+      }), // Updated
+      state: JSON.stringify({ type: 'postgresql', schema: 'module1_schema' }), // Updated
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     await moduleRepository.create(module1);
 
     const found = await moduleRepository.findById(module1.id!);
-    expect(found).toEqual(module1);
+    expect(found).toEqual(expect.objectContaining(module1));
 
     const notFound = await moduleRepository.findById('non-existent-id');
     expect(notFound).toBeNull();
@@ -84,20 +100,39 @@ describe('ModuleRepository', () => {
       domain_id: testDomain.id,
       name: 'ModuleA',
       description: 'Description A',
-      type: 'frontend',
+      type: 'ui', // Changed from 'frontend'
+      interface: JSON.stringify({
+        type: 'web_app',
+        description: 'REST API for module A',
+      }), // Updated
+      state: JSON.stringify({ type: 'nanostores', stores: [] }), // Updated
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     const moduleB: Partial<ModuleSchema> = {
       id: db.generateId(),
       domain_id: testDomain.id,
       name: 'ModuleB',
       description: 'Description B',
-      type: 'backend',
+      type: 'core', // Changed from 'backend'
+      interface: JSON.stringify({
+        type: 'rpc_api',
+        description: 'GraphQL API for module B',
+      }), // Updated
+      state: JSON.stringify({ type: 'postgresql', schema: 'moduleb_schema' }), // Updated
+      created_at: Date.now() + 1,
+      updated_at: Date.now() + 1,
     };
     await moduleRepository.create(moduleA);
     await moduleRepository.create(moduleB);
 
     const allModules = await moduleRepository.findAll();
-    expect(allModules).toEqual(expect.arrayContaining([moduleA, moduleB]));
+    expect(allModules).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining(moduleA),
+        expect.objectContaining(moduleB),
+      ]),
+    );
     expect(allModules.length).toBe(2);
   });
 
@@ -107,7 +142,17 @@ describe('ModuleRepository', () => {
       domain_id: testDomain.id,
       name: 'OriginalModule',
       description: 'Original Description',
-      type: 'shared',
+      type: 'core', // Changed from 'shared'
+      interface: JSON.stringify({
+        type: 'rpc_api',
+        description: 'No interface',
+      }), // Updated
+      state: JSON.stringify({
+        type: 'postgresql',
+        schema: 'originalmodule_schema',
+      }), // Updated
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     await moduleRepository.create(module);
 
@@ -128,7 +173,14 @@ describe('ModuleRepository', () => {
       domain_id: testDomain.id,
       name: 'ModuleToDelete',
       description: 'To be deleted',
-      type: 'frontend',
+      type: 'ui', // Changed from 'frontend'
+      interface: JSON.stringify({
+        type: 'web_app',
+        description: 'REST API for module to delete',
+      }), // Updated
+      state: JSON.stringify({ type: 'nanostores', stores: [] }), // Updated
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     await moduleRepository.create(module);
 

@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import { FeatureDomainSchema } from '../database/schema';
+import { FeatureDomainSchema } from '../database/schema.js';
 
 export class FeatureDomainRelationship {
   private db: Database.Database;

@@ -1,14 +1,14 @@
-import { AppDatabase } from '../database/Database';
-import { ThingRepository } from '../repositories/ThingRepository';
+import { AppDatabase } from '../database/Database.js';
+import { ThingRepository } from '../repositories/ThingRepository.js';
 import {
   ThingSchema,
   ModuleSchema,
   DomainSchema,
   ApplicationSchema,
-} from '../database/schema';
-import { ApplicationRepository } from '../repositories/ApplicationRepository';
-import { DomainRepository } from '../repositories/DomainRepository';
-import { ModuleRepository } from '../repositories/ModuleRepository';
+} from '../database/schema.js';
+import { ApplicationRepository } from '../repositories/ApplicationRepository.js';
+import { DomainRepository } from '../repositories/DomainRepository.js';
+import { ModuleRepository } from '../repositories/ModuleRepository.js';
 
 describe('ThingRepository', () => {
   let db: AppDatabase;
@@ -43,7 +43,9 @@ describe('ThingRepository', () => {
       application_id: testApp.id,
       name: 'TestDomainForThings',
       description: 'Description for TestDomainForThings',
-      responsibilities: JSON.stringify([]),
+      responsibilities: JSON.stringify(['general']),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as DomainSchema;
 
     testModule = (await moduleRepository.create({
@@ -51,7 +53,17 @@ describe('ThingRepository', () => {
       domain_id: testDomain.id,
       name: 'TestModuleForThings',
       description: 'Description for TestModuleForThings',
-      type: 'backend',
+      type: 'core', // Changed from 'backend'
+      interface: JSON.stringify({
+        type: 'rpc_api',
+        description: 'REST API for module',
+      }), // Updated
+      state: JSON.stringify({
+        type: 'postgresql',
+        schema: 'testmoduleforthings_schema',
+      }), // Updated
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as ModuleSchema;
   });
 
@@ -65,8 +77,11 @@ describe('ThingRepository', () => {
       module_id: testModule.id,
       name: 'TestThing',
       description: 'Description for TestThing',
-      type: 'data_model',
-      properties: JSON.stringify([{ key: 'prop1', value: 'value1' }]),
+      schema: JSON.stringify({ type: 'object' }),
+      invariants: JSON.stringify([]),
+      relationships: JSON.stringify([]),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     const createdThing = await thingRepository.create(newThing);
     expect(createdThing).toEqual(newThing);
@@ -81,8 +96,11 @@ describe('ThingRepository', () => {
       module_id: testModule.id,
       name: 'Thing1',
       description: 'Description 1',
-      type: 'ui_component',
-      properties: '[]',
+      schema: JSON.stringify({ type: 'string' }),
+      invariants: JSON.stringify([]),
+      relationships: JSON.stringify([]),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     await thingRepository.create(thing1);
 
@@ -99,16 +117,22 @@ describe('ThingRepository', () => {
       module_id: testModule.id,
       name: 'ThingA',
       description: 'Description A',
-      type: 'service',
-      properties: '[]',
+      schema: JSON.stringify({ type: 'number' }),
+      invariants: JSON.stringify([]),
+      relationships: JSON.stringify([]),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     const thingB: Partial<ThingSchema> = {
       id: db.generateId(),
       module_id: testModule.id,
       name: 'ThingB',
       description: 'Description B',
-      type: 'data_model',
-      properties: '[]',
+      schema: JSON.stringify({ type: 'boolean' }),
+      invariants: JSON.stringify([]),
+      relationships: JSON.stringify([]),
+      created_at: Date.now() + 1,
+      updated_at: Date.now() + 1,
     };
     await thingRepository.create(thingA);
     await thingRepository.create(thingB);
@@ -124,8 +148,11 @@ describe('ThingRepository', () => {
       module_id: testModule.id,
       name: 'OriginalThing',
       description: 'Original Description',
-      type: 'ui_component',
-      properties: '[]',
+      schema: JSON.stringify({ type: 'array' }),
+      invariants: JSON.stringify([]),
+      relationships: JSON.stringify([]),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     await thingRepository.create(thing);
 
@@ -146,8 +173,11 @@ describe('ThingRepository', () => {
       module_id: testModule.id,
       name: 'ThingToDelete',
       description: 'To be deleted',
-      type: 'service',
-      properties: '[]',
+      schema: JSON.stringify({ type: 'null' }),
+      invariants: JSON.stringify([]),
+      relationships: JSON.stringify([]),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     await thingRepository.create(thing);
 

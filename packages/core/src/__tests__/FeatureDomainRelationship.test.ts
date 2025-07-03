@@ -1,13 +1,13 @@
-import { AppDatabase } from '../database/Database';
-import { FeatureDomainRelationship } from '../relationships/FeatureDomainRelationship';
-import { ApplicationRepository } from '../repositories/ApplicationRepository';
-import { FeatureRepository } from '../repositories/FeatureRepository';
-import { DomainRepository } from '../repositories/DomainRepository';
+import { AppDatabase } from '../database/Database.js';
+import { FeatureDomainRelationship } from '../relationships/FeatureDomainRelationship.js';
+import { ApplicationRepository } from '../repositories/ApplicationRepository.js';
+import { FeatureRepository } from '../repositories/FeatureRepository.js';
+import { DomainRepository } from '../repositories/DomainRepository.js';
 import {
   ApplicationSchema,
   FeatureSchema,
   DomainSchema,
-} from '../database/schema';
+} from '../database/schema.js';
 
 describe('FeatureDomainRelationship', () => {
   let db: AppDatabase;
@@ -46,6 +46,8 @@ describe('FeatureDomainRelationship', () => {
       purpose: 'Purpose 1',
       requirements: '[]',
       metrics: '[]',
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as FeatureSchema;
 
     testFeature2 = (await featureRepository.create({
@@ -55,6 +57,8 @@ describe('FeatureDomainRelationship', () => {
       purpose: 'Purpose 2',
       requirements: '[]',
       metrics: '[]',
+      created_at: Date.now() + 1,
+      updated_at: Date.now() + 1,
     })) as FeatureSchema;
 
     testDomain1 = (await domainRepository.create({
@@ -62,7 +66,9 @@ describe('FeatureDomainRelationship', () => {
       application_id: testApp.id,
       name: 'Domain1',
       description: 'Description 1',
-      responsibilities: '[]',
+      responsibilities: JSON.stringify(['general']),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as DomainSchema;
 
     testDomain2 = (await domainRepository.create({
@@ -70,7 +76,9 @@ describe('FeatureDomainRelationship', () => {
       application_id: testApp.id,
       name: 'Domain2',
       description: 'Description 2',
-      responsibilities: '[]',
+      responsibilities: JSON.stringify(['general']),
+      created_at: Date.now() + 1,
+      updated_at: Date.now() + 1,
     })) as DomainSchema;
   });
 

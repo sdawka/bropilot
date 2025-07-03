@@ -1,17 +1,17 @@
-import { AppDatabase } from '../database/Database';
-import { FlowThingRelationship } from '../relationships/FlowThingRelationship';
-import { ApplicationRepository } from '../repositories/ApplicationRepository';
-import { FlowRepository } from '../repositories/FlowRepository';
-import { ThingRepository } from '../repositories/ThingRepository';
-import { ModuleRepository } from '../repositories/ModuleRepository';
-import { DomainRepository } from '../repositories/DomainRepository';
+import { AppDatabase } from '../database/Database.js';
+import { FlowThingRelationship } from '../relationships/FlowThingRelationship.js';
+import { ApplicationRepository } from '../repositories/ApplicationRepository.js';
+import { FlowRepository } from '../repositories/FlowRepository.js';
+import { ThingRepository } from '../repositories/ThingRepository.js';
+import { ModuleRepository } from '../repositories/ModuleRepository.js';
+import { DomainRepository } from '../repositories/DomainRepository.js';
 import {
   ApplicationSchema,
   FlowSchema,
   ThingSchema,
   ModuleSchema,
   DomainSchema,
-} from '../database/schema';
+} from '../database/schema.js';
 
 describe('FlowThingRelationship', () => {
   let db: AppDatabase;
@@ -55,7 +55,9 @@ describe('FlowThingRelationship', () => {
       application_id: testApp.id,
       name: 'TestDomainForFlowThing',
       description: 'Description for TestDomainForFlowThing',
-      responsibilities: JSON.stringify([]),
+      responsibilities: JSON.stringify(['general']),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as DomainSchema;
 
     testModule = (await moduleRepository.create({
@@ -63,23 +65,39 @@ describe('FlowThingRelationship', () => {
       domain_id: testDomain.id,
       name: 'TestModuleForFlowThing',
       description: 'Description for TestModuleForFlowThing',
-      type: 'backend',
+      type: 'core', // Changed from 'backend'
+      interface: JSON.stringify({
+        type: 'rpc_api',
+        description: 'REST API for module',
+      }), // Updated
+      state: JSON.stringify({
+        type: 'postgresql',
+        schema: 'testmoduleforflowthing_schema',
+      }), // Updated
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as ModuleSchema;
 
     testFlow1 = (await flowRepository.create({
       id: db.generateId(),
       application_id: testApp.id,
+      module_id: testModule.id,
       name: 'Flow1',
       description: 'Description 1',
-      steps: '[]',
+      steps: JSON.stringify([]),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as FlowSchema;
 
     testFlow2 = (await flowRepository.create({
       id: db.generateId(),
       application_id: testApp.id,
+      module_id: testModule.id,
       name: 'Flow2',
       description: 'Description 2',
-      steps: '[]',
+      steps: JSON.stringify([]),
+      created_at: Date.now() + 1,
+      updated_at: Date.now() + 1,
     })) as FlowSchema;
 
     testThing1 = (await thingRepository.create({
@@ -87,8 +105,11 @@ describe('FlowThingRelationship', () => {
       module_id: testModule.id,
       name: 'Thing1',
       description: 'Description 1',
-      type: 'data_model',
-      properties: '[]',
+      schema: JSON.stringify({ type: 'object' }),
+      invariants: JSON.stringify([]),
+      relationships: JSON.stringify([]),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as ThingSchema;
 
     testThing2 = (await thingRepository.create({
@@ -96,8 +117,11 @@ describe('FlowThingRelationship', () => {
       module_id: testModule.id,
       name: 'Thing2',
       description: 'Description 2',
-      type: 'ui_component',
-      properties: '[]',
+      schema: JSON.stringify({ type: 'string' }),
+      invariants: JSON.stringify([]),
+      relationships: JSON.stringify([]),
+      created_at: Date.now() + 1,
+      updated_at: Date.now() + 1,
     })) as ThingSchema;
   });
 

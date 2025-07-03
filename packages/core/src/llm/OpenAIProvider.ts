@@ -2,8 +2,8 @@ import {
   LLMProvider,
   CompletionOptions,
   CompletionResult,
-} from './LLMProvider';
-import { TokenUtils } from './TokenUtils';
+} from './LLMProvider.js';
+import { TokenUtils } from './TokenUtils.js';
 import OpenAI from 'openai';
 
 const DEFAULT_MODEL = 'gpt-4';

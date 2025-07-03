@@ -1,7 +1,7 @@
-import { AppDatabase } from '../database/Database';
-import { DomainRepository } from '../repositories/DomainRepository';
-import { DomainSchema, ApplicationSchema } from '../database/schema';
-import { ApplicationRepository } from '../repositories/ApplicationRepository';
+import { AppDatabase } from '../database/Database.js';
+import { DomainRepository } from '../repositories/DomainRepository.js';
+import { DomainSchema, ApplicationSchema } from '../database/schema.js';
+import { ApplicationRepository } from '../repositories/ApplicationRepository.js';
 
 describe('DomainRepository', () => {
   let db: AppDatabase;
@@ -36,7 +36,9 @@ describe('DomainRepository', () => {
       application_id: testApp.id,
       name: 'TestDomain',
       description: 'Description for TestDomain',
-      responsibilities: JSON.stringify(['responsibility1', 'responsibility2']),
+      responsibilities: JSON.stringify(['general']),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     const createdDomain = await domainRepository.create(newDomain);
     expect(createdDomain).toEqual(newDomain);
@@ -51,7 +53,9 @@ describe('DomainRepository', () => {
       application_id: testApp.id,
       name: 'Domain1',
       description: 'Description 1',
-      responsibilities: '[]',
+      responsibilities: JSON.stringify(['general']),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     await domainRepository.create(domain1);
 
@@ -68,14 +72,18 @@ describe('DomainRepository', () => {
       application_id: testApp.id,
       name: 'DomainA',
       description: 'Description A',
-      responsibilities: '[]',
+      responsibilities: JSON.stringify(['general']),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     const domainB: Partial<DomainSchema> = {
       id: db.generateId(),
       application_id: testApp.id,
       name: 'DomainB',
       description: 'Description B',
-      responsibilities: '[]',
+      responsibilities: JSON.stringify(['general']),
+      created_at: Date.now() + 1, // Ensure different timestamp
+      updated_at: Date.now() + 1,
     };
     await domainRepository.create(domainA);
     await domainRepository.create(domainB);
@@ -91,7 +99,9 @@ describe('DomainRepository', () => {
       application_id: testApp.id,
       name: 'OriginalDomain',
       description: 'Original Description',
-      responsibilities: '[]',
+      responsibilities: JSON.stringify(['general']),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     await domainRepository.create(domain);
 
@@ -112,7 +122,9 @@ describe('DomainRepository', () => {
       application_id: testApp.id,
       name: 'DomainToDelete',
       description: 'To be deleted',
-      responsibilities: '[]',
+      responsibilities: JSON.stringify(['general']),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
     await domainRepository.create(domain);
 

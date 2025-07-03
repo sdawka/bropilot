@@ -1,11 +1,11 @@
-import { AppDatabase } from '../database/Database';
-import { FlowBehaviorRelationship } from '../relationships/FlowBehaviorRelationship';
-import { ApplicationRepository } from '../repositories/ApplicationRepository';
-import { FlowRepository } from '../repositories/FlowRepository';
-import { BehaviorRepository } from '../repositories/BehaviorRepository';
-import { ThingRepository } from '../repositories/ThingRepository';
-import { ModuleRepository } from '../repositories/ModuleRepository';
-import { DomainRepository } from '../repositories/DomainRepository';
+import { AppDatabase } from '../database/Database.js';
+import { FlowBehaviorRelationship } from '../relationships/FlowBehaviorRelationship.js';
+import { ApplicationRepository } from '../repositories/ApplicationRepository.js';
+import { FlowRepository } from '../repositories/FlowRepository.js';
+import { BehaviorRepository } from '../repositories/BehaviorRepository.js';
+import { ThingRepository } from '../repositories/ThingRepository.js';
+import { ModuleRepository } from '../repositories/ModuleRepository.js';
+import { DomainRepository } from '../repositories/DomainRepository.js';
 import {
   ApplicationSchema,
   FlowSchema,
@@ -13,7 +13,7 @@ import {
   ThingSchema,
   ModuleSchema,
   DomainSchema,
-} from '../database/schema';
+} from '../database/schema.js';
 
 describe('FlowBehaviorRelationship', () => {
   let db: AppDatabase;
@@ -57,10 +57,12 @@ describe('FlowBehaviorRelationship', () => {
 
     testDomain = (await domainRepository.create({
       id: db.generateId(),
-      application_id: testApp.id,
+      application_id: testApp.id, // Added application_id
       name: 'TestDomainForFlowBehavior',
       description: 'Description for TestDomainForFlowBehavior',
-      responsibilities: JSON.stringify([]),
+      responsibilities: JSON.stringify(['general']), // Added responsibilities
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as DomainSchema;
 
     testModule = (await moduleRepository.create({
@@ -68,7 +70,17 @@ describe('FlowBehaviorRelationship', () => {
       domain_id: testDomain.id,
       name: 'TestModuleForFlowBehavior',
       description: 'Description for TestModuleForFlowBehavior',
-      type: 'backend',
+      type: 'core', // Changed from 'backend'
+      interface: JSON.stringify({
+        type: 'rpc_api',
+        description: 'REST API for module',
+      }), // Updated
+      state: JSON.stringify({
+        type: 'postgresql',
+        schema: 'testmoduleforflowbehavior_schema',
+      }), // Updated
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as ModuleSchema;
 
     testThing = (await thingRepository.create({
@@ -76,42 +88,59 @@ describe('FlowBehaviorRelationship', () => {
       module_id: testModule.id,
       name: 'TestThingForFlowBehavior',
       description: 'Description for TestThingForFlowBehavior',
-      type: 'data_model',
-      properties: JSON.stringify([]),
+      schema: JSON.stringify({ type: 'object' }),
+      invariants: JSON.stringify([]),
+      relationships: JSON.stringify([]),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as ThingSchema;
 
     testFlow1 = (await flowRepository.create({
       id: db.generateId(),
       application_id: testApp.id,
+      module_id: testModule.id,
       name: 'Flow1',
       description: 'Description 1',
-      steps: '[]',
+      steps: JSON.stringify([]),
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as FlowSchema;
 
     testFlow2 = (await flowRepository.create({
       id: db.generateId(),
       application_id: testApp.id,
+      module_id: testModule.id,
       name: 'Flow2',
       description: 'Description 2',
-      steps: '[]',
+      steps: JSON.stringify([]),
+      created_at: Date.now() + 1,
+      updated_at: Date.now() + 1,
     })) as FlowSchema;
 
     testBehavior1 = (await behaviorRepository.create({
       id: db.generateId(),
-      thing_id: testThing.id,
+      module_id: testModule.id,
       name: 'Behavior1',
       description: 'Description 1',
-      trigger_event: 'click',
-      actions: '[]',
+      input_schema: JSON.stringify({ type: 'object' }),
+      output_schema: JSON.stringify({ type: 'object' }),
+      actions: JSON.stringify([]),
+      trigger: 'onEvent',
+      created_at: Date.now(),
+      updated_at: Date.now(),
     })) as BehaviorSchema;
 
     testBehavior2 = (await behaviorRepository.create({
       id: db.generateId(),
-      thing_id: testThing.id,
+      module_id: testModule.id,
       name: 'Behavior2',
       description: 'Description 2',
-      trigger_event: 'load',
-      actions: '[]',
+      input_schema: JSON.stringify({ type: 'string' }),
+      output_schema: JSON.stringify({ type: 'string' }),
+      actions: JSON.stringify([]),
+      trigger: 'onEvent',
+      created_at: Date.now() + 1,
+      updated_at: Date.now() + 1,
     })) as BehaviorSchema;
   });
 

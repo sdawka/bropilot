@@ -1,6 +1,6 @@
-import { AppDatabase } from '../database/Database';
-import { ApplicationRepository } from '../repositories/ApplicationRepository';
-import { ApplicationSchema } from '../database/schema';
+import { AppDatabase } from '../database/Database.js';
+import { ApplicationRepository } from '../repositories/ApplicationRepository.js';
+import { ApplicationSchema } from '../database/schema.js';
 
 describe('ApplicationRepository', () => {
   let db: AppDatabase;

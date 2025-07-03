@@ -1,5 +1,6 @@
-import { AppDatabase } from '../database/Database';
-import { BaseRepository } from '../repositories/BaseRepository';
+import { AppDatabase } from '../database/Database.js';
+import { BaseRepository } from '../repositories/BaseRepository.js';
+import Database from 'better-sqlite3';
 
 interface TestEntity {
   id: string;
@@ -8,9 +9,9 @@ interface TestEntity {
 }
 
 class TestRepository extends BaseRepository<TestEntity> {
-  constructor(db: AppDatabase) {
-    super(db.getDB(), 'test_entities');
-    db.getDB().exec(`
+  constructor(db: Database.Database) {
+    super(db, 'test_entities');
+    db.exec(`
       CREATE TABLE IF NOT EXISTS test_entities (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
@@ -26,7 +27,7 @@ describe('BaseRepository', () => {
 
   beforeEach(() => {
     db = new AppDatabase(':memory:');
-    repository = new TestRepository(db);
+    repository = new TestRepository(db.getDB());
   });
 
   afterEach(() => {

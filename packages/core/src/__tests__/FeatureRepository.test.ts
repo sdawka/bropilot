@@ -1,7 +1,7 @@
-import { AppDatabase } from '../database/Database';
-import { FeatureRepository } from '../repositories/FeatureRepository';
-import { FeatureSchema, ApplicationSchema } from '../database/schema';
-import { ApplicationRepository } from '../repositories/ApplicationRepository';
+import { AppDatabase } from '../database/Database.js';
+import { FeatureRepository } from '../repositories/FeatureRepository.js';
+import { FeatureSchema, ApplicationSchema } from '../database/schema.js';
+import { ApplicationRepository } from '../repositories/ApplicationRepository.js';
 
 describe('FeatureRepository', () => {
   let db: AppDatabase;
@@ -31,6 +31,7 @@ describe('FeatureRepository', () => {
   });
 
   it('should create a new feature', async () => {
+    const now = Date.now();
     const newFeature: Partial<FeatureSchema> = {
       id: db.generateId(),
       application_id: testApp.id,
@@ -38,6 +39,8 @@ describe('FeatureRepository', () => {
       purpose: 'Purpose of TestFeature',
       requirements: JSON.stringify(['req1', 'req2']),
       metrics: JSON.stringify(['metric1', 'metric2']),
+      created_at: now,
+      updated_at: now,
     };
     const createdFeature = await featureRepository.create(newFeature);
     expect(createdFeature).toEqual(newFeature);
@@ -47,6 +50,7 @@ describe('FeatureRepository', () => {
   });
 
   it('should find a feature by ID', async () => {
+    const now = Date.now();
     const feature1: Partial<FeatureSchema> = {
       id: db.generateId(),
       application_id: testApp.id,
@@ -54,6 +58,8 @@ describe('FeatureRepository', () => {
       purpose: 'Purpose 1',
       requirements: '[]',
       metrics: '[]',
+      created_at: now,
+      updated_at: now,
     };
     await featureRepository.create(feature1);
 
@@ -65,6 +71,7 @@ describe('FeatureRepository', () => {
   });
 
   it('should find all features', async () => {
+    const now = Date.now();
     const featureA: Partial<FeatureSchema> = {
       id: db.generateId(),
       application_id: testApp.id,
@@ -72,6 +79,8 @@ describe('FeatureRepository', () => {
       purpose: 'Purpose A',
       requirements: '[]',
       metrics: '[]',
+      created_at: now,
+      updated_at: now,
     };
     const featureB: Partial<FeatureSchema> = {
       id: db.generateId(),
@@ -80,6 +89,8 @@ describe('FeatureRepository', () => {
       purpose: 'Purpose B',
       requirements: '[]',
       metrics: '[]',
+      created_at: now,
+      updated_at: now,
     };
     await featureRepository.create(featureA);
     await featureRepository.create(featureB);
@@ -90,6 +101,7 @@ describe('FeatureRepository', () => {
   });
 
   it('should update a feature', async () => {
+    const now = Date.now();
     const feature: Partial<FeatureSchema> = {
       id: db.generateId(),
       application_id: testApp.id,
@@ -97,6 +109,8 @@ describe('FeatureRepository', () => {
       purpose: 'Original Purpose',
       requirements: '[]',
       metrics: '[]',
+      created_at: now,
+      updated_at: now,
     };
     await featureRepository.create(feature);
 
@@ -112,6 +126,7 @@ describe('FeatureRepository', () => {
   });
 
   it('should delete a feature', async () => {
+    const now = Date.now();
     const feature: Partial<FeatureSchema> = {
       id: db.generateId(),
       application_id: testApp.id,
@@ -119,6 +134,8 @@ describe('FeatureRepository', () => {
       purpose: 'To be deleted',
       requirements: '[]',
       metrics: '[]',
+      created_at: now,
+      updated_at: now,
     };
     await featureRepository.create(feature);
 

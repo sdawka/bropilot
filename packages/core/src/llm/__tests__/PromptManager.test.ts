@@ -1,7 +1,7 @@
-import { PromptManager } from '../PromptManager';
-import { PromptTemplateRepository } from '../PromptTemplateRepository';
-import { PromptTemplate } from '../PromptTemplate';
-import { LLMProvider, CompletionResult } from '../LLMProvider';
+import { PromptManager } from '../PromptManager.js';
+import { PromptTemplateRepository } from '../PromptTemplateRepository.js';
+import { PromptTemplate } from '../PromptTemplate.js';
+import { LLMProvider, CompletionResult } from '../LLMProvider.js';
 import { z } from 'zod';
 
 class MockProvider implements LLMProvider {
@@ -51,12 +51,24 @@ class InMemoryPromptTemplateRepository extends PromptTemplateRepository {
         .sort((a, b) => b.version - a.version)[0] ?? null
     );
   }
-  async insert(template: Omit<PromptTemplate, 'id' | 'created_at'>) {
-    const t: PromptTemplate = {
-      ...template,
-      id: Math.random().toString(),
-      created_at: Date.now(),
-    };
+  async insert(template: {
+    name: string;
+    version: number;
+    template: string;
+    variables: string[];
+    system_prompt?: string;
+    output_format?: 'text' | 'json';
+  }) {
+    const t = new PromptTemplate(
+      Math.random().toString(), // id
+      template.name,
+      template.version,
+      template.template,
+      template.variables,
+      template.system_prompt,
+      template.output_format,
+      Date.now(), // created_at
+    );
     this.templates.push(t);
     return t.id;
   }
@@ -68,20 +80,28 @@ describe('PromptManager', () => {
 
   beforeEach(async () => {
     repo['templates'] = [];
-    await repo.insert({
-      name: 'test',
-      version: 1,
-      template: 'Hello, {{name}}!',
-      variables: ['name'],
-      output_format: 'text',
-    });
-    await repo.insert({
-      name: 'json_test',
-      version: 1,
-      template: 'Data: {{data}}',
-      variables: ['data'],
-      output_format: 'json',
-    });
+    await repo.insert(
+      new PromptTemplate(
+        'test-id-1',
+        'test',
+        1,
+        'Hello, {{name}}!',
+        ['name'],
+        undefined,
+        'text',
+      ),
+    );
+    await repo.insert(
+      new PromptTemplate(
+        'test-id-2',
+        'json_test',
+        1,
+        'Data: {{data}}',
+        ['data'],
+        undefined,
+        'json',
+      ),
+    );
   });
 
   it('executes a prompt and returns text', async () => {
