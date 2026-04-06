@@ -432,7 +432,8 @@ const clientData = JSON.stringify({
           const res = await fetch(`${cfg.url}/api/project`, { headers: cfg.headers });
           if (res.ok) {
             const json = await res.json();
-            const projectData = json?.data;
+            // API returns { ok: true, data: { project: {...}, recipe: {...} } }
+            const projectData = json?.data?.project;
             // Look for git_remote or github_url in project data
             if (projectData?.git_remote) {
               this.gitHubBaseUrl = this.parseGitRemote(projectData.git_remote);

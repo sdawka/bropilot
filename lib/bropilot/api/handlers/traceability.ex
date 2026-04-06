@@ -137,8 +137,10 @@ defmodule Bropilot.Api.Handlers.Traceability do
     categories = Traceability.valid_categories()
 
     # Count linked specs per category from traceability entries
+    # Only count entries as linked when their links array is non-empty
     linked_by_category =
       entries
+      |> Enum.filter(fn e -> is_list(e["links"]) and e["links"] != [] end)
       |> Enum.group_by(& &1["spec_category"])
       |> Map.new(fn {cat, cat_entries} -> {cat, length(cat_entries)} end)
 

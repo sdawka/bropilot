@@ -81,12 +81,14 @@ defmodule Bropilot.Traceability do
   Writes (creates or replaces) a traceability entry for the given spec.
 
   `links` must be a list of maps with at least `type` and `file_path`.
+  Write operations are serialized through the Traceability.Writer GenServer
+  when it is running, falling back to direct writes otherwise.
   Returns `:ok` or `{:error, reason}`.
   """
   def write(map_dir, spec_category, spec_id, links) do
     with :ok <- validate_category(spec_category),
          :ok <- validate_links(links) do
-      do_write(map_dir, spec_category, spec_id, links)
+      Bropilot.Traceability.Writer.write(map_dir, spec_category, spec_id, links)
     end
   end
 
@@ -94,33 +96,14 @@ defmodule Bropilot.Traceability do
   Updates (merges) links for a specific spec entry.
 
   Adds new links alongside existing ones (deduplicates by file_path + type).
+  Write operations are serialized through the Traceability.Writer GenServer
+  when it is running, falling back to direct writes otherwise.
   Returns `:ok` or `{:error, reason}`.
   """
   def update(map_dir, spec_category, spec_id, new_links) do
     with :ok <- validate_category(spec_category),
-         :ok <- validate_links(new_links),
-         {:ok, entries} <- read_all(map_dir) do
-      updated_entries =
-        case Enum.find_index(entries, fn e ->
-               e["spec_category"] == spec_category && e["spec_id"] == spec_id
-             end) do
-          nil ->
-            # No existing entry — create new
-            entry = build_entry(spec_category, spec_id, new_links)
-            entries ++ [entry]
-
-          idx ->
-            existing = Enum.at(entries, idx)
-            existing_links = existing["links"] || []
-
-            merged =
-              merge_links(existing_links, new_links)
-
-            updated = Map.put(existing, "links", merged)
-            List.replace_at(entries, idx, updated)
-        end
-
-      persist(map_dir, updated_entries)
+         :ok <- validate_links(new_links) do
+      Bropilot.Traceability.Writer.update(map_dir, spec_category, spec_id, new_links)
     end
   end
 
@@ -130,17 +113,64 @@ defmodule Bropilot.Traceability do
   Returns `:ok` or `{:error, :not_found}`.
   """
   def delete(map_dir, spec_category, spec_id) do
-    with :ok <- validate_category(spec_category),
-         {:ok, entries} <- read_all(map_dir) do
-      case Enum.reject(entries, fn e ->
+    with :ok <- validate_category(spec_category) do
+      Bropilot.Traceability.Writer.delete(map_dir, spec_category, spec_id)
+    end
+  end
+
+  @doc """
+  Direct write (no GenServer serialization). Used by the Writer GenServer
+  internally, and as a fallback when the GenServer is not running.
+  """
+  def do_write_direct(map_dir, spec_category, spec_id, links) do
+    do_write(map_dir, spec_category, spec_id, links)
+  end
+
+  @doc """
+  Direct update (no GenServer serialization). Used by the Writer GenServer
+  internally, and as a fallback when the GenServer is not running.
+  """
+  def do_update_direct(map_dir, spec_category, spec_id, new_links) do
+    {:ok, entries} = read_all(map_dir)
+
+    updated_entries =
+      case Enum.find_index(entries, fn e ->
              e["spec_category"] == spec_category && e["spec_id"] == spec_id
            end) do
-        ^entries ->
-          {:error, :not_found}
+        nil ->
+          # No existing entry — create new
+          entry = build_entry(spec_category, spec_id, new_links)
+          entries ++ [entry]
 
-        filtered ->
-          persist(map_dir, filtered)
+        idx ->
+          existing = Enum.at(entries, idx)
+          existing_links = existing["links"] || []
+
+          merged =
+            merge_links(existing_links, new_links)
+
+          updated = Map.put(existing, "links", merged)
+          List.replace_at(entries, idx, updated)
       end
+
+    persist(map_dir, updated_entries)
+  end
+
+  @doc """
+  Direct delete (no GenServer serialization). Used by the Writer GenServer
+  internally, and as a fallback when the GenServer is not running.
+  """
+  def do_delete_direct(map_dir, spec_category, spec_id) do
+    {:ok, entries} = read_all(map_dir)
+
+    case Enum.reject(entries, fn e ->
+           e["spec_category"] == spec_category && e["spec_id"] == spec_id
+         end) do
+      ^entries ->
+        {:error, :not_found}
+
+      filtered ->
+        persist(map_dir, filtered)
     end
   end
 

@@ -30,18 +30,19 @@ defmodule Bropilot.Traceability.AutoLinker do
     related_specs = Map.get(task_map, "related_specs", []) || []
     base_dir = project_path || output_dir
 
-    # Parse each related_spec into {category, spec_id} and generate links
-    Enum.each(related_specs, fn spec_path ->
-      case parse_spec_path(spec_path) do
-        {:ok, category, spec_id} ->
-          links = build_links_for_spec(category, spec_id, files, output_dir, base_dir)
+    # Parse each related_spec into {category, spec_id} and generate links.
+    # Also parse entity references from task context to create entity-category links.
+    all_spec_refs = parse_all_spec_refs(related_specs, task_map)
 
-          if links != [] do
-            Traceability.update(map_dir, category, spec_id, links)
-          end
+    Enum.each(all_spec_refs, fn {category, spec_id} ->
+      links = build_links_for_spec(category, spec_id, files, output_dir, base_dir)
 
-        :error ->
-          :ok
+      if links != [] do
+        # Replace stale links by (spec_category, spec_id, type) key:
+        # For each link type in the new set, replace existing links of
+        # matching (type, file_path). Manual links (different file_path)
+        # are preserved per VAL-TAUTO-007.
+        replace_stale_links(map_dir, category, spec_id, links)
       end
     end)
 
@@ -61,6 +62,80 @@ defmodule Bropilot.Traceability.AutoLinker do
     end)
 
     :ok
+  end
+
+  # ── Stale Link Replacement ───────────────────────────────────
+
+  @doc """
+  Replaces stale links using (spec_category, spec_id, type) key semantics.
+
+  When re-running codegen for the same spec:
+    - New links with matching (type, file_path) replace existing links
+      (e.g., updated function_name or line_range)
+    - New links with a new file_path are added
+    - Existing links with different file_paths are preserved (manual links,
+      links from other codegen runs) per VAL-TAUTO-007
+
+  This uses merge/dedup by (type, file_path) which correctly handles:
+    - Re-running with same files → no duplicates
+    - Re-running with new files → both old and new links kept
+    - Manual links → preserved since their file_paths differ
+  """
+  def replace_stale_links(map_dir, category, spec_id, new_links) do
+    Traceability.update(map_dir, category, spec_id, new_links)
+  end
+
+  # ── Spec Reference Collection ──────────────────────────────────
+
+  @doc """
+  Collects all spec references from both related_specs and task context.
+
+  Parses entity references from the task context string and maps them
+  to entity-category traceability links.
+  """
+  def parse_all_spec_refs(related_specs, task_map) do
+    # Parse standard related_specs
+    from_specs =
+      related_specs
+      |> Enum.map(&parse_spec_path/1)
+      |> Enum.filter(fn
+        {:ok, _, _} -> true
+        _ -> false
+      end)
+      |> Enum.map(fn {:ok, cat, id} -> {cat, id} end)
+
+    # Parse entity references from task context
+    from_context = parse_context_entity_refs(task_map)
+
+    # Deduplicate
+    (from_specs ++ from_context)
+    |> Enum.uniq()
+  end
+
+  @doc """
+  Parses entity references from the task context.
+
+  Looks for patterns like:
+    - "entities.User", "entities.Project"
+    - "Entity: User", "Entity: Project"
+    - References in context string mentioning entity names from related_specs
+  """
+  def parse_context_entity_refs(task_map) do
+    context = Map.get(task_map, "context", "") || ""
+
+    context_str =
+      cond do
+        is_binary(context) -> context
+        is_map(context) -> inspect(context)
+        true -> ""
+      end
+
+    # Pattern: "entities.EntityName" or "solution.specs.entities.EntityName"
+    entity_pattern = ~r/(?:solution\.specs\.)?entities\.([A-Z][A-Za-z0-9_]*)/
+
+    Regex.scan(entity_pattern, context_str)
+    |> Enum.map(fn [_full, entity_name] -> {"entities", entity_name} end)
+    |> Enum.uniq()
   end
 
   # ── Spec Path Parsing ──────────────────────────────────────────
