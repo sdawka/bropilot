@@ -57,3 +57,34 @@ Testing surface, required testing skills/tools, and resource cost classification
 | Validator 4 | 4004 | 3204 |
 
 Avoid ports: 4000 (dev), 4321-4340 (occupied), 5000, 7000, 8108
+
+## Flow Validator Guidance: agent-browser
+
+- Use a dedicated browser session per validator and keep it open for the full run.
+- Stay on the assigned local ports/URLs only; do not access remote tunnels.
+- Reuse one initialized `.bropilot` project unless the assertion explicitly requires missing-project behavior.
+- Capture screenshots for every assertion and store them under the assigned evidence directory.
+- After each major flow, check browser console errors and include results in the report.
+- Do not restart shared services; if unavailable, mark impacted assertions as blocked.
+
+## Flow Validator Guidance: curl
+
+- Use the assigned API base URL only.
+- Send deterministic requests for extraction-related checks with `mode=mock` where relevant.
+- For assertions that depend on pipeline/app state, execute setup calls (`/api/init`, `/api/domain/start`, etc.) in-sequence inside the same run.
+- Record HTTP status and response body snippets for every assertion.
+- If a prerequisite endpoint fails consistently, mark downstream assertions as blocked with the root cause.
+
+## Flow Validator Guidance: terminal
+
+- Run only repository-local commands; no system-wide changes.
+- Prefer read/verification commands for file/layout assertions, and only run build/test commands required by assigned assertions.
+- For filesystem assertions, create temporary artifacts only under the repository and clean up when practical.
+- Record exact command outputs (or key excerpts) for evidence in each assertion result.
+- If a command is flaky, retry once and document both attempts in the report.
+
+## Validation Notes: core-gaps (round 1)
+
+- Contract/path mismatch observed during curl validation: implemented snapshot endpoint is `POST /api/snapshot` (not `POST /api/build/snapshot`).
+- `GET /api/domain/status` is not available in current API surface; assertions that require this endpoint should use alternative state checks.
+- For deterministic Act 2 UI checks, the backend should be started with/through `mode=mock`; current domain UI does not expose a direct mock-mode toggle.

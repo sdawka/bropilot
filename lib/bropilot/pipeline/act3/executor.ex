@@ -78,7 +78,7 @@ defmodule Bropilot.Pipeline.Act3.Executor do
     end)
 
     {:ok, summary} = Feedback.summarize_version(map_dir, version)
-    {:ok, %{version: version, tasks: tasks, summary: summary}}
+    {:ok, %{version: version, tasks: tasks, summary: summary, files_written: []}}
   end
 
   defp execute_tasks_with_codegen(tasks, project_path, map_dir, version, mode, opts) do
@@ -107,8 +107,11 @@ defmodule Bropilot.Pipeline.Act3.Executor do
       Feedback.update_knowledge(map_dir, task_map, result)
     end)
 
+    # Collect files written across all tasks
+    files_written = collect_files_written(task_results)
+
     {:ok, summary} = Feedback.summarize_version(map_dir, version)
-    {:ok, %{version: version, tasks: tasks, summary: summary}}
+    {:ok, %{version: version, tasks: tasks, summary: summary, files_written: files_written}}
   end
 
   defp execute_tasks_with_llm(tasks, project_path, map_dir, version, opts) do
@@ -137,8 +140,21 @@ defmodule Bropilot.Pipeline.Act3.Executor do
       Feedback.update_knowledge(map_dir, task_map, result)
     end)
 
+    # Collect files written across all tasks
+    files_written = collect_files_written(task_results)
+
     {:ok, summary} = Feedback.summarize_version(map_dir, version)
-    {:ok, %{version: version, tasks: tasks, summary: summary}}
+    {:ok, %{version: version, tasks: tasks, summary: summary, files_written: files_written}}
+  end
+
+  defp collect_files_written(task_results) do
+    Enum.flat_map(task_results, fn
+      {_task, _task_map, {:ok, %{files_written: files, output_dir: dir}}} ->
+        Enum.map(files, fn f -> Path.join(dir, f) end)
+
+      _ ->
+        []
+    end)
   end
 
   @doc """

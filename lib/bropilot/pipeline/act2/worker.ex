@@ -185,6 +185,18 @@ defmodule Bropilot.Pipeline.Act2.Worker do
     end
   end
 
+  # Catch-all for run_step3 in unexpected states
+  @impl true
+  def handle_call(:run_step3, _from, state) do
+    {:reply, {:error, "cannot run step3 in state #{state.step}"}, state}
+  end
+
+  # Catch-all for run_step4 in unexpected states
+  @impl true
+  def handle_call(:run_step4, _from, state) do
+    {:reply, {:error, "cannot run step4 in state #{state.step} — step3 extraction must complete first"}, state}
+  end
+
   # Catch-all for extract in unexpected states
   @impl true
   def handle_call(:extract, _from, state) do

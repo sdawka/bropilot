@@ -76,10 +76,28 @@ const apiUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:4000';
       <div class="card-body">
         <template x-if="status">
           <div class="status-grid">
-            <template x-for="(val, key) in status" x-bind:key="key">
+            <!-- Current step -->
+            <template x-if="status.current_step">
               <div class="status-row">
-                <span class="status-key" x-text="key"></span>
-                <span class="badge" x-bind:class="statusClass(val)" x-text="typeof val === 'string' ? val : JSON.stringify(val)"></span>
+                <span class="status-key">Current Step</span>
+                <span class="badge badge-in-progress" x-text="status.current_step.name || status.current_step.id"></span>
+              </div>
+            </template>
+            <!-- Step statuses: show only completed and in_progress steps -->
+            <template x-if="status.step_statuses">
+              <template x-for="(val, key) in status.step_statuses" x-bind:key="key">
+                <template x-if="val === 'completed' || val === 'in_progress'">
+                  <div class="status-row">
+                    <span class="status-key" x-text="key"></span>
+                    <span class="badge" x-bind:class="statusClass(val)" x-text="val"></span>
+                  </div>
+                </template>
+              </template>
+            </template>
+            <!-- Show message if no steps completed -->
+            <template x-if="status.step_statuses && !Object.values(status.step_statuses).some((v: unknown) => v === 'completed')">
+              <div class="status-row">
+                <span class="status-key" style="color: var(--color-text-muted);">No steps completed yet</span>
               </div>
             </template>
           </div>

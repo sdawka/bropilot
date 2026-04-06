@@ -11,9 +11,20 @@ import type { SpecCategory } from '../lib/api';
 const data = await getSpaceData('solution');
 const apiDown = data === null;
 
-const vocabulary = (data as Record<string, unknown>)?.vocabulary ?? null;
-const domainEntities = (data as Record<string, unknown>)?.domain_entities ?? null;
-const flows = (data as Record<string, unknown>)?.flows ?? null;
+// Extract slot data from the space response (slots array with id + data)
+function getSlotData(slotId: string): Record<string, unknown> | null {
+  const slots = (data as Record<string, unknown>)?.slots as Array<{ id: string; data: unknown }> | undefined;
+  if (!slots) return null;
+  const slot = slots.find((s) => String(s.id) === slotId);
+  return (slot?.data as Record<string, unknown>) ?? null;
+}
+
+const vocabularySlot = getSlotData('vocabulary');
+const vocabulary = vocabularySlot?.terms ?? vocabularySlot ?? null;
+const domainSlot = getSlotData('domain');
+const domainEntities = domainSlot?.entities ?? domainSlot ?? null;
+const flowsSlot = getSlotData('flows');
+const flows = flowsSlot?.flows ?? flowsSlot ?? null;
 
 // Load specs
 const specsData = await getMapSlot('solution', 'specs');

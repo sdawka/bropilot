@@ -885,11 +885,60 @@ const specNames = SPEC_CATEGORIES.map((cat) => ({
     .domain-chat {
       max-height: 50vh;
     }
+
+    .card-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .domain-results,
+    .domain-specs {
+      overflow-x: hidden;
+    }
   }
 
-  @media (max-width: 375px) {
+  @media (max-width: 480px) {
     .chat-bubble {
       max-width: 90%;
+    }
+
+    .domain-textarea {
+      min-height: 60px;
+    }
+
+    .domain-card .card-body {
+      max-height: 250px;
+    }
+
+    .tabs-nav {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      flex-wrap: nowrap;
+      gap: 0;
+    }
+
+    .tab-btn {
+      flex-shrink: 0;
+      font-size: var(--text-xs);
+      padding: var(--space-1) var(--space-2);
+      white-space: nowrap;
+    }
+
+    .domain-list-item {
+      padding: var(--space-2);
+    }
+
+    .domain-aliases,
+    .domain-attrs {
+      flex-wrap: wrap;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .spec-card .card-body {
+      max-height: 300px;
     }
   }
 </style>

@@ -16,8 +16,11 @@ const navItems = [
 ];
 
 function isActive(href: string): boolean {
-  if (href === '/') return currentPath === '/';
-  return currentPath.startsWith(href);
+  // Normalize path to handle with/without trailing slash
+  const normalizedPath = currentPath.endsWith('/') ? currentPath : currentPath + '/';
+  const normalizedHref = href.endsWith('/') ? href : href + '/';
+  if (href === '/') return currentPath === '/' || currentPath === '';
+  return normalizedPath.startsWith(normalizedHref);
 }
 ---
 

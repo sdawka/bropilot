@@ -143,9 +143,25 @@ defmodule Bropilot.Pipeline.Engine do
     path = state_file_path(state.project_path)
     tmp_path = path <> ".tmp.#{:rand.uniform(1_000_000)}"
 
+    step_statuses =
+      state.recipe.steps
+      |> Enum.with_index()
+      |> Enum.map(fn {step, index} ->
+        status =
+          cond do
+            MapSet.member?(state.completed_steps, step.id) -> "completed"
+            index == state.current_step_index -> "in_progress"
+            true -> "pending"
+          end
+
+        {step.id, status}
+      end)
+      |> Map.new()
+
     data = %{
       "current_step_index" => state.current_step_index,
-      "completed_steps" => MapSet.to_list(state.completed_steps) |> Enum.sort()
+      "completed_steps" => MapSet.to_list(state.completed_steps) |> Enum.sort(),
+      "step_statuses" => step_statuses
     }
 
     content = Bropilot.Yaml.encode(data)

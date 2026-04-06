@@ -1,0 +1,257 @@
+---
+export const prerender = false;
+
+import '../styles/global.css';
+import '../styles/connect.css';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Connect to Bropilot server" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Connect | Bropilot</title>
+  </head>
+  <body>
+    <div class="connect-page" x-data="connectPage()" x-init="init()">
+      <div class="connect-card">
+        <!-- Brand -->
+        <div class="connect-brand">
+          <span class="connect-brand-icon">⬡</span>
+          <h1 class="connect-brand-title">bropilot</h1>
+          <p class="connect-brand-subtitle">Product development copilot</p>
+        </div>
+
+        <!-- Mode A: Local auto-connect -->
+        <template x-if="mode === 'local'">
+          <div class="connect-local-banner">
+            <div class="connect-status-indicator">
+              <span class="connect-status-dot green"></span>
+              <span>Connected to local server</span>
+            </div>
+            <p style="font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-6);">
+              Running on localhost — no pairing code needed.
+            </p>
+            <a href="/" class="connect-btn connect-btn-primary">Open Dashboard</a>
+          </div>
+        </template>
+
+        <!-- Mode C: QR / auto-pairing from query params -->
+        <template x-if="mode === 'qr'">
+          <div style="text-align: center; padding: var(--space-6) 0;">
+            <template x-if="loading">
+              <div>
+                <div class="connect-spinner" style="width: 24px; height: 24px; margin: 0 auto var(--space-4);"></div>
+                <p style="font-size: var(--text-sm); color: var(--color-text-muted);">Connecting…</p>
+              </div>
+            </template>
+            <template x-if="error">
+              <div>
+                <div class="connect-error" style="margin-bottom: var(--space-4);" x-text="error"></div>
+                <button class="connect-btn connect-btn-secondary" x-on:click="mode = 'remote'; error = '';">
+                  Enter manually
+                </button>
+              </div>
+            </template>
+          </div>
+        </template>
+
+        <!-- Mode B: Remote / manual entry -->
+        <template x-if="mode === 'remote'">
+          <div>
+            <!-- Error -->
+            <template x-if="error">
+              <div class="connect-error" style="margin-bottom: var(--space-4);" x-text="error"></div>
+            </template>
+
+            <form class="connect-form" x-on:submit.prevent="connect()">
+              <div class="connect-field">
+                <label class="connect-label" for="server-url">Server URL</label>
+                <input
+                  id="server-url"
+                  type="text"
+                  class="connect-input"
+                  placeholder="https://your-server.example.com"
+                  x-model="serverUrl"
+                  x-on:input="parseUrlInput()"
+                />
+                <span class="connect-input-hint">The address of your Bropilot server</span>
+              </div>
+
+              <div class="connect-field">
+                <label class="connect-label" for="pair-code">Pairing Code</label>
+                <input
+                  id="pair-code"
+                  type="text"
+                  class="connect-input"
+                  placeholder="tiger-4829"
+                  x-model="token"
+                  autocomplete="off"
+                  autofocus
+                />
+                <span class="connect-input-hint">Check your terminal for the pairing code</span>
+              </div>
+
+              <button
+                type="submit"
+                class="connect-btn connect-btn-primary"
+                x-bind:disabled="loading || !serverUrl.trim() || !token.trim()"
+              >
+                <template x-if="loading">
+                  <span class="connect-spinner"></span>
+                </template>
+                <span x-text="loading ? 'Connecting…' : 'Connect'"></span>
+              </button>
+            </form>
+
+            <!-- Connection history -->
+            <template x-if="history.length > 0">
+              <div class="connect-history">
+                <div class="connect-divider">Recent Servers</div>
+                <ul class="connect-history-list">
+                  <template x-for="(entry, i) in history" x-bind:key="i">
+                    <li class="connect-history-item" x-on:click="serverUrl = entry.serverUrl">
+                      <span class="connect-history-url" x-text="entry.serverUrl"></span>
+                      <span class="connect-history-date" x-text="formatDate(entry.connectedAt)"></span>
+                    </li>
+                  </template>
+                </ul>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <script>
+      import { pair } from '../lib/api';
+
+      document.addEventListener('alpine:init', () => {
+        // @ts-ignore
+        window.Alpine.data('connectPage', () => ({
+          mode: 'remote',      // 'local' | 'remote' | 'qr'
+          serverUrl: '',
+          token: '',
+          loading: false,
+          error: '',
+          history: [] as Array<{ serverUrl: string; projectName?: string; connectedAt: string }>,
+
+          init() {
+            // Load connection history
+            try {
+              const raw = localStorage.getItem('bropilot_connection_history');
+              if (raw) this.history = JSON.parse(raw);
+            } catch { /* ignore */ }
+
+            const params = new URLSearchParams(window.location.search);
+            const qToken = params.get('token');
+            const qServer = params.get('server');
+
+            // Mode C: QR auto-pairing
+            if (qToken && qServer) {
+              this.mode = 'qr';
+              this.serverUrl = qServer;
+              this.token = qToken;
+              this.$nextTick(() => this.connect());
+              return;
+            }
+
+            // If URL only has token, extract and populate
+            if (qToken) {
+              this.token = qToken;
+            }
+            if (qServer) {
+              this.serverUrl = qServer;
+            }
+
+            // Mode A: Local auto-detect
+            const h = window.location.hostname;
+            if (h === 'localhost' || h === '127.0.0.1' || h === '::1') {
+              this.mode = 'local';
+              return;
+            }
+
+            // Mode B: Remote
+            this.mode = 'remote';
+          },
+
+          /**
+           * If the user pastes a full URL with ?token= into the server URL field,
+           * extract the token automatically.
+           */
+          parseUrlInput() {
+            try {
+              if (this.serverUrl.includes('?token=') || this.serverUrl.includes('&token=')) {
+                const u = new URL(this.serverUrl);
+                const t = u.searchParams.get('token');
+                if (t) {
+                  this.token = t;
+                  // Strip query params to get clean server URL
+                  this.serverUrl = `${u.protocol}//${u.host}`;
+                }
+              }
+            } catch {
+              // not a valid URL yet, ignore
+            }
+          },
+
+          async connect() {
+            const url = this.serverUrl.trim().replace(/\/+$/, '');
+            const tok = this.token.trim();
+            if (!url || !tok) return;
+
+            this.loading = true;
+            this.error = '';
+
+            try {
+              const data = await pair(url, tok);
+
+              // Save connection
+              const conn = {
+                serverUrl: url,
+                token: tok,
+                projectName: data?.project_name || data?.name || undefined,
+                connectedAt: new Date().toISOString(),
+              };
+              localStorage.setItem('bropilot_connection', JSON.stringify(conn));
+
+              // Update history
+              let hist = [];
+              try {
+                const raw = localStorage.getItem('bropilot_connection_history');
+                if (raw) hist = JSON.parse(raw);
+              } catch { /* ignore */ }
+              hist = hist.filter((h: { serverUrl: string }) => h.serverUrl !== url);
+              hist.unshift({
+                serverUrl: url,
+                projectName: conn.projectName,
+                connectedAt: conn.connectedAt,
+              });
+              localStorage.setItem('bropilot_connection_history', JSON.stringify(hist.slice(0, 10)));
+
+              // Redirect to dashboard
+              window.location.href = '/';
+            } catch (err) {
+              this.error = 'Invalid code. Check your terminal for the correct code.';
+              if (this.mode === 'qr') {
+                // Stay on error in QR mode so user can switch to manual
+              }
+            }
+            this.loading = false;
+          },
+
+          formatDate(iso: string) {
+            try {
+              const d = new Date(iso);
+              return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+            } catch {
+              return '';
+            }
+          },
+        }));
+      });
+    </script>
+  </body>
+</html>

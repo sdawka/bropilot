@@ -90,7 +90,8 @@ defmodule Bropilot.Api.Handlers.Work do
             data: %{
               version: result.version,
               tasks_count: length(result.tasks),
-              summary: result.summary
+              summary: result.summary,
+              files_written: Map.get(result, :files_written, [])
             }
           })
 
