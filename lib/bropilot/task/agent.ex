@@ -69,6 +69,7 @@ defmodule Bropilot.Task.Agent do
             result = {:ok, codegen_result}
             new_state = %{state | status: :completed, result: result}
             maybe_update_knowledge(state.map_dir, enriched_task, result)
+            maybe_record_traceability(state.map_dir, state.task, result, state.project_path)
             notify_supervisor(state.task)
             {:reply, result, new_state}
 
@@ -99,6 +100,7 @@ defmodule Bropilot.Task.Agent do
         result = {:ok, codegen_result}
         new_state = %{state | status: :completed, result: result}
         maybe_update_knowledge(state.map_dir, enriched_task, result)
+        maybe_record_traceability(state.map_dir, state.task, result, state.project_path)
         notify_supervisor(state.task)
         {:reply, result, new_state}
 
@@ -194,6 +196,14 @@ defmodule Bropilot.Task.Agent do
 
   defp maybe_update_knowledge(map_dir, task, result) do
     Bropilot.Pipeline.Feedback.update_knowledge(map_dir, task, result)
+  rescue
+    _ -> :ok
+  end
+
+  defp maybe_record_traceability(nil, _task, _result, _project_path), do: :ok
+
+  defp maybe_record_traceability(map_dir, task, result, project_path) do
+    Bropilot.Traceability.AutoLinker.record_links(map_dir, task, result, project_path)
   rescue
     _ -> :ok
   end

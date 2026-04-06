@@ -107,6 +107,9 @@ defmodule Bropilot.Pipeline.Act3.Executor do
       Feedback.update_knowledge(map_dir, task_map, result)
     end)
 
+    # Record traceability links for all codegen tasks
+    record_traceability_links(task_results, map_dir, project_path)
+
     # Collect files written across all tasks
     files_written = collect_files_written(task_results)
 
@@ -140,11 +143,25 @@ defmodule Bropilot.Pipeline.Act3.Executor do
       Feedback.update_knowledge(map_dir, task_map, result)
     end)
 
+    # Record traceability links for all codegen tasks
+    record_traceability_links(task_results, map_dir, project_path)
+
     # Collect files written across all tasks
     files_written = collect_files_written(task_results)
 
     {:ok, summary} = Feedback.summarize_version(map_dir, version)
     {:ok, %{version: version, tasks: tasks, summary: summary, files_written: files_written}}
+  end
+
+  defp record_traceability_links(task_results, map_dir, project_path) do
+    batch =
+      Enum.map(task_results, fn {_task, task_map, result} ->
+        {task_map, result}
+      end)
+
+    Bropilot.Traceability.AutoLinker.record_links_batch(map_dir, batch, project_path)
+  rescue
+    _ -> :ok
   end
 
   defp collect_files_written(task_results) do
