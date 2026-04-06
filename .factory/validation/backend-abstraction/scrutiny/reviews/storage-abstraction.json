@@ -1,0 +1,55 @@
+{
+  "featureId": "storage-abstraction",
+  "reviewedAt": "2026-04-06T17:19:46Z",
+  "commitId": "a985ad3",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The storage abstraction is mostly implemented as requested (behaviour, FileStorage wrapper, CloudStorage stubs, and caller refactors), but config-driven CloudStorage selection is not safely handled by all refactored callers.",
+    "issues": [
+      {
+        "file": "lib/bropilot/api/handlers/project.ex",
+        "line": 103,
+        "severity": "blocking",
+        "description": "`get_space/1` stores `filled: Storage.exists?(...)` directly in the JSON payload. With `storage_backend` set to `Bropilot.Storage.CloudStorage`, `exists?/3` returns `{:error, :not_implemented}` (see `lib/bropilot/storage/cloud_storage.ex`), and tuple values are not JSON-encodable by Jason. This can raise at response encoding time, so backend switching is not safely supported."
+      },
+      {
+        "file": "lib/mix/tasks/bro.status.ex",
+        "line": 101,
+        "severity": "non_blocking",
+        "description": "`print_space_status/1` treats `Storage.exists?/3` as a boolean. If CloudStorage is configured, `{:error, :not_implemented}` is truthy and will render slots as filled, producing misleading status output."
+      },
+      {
+        "file": "lib/bropilot/storage/file_storage.ex",
+        "line": 49,
+        "severity": "non_blocking",
+        "description": "`delete/3` uses `File.rm!/1` (bang form), which raises exceptions on filesystem errors instead of returning `{:error, reason}` as the behaviour contract implies. This can crash callers on permission/IO failures."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "conventions",
+      "observation": "Mission AGENTS guidance is now stale: it still instructs workers to use `Bropilot.Map.Store` directly for map IO, which conflicts with this feature's new storage abstraction.",
+      "evidence": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/AGENTS.md:22"
+    },
+    {
+      "area": "skills",
+      "observation": "The `elixir-backend` skill still tells workers to use `Bropilot.Map.Store` directly, so skill guidance no longer matches the intended post-feature architecture.",
+      "evidence": "/Users/sdawka/Code/bropilot/.factory/skills/elixir-backend/SKILL.md:43"
+    },
+    {
+      "area": "knowledge",
+      "observation": "Shared architecture knowledge has not been updated for the abstraction: key modules still present `Bropilot.Map.Store` as the primary map IO module and do not document `Bropilot.Storage` as the interface boundary.",
+      "evidence": "/Users/sdawka/Code/bropilot/.factory/library/architecture.md:29"
+    },
+    {
+      "area": "skills",
+      "observation": "The transcript skeleton shows tests were created and implementation proceeded before any explicit RED-phase failure check, despite the skill requiring a `mix test test/<file>` fail step. This suggests either procedure drift or that skillFeedback may be too lenient in marking procedure adherence.",
+      "evidence": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/worker-transcripts.jsonl entry for session 188a2fb9-8d1e-46c9-a7b3-d02f8ee10099 (Create test file -> implement modules -> first targeted test run passes)"
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed transcript skeleton, handoff, skill, and commit a985ad3. Feature scope is largely delivered, but there is a blocking compatibility bug for config-driven CloudStorage in API payload encoding via `exists?/3`, plus non-blocking robustness/documentation gaps."
+}

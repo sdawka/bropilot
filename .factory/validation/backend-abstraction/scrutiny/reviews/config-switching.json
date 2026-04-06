@@ -1,0 +1,45 @@
+{
+  "featureId": "config-switching",
+  "reviewedAt": "2026-04-06T17:20:26Z",
+  "commitId": "893b9620e8507ee37f1e8945d8a033850bc146c0",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The feature correctly wires env-based backend selection and invalid-value handling, but it does not satisfy the required backend parity behaviors. In cloud mode, storage/state operations are still stubbed as :not_implemented, and at least one API path can break due to type mismatch, so API/CRUD behavior is not identical across backends.",
+    "issues": [
+      {
+        "file": "lib/bropilot/storage/cloud_storage.ex",
+        "line": 13,
+        "severity": "blocking",
+        "description": "Cloud backend CRUD operations still return `{:error, :not_implemented}` for read/write/list/delete/exists? (lines 13, 18, 23, 28, 33), which violates the feature requirement that CRUD behavior work identically across local and cloud backends (VAL-CFGSW-007)."
+      },
+      {
+        "file": "lib/bropilot/api/handlers/project.ex",
+        "line": 103,
+        "severity": "blocking",
+        "description": "`get_space/2` places `Storage.exists?/3` directly into JSON as `filled`. In cloud mode `exists?/3` returns `{:error, :not_implemented}`, not a boolean, which can break JSON encoding and response shape parity (VAL-CFGSW-005)."
+      },
+      {
+        "file": "test/config_switching_test.exs",
+        "line": 160,
+        "severity": "non_blocking",
+        "description": "The test labeled for API response-shape parity only checks callback presence (`__info__(:functions)`) and does not exercise `/api/health` or `/api/project` responses across backends, so the stated requirement is not directly validated."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "knowledge",
+      "observation": "Mission expectations require cloud/local parity for CRUD and API shape (VAL-CFGSW-005 and VAL-CFGSW-007), but the cloud modules are explicitly documented/implemented as stubs returning `:not_implemented`. This mismatch should be recorded clearly in shared mission knowledge to avoid accepting interface-only behavior as parity.",
+      "evidence": "validation-contract.md:975-988 requires API/CRUD parity; lib/bropilot/storage/cloud_storage.ex:5-6 and 13/18/23/28/33 return stub errors; lib/bropilot/state/durable_object_state.ex:5-6 and 14/19/24/29 return stub errors."
+    },
+    {
+      "area": "skills",
+      "observation": "The worker handoff verification did not include endpoint-level parity checks or cloud CRUD parity despite the feature claiming fulfillment through VAL-CFGSW-007. Skill/process guidance may need stronger enforcement to map verification commands to all feature VAL assertions.",
+      "evidence": "handoffs/2026-04-06T17-11-46-626Z__config-switching__4ea742a3-c711-4d6a-9137-09beaa3d3a5c.json:20-42 shows only mix test/mix eval checks; no `/api/health` or `/api/project` parity run; same file line 95 maps VAL-CFGSW-005 to interface checks."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed handoff, commit diff, transcript skeleton, and skill guidance for `config-switching`. Env-based switching and error handling were implemented, but cloud-mode parity requirements are not met: cloud CRUD/state remain stubs and can cause API shape breakage in project space responses. Marking this feature as fail with blocking issues."
+}

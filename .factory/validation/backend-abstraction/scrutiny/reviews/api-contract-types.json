@@ -1,0 +1,57 @@
+{
+  "featureId": "api-contract-types",
+  "reviewedAt": "2026-04-06T17:19:56Z",
+  "commitId": "413719c",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The package is well-structured and compiles/tests cleanly, but it does not fully satisfy the feature contract: endpoint coverage target is unmet, request-param coverage is incomplete, and validation was not performed against real API responses.",
+    "issues": [
+      {
+        "file": "packages/api-types/src/__tests__/imports.test.ts",
+        "line": 124,
+        "severity": "blocking",
+        "description": "Feature contract requires coverage of 34+ endpoints, but the implementation and tests explicitly lock coverage to 28 (`expect(responseSchemas.length).toBe(28)`). This does not meet the stated requirement."
+      },
+      {
+        "file": "packages/api-types/src/index.ts",
+        "line": 17,
+        "severity": "blocking",
+        "description": "Request-param schema coverage is incomplete. Only a small subset of request schemas is exported (e.g., pair/vibe/domain/build), while parameterized routes such as `/api/spaces/:space`, `/api/map/:space/:slot`, `/api/versions/:v`, and `/api/traceability/:category/:spec_id` have no corresponding path-param schemas, despite the feature requiring request params and response bodies."
+      },
+      {
+        "file": "packages/api-types/src/__tests__/health.test.ts",
+        "line": 6,
+        "severity": "blocking",
+        "description": "Requirement says to validate schemas against real API responses, but tests use only inline fixtures and parse calls. There is no evidence of API-response capture/validation from live endpoint outputs in the package tests or handoff verification commands."
+      },
+      {
+        "file": "packages/api-types/src/domain.ts",
+        "line": 24,
+        "severity": "non_blocking",
+        "description": "`DomainInputRequestSchema` allows whitespace-only strings (`z.string().min(1)`), while the backend rejects trimmed-empty input (`String.trim(text) == \"\"`). Schema and API behavior diverge on this edge case."
+      },
+      {
+        "file": "packages/api-types/src/traceability.ts",
+        "line": 21,
+        "severity": "non_blocking",
+        "description": "`spec_category` is typed as `z.string()` in traceability schemas instead of reusing the stricter `SpecCategorySchema` enum, reducing malformed-response detection strictness."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "knowledge",
+      "observation": "Shared docs/contract are inconsistent on API endpoint count, creating requirement ambiguity for this feature.",
+      "evidence": "Feature spec states \"Cover all 34+ endpoints\" (`features.json:1372`), architecture also states 34+ (`.factory/library/architecture.md:39,73`), but router currently defines 28 routes (`lib/bropilot/api/router.ex`, 28 `get|post|put` entries)."
+    },
+    {
+      "area": "skills",
+      "observation": "The TypeScript package skill says to write tests first (RED), but transcript shows code-first flow before tests; this mismatch suggests procedure guidance/enforcement is weak.",
+      "evidence": "Skill procedure step 3 in `.factory/skills/typescript-packages/SKILL.md` says \"Write tests first (RED)\", while transcript skeleton shows \"create all source files\" followed later by test creation."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed handoff, transcript skeleton, and commit 413719c. Implementation quality is solid, but the feature does not fully satisfy its contract due to endpoint-count target mismatch, incomplete request-param schema coverage, and lack of validation against real API responses; marked as fail with concrete blocking issues."
+}

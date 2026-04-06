@@ -1,0 +1,45 @@
+{
+  "featureId": "state-abstraction",
+  "reviewedAt": "2026-04-06T17:20:04Z",
+  "commitId": "48025c8",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The feature adds the new State behaviour, GenServer and DurableObject backends, and substantial tests, but it does not fully match the mission’s expected State API contract and therefore is not ready to pass as implemented.",
+    "issues": [
+      {
+        "file": "lib/bropilot/state.ex",
+        "line": 28,
+        "severity": "blocking",
+        "description": "The public State behaviour/API requires a `server` argument (`get/3`, `put/4`, `delete/3`, `list_keys/2`), but the mission validation contract for VAL-STATE expects namespace-key based calls like `State.put(:pipeline, \"current_step\", 3)` and `State.get(:pipeline, \"current_step\")` without an explicit server handle. This mismatch means the implemented API does not satisfy the contracted feature interface."
+      },
+      {
+        "file": "lib/bropilot/state.ex",
+        "line": 31,
+        "severity": "non_blocking",
+        "description": "Behaviour callback return types are inconsistent with the configured cloud stub backend. `put` and `list_keys` are typed as returning only success shapes, but `Bropilot.State.DurableObjectState` returns `{:error, :not_implemented}` for all callbacks. This weakens the abstraction contract and can mislead callers."
+      },
+      {
+        "file": "test/state_test.exs",
+        "line": 1,
+        "severity": "non_blocking",
+        "description": "The test module is `async: true` while several tests mutate global application env (`Application.put_env/delete_env` for `:state_backend`). This can introduce nondeterministic cross-test interference when run concurrently."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The `elixir-backend` skill mandates tests-first RED/GREEN workflow, but the transcript shows implementation files were created before `test/state_test.exs`, and no explicit failing test run occurred before implementation. Handoff still marked `followedProcedure: true`.",
+      "evidence": "worker-transcripts.jsonl skeleton for session b8d3a532-a148-4c7a-84c4-24fe865a90bc shows Create calls for `lib/bropilot/state*.ex` before creating `test/state_test.exs`; first test run was `mix test test/state_test.exs` after implementation."
+    },
+    {
+      "area": "conventions",
+      "observation": "Mission artifacts are inconsistent on the intended State API surface (server-handle based vs namespace-key only). This ambiguity likely enabled the contract drift in this feature.",
+      "evidence": "validation-contract.md VAL-STATE-001/002 describes calls like `get(key)` and `State.put(:pipeline, ..., ...)`, while implementation/tests define and assert `get/3` and `put/4` with explicit `server`."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed commit 48025c8 and the assigned transcript skeleton. The feature implementation is substantial, but it fails the review due to a blocking API-contract mismatch against VAL-STATE expectations; additional non-blocking contract/test-isolation issues were also identified."
+}

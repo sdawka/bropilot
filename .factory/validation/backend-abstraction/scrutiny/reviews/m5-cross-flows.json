@@ -1,0 +1,45 @@
+{
+  "featureId": "m5-cross-flows",
+  "reviewedAt": "2026-04-06T17:19:03Z",
+  "commitId": "893b962",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "Failing review: the worker validated baseline tests and a small API subset, but did not provide evidence for several required cross-flow behaviors (first-visit journey, page-navigation coverage, full endpoint parity, and large-domain edge cases).",
+    "issues": [
+      {
+        "file": ".factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/handoffs/2026-04-06T17-15-16-205Z__m5-cross-flows__f779742d-2405-4f1d-bc3d-32839347e103.json",
+        "line": 14,
+        "severity": "blocking",
+        "description": "Required first-visit and page-flow validations were not evidenced. Feature requirements include full journey and navigation behavior (features.json:1456-1472; validation-contract.md:1197-1224), but commandsRun contains only terminal/curl checks and no agent-browser flow verification."
+      },
+      {
+        "file": ".factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/handoffs/2026-04-06T17-15-16-205Z__m5-cross-flows__f779742d-2405-4f1d-bc3d-32839347e103.json",
+        "line": 41,
+        "severity": "blocking",
+        "description": "The claim that existing API endpoints respond identically is under-verified. Evidence only lists /api/health plus /api/recipe, /api/spaces, /api/traceability, and /api/project (local/cloud), not the full existing endpoint surface required by the feature (features.json:1464)."
+      },
+      {
+        "file": ".factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/handoffs/2026-04-06T17-15-16-205Z__m5-cross-flows__f779742d-2405-4f1d-bc3d-32839347e103.json",
+        "line": 10,
+        "severity": "blocking",
+        "description": "Large domain-model edge-case verification is a stated requirement (features.json:1456) but no corresponding command evidence appears in the reported verification steps; this makes the 'all cross-flow verifications pass' conclusion unsupported."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The integration-worker skill lacks an explicit verification-only checklist that maps feature expectations to validation-contract assertions. This allowed a cross-flow feature with UI journey requirements to be completed without agent-browser evidence.",
+      "evidence": ".factory/skills/integration-worker/SKILL.md:24-43 defines generic procedure; transcript skeleton for session f779742d-2405-4f1d-bc3d-32839347e103 shows no agent-browser tool call; validation-contract.md:1197-1224 requires journey/navigation checks."
+    },
+    {
+      "area": "conventions",
+      "observation": "There is no enforced convention for durable evidence artifacts on verification-only features (for example, per-assertion evidence files), making review dependent on summarized command text.",
+      "evidence": "handoff skillFeedback suggested change at handoff json:65-67; commands were summarized in handoff without attached per-assertion artifacts."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed m5-cross-flows using feature metadata, handoff, commit 893b962 diff, transcript skeleton, and shared-state docs. The worker successfully ran core validators and backend smoke checks, but missed required end-to-end and UI-centric cross-flow evidence, so the feature does not yet meet its stated verification scope."
+}

@@ -1,0 +1,131 @@
+{
+  "milestone": "backend-abstraction",
+  "round": 1,
+  "status": "fail",
+  "validatorsRun": {
+    "test": {
+      "passed": true,
+      "command": "mix test",
+      "exitCode": 0
+    },
+    "typecheck": {
+      "passed": true,
+      "command": "cd web && npx tsc --noEmit",
+      "exitCode": 0
+    },
+    "lint": {
+      "passed": true,
+      "command": "mix compile --warnings-as-errors",
+      "exitCode": 0
+    }
+  },
+  "reviewsSummary": {
+    "total": 5,
+    "passed": 0,
+    "failed": 5,
+    "failedFeatures": [
+      "storage-abstraction",
+      "state-abstraction",
+      "api-contract-types",
+      "config-switching",
+      "m5-cross-flows"
+    ]
+  },
+  "blockingIssues": [
+    {
+      "featureId": "config-switching",
+      "severity": "blocking",
+      "description": "Cloud backend CRUD/state paths remain stubbed (`:not_implemented`), so backend parity and identical API behavior requirements are not met."
+    },
+    {
+      "featureId": "config-switching",
+      "severity": "blocking",
+      "description": "Project API space payload writes `Storage.exists?/3` result directly as `filled`; in cloud mode this can be a tuple instead of boolean, breaking JSON response shape/parity."
+    },
+    {
+      "featureId": "state-abstraction",
+      "severity": "blocking",
+      "description": "State abstraction public API shape does not match backend-abstraction VAL-STATE contract expectations (server-handle API vs namespace/key API)."
+    },
+    {
+      "featureId": "api-contract-types",
+      "severity": "blocking",
+      "description": "API types package currently validates/locks to 28 endpoints, not the stated 34+ endpoint coverage target."
+    },
+    {
+      "featureId": "api-contract-types",
+      "severity": "blocking",
+      "description": "Request schema coverage is incomplete for parameterized routes (path params and some request surfaces are not modeled)."
+    },
+    {
+      "featureId": "api-contract-types",
+      "severity": "blocking",
+      "description": "No evidence of schema validation against real API responses; validation uses only inline fixtures."
+    },
+    {
+      "featureId": "m5-cross-flows",
+      "severity": "blocking",
+      "description": "Cross-flow verification lacks required UI first-visit/navigation evidence (no agent-browser coverage for assertions that require user journey validation)."
+    },
+    {
+      "featureId": "m5-cross-flows",
+      "severity": "blocking",
+      "description": "Claimed full endpoint parity was under-verified (subset checks only, not complete required surface)."
+    },
+    {
+      "featureId": "m5-cross-flows",
+      "severity": "blocking",
+      "description": "Large domain-model edge-case verification was required but not evidenced in the validation run."
+    }
+  ],
+  "appliedUpdates": [],
+  "suggestedGuidanceUpdates": [
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Update backend coding conventions to prefer `Bropilot.Storage`/`Bropilot.State` abstraction boundaries rather than direct `Bropilot.Map.Store` guidance for new backend-facing features.",
+      "evidence": "storage-abstraction review flagged mission guidance as stale against the newly introduced abstraction architecture.",
+      "isSystemic": true
+    },
+    {
+      "target": "skills/elixir-backend",
+      "suggestion": "Strengthen RED/GREEN enforcement with explicit evidence requirements (show failing targeted test before implementation and avoid marking followedProcedure=true otherwise).",
+      "evidence": "storage-abstraction and state-abstraction transcript skeletons show code-first behavior despite tests-first procedural requirements.",
+      "isSystemic": true
+    },
+    {
+      "target": "validation-contract.md",
+      "suggestion": "Reconcile contract mismatches for backend-abstraction (endpoint count target and state API shape) so implementation features and scrutiny reviews evaluate the same target behavior.",
+      "evidence": "api-contract-types and state-abstraction reviews both found requirement ambiguity/drift between artifacts and implemented surfaces.",
+      "isSystemic": true
+    },
+    {
+      "target": "skills/integration-worker",
+      "suggestion": "Add a verification-only checklist that maps expectedBehavior/fulfills assertions to concrete evidence and required surfaces (e.g., mandatory agent-browser for UI journey assertions).",
+      "evidence": "m5-cross-flows completed with terminal/curl-only evidence while required assertions included end-to-end navigation/flow validation.",
+      "isSystemic": true
+    },
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Introduce a convention for durable per-assertion evidence artifacts in verification-heavy features to reduce reliance on summarized command text.",
+      "evidence": "m5-cross-flows review identified missing durable evidence for several required assertions despite high-level handoff summaries.",
+      "isSystemic": true
+    },
+    {
+      "target": "skills/typescript-packages",
+      "suggestion": "Clarify tests-first procedure expectations and require explicit contract-coverage checks when feature scope includes endpoint count/coverage claims.",
+      "evidence": "api-contract-types review found coverage drift and transcript ordering inconsistent with tests-first guidance.",
+      "isSystemic": true
+    }
+  ],
+  "rejectedObservations": [
+    {
+      "observation": "Update `.factory/library/architecture.md` immediately to reflect storage abstraction.",
+      "reason": "deferred to orchestrator-level guidance update so conventions and docs can be updated consistently in one pass after fix features land"
+    },
+    {
+      "observation": "Add a separate knowledge-note for cloud stub parity mismatch.",
+      "reason": "duplicate of blocking findings already captured in this synthesis and reviewer reports"
+    }
+  ],
+  "previousRound": null
+}
