@@ -1,0 +1,33 @@
+{
+  "featureId": "misc-fixes-2",
+  "reviewedAt": "2026-04-06T20:28:07Z",
+  "commitId": "58ca0a9",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "pass",
+  "codeReview": {
+    "summary": "The feature implementation addresses the requested M2 fixes end-to-end: project-scoped traceability API routes were added, auto-linkage now assigns category-aware files in generator mode, broken path detection is surfaced via API/UI, git remote detection enables GitHub navigation, and visual link state indicators were added. One non-blocking robustness issue remains in GitHub URL construction.",
+    "issues": [
+      {
+        "file": "web/src/pages/traceability.astro",
+        "line": 683,
+        "severity": "non_blocking",
+        "description": "GitHub links are hardcoded to `/blob/main/`; repositories with a different default branch will generate broken navigation links. Deriving branch/ref dynamically (or using commit SHA when available) would make this resilient."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The integration-worker skill requires agent-browser verification when UI is affected, but this worker changed UI files and appears not to have invoked agent-browser.",
+      "evidence": ".factory/skills/integration-worker/SKILL.md:22 and :41 require agent-browser for UI changes; transcript skill extraction for session f4294953-6e19-4c01-9104-159e6424a17e returned only ['mission-worker-base', 'integration-worker'] with has_agent_browser=false."
+    },
+    {
+      "area": "knowledge",
+      "observation": "Shared architecture knowledge is now stale about traceability endpoints after this feature.",
+      "evidence": ".factory/library/architecture.md:73 states traceability is only `/api/traceability` (not project-scoped), while lib/bropilot/api/router.ex:158-166 now defines `/api/projects/:project_path/traceability` routes."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed commit 58ca0a9 for misc-fixes-2 against feature scope and transcript evidence. Implementation satisfies the targeted validation failures with one non-blocking GitHub-link branch assumption; overall review status is pass."
+}

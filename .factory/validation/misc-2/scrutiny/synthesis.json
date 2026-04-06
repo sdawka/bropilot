@@ -1,0 +1,51 @@
+{
+  "milestone": "misc-2",
+  "round": 1,
+  "status": "pass",
+  "validatorsRun": {
+    "test": {
+      "passed": true,
+      "command": "mix test",
+      "exitCode": 0
+    },
+    "test_web": {
+      "passed": true,
+      "command": "cd web && npx vitest run",
+      "exitCode": 0
+    },
+    "typecheck": {
+      "passed": true,
+      "command": "cd web && npx tsc --noEmit",
+      "exitCode": 0
+    },
+    "lint": {
+      "passed": true,
+      "command": "mix compile --warnings-as-errors",
+      "exitCode": 0
+    }
+  },
+  "reviewsSummary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0,
+    "failedFeatures": []
+  },
+  "blockingIssues": [],
+  "appliedUpdates": [],
+  "suggestedGuidanceUpdates": [
+    {
+      "target": ".factory/skills/integration-worker/SKILL.md",
+      "suggestion": "Require explicit evidence of agent-browser usage for UI-impacting changes, or explicitly document accepted alternatives when browser automation cannot be used.",
+      "evidence": "Review for misc-fixes-2 observed UI file changes with no agent-browser invocation in transcript despite the current integration-worker procedure requiring browser validation for UI work.",
+      "isSystemic": true
+    },
+    {
+      "target": ".factory/library/architecture.md",
+      "suggestion": "Update the traceability API section to include project-scoped routes (`/api/projects/:project_path/traceability`) alongside the existing global route to prevent stale guidance.",
+      "evidence": "Review for misc-fixes-2 found architecture documentation still describing only `/api/traceability`, while router code defines both global and project-scoped traceability endpoints.",
+      "isSystemic": false
+    }
+  ],
+  "rejectedObservations": [],
+  "previousRound": null
+}
