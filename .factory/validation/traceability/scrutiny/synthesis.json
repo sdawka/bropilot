@@ -1,6 +1,6 @@
 {
   "milestone": "traceability",
-  "round": 1,
+  "round": 2,
   "status": "fail",
   "validatorsRun": {
     "test": {
@@ -20,92 +20,45 @@
     }
   },
   "reviewsSummary": {
-    "total": 5,
+    "total": 1,
     "passed": 0,
-    "failed": 5,
+    "failed": 1,
     "failedFeatures": [
-      "traceability-data-model",
-      "traceability-api",
-      "traceability-auto-linkage",
-      "traceability-ui",
-      "m2-cross-flows"
+      "fix-scrutiny-m2-traceability"
     ]
   },
   "blockingIssues": [
     {
-      "featureId": "traceability-data-model",
+      "featureId": "fix-scrutiny-m2-traceability",
       "severity": "blocking",
-      "description": "Traceability writes are unsynchronized read-modify-write operations, so concurrent writes can lose entries (fails VAL-TRACE-006 intent)."
+      "description": "Auto-link rerun semantics remain merge/preserve by `(type, file_path)`, so stale links are retained instead of being replaced/marked stale for changed outputs."
     },
     {
-      "featureId": "traceability-data-model",
+      "featureId": "fix-scrutiny-m2-traceability",
       "severity": "blocking",
-      "description": "Concurrency test asserts only that at least one entry remains, codifying lossy behavior instead of requiring all concurrent writes to persist."
-    },
-    {
-      "featureId": "traceability-api",
-      "severity": "blocking",
-      "description": "Coverage linked/unlinked counts use entry count instead of link-presence semantics, so specs with empty links can be reported as linked."
-    },
-    {
-      "featureId": "traceability-auto-linkage",
-      "severity": "blocking",
-      "description": "Auto-link reruns keep stale links when file paths change; changed outputs are not replaced/marked as stale as required."
-    },
-    {
-      "featureId": "traceability-auto-linkage",
-      "severity": "blocking",
-      "description": "Auto-link mapping only uses related_specs and does not map entity refs from task context."
-    },
-    {
-      "featureId": "traceability-ui",
-      "severity": "blocking",
-      "description": "Traceability page reads /api/project response at wrong path (`data.git_remote` vs `data.project.git_remote`), so GitHub file links are typically not generated."
-    },
-    {
-      "featureId": "m2-cross-flows",
-      "severity": "blocking",
-      "description": "Cross-flow verification did not test traceability UI empty-state rendering directly; only API empty payload behavior was validated."
+      "description": "Added Vitest coverage validates traceability API/data helpers but does not verify `/traceability` page empty-state rendering behavior."
     }
   ],
   "appliedUpdates": [
     {
       "target": "library",
-      "description": "Updated .factory/library/architecture.md to reflect that traceability page now exists, ER page remains pending, and traceability API routes are /api/traceability.",
-      "sourceFeature": "m2-cross-flows"
+      "description": "Updated .factory/library/architecture.md to reflect that Bropilot.Application now starts Bropilot.Traceability.Writer alongside Recipe.Registry.",
+      "sourceFeature": "fix-scrutiny-m2-traceability"
     }
   ],
   "suggestedGuidanceUpdates": [
     {
-      "target": "AGENTS.md",
-      "suggestion": "Clarify `Use Bropilot.Map.Store for map data` with explicit exceptions for traceability-level aggregate operations (atomic file writes and multi-file coverage reads), or require wrappers in Map.Store for those scenarios.",
-      "evidence": "Both traceability-data-model and traceability-api used direct File/Yaml operations and triggered convention ambiguity in reviews.",
-      "isSystemic": true
-    },
-    {
       "target": "skills/elixir-backend",
-      "suggestion": "Add stricter requirement that handoff `skillFeedback.followedProcedure` must be false when transcript shows implementation-before-tests for TDD steps, with explicit deviation notes required.",
-      "evidence": "Both traceability-data-model and traceability-auto-linkage reviews observed production code creation before RED tests while handoff claimed no deviation.",
-      "isSystemic": true
-    },
-    {
-      "target": "skills/astro-frontend",
-      "suggestion": "Clarify minimum test expectations for interactive Alpine pages and require API contract-path checks when page-local fetch logic is used.",
-      "evidence": "traceability-ui introduced response-shape mismatch in /api/project handling and had no new tests for the new interaction logic.",
-      "isSystemic": true
-    },
-    {
-      "target": "skills/integration-worker",
-      "suggestion": "Require UI assertions for UI-facing acceptance criteria; API-only validation should not satisfy UI empty-state requirements.",
-      "evidence": "m2-cross-flows validated empty-state via API but not via /traceability/ UI despite expected behavior requiring graceful UI empty state.",
+      "suggestion": "Require `skillFeedback.followedProcedure` to be false when transcript order shows implementation before RED tests, with mandatory deviation notes.",
+      "evidence": "Reviewer observed code-first flow in fix-scrutiny-m2-traceability transcript while handoff reported followedProcedure=true despite RED-first requirements.",
       "isSystemic": true
     }
   ],
   "rejectedObservations": [
     {
-      "observation": "Hardcoded /blob/main/ branch in traceability links should trigger immediate guidance update.",
-      "reason": "non-blocking and feature-specific; handled as normal implementation fix, not broad guidance."
+      "observation": "Legacy weak concurrent-write assertion in test/traceability_test.exs should be treated as blocking in this rerun.",
+      "reason": "Rejected as blocking for this round because stronger writer-level concurrency tests now enforce durability; this remains non-blocking test-hardening debt."
     }
   ],
-  "previousRound": null
+  "previousRound": ".factory/validation/traceability/scrutiny/synthesis.round1.json"
 }

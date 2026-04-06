@@ -24,7 +24,7 @@ Space gates enforce transitions: can't advance to Act 2 until Problem Space slot
 
 | Module | Responsibility |
 |--------|---------------|
-| `Bropilot.Application` | OTP app. Starts Recipe.Registry always; conditionally starts Session, Bandit, Tunnel |
+| `Bropilot.Application` | OTP app. Starts Recipe.Registry and Traceability.Writer always; conditionally starts Session, Bandit, Tunnel |
 | `Bropilot.Spaces` | 5 hardcoded space definitions with gate validation |
 | `Bropilot.Map.Store` | YAML read/write to `.bropilot/map/{space}/{slot}.yaml` |
 | `Bropilot.Pipeline.Engine` | GenServer tracking pipeline position and step completion |

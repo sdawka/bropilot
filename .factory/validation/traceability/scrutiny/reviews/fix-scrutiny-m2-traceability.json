@@ -1,0 +1,45 @@
+{
+  "featureId": "fix-scrutiny-m2-traceability",
+  "reviewedAt": "2026-04-06T13:45:59Z",
+  "commitId": "3d58da384fdd8cd6dde55fd89a5ef4784d46a356",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "Fix review is partial. Resolved: concurrent-write serialization (Writer + supervisor wiring), coverage linked-count semantics, task-context entity mapping, and traceability UI project-path parsing. Unresolved blocking items remain: stale-link replacement semantics for re-runs (old links are still retained rather than replaced/marked) and the required traceability UI empty-state rendering verification (tests cover API/data logic, not page rendering). Prior weak concurrency assertion in traceability_test is still present but now non-blocking because stronger Writer tests were added.",
+    "issues": [
+      {
+        "file": "lib/bropilot/traceability/auto_linker.ex",
+        "line": 84,
+        "severity": "blocking",
+        "description": "`replace_stale_links/4` delegates to `Traceability.update/4`, which merges by `(type, file_path)` and preserves old file-path links. This does not implement replacement/marking of stale links for changed codegen outputs required by prior blocking finding (VAL-TAUTO-008). Evidence: `replace_stale_links` at line 84 and merge behavior in `lib/bropilot/traceability.ex` lines 268-276; test `test/traceability_auto_linker_test.exs:288-291` explicitly expects both old and new paths to remain."
+      },
+      {
+        "file": "web/src/lib/traceability.test.ts",
+        "line": 87,
+        "severity": "blocking",
+        "description": "The added Vitest file validates API helper responses/data math but does not render or assert `/traceability` page empty-state UI behavior. The prior blocking m2-cross-flows requirement was explicit about UI empty-state rendering verification, which remains unverified. Evidence: file imports only API utilities (`getTraceability`, `getTraceabilityEntry`) and tests at lines 87-166 assert matrix/coverage data, not page DOM output."
+      },
+      {
+        "file": "test/traceability_test.exs",
+        "line": 439,
+        "severity": "non_blocking",
+        "description": "Legacy VAL-TRACE-006 test still documents race acceptance and asserts only `length(raw[\"traceability\"]) >= 1`. Functional behavior is improved by new Writer tests, but this existing assertion remains weaker than the intended concurrent-write guarantee and can mislead future maintenance."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "elixir-backend skill procedure and observed execution remain misaligned: the transcript shows implementation edits before RED-phase test creation/failure checks, yet skillFeedback reports `followedProcedure: true`.",
+      "evidence": ".factory/skills/elixir-backend/SKILL.md lines 31-37 require \"Write tests first (RED)\" and \"Verify tests fail\"; worker transcript skeleton (worker-transcripts.jsonl line 21, session 9d3bb06f-a452-48f5-abd9-108b36999fb2) shows `Create lib/bropilot/traceability/writer.ex` before `Create test/traceability_writer_test.exs`."
+    },
+    {
+      "area": "knowledge",
+      "observation": "Architecture library entry for Application startup is stale after this fix.",
+      "evidence": ".factory/library/architecture.md line 27 says Application starts Recipe.Registry and conditionally Session/Bandit/Tunnel, but `lib/bropilot/application.ex` lines 8-12 now also start `Bropilot.Traceability.Writer`."
+    }
+  ],
+  "addressesFailureFrom": ".factory/validation/traceability/scrutiny/synthesis.json",
+  "summary": "FAIL. This rerun resolves several prior blockers, but two blocking gaps remain: stale-link replacement semantics for codegen re-runs and explicit UI empty-state rendering verification. A legacy weak concurrency assertion also remains as a non-blocking inconsistency."
+}
