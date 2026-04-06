@@ -1,0 +1,386 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="ER Diagram">
+  <div class="page-header">
+    <h1>ER Diagram</h1>
+    <p class="page-description">Entity-Relationship diagram from the domain model</p>
+  </div>
+
+  <div class="section" x-data="erDiagram()">
+    <!-- Error banner (API unreachable) -->
+    <template x-if="error">
+      <div class="card" style="background: var(--color-warning-bg, #332b00); border-color: var(--color-warning, #f5a623); margin-bottom: var(--space-4);">
+        <div class="empty-state">
+          <div class="empty-state-icon">⚠️</div>
+          <p>
+            <strong>Connect to Bropilot server</strong><br />
+            <span x-text="error"></span>
+          </p>
+        </div>
+      </div>
+    </template>
+
+    <!-- Loading state -->
+    <template x-if="loading && !error">
+      <div class="card">
+        <div class="empty-state">
+          <div class="empty-state-icon">⏳</div>
+          <p>Loading domain data…</p>
+        </div>
+      </div>
+    </template>
+
+    <!-- Empty state -->
+    <template x-if="!loading && !error && isEmpty">
+      <div class="card">
+        <div class="empty-state">
+          <div class="empty-state-icon">📐</div>
+          <p>No domain model yet. Run Act 2 domain modeling to extract entities and relationships.</p>
+        </div>
+      </div>
+    </template>
+
+    <!-- Diagram container -->
+    <template x-if="!loading && !error && !isEmpty">
+      <div class="er-wrapper">
+        <div class="er-toolbar">
+          <span class="er-count" x-text="entityCount + ' entities, ' + relationshipCount + ' relationships'"></span>
+          <button class="btn btn-sm" x-on:click="refreshDiagram()">↻ Refresh</button>
+        </div>
+        <div class="er-container" id="er-diagram-container">
+          <div id="er-mermaid-output"></div>
+        </div>
+      </div>
+    </template>
+  </div>
+</Layout>
+
+<style>
+  .er-wrapper {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-secondary);
+    overflow: hidden;
+  }
+
+  .er-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg-tertiary);
+  }
+
+  .er-count {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    font-weight: 500;
+  }
+
+  .btn-sm {
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-xs);
+    background: var(--color-accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  .btn-sm:hover {
+    background: var(--color-accent-light);
+  }
+
+  .er-container {
+    padding: var(--space-4);
+    overflow: auto;
+    max-height: 80vh;
+    min-height: 300px;
+  }
+
+  /* Ensure Mermaid SVG is scrollable/scalable */
+  .er-container :global(svg) {
+    max-width: 100%;
+    height: auto;
+  }
+
+  [x-cloak] {
+    display: none !important;
+  }
+</style>
+
+<script>
+  import { getClientApiConfig, type ApiError } from '../lib/api';
+
+  interface Entity {
+    name: string;
+    description?: string;
+    attributes?: Record<string, string> | Array<{ name: string; type: string }>;
+    relationships?: Array<{ target: string; type: string; description?: string }>;
+  }
+
+  interface Relationship {
+    source: string;
+    target: string;
+    type: string;
+    description?: string;
+  }
+
+  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:4000';
+
+  document.addEventListener('alpine:init', () => {
+    window.Alpine.data('erDiagram', () => ({
+      loading: true,
+      error: '',
+      isEmpty: false,
+      entities: [] as Entity[],
+      relationships: [] as Relationship[],
+      entityCount: 0,
+      relationshipCount: 0,
+
+      async init() {
+        await this.loadData();
+      },
+
+      async loadData() {
+        this.loading = true;
+        this.error = '';
+        this.isEmpty = false;
+
+        try {
+          const cfg = getClientApiConfig(API_URL);
+          const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+          if (cfg.token) headers['Authorization'] = `Bearer ${cfg.token}`;
+
+          const res = await fetch(`${cfg.url}/api/map/solution/domain`, { headers });
+
+          if (!res.ok) {
+            if (res.status === 404) {
+              this.isEmpty = true;
+              this.loading = false;
+              return;
+            }
+            throw new Error(`Server responded ${res.status}`);
+          }
+
+          const json = await res.json();
+          if (!json.ok) {
+            if (json.error?.includes('not found')) {
+              this.isEmpty = true;
+              this.loading = false;
+              return;
+            }
+            throw new Error(json.error || 'Unknown error');
+          }
+
+          const data = json.data || {};
+          const entitiesData = data.entities?.entities || data.entities || [];
+          const relationshipsData = data.relationships?.relationships || data.relationships || [];
+
+          this.entities = Array.isArray(entitiesData) ? entitiesData : [];
+          this.relationships = Array.isArray(relationshipsData) ? relationshipsData : [];
+          this.entityCount = this.entities.length;
+          this.relationshipCount = this.relationships.length;
+
+          if (this.entities.length === 0) {
+            this.isEmpty = true;
+            this.loading = false;
+            return;
+          }
+
+          this.loading = false;
+
+          // Wait for Alpine to render the DOM, then render diagram
+          await this.$nextTick();
+          await this.renderDiagram();
+        } catch (err: unknown) {
+          const error = err as Error;
+          if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+            this.error = 'Could not reach the API. Make sure the Bropilot Elixir backend is running.';
+          } else {
+            this.error = error.message || 'Failed to load domain data';
+          }
+          this.loading = false;
+        }
+      },
+
+      async refreshDiagram() {
+        await this.loadData();
+      },
+
+      buildMermaidDefinition(): string {
+        const lines: string[] = ['erDiagram'];
+
+        // Render entities with attributes
+        for (const entity of this.entities) {
+          const safeName = sanitizeName(entity.name);
+
+          const attrs = normalizeAttributes(entity.attributes);
+          if (attrs.length > 0) {
+            lines.push(`    ${safeName} {`);
+            for (const attr of attrs) {
+              const safeType = sanitizeType(attr.type);
+              const safeProp = sanitizeName(attr.name);
+              lines.push(`        ${safeType} ${safeProp}`);
+            }
+            lines.push('    }');
+          } else {
+            // Entity with no attributes — just declare it
+            lines.push(`    ${safeName} {`);
+            lines.push('    }');
+          }
+        }
+
+        // Collect entity names for validation
+        const entityNames = new Set(this.entities.map((e: Entity) => sanitizeName(e.name)));
+
+        // Render relationships
+        for (const rel of this.relationships) {
+          const source = sanitizeName(rel.source);
+          const target = sanitizeName(rel.target);
+
+          // Only render if both entities exist
+          if (!entityNames.has(source) || !entityNames.has(target)) continue;
+
+          const { left, right } = cardinalityMarkers(rel.type);
+          const label = rel.description
+            ? `"${escapeLabel(rel.description)}"`
+            : `"${rel.type}"`;
+
+          lines.push(`    ${source} ${left}--${right} ${target} : ${label}`);
+        }
+
+        return lines.join('\n');
+      },
+
+      async renderDiagram() {
+        const container = document.getElementById('er-mermaid-output');
+        if (!container) return;
+
+        const definition = this.buildMermaidDefinition();
+
+        try {
+          // Dynamic import of Mermaid to avoid SSR issues
+          const { default: mermaid } = await import('mermaid');
+          mermaid.initialize({
+            startOnLoad: false,
+            theme: 'base',
+            themeVariables: {
+              primaryColor: '#eef2ff',
+              primaryBorderColor: '#6366f1',
+              primaryTextColor: '#1a1a2e',
+              lineColor: '#6366f1',
+              secondaryColor: '#f0f0f0',
+              tertiaryColor: '#fafafa',
+              fontSize: '14px',
+            },
+            er: {
+              useMaxWidth: true,
+              layoutDirection: 'TB',
+            },
+            securityLevel: 'loose',
+          });
+
+          // Use unique ID for re-renders
+          const id = 'er-diagram-' + Date.now();
+          const { svg } = await mermaid.render(id, definition);
+          container.innerHTML = svg;
+        } catch (renderErr: unknown) {
+          const error = renderErr as Error;
+          console.error('[er] Mermaid render error:', error);
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">⚠️</div>
+              <p>Failed to render diagram. ${escapeHtml(error.message || 'Unknown rendering error')}</p>
+            </div>
+          `;
+        }
+      },
+    }));
+  });
+
+  /**
+   * Sanitize entity/attribute name for Mermaid ER syntax.
+   * Mermaid ER names must be alphanumeric (with underscores).
+   */
+  function sanitizeName(name: string): string {
+    return name.replace(/[^a-zA-Z0-9_]/g, '_').replace(/^_+|_+$/g, '') || 'unnamed';
+  }
+
+  /**
+   * Sanitize type name for Mermaid. Replace spaces and special chars.
+   */
+  function sanitizeType(type: string): string {
+    return type.replace(/[^a-zA-Z0-9_(),.]/g, '_').replace(/^_+|_+$/g, '') || 'string';
+  }
+
+  /**
+   * Normalize attributes from either Record<string, string> or Array format.
+   */
+  function normalizeAttributes(
+    attrs?: Record<string, string> | Array<{ name: string; type: string }>
+  ): Array<{ name: string; type: string }> {
+    if (!attrs) return [];
+
+    if (Array.isArray(attrs)) {
+      return attrs.map((a) => ({
+        name: a.name || 'unknown',
+        type: a.type || 'string',
+      }));
+    }
+
+    // Record<string, string> format: { id: "uuid", name: "string" }
+    return Object.entries(attrs).map(([key, val]) => ({
+      name: key,
+      type: typeof val === 'string' ? val : 'string',
+    }));
+  }
+
+  /**
+   * Map relationship type to Mermaid cardinality markers.
+   * Mermaid ER uses: ||--|| (1:1), ||--|{ (1:N), }|--|| (N:1), }|--|{ (N:M)
+   */
+  function cardinalityMarkers(type: string): { left: string; right: string } {
+    switch (type?.toLowerCase()) {
+      case 'has_one':
+        return { left: '||', right: '||' };
+      case 'has_many':
+        return { left: '||', right: 'o{' };
+      case 'belongs_to':
+        return { left: '}o', right: '||' };
+      case 'many_to_many':
+        return { left: '}o', right: 'o{' };
+      case 'produces':
+        return { left: '||', right: 'o{' };
+      case 'feeds_back':
+        return { left: '}o', right: '||' };
+      case 'validates_gate':
+        return { left: '||', right: '||' };
+      default:
+        return { left: '||', right: 'o{' };
+    }
+  }
+
+  /**
+   * Escape label text for Mermaid string literals.
+   */
+  function escapeLabel(text: string): string {
+    return text.replace(/"/g, "'").replace(/\n/g, ' ').substring(0, 60);
+  }
+
+  /**
+   * Basic HTML escaping for error messages.
+   */
+  function escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+</script>
