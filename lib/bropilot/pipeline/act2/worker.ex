@@ -16,7 +16,7 @@ defmodule Bropilot.Pipeline.Act2.Worker do
   use GenServer
 
   alias Bropilot.Pipeline.Act2.Extractor
-  alias Bropilot.Map.Store
+  alias Bropilot.Storage
 
   defstruct [
     :project_path,
@@ -244,7 +244,7 @@ defmodule Bropilot.Pipeline.Act2.Worker do
     ]
 
     Enum.reduce(slots, %{}, fn {slot, key}, acc ->
-      case Store.read(map_dir, :problem, slot) do
+      case Storage.read(map_dir, :problem, slot) do
         {:ok, data} -> Map.put(acc, key, data)
         _ -> acc
       end
@@ -253,25 +253,25 @@ defmodule Bropilot.Pipeline.Act2.Worker do
 
   defp read_domain_data(map_dir) do
     vocab =
-      case Store.read(map_dir, :solution, :vocabulary) do
+      case Storage.read(map_dir, :solution, :vocabulary) do
         {:ok, data} -> data
         _ -> %{}
       end
 
     domain =
-      case Store.read(map_dir, :solution, :domain) do
+      case Storage.read(map_dir, :solution, :domain) do
         {:ok, data} -> data
         _ -> %{}
       end
 
     flows =
-      case Store.read(map_dir, :solution, :flows) do
+      case Storage.read(map_dir, :solution, :flows) do
         {:ok, data} -> data
         _ -> %{}
       end
 
     arch =
-      case Store.read(map_dir, :solution, :architecture) do
+      case Storage.read(map_dir, :solution, :architecture) do
         {:ok, data} -> data
         _ -> %{}
       end
@@ -288,29 +288,29 @@ defmodule Bropilot.Pipeline.Act2.Worker do
 
   defp write_step3(map_dir, data) do
     # vocabulary.yaml at map/solution/vocabulary.yaml
-    Store.write(map_dir, :solution, :vocabulary, %{"terms" => data["vocabulary"]})
+    Storage.write(map_dir, :solution, :vocabulary, %{"terms" => data["vocabulary"]})
 
     # domain/entities.yaml
-    Store.write(map_dir, :solution, :"domain/entities", %{"entities" => data["entities"]})
+    Storage.write(map_dir, :solution, :"domain/entities", %{"entities" => data["entities"]})
 
     # domain/relationships.yaml
-    Store.write(map_dir, :solution, :"domain/relationships", %{
+    Storage.write(map_dir, :solution, :"domain/relationships", %{
       "relationships" => data["relationships"]
     })
 
     # flows/user-flows.yaml
-    Store.write(map_dir, :solution, :"flows/user-flows", %{"flows" => data["user_flows"]})
+    Storage.write(map_dir, :solution, :"flows/user-flows", %{"flows" => data["user_flows"]})
 
     # flows/system-flows.yaml
-    Store.write(map_dir, :solution, :"flows/system-flows", %{"flows" => data["system_flows"]})
+    Storage.write(map_dir, :solution, :"flows/system-flows", %{"flows" => data["system_flows"]})
 
     # architecture/components.yaml
-    Store.write(map_dir, :solution, :"architecture/components", %{
+    Storage.write(map_dir, :solution, :"architecture/components", %{
       "components" => data["architecture_components"]
     })
 
     # architecture/dependencies.yaml
-    Store.write(map_dir, :solution, :"architecture/dependencies", %{
+    Storage.write(map_dir, :solution, :"architecture/dependencies", %{
       "dependencies" => data["architecture_dependencies"]
     })
 
@@ -327,7 +327,7 @@ defmodule Bropilot.Pipeline.Act2.Worker do
       ~w(api behaviours constraints entities modules events externals views components streams infra)
 
     for spec <- spec_files do
-      Store.write(map_dir, :solution, :"specs/#{spec}", %{spec => data[spec]})
+      Storage.write(map_dir, :solution, :"specs/#{spec}", %{spec => data[spec]})
     end
 
     # Append to glossary

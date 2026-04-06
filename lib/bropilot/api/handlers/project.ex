@@ -6,7 +6,7 @@ defmodule Bropilot.Api.Handlers.Project do
   import Bropilot.Api.Router, only: [json: 3]
 
   alias Bropilot.Spaces
-  alias Bropilot.Map.Store
+  alias Bropilot.Storage
   alias Bropilot.Recipe.Registry
 
   def init_project(conn) do
@@ -91,7 +91,7 @@ defmodule Bropilot.Api.Handlers.Project do
       slots =
         Enum.map(space_def.required_slots, fn slot ->
           slot_data =
-            case Store.read(map_dir, space_atom, slot.id) do
+            case Storage.read(map_dir, space_atom, slot.id) do
               {:ok, data} -> data
               _ -> nil
             end
@@ -100,7 +100,7 @@ defmodule Bropilot.Api.Handlers.Project do
             id: slot.id,
             name: slot.name,
             type: slot.type,
-            filled: Store.exists?(map_dir, space_atom, slot.id),
+            filled: Storage.exists?(map_dir, space_atom, slot.id),
             data: slot_data
           }
         end)
@@ -127,11 +127,11 @@ defmodule Bropilot.Api.Handlers.Project do
          {:ok, bropilot_dir} <- ensure_project(bropilot_dir()) do
       map_dir = Path.join(bropilot_dir, "map")
 
-      case Store.read(map_dir, space_atom, slot_atom) do
+      case Storage.read(map_dir, space_atom, slot_atom) do
         {:ok, data} ->
           json(conn, 200, %{ok: true, data: data})
 
-        {:error, {:not_found, _, _}} ->
+        {:error, :not_found} ->
           json(conn, 404, %{ok: false, error: "slot not found"})
 
         {:error, reason} ->
@@ -149,7 +149,7 @@ defmodule Bropilot.Api.Handlers.Project do
       map_dir = Path.join(bropilot_dir, "map")
       data = conn.body_params
 
-      case Store.write(map_dir, space_atom, slot_atom, data) do
+      case Storage.write(map_dir, space_atom, slot_atom, data) do
         :ok ->
           json(conn, 200, %{ok: true, data: %{space: space_str, slot: slot_str}})
 

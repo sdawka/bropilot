@@ -16,7 +16,7 @@ defmodule Bropilot.Pipeline.Act1.Worker do
   use GenServer
 
   alias Bropilot.Pipeline.Act1.Extractor
-  alias Bropilot.Map.Store
+  alias Bropilot.Storage
 
   defstruct [
     :project_path,
@@ -245,8 +245,8 @@ defmodule Bropilot.Pipeline.Act1.Worker do
   # -- Map Writers --
 
   defp write_step1(map_dir, data) do
-    Store.write(map_dir, :problem, :problem, %{"problem" => data["problem"]})
-    Store.write(map_dir, :problem, :context, %{"context" => data["context"]})
+    Storage.write(map_dir, :problem, :problem, %{"problem" => data["problem"]})
+    Storage.write(map_dir, :problem, :context, %{"context" => data["context"]})
 
     # project.yaml at map root
     File.write(
@@ -258,11 +258,11 @@ defmodule Bropilot.Pipeline.Act1.Worker do
   end
 
   defp write_step2(map_dir, data) do
-    Store.write(map_dir, :problem, :audience, %{"audience" => data["audience"]})
-    Store.write(map_dir, :problem, :assumptions, %{"assumptions" => data["assumptions"]})
-    Store.write(map_dir, :problem, :hypotheses, %{"hypotheses" => data["hypotheses"]})
+    Storage.write(map_dir, :problem, :audience, %{"audience" => data["audience"]})
+    Storage.write(map_dir, :problem, :assumptions, %{"assumptions" => data["assumptions"]})
+    Storage.write(map_dir, :problem, :hypotheses, %{"hypotheses" => data["hypotheses"]})
 
-    Store.write(map_dir, :problem, :"vibes/basics", %{
+    Storage.write(map_dir, :problem, :"vibes/basics", %{
       "audience" => data["audience"],
       "use_cases" => data["use_cases"],
       "capabilities" => data["capabilities"],
