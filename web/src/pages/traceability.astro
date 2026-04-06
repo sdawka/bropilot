@@ -1,0 +1,1099 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import {
+  getTraceability,
+  SPEC_CATEGORIES,
+  LINK_TYPES,
+  formatSpecName,
+} from '../lib/api';
+import type {
+  TraceabilityMatrix,
+  TraceabilityEntry,
+  TraceabilityLink,
+  CategoryCoverage,
+} from '../lib/api';
+
+// Load traceability data from API
+const raw = await getTraceability();
+const apiDown = raw === null;
+const matrix: TraceabilityMatrix = (raw as TraceabilityMatrix) ?? {
+  entries: [],
+  coverage: {
+    total_specs: 0,
+    total_linked: 0,
+    total_unlinked: 0,
+    by_category: {},
+  },
+};
+
+// Server-side: group entries by category for the matrix
+const entriesByCategory: Record<string, TraceabilityEntry[]> = {};
+for (const cat of SPEC_CATEGORIES) {
+  entriesByCategory[cat] = matrix.entries.filter(
+    (e) => e.spec_category === cat,
+  );
+}
+
+// Server-side: build reverse index (file → specs)
+const fileToSpecs: Record<string, { spec_category: string; spec_id: string; link_type: string }[]> = {};
+for (const entry of matrix.entries) {
+  for (const link of entry.links) {
+    if (!fileToSpecs[link.file_path]) {
+      fileToSpecs[link.file_path] = [];
+    }
+    fileToSpecs[link.file_path].push({
+      spec_category: entry.spec_category,
+      spec_id: entry.spec_id,
+      link_type: link.type,
+    });
+  }
+}
+
+// Serialize data for Alpine.js
+const clientData = JSON.stringify({
+  entries: matrix.entries,
+  coverage: matrix.coverage,
+  fileToSpecs,
+});
+---
+
+<Layout title="Traceability">
+  {apiDown && (
+    <div class="card" style="background: var(--color-warning-bg, #332b00); border-color: var(--color-warning, #f5a623); margin-bottom: var(--space-6);">
+      <div class="empty-state">
+        <div class="empty-state-icon">⚠️</div>
+        <p>
+          <strong>Connect to Bropilot server</strong><br />
+          Could not reach the API. Make sure the Bropilot Elixir backend is running.
+        </p>
+      </div>
+    </div>
+  )}
+
+  <div class="page-header">
+    <h1>Traceability</h1>
+    <p class="page-description">Spec-to-code linkage matrix and coverage overview</p>
+  </div>
+
+  <div x-data="traceabilityPage()" x-init="init()">
+    <!-- Coverage Summary -->
+    <div class="section">
+      <h2 class="section-title">Coverage Summary</h2>
+      <div class="coverage-cards">
+        <div class="coverage-card">
+          <div class="coverage-number" x-text="filteredCoverage.totalSpecs">
+            {matrix.coverage.total_specs}
+          </div>
+          <div class="coverage-label">Total Specs</div>
+        </div>
+        <div class="coverage-card coverage-linked">
+          <div class="coverage-number" x-text="filteredCoverage.totalLinked">
+            {matrix.coverage.total_linked}
+          </div>
+          <div class="coverage-label">Linked</div>
+        </div>
+        <div class="coverage-card coverage-unlinked">
+          <div class="coverage-number" x-text="filteredCoverage.totalUnlinked">
+            {matrix.coverage.total_unlinked}
+          </div>
+          <div class="coverage-label">Unlinked</div>
+        </div>
+        <div class="coverage-card">
+          <div class="coverage-number" x-text="filteredCoverage.percentage + '%'">
+            {matrix.coverage.total_specs > 0
+              ? Math.round((matrix.coverage.total_linked / matrix.coverage.total_specs) * 100)
+              : 0}%
+          </div>
+          <div class="coverage-label">Coverage</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="section">
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label class="filter-label">Category</label>
+          <select class="filter-select" x-model="filterCategory">
+            <option value="all">All Categories</option>
+            {SPEC_CATEGORIES.map((cat) => (
+              <option value={cat}>{formatSpecName(cat)}</option>
+            ))}
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Link Type</label>
+          <select class="filter-select" x-model="filterLinkType">
+            <option value="all">All Types</option>
+            {LINK_TYPES.map((lt) => (
+              <option value={lt}>{lt.charAt(0).toUpperCase() + lt.slice(1)}</option>
+            ))}
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">View</label>
+          <div class="view-toggle">
+            <button
+              class="view-btn"
+              x-bind:class="{ active: viewMode === 'matrix' }"
+              x-on:click="viewMode = 'matrix'; selectedFile = null"
+            >Matrix</button>
+            <button
+              class="view-btn"
+              x-bind:class="{ active: viewMode === 'files' }"
+              x-on:click="viewMode = 'files'; selectedSpec = null"
+            >By File</button>
+          </div>
+        </div>
+        <button class="refresh-btn" x-on:click="refresh()" x-bind:disabled="refreshing">
+          <span x-show="!refreshing">↻ Refresh</span>
+          <span x-show="refreshing">Refreshing…</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Matrix View -->
+    <div class="section" x-show="viewMode === 'matrix'">
+      <h2 class="section-title">Linkage Matrix</h2>
+
+      <template x-if="filteredEntries.length === 0 && !hasAnyEntries">
+        <div class="card">
+          <div class="empty-state">
+            <div class="empty-state-icon">🔗</div>
+            <p>No traceability links yet. Run a build to auto-generate links, or add them manually via the API.</p>
+          </div>
+        </div>
+      </template>
+
+      <template x-if="hasAnyEntries || filteredCategories.length > 0">
+        <div class="table-wrapper">
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Total</th>
+                <th>Linked</th>
+                <th>Unlinked</th>
+                <th class="link-type-col">Impl</th>
+                <th class="link-type-col">Test</th>
+                <th class="link-type-col">Type</th>
+                <th class="link-type-col">Migration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="cat in filteredCategories" x-bind:key="cat">
+                <tr class="matrix-row" x-on:click="toggleCategory(cat)">
+                  <td>
+                    <div class="category-cell">
+                      <span class="expand-icon" x-text="expandedCategory === cat ? '▼' : '▶'"></span>
+                      <span class="category-name" x-text="formatCategoryName(cat)"></span>
+                    </div>
+                  </td>
+                  <td x-text="getCategoryCoverage(cat).total"></td>
+                  <td>
+                    <span class="linked-count" x-text="getCategoryCoverage(cat).linked"></span>
+                  </td>
+                  <td>
+                    <span
+                      class="unlinked-count"
+                      x-bind:class="{ 'has-warning': getCategoryCoverage(cat).unlinked > 0 }"
+                      x-text="getCategoryCoverage(cat).unlinked"
+                    ></span>
+                  </td>
+                  <td class="link-type-col">
+                    <span
+                      class="type-indicator"
+                      x-bind:class="hasLinkType(cat, 'implementation') ? 'type-linked' : 'type-unlinked'"
+                      x-text="countLinkType(cat, 'implementation')"
+                    ></span>
+                  </td>
+                  <td class="link-type-col">
+                    <span
+                      class="type-indicator"
+                      x-bind:class="hasLinkType(cat, 'test') ? 'type-linked' : 'type-unlinked'"
+                      x-text="countLinkType(cat, 'test')"
+                    ></span>
+                  </td>
+                  <td class="link-type-col">
+                    <span
+                      class="type-indicator"
+                      x-bind:class="hasLinkType(cat, 'type') ? 'type-linked' : 'type-unlinked'"
+                      x-text="countLinkType(cat, 'type')"
+                    ></span>
+                  </td>
+                  <td class="link-type-col">
+                    <span
+                      class="type-indicator"
+                      x-bind:class="hasLinkType(cat, 'migration') ? 'type-linked' : 'type-unlinked'"
+                      x-text="countLinkType(cat, 'migration')"
+                    ></span>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </template>
+
+      <!-- Expanded Category: Spec List -->
+      <template x-if="expandedCategory">
+        <div class="spec-list-panel card" style="margin-top: var(--space-4);">
+          <div class="card-header">
+            <h3 class="card-title" x-text="formatCategoryName(expandedCategory) + ' Specs'"></h3>
+            <button class="close-btn" x-on:click="expandedCategory = null; selectedSpec = null">✕</button>
+          </div>
+          <div class="spec-entries">
+            <template x-if="getCategoryEntries(expandedCategory).length === 0">
+              <div class="empty-state" style="padding: var(--space-6);">
+                <p>No traceability links for this category yet.</p>
+              </div>
+            </template>
+            <template x-for="entry in getCategoryEntries(expandedCategory)" x-bind:key="entry.spec_id">
+              <div
+                class="spec-entry"
+                x-bind:class="{ 'spec-selected': selectedSpec?.spec_id === entry.spec_id && selectedSpec?.spec_category === entry.spec_category }"
+                x-on:click.stop="selectSpec(entry)"
+              >
+                <div class="spec-entry-header">
+                  <span class="status-dot" x-bind:class="entry.links.length > 0 ? 'filled' : 'empty'"></span>
+                  <span class="spec-id" x-text="entry.spec_id"></span>
+                  <span class="spec-link-count" x-text="entry.links.length + ' link' + (entry.links.length !== 1 ? 's' : '')"></span>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+
+      <!-- Spec Detail Panel -->
+      <template x-if="selectedSpec">
+        <div class="detail-panel card" style="margin-top: var(--space-4);">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span x-text="formatCategoryName(selectedSpec.spec_category)"></span>
+              /
+              <span x-text="selectedSpec.spec_id"></span>
+            </h3>
+            <button class="close-btn" x-on:click="selectedSpec = null">✕</button>
+          </div>
+          <div class="detail-body">
+            <template x-if="selectedSpec.links.length === 0">
+              <div class="empty-state" style="padding: var(--space-6);">
+                <p>No code linked to this spec yet.</p>
+              </div>
+            </template>
+            <template x-if="selectedSpec.links.length > 0">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Type</th>
+                      <th>File Path</th>
+                      <th>Function</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template x-for="(link, idx) in getFilteredLinks(selectedSpec)" x-bind:key="idx">
+                      <tr>
+                        <td>
+                          <span class="badge" x-bind:class="'badge-' + link.type" x-text="link.type"></span>
+                        </td>
+                        <td>
+                          <template x-if="gitHubBaseUrl">
+                            <a
+                              x-bind:href="buildGitHubUrl(link)"
+                              target="_blank"
+                              rel="noopener"
+                              class="file-link"
+                              x-text="link.file_path"
+                            ></a>
+                          </template>
+                          <template x-if="!gitHubBaseUrl">
+                            <span class="file-path" x-text="link.file_path"></span>
+                          </template>
+                        </td>
+                        <td>
+                          <code x-show="link.function_name" x-text="link.function_name"></code>
+                        </td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- File View (Reverse Navigation) -->
+    <div class="section" x-show="viewMode === 'files'">
+      <h2 class="section-title">By File</h2>
+
+      <template x-if="filteredFiles.length === 0">
+        <div class="card">
+          <div class="empty-state">
+            <div class="empty-state-icon">📄</div>
+            <p>No linked files found. Switch to Matrix view to see spec coverage.</p>
+          </div>
+        </div>
+      </template>
+
+      <template x-if="filteredFiles.length > 0">
+        <div class="file-list">
+          <template x-for="filePath in filteredFiles" x-bind:key="filePath">
+            <div
+              class="file-entry card"
+              x-bind:class="{ 'file-selected': selectedFile === filePath }"
+              x-on:click="toggleFile(filePath)"
+            >
+              <div class="file-entry-header">
+                <span class="expand-icon" x-text="selectedFile === filePath ? '▼' : '▶'"></span>
+                <template x-if="gitHubBaseUrl">
+                  <a
+                    x-bind:href="gitHubBaseUrl + '/blob/main/' + filePath"
+                    target="_blank"
+                    rel="noopener"
+                    class="file-link"
+                    x-text="filePath"
+                    x-on:click.stop
+                  ></a>
+                </template>
+                <template x-if="!gitHubBaseUrl">
+                  <span class="file-path" x-text="filePath"></span>
+                </template>
+                <span class="spec-link-count" x-text="getFileSpecs(filePath).length + ' spec' + (getFileSpecs(filePath).length !== 1 ? 's' : '')"></span>
+              </div>
+              <template x-if="selectedFile === filePath">
+                <div class="file-specs" x-on:click.stop>
+                  <template x-for="(spec, idx) in getFileSpecs(filePath)" x-bind:key="idx">
+                    <div class="file-spec-row">
+                      <span class="badge" x-bind:class="'badge-' + spec.link_type" x-text="spec.link_type"></span>
+                      <span class="spec-ref" x-text="formatCategoryName(spec.spec_category) + ' / ' + spec.spec_id"></span>
+                    </div>
+                  </template>
+                </div>
+              </template>
+            </div>
+          </template>
+        </div>
+      </template>
+    </div>
+  </div>
+</Layout>
+
+<script define:vars={{ clientData }}>
+  document.addEventListener('alpine:init', () => {
+    window.Alpine.data('traceabilityPage', () => ({
+      // Data
+      entries: [],
+      coverage: { total_specs: 0, total_linked: 0, total_unlinked: 0, by_category: {} },
+      fileToSpecs: {},
+      gitHubBaseUrl: null,
+
+      // UI state
+      viewMode: 'matrix',
+      filterCategory: 'all',
+      filterLinkType: 'all',
+      expandedCategory: null,
+      selectedSpec: null,
+      selectedFile: null,
+      refreshing: false,
+
+      init() {
+        const data = JSON.parse(clientData);
+        this.entries = data.entries;
+        this.coverage = data.coverage;
+        this.fileToSpecs = data.fileToSpecs;
+        this.detectGitHubUrl();
+      },
+
+      detectGitHubUrl() {
+        // Try to detect GitHub URL from the project data or use a convention
+        // For now, attempt to get the git remote URL from the API or localStorage
+        try {
+          // Check if there's a stored project with git info
+          const conn = JSON.parse(localStorage.getItem('bropilot_connection') || '{}');
+          if (conn?.gitHubUrl) {
+            this.gitHubBaseUrl = conn.gitHubUrl.replace(/\/+$/, '');
+            return;
+          }
+        } catch { /* ignore */ }
+
+        // Check if project metadata has a git remote
+        this.fetchGitRemote();
+      },
+
+      async fetchGitRemote() {
+        try {
+          const cfg = this.getApiConfig();
+          const res = await fetch(`${cfg.url}/api/project`, { headers: cfg.headers });
+          if (res.ok) {
+            const json = await res.json();
+            const projectData = json?.data;
+            // Look for git_remote or github_url in project data
+            if (projectData?.git_remote) {
+              this.gitHubBaseUrl = this.parseGitRemote(projectData.git_remote);
+            } else if (projectData?.github_url) {
+              this.gitHubBaseUrl = projectData.github_url.replace(/\/+$/, '');
+            }
+          }
+        } catch { /* ignore - will show plain paths */ }
+      },
+
+      parseGitRemote(remote) {
+        if (!remote) return null;
+        // Convert git@github.com:owner/repo.git or https://github.com/owner/repo.git
+        let url = remote;
+        if (url.startsWith('git@github.com:')) {
+          url = 'https://github.com/' + url.slice('git@github.com:'.length);
+        }
+        url = url.replace(/\.git$/, '').replace(/\/+$/, '');
+        if (url.includes('github.com')) {
+          return url;
+        }
+        return null;
+      },
+
+      getApiConfig() {
+        let url = 'http://localhost:4000';
+        const headers = { 'Content-Type': 'application/json' };
+        try {
+          const raw = localStorage.getItem('bropilot_connection');
+          if (raw) {
+            const conn = JSON.parse(raw);
+            if (conn?.serverUrl) url = conn.serverUrl.replace(/\/+$/, '');
+            if (conn?.token) headers['Authorization'] = `Bearer ${conn.token}`;
+          }
+        } catch { /* ignore */ }
+        return { url, headers };
+      },
+
+      async refresh() {
+        this.refreshing = true;
+        try {
+          const cfg = this.getApiConfig();
+          const res = await fetch(`${cfg.url}/api/traceability`, { headers: cfg.headers });
+          if (res.ok) {
+            const json = await res.json();
+            if (json.ok && json.data) {
+              this.entries = json.data.entries || [];
+              this.coverage = json.data.coverage || { total_specs: 0, total_linked: 0, total_unlinked: 0, by_category: {} };
+              this.rebuildFileIndex();
+            }
+          }
+        } catch (err) {
+          console.warn('[traceability] refresh failed:', err);
+        }
+        this.refreshing = false;
+      },
+
+      rebuildFileIndex() {
+        const index = {};
+        for (const entry of this.entries) {
+          for (const link of entry.links) {
+            if (!index[link.file_path]) {
+              index[link.file_path] = [];
+            }
+            index[link.file_path].push({
+              spec_category: entry.spec_category,
+              spec_id: entry.spec_id,
+              link_type: link.type,
+            });
+          }
+        }
+        this.fileToSpecs = index;
+      },
+
+      // Formatting
+      formatCategoryName(cat) {
+        return cat.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      },
+
+      // Filtered data
+      get filteredCategories() {
+        const cats = ['api', 'behaviours', 'constraints', 'entities', 'modules', 'events', 'externals', 'views', 'components', 'streams', 'infra'];
+        if (this.filterCategory === 'all') return cats;
+        return cats.filter(c => c === this.filterCategory);
+      },
+
+      get filteredEntries() {
+        let entries = this.entries;
+        if (this.filterCategory !== 'all') {
+          entries = entries.filter(e => e.spec_category === this.filterCategory);
+        }
+        if (this.filterLinkType !== 'all') {
+          entries = entries.filter(e =>
+            e.links.some(l => l.type === this.filterLinkType)
+          );
+        }
+        return entries;
+      },
+
+      get hasAnyEntries() {
+        return this.entries.length > 0;
+      },
+
+      get filteredFiles() {
+        let files = Object.keys(this.fileToSpecs);
+        if (this.filterCategory !== 'all') {
+          files = files.filter(f =>
+            this.fileToSpecs[f].some(s => s.spec_category === this.filterCategory)
+          );
+        }
+        if (this.filterLinkType !== 'all') {
+          files = files.filter(f =>
+            this.fileToSpecs[f].some(s => s.link_type === this.filterLinkType)
+          );
+        }
+        return files.sort();
+      },
+
+      get filteredCoverage() {
+        const byCat = this.coverage.by_category || {};
+        let totalSpecs = 0;
+        let totalLinked = 0;
+
+        const cats = this.filteredCategories;
+        for (const cat of cats) {
+          const c = byCat[cat] || { total: 0, linked: 0, unlinked: 0 };
+          totalSpecs += c.total;
+          if (this.filterLinkType === 'all') {
+            totalLinked += c.linked;
+          } else {
+            // Count entries that have links of the filtered type
+            totalLinked += this.entries.filter(
+              e => e.spec_category === cat && e.links.some(l => l.type === this.filterLinkType)
+            ).length;
+          }
+        }
+
+        const totalUnlinked = Math.max(totalSpecs - totalLinked, 0);
+        const percentage = totalSpecs > 0 ? Math.round((totalLinked / totalSpecs) * 100) : 0;
+
+        return { totalSpecs, totalLinked, totalUnlinked, percentage };
+      },
+
+      // Coverage per category
+      getCategoryCoverage(cat) {
+        const c = (this.coverage.by_category || {})[cat];
+        if (!c) return { total: 0, linked: 0, unlinked: 0 };
+
+        if (this.filterLinkType === 'all') {
+          return c;
+        }
+
+        // When filtering by link type, recalculate linked count
+        const linked = this.entries.filter(
+          e => e.spec_category === cat && e.links.some(l => l.type === this.filterLinkType)
+        ).length;
+
+        return {
+          total: c.total,
+          linked,
+          unlinked: Math.max(c.total - linked, 0),
+        };
+      },
+
+      // Category entries for expanded view
+      getCategoryEntries(cat) {
+        let entries = this.entries.filter(e => e.spec_category === cat);
+        if (this.filterLinkType !== 'all') {
+          entries = entries.filter(e =>
+            e.links.some(l => l.type === this.filterLinkType)
+          );
+        }
+        return entries;
+      },
+
+      // Link type helpers
+      hasLinkType(cat, linkType) {
+        return this.entries.some(
+          e => e.spec_category === cat && e.links.some(l => l.type === linkType)
+        );
+      },
+
+      countLinkType(cat, linkType) {
+        return this.entries.filter(
+          e => e.spec_category === cat && e.links.some(l => l.type === linkType)
+        ).length;
+      },
+
+      // Get filtered links for a spec
+      getFilteredLinks(entry) {
+        if (this.filterLinkType === 'all') return entry.links;
+        return entry.links.filter(l => l.type === this.filterLinkType);
+      },
+
+      // File view helpers
+      getFileSpecs(filePath) {
+        let specs = this.fileToSpecs[filePath] || [];
+        if (this.filterCategory !== 'all') {
+          specs = specs.filter(s => s.spec_category === this.filterCategory);
+        }
+        if (this.filterLinkType !== 'all') {
+          specs = specs.filter(s => s.link_type === this.filterLinkType);
+        }
+        return specs;
+      },
+
+      // GitHub URL construction
+      buildGitHubUrl(link) {
+        if (!this.gitHubBaseUrl) return '#';
+        let url = `${this.gitHubBaseUrl}/blob/main/${link.file_path}`;
+        if (link.line_range && link.line_range.length === 2) {
+          url += `#L${link.line_range[0]}-L${link.line_range[1]}`;
+        }
+        return url;
+      },
+
+      // Interaction
+      toggleCategory(cat) {
+        if (this.expandedCategory === cat) {
+          this.expandedCategory = null;
+          this.selectedSpec = null;
+        } else {
+          this.expandedCategory = cat;
+          this.selectedSpec = null;
+        }
+      },
+
+      selectSpec(entry) {
+        if (this.selectedSpec?.spec_id === entry.spec_id &&
+            this.selectedSpec?.spec_category === entry.spec_category) {
+          this.selectedSpec = null;
+        } else {
+          this.selectedSpec = entry;
+        }
+      },
+
+      toggleFile(filePath) {
+        this.selectedFile = this.selectedFile === filePath ? null : filePath;
+      },
+    }));
+  });
+</script>
+
+<style>
+  /* Coverage Summary Cards */
+  .coverage-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  .coverage-card {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .coverage-number {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: var(--space-1);
+  }
+
+  .coverage-label {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .coverage-linked .coverage-number {
+    color: var(--color-success);
+  }
+
+  .coverage-unlinked .coverage-number {
+    color: var(--color-warning);
+  }
+
+  /* Filter Bar */
+  .filter-bar {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: var(--space-6);
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .filter-label {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .filter-select {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+    font-family: var(--font-sans);
+    color: var(--color-text);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    outline: none;
+    cursor: pointer;
+    min-width: 160px;
+  }
+
+  .filter-select:focus {
+    border-color: var(--color-accent);
+  }
+
+  .view-toggle {
+    display: flex;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .view-btn {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+    font-family: var(--font-sans);
+    background: var(--color-bg-secondary);
+    color: var(--color-text-secondary);
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .view-btn:not(:last-child) {
+    border-right: 1px solid var(--color-border);
+  }
+
+  .view-btn.active {
+    background: var(--color-accent);
+    color: white;
+  }
+
+  .view-btn:hover:not(.active) {
+    background: var(--color-bg-tertiary);
+  }
+
+  .refresh-btn {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+    font-family: var(--font-sans);
+    background: var(--color-bg-secondary);
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-left: auto;
+  }
+
+  .refresh-btn:hover:not(:disabled) {
+    background: var(--color-accent);
+    color: white;
+  }
+
+  .refresh-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Matrix Table */
+  .matrix-table {
+    width: 100%;
+  }
+
+  .matrix-row {
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .matrix-row:hover td {
+    background: var(--color-accent-bg);
+  }
+
+  .category-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .expand-icon {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    width: 16px;
+    text-align: center;
+  }
+
+  .category-name {
+    font-weight: 500;
+  }
+
+  .linked-count {
+    color: var(--color-success);
+    font-weight: 600;
+  }
+
+  .unlinked-count {
+    color: var(--color-text-muted);
+    font-weight: 600;
+  }
+
+  .unlinked-count.has-warning {
+    color: var(--color-warning);
+  }
+
+  .link-type-col {
+    text-align: center;
+    width: 70px;
+  }
+
+  .type-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    padding: 2px 6px;
+    border-radius: 9999px;
+    font-size: var(--text-xs);
+    font-weight: 600;
+  }
+
+  .type-linked {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .type-unlinked {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-muted);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .type-linked {
+      background: #14532d;
+      color: #86efac;
+    }
+  }
+
+  /* Spec List Panel */
+  .spec-list-panel {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .spec-entries {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .spec-entry {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .spec-entry:last-child {
+    border-bottom: none;
+  }
+
+  .spec-entry:hover {
+    background: var(--color-bg-tertiary);
+  }
+
+  .spec-entry.spec-selected {
+    background: var(--color-accent-bg);
+    border-left: 3px solid var(--color-accent);
+  }
+
+  .spec-entry-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .spec-id {
+    font-weight: 500;
+    font-size: var(--text-sm);
+    color: var(--color-text);
+  }
+
+  .spec-link-count {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin-left: auto;
+  }
+
+  /* Detail Panel */
+  .detail-panel {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .detail-body {
+    padding-top: var(--space-2);
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: var(--text-lg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+  }
+
+  .close-btn:hover {
+    color: var(--color-text);
+    background: var(--color-bg-tertiary);
+  }
+
+  .file-link {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    word-break: break-all;
+  }
+
+  .file-link:hover {
+    text-decoration: underline;
+  }
+
+  .file-path {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    word-break: break-all;
+  }
+
+  /* Link type badges */
+  .badge-implementation {
+    background: #dbeafe;
+    color: #1d4ed8;
+  }
+
+  .badge-test {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .badge-type {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .badge-migration {
+    background: #f3e8ff;
+    color: #7c3aed;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .badge-implementation {
+      background: #1e3a5f;
+      color: #93c5fd;
+    }
+    .badge-test {
+      background: #14532d;
+      color: #86efac;
+    }
+    .badge-type {
+      background: #451a03;
+      color: #fcd34d;
+    }
+    .badge-migration {
+      background: #3b0764;
+      color: #c4b5fd;
+    }
+  }
+
+  /* File View */
+  .file-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .file-entry {
+    cursor: pointer;
+    transition: all 0.15s;
+    padding: var(--space-4);
+  }
+
+  .file-entry:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .file-entry.file-selected {
+    border-color: var(--color-accent);
+  }
+
+  .file-entry-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .file-specs {
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .file-spec-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+  }
+
+  .spec-ref {
+    font-weight: 500;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .coverage-cards {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .filter-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .filter-select {
+      min-width: auto;
+      width: 100%;
+    }
+
+    .link-type-col {
+      width: 50px;
+    }
+
+    .refresh-btn {
+      margin-left: 0;
+    }
+  }
+
+  [x-cloak] {
+    display: none !important;
+  }
+</style>

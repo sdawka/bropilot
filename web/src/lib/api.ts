@@ -180,6 +180,57 @@ export async function getKnowledge() {
 }
 
 // ---------------------------------------------------------------------------
+// Traceability
+// ---------------------------------------------------------------------------
+
+/** Shape of a traceability link entry */
+export interface TraceabilityLink {
+  type: 'implementation' | 'test' | 'type' | 'migration';
+  file_path: string;
+  function_name?: string;
+  line_range?: [number, number];
+}
+
+/** Shape of a traceability entry for a spec */
+export interface TraceabilityEntry {
+  spec_category: string;
+  spec_id: string;
+  links: TraceabilityLink[];
+}
+
+/** Coverage counts per category */
+export interface CategoryCoverage {
+  total: number;
+  linked: number;
+  unlinked: number;
+}
+
+/** Shape of the full traceability matrix response */
+export interface TraceabilityMatrix {
+  entries: TraceabilityEntry[];
+  coverage: {
+    total_specs: number;
+    total_linked: number;
+    total_unlinked: number;
+    by_category: Record<string, CategoryCoverage>;
+  };
+}
+
+/** Link type labels for display */
+export const LINK_TYPES = ['implementation', 'test', 'type', 'migration'] as const;
+export type LinkType = (typeof LINK_TYPES)[number];
+
+export async function getTraceability() {
+  return fetchApi<TraceabilityMatrix>('/api/traceability');
+}
+
+export async function getTraceabilityEntry(category: string, specId: string) {
+  return fetchApi<TraceabilityEntry>(
+    `/api/traceability/${encodeURIComponent(category)}/${encodeURIComponent(specId)}`,
+  );
+}
+
+// ---------------------------------------------------------------------------
 // POST helpers
 // ---------------------------------------------------------------------------
 
