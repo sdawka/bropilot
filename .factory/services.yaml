@@ -1,0 +1,24 @@
+commands:
+  install_elixir: mix deps.get
+  install_web: cd web && npm install
+  install: mix deps.get && cd web && npm install
+  test: mix test
+  test_web: cd web && npx vitest run
+  typecheck: cd web && npx tsc --noEmit
+  build_web: cd web && npm run build
+  compile: mix compile --warnings-as-errors
+
+services:
+  api:
+    start: BROPILOT_API=true BROPILOT_API_PORT=4000 mix bro.server
+    stop: lsof -ti :4000 | xargs kill 2>/dev/null || true
+    healthcheck: curl -sf http://localhost:4000/api/health
+    port: 4000
+    depends_on: []
+
+  web:
+    start: cd web && npx astro dev --port 3200
+    stop: lsof -ti :3200 | xargs kill 2>/dev/null || true
+    healthcheck: curl -sf http://localhost:3200/
+    port: 3200
+    depends_on: [api]
