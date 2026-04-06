@@ -1,0 +1,33 @@
+{
+  "featureId": "traceability-api",
+  "reviewedAt": "2026-04-06T13:28:41Z",
+  "commitId": "abb24b21d43a003f7066f25b4581f1992ed0a45e",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The feature adds the requested traceability endpoints, handler wiring, and broad API tests, but coverage accounting is incorrect for specs with zero links, which can report linked/unlinked counts inaccurately.",
+    "issues": [
+      {
+        "file": "lib/bropilot/api/handlers/traceability.ex",
+        "line": 143,
+        "severity": "blocking",
+        "description": "Coverage `linked` counts are derived from entry count per category (`length(cat_entries)`) rather than specs that actually have one or more links. Because `PUT` accepts `\"links\": []` (`extract_links/1` accepts any list), a spec with zero links is still counted as linked, violating VAL-TAPI-005's linked/unlinked semantics."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "knowledge",
+      "observation": "Mission validation contract examples for Traceability API still use `/api/projects/:path/...`, while actual router conventions and implemented endpoints use `/api/traceability...` without project-path scoping.",
+      "evidence": "validation-contract.md lines 417, 422, 437 reference `/api/projects/:path/traceability`; transcript skeleton for worker session 522726b4-1add-4f24-ac1a-0770fad2dce0 explicitly notes this mismatch and chooses `/api/traceability` based on existing router patterns."
+    },
+    {
+      "area": "conventions",
+      "observation": "AGENTS/skill guidance says to use `Bropilot.Map.Store` for map data, but coverage counting in this feature reads YAML files directly with `Bropilot.Yaml.decode_file/1`; either the convention needs an explicit exception for aggregate per-file reads or implementation guidance should be clarified.",
+      "evidence": "AGENTS.md coding conventions: \"Use `Bropilot.Map.Store` for reading/writing map data\" and `.factory/skills/elixir-backend/SKILL.md` step 5 repeats this; implementation uses direct decode in `lib/bropilot/api/handlers/traceability.ex` lines 171-184."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed traceability-api via features metadata, handoff, transcript skeleton, skill file, and commit abb24b21d43a003f7066f25b4581f1992ed0a45e. Endpoints and tests are substantial, but coverage linked/unlinked math is incorrect for zero-link entries, so this review is marked fail."
+}

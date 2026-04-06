@@ -1,0 +1,40 @@
+{
+  "featureId": "traceability-auto-linkage",
+  "reviewedAt": "2026-04-06T13:28:37Z",
+  "commitId": "03dbff7",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The feature adds broad auto-link recording and integration points, but it misses required mapping behavior and does not implement stale-link replacement semantics for reruns.",
+    "issues": [
+      {
+        "file": "lib/bropilot/traceability.ex",
+        "line": 239,
+        "severity": "blocking",
+        "description": "Re-runs do not update stale links: merge_links/2 only replaces links with the exact same {type, file_path} key and keeps old paths (kept ++ new_normalized). When codegen output path changes, stale links remain instead of being replaced/marked, which violates the feature requirement and VAL-TAUTO-008."
+      },
+      {
+        "file": "lib/bropilot/traceability/auto_linker.ex",
+        "line": 30,
+        "severity": "blocking",
+        "description": "record_links/4 maps only task_map[\"related_specs\"] and never reads task_map[\"context\"] for entity references. The feature explicitly requires mapping task context (including entity refs) to traceability entries, so cross-spec links implied by refs are currently not captured."
+      },
+      {
+        "file": "lib/bropilot/traceability/auto_linker.ex",
+        "line": 134,
+        "severity": "non_blocking",
+        "description": "Auto-generated links only include type + file_path and have no API-specific function targeting; infer_link_type/2 also ignores category (line 150). This weakens VAL-TAUTO-003 coverage because there is no mechanism to ensure API links resolve to route/controller handler functions beyond filename heuristics."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "Transcript evidence shows implementation code was written before RED-phase tests, but handoff.skillFeedback reports followedProcedure=true with no deviations.",
+      "evidence": "worker-transcripts.jsonl skeleton for session e274e9e3-4b08-46b0-9c73-209525b4d945 shows Create lib/bropilot/traceability/auto_linker.ex before creating test/traceability_auto_linker_test.exs, while .factory/skills/elixir-backend/SKILL.md step 3 says to write tests first."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed feature traceability-auto-linkage at commit 03dbff7 using handoff, transcript skeleton, and code diff. Core auto-linking is present, but two requirement-level gaps remain: stale-link replacement on rerun is not implemented and task context entity refs are not mapped. Marking this review as fail until those blocking issues are addressed."
+}

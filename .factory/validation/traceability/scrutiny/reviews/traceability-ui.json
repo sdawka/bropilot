@@ -1,0 +1,39 @@
+{
+  "featureId": "traceability-ui",
+  "reviewedAt": "2026-04-06T13:28:05Z",
+  "commitId": "ffab9e5",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The feature delivers the page, matrix UI, filters, reverse file view, and nav entry, but it fails a core requirement: GitHub links are not reliably constructed from git remote data due to a response-shape mismatch when reading /api/project.",
+    "issues": [
+      {
+        "file": "web/src/pages/traceability.astro",
+        "line": 435,
+        "severity": "blocking",
+        "description": "fetchGitRemote reads `json.data.git_remote` / `json.data.github_url`, but `/api/project` returns these under `json.data.project` (see lib/bropilot/api/handlers/project.ex:57). Result: `gitHubBaseUrl` remains null in normal flows, so file paths render as plain text instead of clickable GitHub URLs, violating expected behavior."
+      },
+      {
+        "file": "web/src/pages/traceability.astro",
+        "line": 645,
+        "severity": "non_blocking",
+        "description": "GitHub links are hardcoded to `/blob/main/` instead of deriving branch/ref. Repositories using a non-`main` default branch will produce broken links."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "conventions",
+      "observation": "Frontend fetch logic was duplicated in the page instead of consistently using API client abstractions, which likely contributed to the contract mismatch bug.",
+      "evidence": "AGENTS.md:34 says to import API functions from web/src/lib/api.ts and not duplicate fetch logic; traceability.astro implements its own getApiConfig + raw fetch calls at lines 460-478 and 431-432."
+    },
+    {
+      "area": "skills",
+      "observation": "The astro-frontend skill asks for Vitest tests when configured, but this implementation added substantial Alpine logic without adding new tests; guidance may need clarification on when tests are mandatory for interactive pages.",
+      "evidence": ".factory/skills/astro-frontend/SKILL.md line 37 requires writing Vitest tests if configured; handoff for session e2a27b9c-fa27-406e-98c2-29f3324a913a reports no tests added."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Review failed due to a blocking GitHub URL construction defect: the page reads /api/project with the wrong response path, so clickable GitHub links are typically not produced. A secondary non-blocking issue is hardcoded `main` branch URLs."
+}
