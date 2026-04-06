@@ -1,0 +1,45 @@
+{
+  "featureId": "act2-ui-page",
+  "reviewedAt": "2026-04-06T04:26:31Z",
+  "commitId": "092f84a",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The feature delivers the new /domain page, chat-style Step 3 → Step 4 flow, domain cards, 11 spec tabs, and nav entry. However, required error-state handling for missing .bropilot and extract-before-start is not correctly implemented because server error payloads are discarded before the page-level handlers can inspect them.",
+    "issues": [
+      {
+        "file": "web/src/lib/api.ts",
+        "line": 272,
+        "severity": "blocking",
+        "description": "clientPost throws `Server responded <status>` on non-2xx and discards JSON error bodies. This prevents callers from surfacing specific backend messages (e.g. `no .bropilot directory found` and `domain worker not started`) required by the Act 2 UI error-state criteria."
+      },
+      {
+        "file": "web/src/pages/domain.astro",
+        "line": 467,
+        "severity": "blocking",
+        "description": "The missing-.bropilot branch (`msg.includes('.bropilot')`) is effectively unreachable with current API helper behavior, so start failures are shown as generic HTTP status errors instead of an explicit project-not-initialized message."
+      },
+      {
+        "file": "web/src/pages/domain.astro",
+        "line": 542,
+        "severity": "blocking",
+        "description": "The extract-before-start branch (`msg.includes('domain worker not started')`) is effectively unreachable with current API helper behavior, so this required error case is surfaced only as a generic extraction failure message."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The astro-frontend skill requires agent-browser verification and RED Vitest additions, but this worker skipped both while still marking followedProcedure=true. The skill appears too rigid for situations where backend services are intentionally not running during feature implementation.",
+      "evidence": ".factory/skills/astro-frontend/SKILL.md:22,37,48,56 requires agent-browser and RED tests; handoff 2026-04-06T03-56-57-868Z__act2-ui-page__796ed798-849b-40a4-a69c-6363d6c4bce4.json:43-58 records deviations and suggested skill change."
+    },
+    {
+      "area": "knowledge",
+      "observation": "Shared architecture documentation is stale after this feature: it still states the domain/Act 2 page is missing, which can mislead subsequent workers.",
+      "evidence": ".factory/library/architecture.md:69 says \"Missing: domain/Act 2 page...\" while commit 092f84a adds web/src/pages/domain.astro."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed transcript skeleton, handoff, skill, and commit 092f84a diff. Implementation is largely complete for UI flow and navigation, but I am failing this review due to blocking gaps in required error-state behavior caused by status-only error propagation."
+}

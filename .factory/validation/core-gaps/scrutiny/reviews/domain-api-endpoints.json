@@ -1,0 +1,39 @@
+{
+  "featureId": "domain-api-endpoints",
+  "reviewedAt": "2026-04-06T04:26:37Z",
+  "commitId": "a27816d",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The feature implements the requested endpoints and frontend API helpers, but it misses a critical lifecycle edge case and lacks robust wrong-step handling in Act2 extraction, so the implementation is not production-safe as delivered.",
+    "issues": [
+      {
+        "file": "lib/bropilot/api/handlers/domain.ex",
+        "line": 44,
+        "severity": "blocking",
+        "description": "The domain worker is started with `Worker.start_link(...)` inside an HTTP request handler. Because this links worker lifetime to the request process, the worker can terminate when the request process exits, causing `/api/domain/extract` to fail after a successful `/api/domain/start` in real server flows."
+      },
+      {
+        "file": "lib/bropilot/pipeline/act2/worker.ex",
+        "line": 168,
+        "severity": "blocking",
+        "description": "Act2.Worker only defines `handle_call(:extract, ...)` for `:step3` and `:step4` states, with no catch-all. Calling extract in an unexpected state (e.g., after completion / wrong order) causes a GenServer function-clause crash instead of a graceful error response, which violates the feature requirement to handle wrong step order errors."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "conventions",
+      "observation": "Shared conventions do not explicitly state that request-scoped API handlers must start long-lived workers unlinked (`GenServer.start`) rather than linked (`start_link`).",
+      "evidence": "AGENTS.md describes GenServer patterns but has no request-lifecycle rule; feature code used `Worker.start_link` in `lib/bropilot/api/handlers/domain.ex:44`, introducing worker lifecycle coupling to request execution."
+    },
+    {
+      "area": "skills",
+      "observation": "The `elixir-backend` skill includes a required manual curl verification step for API work, but the reviewed worker session marked procedure as followed without running curl/server checks.",
+      "evidence": "Skill file step 7 requires starting the server and validating with curl. Transcript skeleton/handoff verification commands list `mix test`, `tsc`, and `vitest`, with no server-start or curl command."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Review failed due to two blocking issues: worker lifecycle is coupled to HTTP request linking, and extract lacks wrong-state catch-all handling. Both affect domain API reliability despite otherwise solid endpoint and test coverage."
+}

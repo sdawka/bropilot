@@ -1,0 +1,40 @@
+{
+  "featureId": "real-codegen",
+  "reviewedAt": "2026-04-06T04:26:57Z",
+  "commitId": "288f734",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The feature delivers core LLM file-writing behavior, but two blocking correctness/security gaps remain: `:pi` mode is not actually wired through Act 3 execution, and generated file paths are not constrained to the target output directory.",
+    "issues": [
+      {
+        "file": "lib/bropilot/pipeline/act3/executor.ex",
+        "line": 39,
+        "severity": "blocking",
+        "description": "`execution_mode: :pi` is never handled as a real codegen path. `run/2` only routes `:llm` to real execution and sends all other modes to simulated execution, while `POST /api/build` explicitly maps `mode=pi` to `:pi` (work.ex:80). As a result, pi-mode builds return success without dispatching real codegen through `Task.Agent`/`PiBackend`."
+      },
+      {
+        "file": "lib/bropilot/codegen/writer.ex",
+        "line": 48,
+        "severity": "blocking",
+        "description": "Generated file paths are written via `Path.join(staging_dir, rel_path)` with no traversal guard. A `rel_path` containing `../` can escape the intended output subtree, violating the requirement that codegen writes to `{project_path}/output/{task_id}/` and creating a filesystem write-safety issue."
+      },
+      {
+        "file": "lib/bropilot/pipeline/act3/executor.ex",
+        "line": 103,
+        "severity": "non_blocking",
+        "description": "Knowledge feedback is written twice for successful LLM/Pi task runs: once inside `Task.Agent` (`task/agent.ex:71` and `task/agent.ex:101`) with enriched artifact paths, then again in `Executor` using unenriched `task_map`. This duplicates changelog/xref entries and can add fallback artifact paths unrelated to actual files."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The elixir-backend skill procedure requires manual API verification via running the server and curl checks for API features, but this worker modified API build handling without any server/curl verification in the transcript while still marking `followedProcedure: true`.",
+      "evidence": ".factory/skills/elixir-backend/SKILL.md (Work Procedure step 7) vs /Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/worker-transcripts.jsonl (workerSessionId cd29d7e4-913e-4780-8616-a47ecef34a3a, no `mix bro.server`/`curl` commands) and handoff.skillFeedback.followedProcedure=true"
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed feature real-codegen (commit 288f734) and transcript skeleton. Result is FAIL due to two blocking issues: pi execution mode is not actually integrated in Act 3 run path, and Writer allows path traversal outside the target output directory. Also noted a non-blocking duplicate feedback-write issue and one skill-procedure/documentation mismatch observation."
+}

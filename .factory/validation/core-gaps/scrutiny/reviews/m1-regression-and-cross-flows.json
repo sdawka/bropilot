@@ -1,0 +1,50 @@
+{
+  "featureId": "m1-regression-and-cross-flows",
+  "reviewedAt": "2026-04-06T04:26:48Z",
+  "commitId": "d7250d02556db035c8cec8ab1cc665e8f6f02d27",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The feature work correctly addresses the reported M1 regressions (worker lifecycle unlinking, pipeline persistence nil handling, and extract-state guardrails), but it introduces a blocking atom-leak risk in API handlers by converting untrusted route params with String.to_atom/1.",
+    "issues": [
+      {
+        "file": "lib/bropilot/api/handlers/project.ex",
+        "line": 128,
+        "severity": "blocking",
+        "description": "GET /api/map/:space/:slot converts user-controlled `slot` path input using `String.to_atom/1`, creating unbounded atoms at runtime. Repeated requests with unique slot values can exhaust the BEAM atom table and crash the node."
+      },
+      {
+        "file": "lib/bropilot/api/handlers/project.ex",
+        "line": 149,
+        "severity": "blocking",
+        "description": "PUT /api/map/:space/:slot repeats the same unbounded `String.to_atom/1` conversion on untrusted route input, preserving the atom-exhaustion crash vector."
+      },
+      {
+        "file": "lib/bropilot/recipe/registry.ex",
+        "line": 60,
+        "severity": "non_blocking",
+        "description": "Recipe loading now uses `String.to_atom/1` for recipe-provided values. This fixes `to_existing_atom` races but also permits atom growth from recipe content; safer bounded conversion (whitelist/validated mapping) would avoid long-term atom-table risk."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "knowledge",
+      "observation": "Shared docs and mission metadata still claim 34 API endpoints, but router currently defines 25 routes.",
+      "evidence": ".factory/library/architecture.md states \"34 REST endpoints\" while lib/bropilot/api/router.ex currently has 25 route declarations (lines 15-123). Worker handoff also flagged this mismatch."
+    },
+    {
+      "area": "conventions",
+      "observation": "AGENTS.md does not explicitly prohibit `String.to_atom/1` on externally controlled values; this likely contributed to unsafe conversions in request-path handling.",
+      "evidence": "AGENTS.md coding conventions list API response formats and module layout but no atom-safety rule; lib/bropilot/api/handlers/project.ex:128 and :149 use `String.to_atom(slot_str)` from URL params."
+    },
+    {
+      "area": "skills",
+      "observation": "integration-worker procedure requires writing tests for end-state changes, but this regression/fix run relied on manual/API flow checks and added no regression tests for the lifecycle bug class.",
+      "evidence": ".factory/skills/integration-worker/SKILL.md step 3 says \"Write tests for the desired end state\"; handoff `tests.added` is empty despite runtime lifecycle fixes."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed transcript skeleton and commit d7250d0. Regression fixes appear effective, but the feature should not pass as-is due to a blocking atom-exhaustion vector introduced in map slot handlers via `String.to_atom/1` on user input."
+}

@@ -1,0 +1,28 @@
+{
+  "featureId": "pipeline-persistence",
+  "reviewedAt": "2026-04-06T04:26:00Z",
+  "commitId": "b74ac29",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The feature implements state-file writes, load-on-init, and fallback handling, but it does not reliably resume from persisted state when `completed_steps` is empty.",
+    "issues": [
+      {
+        "file": "lib/bropilot/pipeline/engine.ex",
+        "line": 207,
+        "severity": "blocking",
+        "description": "`parse_persisted_data/2` rejects any non-list `completed_steps`. `persist_state/1` writes empty completed sets, and with current YAML encoding behavior this can decode back as `nil`; restart then defaults to step 0 and discards a valid persisted `current_step_index`, violating expected resume behavior."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "knowledge",
+      "observation": "A YAML edge case is not captured in shared knowledge: empty lists in map values can round-trip as `nil` with the current encoder/decoder combination, which directly impacts persistence logic.",
+      "evidence": "lib/bropilot/yaml.ex:59-63 writes non-nonempty lists via inline scalar form, and lib/bropilot/yaml.ex:69-83 renders an empty list as an empty string; combined with lib/bropilot/pipeline/engine.ex:207 (in commit b74ac29), this caused valid persisted pipeline state to be rejected."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Fail — pipeline persistence is mostly implemented but does not consistently resume after restart when persisted `completed_steps` is empty."
+}
