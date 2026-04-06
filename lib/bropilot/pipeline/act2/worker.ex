@@ -38,6 +38,11 @@ defmodule Bropilot.Pipeline.Act2.Worker do
     GenServer.start_link(__MODULE__, opts)
   end
 
+  @doc "Starts an unlinked worker (not tied to the caller's lifecycle)."
+  def start(opts) do
+    GenServer.start(__MODULE__, opts)
+  end
+
   @doc "Start step 3 (domain model). Returns `{:ok, prompt_text}`."
   def run_step3(pid) do
     GenServer.call(pid, :run_step3)
@@ -178,6 +183,12 @@ defmodule Bropilot.Pipeline.Act2.Worker do
       error ->
         {:reply, error, state}
     end
+  end
+
+  # Catch-all for extract in unexpected states
+  @impl true
+  def handle_call(:extract, _from, state) do
+    {:reply, {:error, "cannot extract in state #{state.step}"}, state}
   end
 
   # -- Extraction Functions --

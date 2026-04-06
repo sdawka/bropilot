@@ -23,6 +23,11 @@ defmodule Bropilot.Pipeline.Engine do
     GenServer.start_link(__MODULE__, opts)
   end
 
+  @doc "Starts an unlinked engine (not tied to the caller's lifecycle)."
+  def start(opts) do
+    GenServer.start(__MODULE__, opts)
+  end
+
   def current_step(pid) do
     GenServer.call(pid, :current_step)
   end
@@ -204,13 +209,13 @@ defmodule Bropilot.Pipeline.Engine do
 
         {0, MapSet.new()}
 
-      not is_list(completed) ->
+      not is_list(completed) and not is_nil(completed) ->
         Logger.warning("Pipeline state has invalid completed_steps, defaulting to step 0")
         {0, MapSet.new()}
 
       true ->
         completed_set =
-          completed
+          (completed || [])
           |> Enum.filter(&is_binary/1)
           |> MapSet.new()
 
