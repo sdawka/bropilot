@@ -1,0 +1,176 @@
+---
+import ConnectionStatus from './ConnectionStatus.astro';
+
+const currentPath = Astro.url.pathname;
+
+const navItems = [
+  { href: '/', label: 'Dashboard', icon: '◉' },
+  { href: '/problem/', label: 'Problem Space', icon: '◎' },
+  { href: '/solution/', label: 'Solution Space', icon: '◈' },
+  { href: '/work/', label: 'Work Space', icon: '◆' },
+  { href: '/knowledge/', label: 'Knowledge', icon: '◇' },
+  { href: '/vibe/', label: 'Vibe', icon: '💬' },
+  { href: '/domain/', label: 'Domain', icon: '🌐' },
+  { href: '/build/', label: 'Build', icon: '🚀' },
+  { href: '/connect/', label: 'Connect', icon: '🔗' },
+];
+
+function isActive(href: string): boolean {
+  if (href === '/') return currentPath === '/';
+  return currentPath.startsWith(href);
+}
+---
+
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <span class="brand-icon">⬡</span>
+    <span class="brand-text">bropilot</span>
+  </div>
+
+  <ul class="sidebar-nav">
+    {navItems.map((item) => (
+      <li>
+        <a
+          href={item.href}
+          class:list={['sidebar-link', { active: isActive(item.href) }]}
+        >
+          <span class="nav-icon">{item.icon}</span>
+          <span class="nav-label">{item.label}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  <div class="sidebar-footer">
+    <ConnectionStatus />
+    <span class="sidebar-version">v0.1.0</span>
+  </div>
+</nav>
+
+<!-- Mobile toggle -->
+<button class="mobile-toggle" aria-label="Toggle navigation" id="sidebar-toggle">
+  ☰
+</button>
+
+<style>
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-6) var(--space-5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .brand-icon {
+    font-size: 1.5rem;
+    color: var(--sidebar-accent);
+  }
+
+  .brand-text {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--sidebar-text-active);
+    letter-spacing: -0.02em;
+  }
+
+  .sidebar-nav {
+    list-style: none;
+    padding: var(--space-4) 0;
+    flex: 1;
+  }
+
+  .sidebar-nav li {
+    margin: var(--space-1) 0;
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-5);
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    border-left: 3px solid transparent;
+    transition: all 0.15s ease;
+  }
+
+  .sidebar-link:hover {
+    color: var(--sidebar-text-active);
+    background: rgba(255, 255, 255, 0.05);
+    text-decoration: none;
+  }
+
+  .sidebar-link.active {
+    color: var(--sidebar-text-active);
+    background: rgba(99, 102, 241, 0.1);
+    border-left-color: var(--sidebar-accent);
+  }
+
+  .nav-icon {
+    font-size: var(--text-base);
+    width: 24px;
+    text-align: center;
+  }
+
+  .sidebar-footer {
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .sidebar-version {
+    font-size: var(--text-xs);
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .mobile-toggle {
+    display: none;
+    position: fixed;
+    top: var(--space-3);
+    left: var(--space-3);
+    z-index: 200;
+    background: var(--sidebar-bg);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-lg);
+    cursor: pointer;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+    }
+
+    .sidebar.open {
+      transform: translateX(0);
+    }
+
+    .mobile-toggle {
+      display: block;
+    }
+  }
+</style>
+
+<script>
+  const toggle = document.getElementById('sidebar-toggle');
+  const sidebar = document.querySelector('.sidebar');
+  toggle?.addEventListener('click', () => {
+    sidebar?.classList.toggle('open');
+  });
+</script>
