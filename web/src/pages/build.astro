@@ -95,7 +95,7 @@ const apiUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:4000';
               </template>
             </template>
             <!-- Show message if no steps completed -->
-            <template x-if="status.step_statuses && !Object.values(status.step_statuses).some((v: unknown) => v === 'completed')">
+            <template x-if="status.step_statuses && !Object.values(status.step_statuses).some(v => v === 'completed')">
               <div class="status-row">
                 <span class="status-key" style="color: var(--color-text-muted);">No steps completed yet</span>
               </div>

@@ -141,7 +141,7 @@ defmodule Bropilot.Api.Router do
     Knowledge.get_knowledge(conn)
   end
 
-  # Traceability
+  # Traceability (global)
   get "/api/traceability" do
     Traceability.get_matrix(conn)
   end
@@ -152,6 +152,19 @@ defmodule Bropilot.Api.Router do
 
   put "/api/traceability/:category/:spec_id" do
     Traceability.put_entry(conn, category, spec_id)
+  end
+
+  # Traceability (project-scoped) — VAL-TAPI-007
+  get "/api/projects/:project_path/traceability" do
+    Traceability.get_matrix(conn, project_path)
+  end
+
+  get "/api/projects/:project_path/traceability/:category/:spec_id" do
+    Traceability.get_entry(conn, category, spec_id, project_path)
+  end
+
+  put "/api/projects/:project_path/traceability/:category/:spec_id" do
+    Traceability.put_entry(conn, category, spec_id, project_path)
   end
 
   # Aliases for ER diagram contract paths

@@ -42,6 +42,17 @@ defmodule Bropilot.Api.Handlers.Project do
           _ -> %{}
         end
 
+      # Detect git remote for GitHub URL linkage in traceability UI
+      project_root = Path.dirname(bropilot_dir)
+      git_remote = detect_git_remote(project_root)
+
+      project_data =
+        if git_remote do
+          Map.put(project_data, "git_remote", git_remote)
+        else
+          project_data
+        end
+
       recipe = Registry.get()
 
       recipe_info =
@@ -329,6 +340,62 @@ defmodule Bropilot.Api.Handlers.Project do
 
       _recipe ->
         :ok
+    end
+  end
+
+  # Detect git remote URL from the project directory
+  # Returns the origin remote URL or nil if not a git repo
+  defp detect_git_remote(project_root) do
+    git_config_path = Path.join([project_root, ".git", "config"])
+
+    if File.exists?(git_config_path) do
+      case File.read(git_config_path) do
+        {:ok, content} ->
+          parse_git_remote_url(content)
+
+        _ ->
+          nil
+      end
+    else
+      nil
+    end
+  end
+
+  # Parse the origin remote URL from a git config file
+  defp parse_git_remote_url(config_content) do
+    # Look for [remote "origin"] section and extract url = ...
+    lines = String.split(config_content, "\n")
+    find_origin_url(lines, false)
+  end
+
+  defp find_origin_url([], _in_origin), do: nil
+
+  defp find_origin_url([line | rest], false) do
+    trimmed = String.trim(line)
+
+    if trimmed == "[remote \"origin\"]" do
+      find_origin_url(rest, true)
+    else
+      find_origin_url(rest, false)
+    end
+  end
+
+  defp find_origin_url([line | rest], true) do
+    trimmed = String.trim(line)
+
+    cond do
+      String.starts_with?(trimmed, "[") ->
+        # New section started, origin has no url
+        nil
+
+      String.starts_with?(trimmed, "url = ") ->
+        String.trim_leading(trimmed, "url = ")
+
+      String.starts_with?(trimmed, "url=") ->
+        String.trim_leading(trimmed, "url=")
+
+      true ->
+        find_origin_url(rest, true)
     end
   end
 end

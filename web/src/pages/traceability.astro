@@ -4,6 +4,7 @@ export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 import {
   getTraceability,
+  getProject,
   SPEC_CATEGORIES,
   LINK_TYPES,
   formatSpecName,
@@ -28,6 +29,18 @@ const matrix: TraceabilityMatrix = (raw as TraceabilityMatrix) ?? {
   },
 };
 
+// Load project data to detect git remote for GitHub URLs
+let gitRemoteUrl: string | null = null;
+try {
+  const projectData = await getProject();
+  if (projectData) {
+    const project = (projectData as Record<string, unknown>).project as Record<string, unknown> | undefined;
+    if (project?.git_remote) {
+      gitRemoteUrl = String(project.git_remote);
+    }
+  }
+} catch { /* ignore - GitHub URLs won't be available */ }
+
 // Server-side: group entries by category for the matrix
 const entriesByCategory: Record<string, TraceabilityEntry[]> = {};
 for (const cat of SPEC_CATEGORIES) {
@@ -51,11 +64,16 @@ for (const entry of matrix.entries) {
   }
 }
 
+// Extract broken paths from API response (files that don't exist on disk)
+const brokenPaths: string[] = (raw as any)?.broken_paths ?? [];
+
 // Serialize data for Alpine.js
 const clientData = JSON.stringify({
   entries: matrix.entries,
   coverage: matrix.coverage,
   fileToSpecs,
+  gitRemoteUrl,
+  brokenPaths,
 });
 ---
 
@@ -257,7 +275,7 @@ const clientData = JSON.stringify({
                 x-on:click.stop="selectSpec(entry)"
               >
                 <div class="spec-entry-header">
-                  <span class="status-dot" x-bind:class="entry.links.length > 0 ? 'filled' : 'empty'"></span>
+                  <span class="status-dot" x-bind:class="entry.links.length > 0 ? 'status-linked' : 'status-unlinked'" x-bind:title="entry.links.length > 0 ? 'Linked (' + entry.links.length + ' links)' : 'No links yet'"></span>
                   <span class="spec-id" x-text="entry.spec_id"></span>
                   <span class="spec-link-count" x-text="entry.links.length + ' link' + (entry.links.length !== 1 ? 's' : '')"></span>
                 </div>
@@ -301,18 +319,23 @@ const clientData = JSON.stringify({
                           <span class="badge" x-bind:class="'badge-' + link.type" x-text="link.type"></span>
                         </td>
                         <td>
-                          <template x-if="gitHubBaseUrl">
-                            <a
-                              x-bind:href="buildGitHubUrl(link)"
-                              target="_blank"
-                              rel="noopener"
-                              class="file-link"
-                              x-text="link.file_path"
-                            ></a>
-                          </template>
-                          <template x-if="!gitHubBaseUrl">
-                            <span class="file-path" x-text="link.file_path"></span>
-                          </template>
+                          <div class="file-cell" x-bind:class="{ 'broken-link': isPathBroken(link.file_path) }">
+                            <template x-if="gitHubBaseUrl && !isPathBroken(link.file_path)">
+                              <a
+                                x-bind:href="buildGitHubUrl(link)"
+                                target="_blank"
+                                rel="noopener"
+                                class="file-link"
+                                x-text="link.file_path"
+                              ></a>
+                            </template>
+                            <template x-if="!gitHubBaseUrl || isPathBroken(link.file_path)">
+                              <span class="file-path" x-bind:class="{ 'file-not-found': isPathBroken(link.file_path) }" x-text="link.file_path"></span>
+                            </template>
+                            <template x-if="isPathBroken(link.file_path)">
+                              <span class="broken-badge" title="File not found on disk">⚠️ not found</span>
+                            </template>
+                          </div>
                         </td>
                         <td>
                           <code x-show="link.function_name" x-text="link.function_name"></code>
@@ -392,6 +415,7 @@ const clientData = JSON.stringify({
       coverage: { total_specs: 0, total_linked: 0, total_unlinked: 0, by_category: {} },
       fileToSpecs: {},
       gitHubBaseUrl: null,
+      brokenPaths: new Set(),
 
       // UI state
       viewMode: 'matrix',
@@ -407,14 +431,18 @@ const clientData = JSON.stringify({
         this.entries = data.entries;
         this.coverage = data.coverage;
         this.fileToSpecs = data.fileToSpecs;
-        this.detectGitHubUrl();
+        this.brokenPaths = new Set(data.brokenPaths || []);
+        // Use server-side detected git remote URL if available
+        if (data.gitRemoteUrl) {
+          this.gitHubBaseUrl = this.parseGitRemote(data.gitRemoteUrl);
+        } else {
+          this.detectGitHubUrl();
+        }
       },
 
       detectGitHubUrl() {
         // Try to detect GitHub URL from the project data or use a convention
-        // For now, attempt to get the git remote URL from the API or localStorage
         try {
-          // Check if there's a stored project with git info
           const conn = JSON.parse(localStorage.getItem('bropilot_connection') || '{}');
           if (conn?.gitHubUrl) {
             this.gitHubBaseUrl = conn.gitHubUrl.replace(/\/+$/, '');
@@ -422,7 +450,7 @@ const clientData = JSON.stringify({
           }
         } catch { /* ignore */ }
 
-        // Check if project metadata has a git remote
+        // Fetch from API as fallback
         this.fetchGitRemote();
       },
 
@@ -434,7 +462,6 @@ const clientData = JSON.stringify({
             const json = await res.json();
             // API returns { ok: true, data: { project: {...}, recipe: {...} } }
             const projectData = json?.data?.project;
-            // Look for git_remote or github_url in project data
             if (projectData?.git_remote) {
               this.gitHubBaseUrl = this.parseGitRemote(projectData.git_remote);
             } else if (projectData?.github_url) {
@@ -482,8 +509,13 @@ const clientData = JSON.stringify({
             if (json.ok && json.data) {
               this.entries = json.data.entries || [];
               this.coverage = json.data.coverage || { total_specs: 0, total_linked: 0, total_unlinked: 0, by_category: {} };
+              this.brokenPaths = new Set(json.data.broken_paths || []);
               this.rebuildFileIndex();
             }
+          }
+          // Also re-detect git remote on refresh
+          if (!this.gitHubBaseUrl) {
+            await this.fetchGitRemote();
           }
         } catch (err) {
           console.warn('[traceability] refresh failed:', err);
@@ -640,6 +672,11 @@ const clientData = JSON.stringify({
         return specs;
       },
 
+      // Check if a file path is broken (doesn't exist on disk)
+      isPathBroken(filePath) {
+        return this.brokenPaths.has(filePath);
+      },
+
       // GitHub URL construction
       buildGitHubUrl(link) {
         if (!this.gitHubBaseUrl) return '#';
@@ -678,6 +715,65 @@ const clientData = JSON.stringify({
 </script>
 
 <style>
+  /* Status Indicators (VAL-TUI-003, VAL-TUI-004) */
+  .status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .status-dot.status-linked {
+    background-color: #22c55e;
+    box-shadow: 0 0 4px rgba(34, 197, 94, 0.4);
+  }
+
+  .status-dot.status-unlinked {
+    background-color: #f59e0b;
+    box-shadow: 0 0 4px rgba(245, 158, 11, 0.4);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .status-dot.status-linked {
+      background-color: #4ade80;
+      box-shadow: 0 0 4px rgba(74, 222, 128, 0.4);
+    }
+    .status-dot.status-unlinked {
+      background-color: #fbbf24;
+      box-shadow: 0 0 4px rgba(251, 191, 36, 0.4);
+    }
+  }
+
+  /* Broken link indicators (VAL-TUI-012) */
+  .file-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .file-cell.broken-link {
+    opacity: 0.85;
+  }
+
+  .file-not-found {
+    text-decoration: line-through;
+    color: var(--color-warning, #f59e0b) !important;
+  }
+
+  .broken-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: var(--text-xs);
+    color: var(--color-warning, #f59e0b);
+    background: var(--color-warning-bg, rgba(245, 158, 11, 0.1));
+    padding: 1px 6px;
+    border-radius: 9999px;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
   /* Coverage Summary Cards */
   .coverage-cards {
     display: grid;

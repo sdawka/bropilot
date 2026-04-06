@@ -203,7 +203,8 @@ defmodule Bropilot.Traceability.AutoLinker do
       {rel_path, type, full_path}
     end)
     |> Enum.filter(fn {_rel_path, _type, full_path} ->
-      file_exists?(full_path)
+      # Check both the full_path and the path relative to base_dir
+      file_exists?(full_path) or file_exists?(Path.join(base_dir, full_path))
     end)
     |> Enum.map(fn {rel_path, type, _full_path} ->
       %{"type" => type, "file_path" => rel_path}

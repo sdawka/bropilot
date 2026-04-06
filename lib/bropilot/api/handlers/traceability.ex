@@ -11,17 +11,23 @@ defmodule Bropilot.Api.Handlers.Traceability do
   @doc """
   GET /api/traceability
   Returns the full traceability matrix with coverage summary.
+  Optionally scoped to a project path.
   """
-  def get_matrix(conn) do
-    with {:ok, map_dir} <- ensure_map_dir() do
+  def get_matrix(conn, project_path \\ nil) do
+    with {:ok, map_dir} <- ensure_map_dir(project_path) do
       {:ok, entries} = Traceability.read_all(map_dir)
       coverage = build_coverage(map_dir, entries)
+
+      # Detect broken file paths (files referenced in links that don't exist)
+      project_root = Path.dirname(Path.dirname(map_dir))
+      broken_paths = detect_broken_paths(entries, project_root)
 
       json(conn, 200, %{
         ok: true,
         data: %{
           entries: entries,
-          coverage: coverage
+          coverage: coverage,
+          broken_paths: broken_paths
         }
       })
     else
@@ -32,9 +38,10 @@ defmodule Bropilot.Api.Handlers.Traceability do
   @doc """
   GET /api/traceability/:category/:spec_id
   Returns traceability links for a specific spec.
+  Optionally scoped to a project path.
   """
-  def get_entry(conn, category, spec_id) do
-    with {:ok, map_dir} <- ensure_map_dir(),
+  def get_entry(conn, category, spec_id, project_path \\ nil) do
+    with {:ok, map_dir} <- ensure_map_dir(project_path),
          :ok <- validate_category(category) do
       case Traceability.read(map_dir, category, spec_id) do
         {:ok, entry} ->
@@ -59,9 +66,10 @@ defmodule Bropilot.Api.Handlers.Traceability do
   PUT /api/traceability/:category/:spec_id
   Creates or updates traceability links for a spec.
   Expects body: { "links": [{ "type": "...", "file_path": "...", ... }] }
+  Optionally scoped to a project path.
   """
-  def put_entry(conn, category, spec_id) do
-    with {:ok, map_dir} <- ensure_map_dir(),
+  def put_entry(conn, category, spec_id, project_path \\ nil) do
+    with {:ok, map_dir} <- ensure_map_dir(project_path),
          :ok <- validate_category(category),
          {:ok, links} <- extract_links(conn.body_params) do
       case Traceability.write(map_dir, category, spec_id, links) do
@@ -106,8 +114,16 @@ defmodule Bropilot.Api.Handlers.Traceability do
 
   # ── Private helpers ─────────────────────────────────────────────
 
-  defp ensure_map_dir do
-    bropilot_dir = Path.join(File.cwd!(), ".bropilot")
+  defp ensure_map_dir(project_path) do
+    base_dir =
+      if project_path do
+        # Project-scoped: resolve .bropilot relative to the given project path
+        Path.expand(project_path)
+      else
+        File.cwd!()
+      end
+
+    bropilot_dir = Path.join(base_dir, ".bropilot")
 
     if File.dir?(bropilot_dir) do
       {:ok, Path.join(bropilot_dir, "map")}
@@ -191,5 +207,20 @@ defmodule Bropilot.Api.Handlers.Traceability do
     else
       %{}
     end
+  end
+
+  # Detect broken file paths in traceability entries (files that don't exist on disk)
+  defp detect_broken_paths(entries, project_root) do
+    entries
+    |> Enum.flat_map(fn entry ->
+      (entry["links"] || [])
+      |> Enum.map(fn link -> link["file_path"] end)
+      |> Enum.filter(fn path -> path && path != "" end)
+    end)
+    |> Enum.uniq()
+    |> Enum.filter(fn file_path ->
+      full_path = Path.join(project_root, file_path)
+      not File.exists?(full_path)
+    end)
   end
 end

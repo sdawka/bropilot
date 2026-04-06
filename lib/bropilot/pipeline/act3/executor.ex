@@ -78,16 +78,31 @@ defmodule Bropilot.Pipeline.Act3.Executor do
     try do
       {:ok, gen_result} = Bropilot.Generator.generate_all(map_dir, output_dir)
 
-      files_written =
+      # Map generator output files to their link types for category-aware traceability
+      # gen_result is %{types_file: path, routes_file: path, migration_file: path, tests_file: path}
+      file_to_type = %{
+        gen_result.types_file => "type",
+        gen_result.routes_file => "implementation",
+        gen_result.migration_file => "migration",
+        gen_result.tests_file => "test"
+      }
+
+      all_files_written =
         gen_result
         |> Map.values()
         |> Enum.map(&Path.relative_to(&1, project_path))
 
-      # Create mock task results for knowledge/traceability
+      # Create category-aware task results for traceability
+      # Each task's related_specs determines which files it should link to
       task_results =
         Enum.map(tasks, fn task ->
           task_map = task_struct_to_map(task, version)
-          result = {:ok, %{files_written: files_written, output_dir: output_dir}}
+
+          # Determine which generator files are relevant to this task's spec category
+          related_specs = Map.get(task_map, "related_specs", []) || []
+          task_files = select_files_for_task(related_specs, gen_result, file_to_type, output_dir)
+
+          result = {:ok, %{files_written: task_files, output_dir: output_dir}}
           {task, task_map, result}
         end)
 
@@ -98,10 +113,87 @@ defmodule Bropilot.Pipeline.Act3.Executor do
       record_traceability_links(task_results, map_dir, project_path)
 
       {:ok, summary} = Feedback.summarize_version(map_dir, version)
-      {:ok, %{version: version, tasks: tasks, summary: summary, files_written: files_written}}
+      {:ok, %{version: version, tasks: tasks, summary: summary, files_written: all_files_written}}
     rescue
       e -> {:error, Exception.message(e)}
     end
+  end
+
+  # Selects the appropriate generator output files for a task based on its spec category
+  defp select_files_for_task(related_specs, gen_result, _file_to_type, _output_dir) do
+    # Parse spec categories from related_specs paths
+    categories =
+      related_specs
+      |> Enum.map(fn spec_path ->
+        parts = String.split(to_string(spec_path), ".")
+        case parts do
+          ["solution", "specs", category | _rest] -> category
+          [category | _rest] -> category
+          _ -> nil
+        end
+      end)
+      |> Enum.filter(& &1)
+      |> MapSet.new()
+
+    # Map categories to relevant generator files
+    files = []
+
+    # Entity-related categories get type definitions and migrations
+    files =
+      if MapSet.member?(categories, "entities") do
+        files ++ [
+          Path.basename(gen_result.types_file),
+          Path.basename(gen_result.migration_file),
+          Path.basename(gen_result.routes_file)
+        ]
+      else
+        files
+      end
+
+    # API specs get route handlers
+    files =
+      if MapSet.member?(categories, "api") do
+        files ++ [Path.basename(gen_result.routes_file)]
+      else
+        files
+      end
+
+    # Behaviour specs get test stubs
+    files =
+      if MapSet.member?(categories, "behaviours") do
+        files ++ [
+          Path.basename(gen_result.tests_file),
+          Path.basename(gen_result.routes_file)
+        ]
+      else
+        files
+      end
+
+    # Other categories get implementation files (routes) as a fallback
+    other_cats = ~w(constraints modules events externals views components streams infra)
+    has_other = Enum.any?(other_cats, &MapSet.member?(categories, &1))
+
+    files =
+      if has_other do
+        files ++ [Path.basename(gen_result.routes_file)]
+      else
+        files
+      end
+
+    # If no categories matched, include all files as fallback
+    files =
+      if files == [] do
+        [
+          Path.basename(gen_result.types_file),
+          Path.basename(gen_result.routes_file),
+          Path.basename(gen_result.migration_file),
+          Path.basename(gen_result.tests_file)
+        ]
+      else
+        files
+      end
+
+    files |> Enum.uniq()
   end
 
   defp execute_tasks_simulated(tasks, map_dir, version, opts) do
