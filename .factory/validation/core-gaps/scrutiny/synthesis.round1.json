@@ -1,0 +1,115 @@
+{
+  "milestone": "core-gaps",
+  "round": 1,
+  "status": "fail",
+  "validatorsRun": {
+    "test": {
+      "passed": true,
+      "command": "mix test",
+      "exitCode": 0
+    },
+    "typecheck": {
+      "passed": true,
+      "command": "cd web && npx tsc --noEmit",
+      "exitCode": 0
+    },
+    "lint": {
+      "passed": true,
+      "command": "mix compile --warnings-as-errors",
+      "exitCode": 0
+    }
+  },
+  "reviewsSummary": {
+    "total": 7,
+    "passed": 2,
+    "failed": 5,
+    "failedFeatures": [
+      "pipeline-persistence",
+      "domain-api-endpoints",
+      "act2-ui-page",
+      "real-codegen",
+      "m1-regression-and-cross-flows"
+    ]
+  },
+  "blockingIssues": [
+    {
+      "featureId": "pipeline-persistence",
+      "severity": "blocking",
+      "description": "Pipeline resume can reset to step 0 when persisted completed_steps round-trips as nil, causing valid persisted current_step_index to be discarded."
+    },
+    {
+      "featureId": "domain-api-endpoints",
+      "severity": "blocking",
+      "description": "Domain worker is started with start_link in request scope, coupling worker lifecycle to the request process and causing extract failures after start."
+    },
+    {
+      "featureId": "domain-api-endpoints",
+      "severity": "blocking",
+      "description": "Act2.Worker extract handler lacks a wrong-state catch-all, so out-of-order extract calls can crash the GenServer instead of returning a graceful error."
+    },
+    {
+      "featureId": "act2-ui-page",
+      "severity": "blocking",
+      "description": "API helper drops server error bodies on non-2xx responses, preventing required specific UI error messages (missing .bropilot / domain worker not started) from surfacing."
+    },
+    {
+      "featureId": "real-codegen",
+      "severity": "blocking",
+      "description": "Act3 executor does not route :pi mode through real codegen execution, so pi-mode builds report success without real code generation."
+    },
+    {
+      "featureId": "real-codegen",
+      "severity": "blocking",
+      "description": "Codegen writer does not guard against ../ traversal in generated relative paths, allowing writes outside the intended output subtree."
+    },
+    {
+      "featureId": "m1-regression-and-cross-flows",
+      "severity": "blocking",
+      "description": "Project map handlers convert user-controlled route params with String.to_atom/1, creating an atom-exhaustion crash vector."
+    }
+  ],
+  "appliedUpdates": [],
+  "suggestedGuidanceUpdates": [
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Add an explicit atom-safety rule: never call String.to_atom/1 on user-controlled input (route params, query params, request body values); use bounded mapping or existing atoms only.",
+      "evidence": "Blocking findings in m1-regression-and-cross-flows identify String.to_atom/1 usage on route params in lib/bropilot/api/handlers/project.ex (GET/PUT map slot handlers).",
+      "isSystemic": true
+    },
+    {
+      "target": "skills/integration-worker + skills/astro-frontend",
+      "suggestion": "Allow justified skipping of agent-browser and RED-test steps for non-visual refactors, while requiring explicit rationale and equivalent command-line verification.",
+      "evidence": "Frontend-cleanup and act2-ui-page reviews both reported skill-procedure rigidity mismatches versus practical execution context.",
+      "isSystemic": true
+    },
+    {
+      "target": "skills/elixir-backend",
+      "suggestion": "Tighten procedure compliance expectations for API features: require either curl/server verification commands or an explicit documented exception in handoff.",
+      "evidence": "Domain-api-endpoints and real-codegen reviews noted missing manual API verification despite API-surface changes.",
+      "isSystemic": true
+    },
+    {
+      "target": ".factory/library/",
+      "suggestion": "Document YAML persistence edge case where empty lists may decode as nil with current encode/decode behavior, and note Node 25 + happy-dom localStorage test setup gotcha.",
+      "evidence": "Pipeline-persistence review identified empty-list round-trip persistence hazard; vitest-setup review captured Node 25 happy-dom localStorage workaround need.",
+      "isSystemic": false
+    },
+    {
+      "target": ".factory/library/architecture.md",
+      "suggestion": "Update stale factual claims (domain page missing, endpoint counts) so shared architecture context matches current codebase state.",
+      "evidence": "Act2-ui-page review notes domain page now exists; m1-regression-and-cross-flows review notes route count mismatch versus documented count.",
+      "isSystemic": false
+    }
+  ],
+  "rejectedObservations": [
+    {
+      "observation": "Multiple reviews independently reported that some workers skipped required manual curl/server verification steps.",
+      "reason": "duplicate"
+    },
+    {
+      "observation": "Integration-worker should always require adding new tests for every regression-fix task.",
+      "reason": "ambiguous"
+    }
+  ],
+  "previousRound": null
+}

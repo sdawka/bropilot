@@ -1,0 +1,62 @@
+{
+  "featureId": "fix-scrutiny-m1-security-and-wiring",
+  "reviewedAt": "2026-04-06T04:36:16Z",
+  "commitId": "be887f5a877acd9d13f96f57cff563f0811e21ab",
+  "transcriptSkeletonReviewed": false,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "Re-review fails: four prior blocking findings remain unresolved in current repository state (path traversal, pi-mode wiring, unsafe String.to_atom on route params, and frontend error-body propagation). Previously fixed regressions for worker lifecycle, extract catch-all handling, and pipeline nil completed_steps handling are still present.",
+    "issues": [
+      {
+        "file": "lib/bropilot/codegen/writer.ex",
+        "line": 48,
+        "severity": "blocking",
+        "description": "Writer still writes `Path.join(staging_dir, rel_path)` without validating that `rel_path` stays under the intended output subtree. Inputs like `../` (or absolute paths) can escape the target directory; no Path.expand prefix guard is implemented."
+      },
+      {
+        "file": "lib/bropilot/pipeline/act3/executor.ex",
+        "line": 39,
+        "severity": "blocking",
+        "description": "Executor still only routes `:llm` through real codegen and sends all other modes to simulated execution. Because `/api/build` maps `mode=pi` to `:pi` (`lib/bropilot/api/handlers/work.ex:80`), pi-mode builds can return simulated success instead of dispatching real Task.Agent codegen."
+      },
+      {
+        "file": "lib/bropilot/api/handlers/project.ex",
+        "line": 128,
+        "severity": "blocking",
+        "description": "GET map-slot handler still converts untrusted `slot` route params using `String.to_atom/1`, allowing unbounded atom creation from external input."
+      },
+      {
+        "file": "lib/bropilot/api/handlers/project.ex",
+        "line": 149,
+        "severity": "blocking",
+        "description": "PUT map-slot handler repeats the same `String.to_atom/1` conversion on user-controlled route params, preserving the atom exhaustion crash vector."
+      },
+      {
+        "file": "web/src/lib/api.ts",
+        "line": 64,
+        "severity": "blocking",
+        "description": "Frontend API helpers still discard non-2xx server error bodies (`fetchApi` returns null, and `clientPost/clientGet` throw generic `Server responded <status>` at lines 272/284). Required backend messages (e.g., missing `.bropilot`, domain worker not started) are not surfaced to callers."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "No worker transcript skeleton or handoff exists for this fix feature, so review had to be performed against raw repository state rather than a feature-scoped implementation record.",
+      "evidence": "features.json entry for `fix-scrutiny-m1-security-and-wiring` has `workerSessionIds: []` and `completedWorkerSessionId: null` (jq query), and no matching handoff file exists under mission `handoffs/`."
+    },
+    {
+      "area": "conventions",
+      "observation": "AGENTS.md still lacks an explicit atom-safety rule forbidding `String.to_atom/1` on user-controlled input, and the same unsafe pattern remains in route handlers.",
+      "evidence": "AGENTS.md coding conventions do not mention atom safety; `lib/bropilot/api/handlers/project.ex:128` and `:149` still call `String.to_atom(slot_str)` on URL params."
+    },
+    {
+      "area": "knowledge",
+      "observation": "Shared architecture knowledge remains stale about web surface and API size.",
+      "evidence": "`.factory/library/architecture.md:39` still claims 34 REST endpoints and line 69 still says domain/Act 2 page is missing, while `web/src/pages/domain.astro` exists."
+    }
+  ],
+  "addressesFailureFrom": "/Users/sdawka/Code/bropilot/.factory/validation/core-gaps/scrutiny/synthesis.json",
+  "summary": "FAIL. Re-run verification shows the four original blocking security/wiring findings are still present in current code. Previously fixed regressions (unlinked worker starts, extract-state catch-alls, and pipeline nil completed_steps handling) remain fixed, but unresolved blockers prevent pass."
+}
