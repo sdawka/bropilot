@@ -182,3 +182,93 @@ export async function generateTasks() {
 export async function startBuild() {
   return postJson<Record<string, unknown>>('/api/build');
 }
+
+// ---------------------------------------------------------------------------
+// Spec categories (single source of truth)
+// ---------------------------------------------------------------------------
+
+/** The 11 spec categories produced by Act 2 Step 4. */
+export const SPEC_CATEGORIES = [
+  'api',
+  'behaviours',
+  'constraints',
+  'entities',
+  'modules',
+  'events',
+  'externals',
+  'views',
+  'components',
+  'streams',
+  'infra',
+] as const;
+
+export type SpecCategory = (typeof SPEC_CATEGORIES)[number];
+
+/**
+ * Pretty-format a spec category name for display.
+ */
+export function formatSpecName(name: string): string {
+  return name
+    .split('_')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+// ---------------------------------------------------------------------------
+// Client-side API helpers (for Alpine.js components)
+// ---------------------------------------------------------------------------
+
+/**
+ * Resolve API config from localStorage connection or fallback URL.
+ * Used by Alpine.js page scripts that need client-side fetch.
+ */
+export function getClientApiConfig(fallbackUrl: string): { url: string; token: string } {
+  try {
+    if (typeof window !== 'undefined') {
+      const raw = localStorage.getItem('bropilot_connection');
+      if (raw) {
+        const conn = JSON.parse(raw);
+        if (conn?.serverUrl && conn?.token) {
+          return { url: conn.serverUrl.replace(/\/+$/, ''), token: conn.token };
+        }
+      }
+    }
+  } catch { /* ignore */ }
+  return { url: fallbackUrl.replace(/\/+$/, ''), token: '' };
+}
+
+/**
+ * Build auth headers for client-side fetch calls.
+ */
+export function getClientHeaders(fallbackUrl: string): Record<string, string> {
+  const cfg = getClientApiConfig(fallbackUrl);
+  const h: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (cfg.token) h['Authorization'] = `Bearer ${cfg.token}`;
+  return h;
+}
+
+/**
+ * Client-side POST helper for Alpine.js components.
+ */
+export async function clientPost(fallbackUrl: string, path: string, body?: unknown): Promise<unknown> {
+  const cfg = getClientApiConfig(fallbackUrl);
+  const res = await fetch(`${cfg.url}${path}`, {
+    method: 'POST',
+    headers: getClientHeaders(fallbackUrl),
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) throw new Error(`Server responded ${res.status}`);
+  return res.json();
+}
+
+/**
+ * Client-side GET helper for Alpine.js components.
+ */
+export async function clientGet(fallbackUrl: string, path: string): Promise<unknown> {
+  const cfg = getClientApiConfig(fallbackUrl);
+  const res = await fetch(`${cfg.url}${path}`, {
+    headers: getClientHeaders(fallbackUrl),
+  });
+  if (!res.ok) throw new Error(`Server responded ${res.status}`);
+  return res.json();
+}

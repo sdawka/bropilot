@@ -1,0 +1,356 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+
+const apiUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:4000';
+// Note: client-side Alpine code reads the actual URL + token from localStorage (see buildDashboard data below).
+---
+
+<Layout title="Build">
+  <div class="page-header">
+    <h1>Build Dashboard</h1>
+    <p class="page-description">Generate plans, tasks, and kick off builds</p>
+  </div>
+
+  <div class="section" x-data={`buildDashboard('${apiUrl}')`}>
+    <!-- Error banner -->
+    <template x-if="error">
+      <div class="card" style="background: var(--color-warning-bg, #332b00); border-color: var(--color-warning, #f5a623); margin-bottom: var(--space-4);">
+        <div class="empty-state">
+          <div class="empty-state-icon">⚠️</div>
+          <p>
+            <strong>Connect to Bropilot server</strong><br />
+            <span x-text="error"></span>
+          </p>
+        </div>
+      </div>
+    </template>
+
+    <!-- Pipeline Actions -->
+    <div class="card" style="margin-bottom: var(--space-6);">
+      <div class="card-header">
+        <h3 class="card-title">Pipeline</h3>
+      </div>
+      <div class="card-body">
+        <div class="build-actions">
+          <button class="btn btn-secondary" x-on:click="snapshot()" x-bind:disabled="loading">
+            <span x-show="!loading || action !== 'snapshot'">📸 Snapshot</span>
+            <span x-show="loading && action === 'snapshot'">Creating…</span>
+          </button>
+          <button class="btn btn-secondary" x-on:click="plan()" x-bind:disabled="loading">
+            <span x-show="!loading || action !== 'plan'">📋 Generate Plan</span>
+            <span x-show="loading && action === 'plan'">Generating…</span>
+          </button>
+          <button class="btn btn-secondary" x-on:click="tasks()" x-bind:disabled="loading">
+            <span x-show="!loading || action !== 'tasks'">✅ Generate Tasks</span>
+            <span x-show="loading && action === 'tasks'">Generating…</span>
+          </button>
+          <button class="btn btn-primary" x-on:click="build()" x-bind:disabled="loading">
+            <span x-show="!loading || action !== 'build'">🚀 Start Build</span>
+            <span x-show="loading && action === 'build'">Building…</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success message -->
+    <template x-if="successMsg">
+      <div class="card" style="margin-bottom: var(--space-4); background: var(--color-success-bg, #0a2e1a); border-color: var(--color-success, #22c55e);">
+        <div class="empty-state">
+          <div class="empty-state-icon">✅</div>
+          <p x-text="successMsg"></p>
+        </div>
+      </div>
+    </template>
+
+    <!-- Pipeline Status -->
+    <div class="card" style="margin-bottom: var(--space-6);">
+      <div class="card-header">
+        <h3 class="card-title">Pipeline Status</h3>
+        <button class="btn btn-sm" x-on:click="refresh()" x-bind:disabled="polling" style="font-size: var(--text-xs); padding: var(--space-1) var(--space-3);">
+          <span x-show="!polling">↻ Refresh</span>
+          <span x-show="polling">Refreshing…</span>
+        </button>
+      </div>
+      <div class="card-body">
+        <template x-if="status">
+          <div class="status-grid">
+            <template x-for="(val, key) in status" x-bind:key="key">
+              <div class="status-row">
+                <span class="status-key" x-text="key"></span>
+                <span class="badge" x-bind:class="statusClass(val)" x-text="typeof val === 'string' ? val : JSON.stringify(val)"></span>
+              </div>
+            </template>
+          </div>
+        </template>
+        <template x-if="!status">
+          <div class="empty-state">
+            <div class="empty-state-icon">📊</div>
+            <p>Click Refresh to load pipeline status</p>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Task List -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Tasks</h3>
+      </div>
+      <div class="card-body">
+        <template x-if="taskList.length > 0">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Status</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="(task, i) in taskList" x-bind:key="i">
+                  <tr>
+                    <td><strong x-text="task.name"></strong></td>
+                    <td>
+                      <span class="badge" x-bind:class="statusClass(task.status)" x-text="task.status"></span>
+                    </td>
+                    <td x-text="task.description || '—'"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </template>
+        <template x-if="taskList.length === 0">
+          <div class="empty-state">
+            <div class="empty-state-icon">📝</div>
+            <p>No tasks yet. Generate tasks from the pipeline actions above.</p>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { clientPost, clientGet } from '../lib/api';
+
+  document.addEventListener('alpine:init', () => {
+    // @ts-ignore
+    window.Alpine.data('buildDashboard', (apiUrl: string) => ({
+      status: null as Record<string, unknown> | null,
+      taskList: [] as Array<{ name: string; status: string; description?: string }>,
+      loading: false,
+      polling: false,
+      error: '',
+      successMsg: '',
+      action: '',
+      pollTimer: null as ReturnType<typeof setInterval> | null,
+
+      init() {
+        this.refresh();
+      },
+
+      async refresh() {
+        this.polling = true;
+        try {
+          const json = await clientGet(apiUrl, '/api/pipeline/status') as { ok: boolean; data?: Record<string, unknown> };
+          if (json.ok && json.data) {
+            this.status = json.data;
+            // Extract tasks if present
+            if (json.data.tasks && Array.isArray(json.data.tasks)) {
+              this.taskList = json.data.tasks.map((t: Record<string, unknown>) => ({
+                name: String(t.name ?? t.title ?? 'Unnamed'),
+                status: String(t.status ?? 'pending'),
+                description: t.description ? String(t.description) : undefined,
+              }));
+            }
+          }
+          this.error = '';
+        } catch (err: unknown) {
+          this.error = `Could not reach API. ${err instanceof Error ? err.message : String(err)}`;
+        }
+        this.polling = false;
+      },
+
+      async snapshot() {
+        this.action = 'snapshot';
+        this.loading = true;
+        this.error = '';
+        this.successMsg = '';
+        try {
+          const json = await clientPost(apiUrl, '/api/snapshot') as { ok: boolean };
+          if (json.ok) {
+            this.successMsg = 'Snapshot created successfully.';
+            await this.refresh();
+          }
+        } catch (err: unknown) {
+          this.error = `Snapshot failed. ${err instanceof Error ? err.message : String(err)}`;
+        }
+        this.loading = false;
+      },
+
+      async plan() {
+        this.action = 'plan';
+        this.loading = true;
+        this.error = '';
+        this.successMsg = '';
+        try {
+          const json = await clientPost(apiUrl, '/api/plan') as { ok: boolean };
+          if (json.ok) {
+            this.successMsg = 'Plan generated successfully.';
+            await this.refresh();
+          }
+        } catch (err: unknown) {
+          this.error = `Plan generation failed. ${err instanceof Error ? err.message : String(err)}`;
+        }
+        this.loading = false;
+      },
+
+      async tasks() {
+        this.action = 'tasks';
+        this.loading = true;
+        this.error = '';
+        this.successMsg = '';
+        try {
+          const json = await clientPost(apiUrl, '/api/tasks') as { ok: boolean };
+          if (json.ok) {
+            this.successMsg = 'Tasks generated successfully.';
+            await this.refresh();
+          }
+        } catch (err: unknown) {
+          this.error = `Task generation failed. ${err instanceof Error ? err.message : String(err)}`;
+        }
+        this.loading = false;
+      },
+
+      async build() {
+        this.action = 'build';
+        this.loading = true;
+        this.error = '';
+        this.successMsg = '';
+        try {
+          const json = await clientPost(apiUrl, '/api/build') as { ok: boolean };
+          if (json.ok) {
+            this.successMsg = 'Build started! Polling for updates…';
+            // Start polling for status
+            this.startPolling();
+          }
+        } catch (err: unknown) {
+          this.error = `Build failed. ${err instanceof Error ? err.message : String(err)}`;
+        }
+        this.loading = false;
+      },
+
+      startPolling() {
+        if (this.pollTimer) clearInterval(this.pollTimer);
+        this.pollTimer = setInterval(async () => {
+          await this.refresh();
+          // Stop polling when build is done
+          if (this.status && ((this.status as Record<string, unknown>).build_status === 'completed' || (this.status as Record<string, unknown>).build_status === 'failed')) {
+            this.stopPolling();
+            if ((this.status as Record<string, unknown>).build_status === 'completed') {
+              this.successMsg = 'Build completed successfully! 🎉';
+            } else {
+              this.error = 'Build failed. Check the task list for details.';
+            }
+          }
+        }, 3000);
+      },
+
+      stopPolling() {
+        if (this.pollTimer) {
+          clearInterval(this.pollTimer);
+          this.pollTimer = null;
+        }
+      },
+
+      statusClass(val: unknown) {
+        const s = String(val).toLowerCase();
+        if (s === 'completed' || s === 'done' || s === 'success') return 'badge-completed';
+        if (s === 'in_progress' || s === 'running' || s === 'building') return 'badge-in-progress';
+        if (s === 'failed' || s === 'error') return 'badge-failed';
+        return 'badge-pending';
+      },
+
+      destroy() {
+        this.stopPolling();
+      },
+    }));
+  });
+</script>
+
+<style>
+  .build-actions {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--color-accent);
+    color: white;
+    border-color: var(--color-accent);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
+
+  .btn-secondary {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-secondary);
+    border-color: var(--color-border);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
+  }
+
+  .status-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .status-row:last-child {
+    border-bottom: none;
+  }
+
+  .status-key {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: capitalize;
+  }
+</style>

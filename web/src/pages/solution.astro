@@ -1,0 +1,107 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import YamlCard from '../components/YamlCard.astro';
+import SpecTable from '../components/SpecTable.astro';
+import { getSpaceData, getMapSlot, SPEC_CATEGORIES, formatSpecName } from '../lib/api';
+import type { SpecCategory } from '../lib/api';
+
+// Load solution space data from API
+const data = await getSpaceData('solution');
+const apiDown = data === null;
+
+const vocabulary = (data as Record<string, unknown>)?.vocabulary ?? null;
+const domainEntities = (data as Record<string, unknown>)?.domain_entities ?? null;
+const flows = (data as Record<string, unknown>)?.flows ?? null;
+
+// Load specs
+const specsData = await getMapSlot('solution', 'specs');
+const specs = (specsData ?? {}) as Record<string, Record<string, unknown> | null>;
+
+const specNames = SPEC_CATEGORIES.map((cat) => ({
+  id: cat,
+  label: formatSpecName(cat),
+  hasData: specs[cat] !== null && specs[cat] !== undefined,
+}));
+---
+
+<Layout title="Solution Space">
+  {apiDown && (
+    <div class="card" style="background: var(--color-warning-bg, #332b00); border-color: var(--color-warning, #f5a623); margin-bottom: var(--space-6);">
+      <div class="empty-state">
+        <div class="empty-state-icon">⚠️</div>
+        <p>
+          <strong>Connect to Bropilot server</strong><br />
+          Could not reach the API. Make sure the Bropilot Elixir backend is running.
+        </p>
+      </div>
+    </div>
+  )}
+
+  <div class="page-header">
+    <h1>Solution Space</h1>
+    <p class="page-description">Architecture, vocabulary, domain model, and specifications</p>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Domain Model</h2>
+    <div class="card-grid">
+      <YamlCard
+        title="Vocabulary"
+        subtitle="Shared language and terms"
+        data={vocabulary as Record<string, unknown> | null}
+        emptyMessage="Define vocabulary in the solution space"
+      />
+      <YamlCard
+        title="Domain Entities"
+        subtitle="Core entities and relationships"
+        data={domainEntities as Record<string, unknown> | null}
+        emptyMessage="Define domain entities in the solution space"
+      />
+      <YamlCard
+        title="Flows"
+        subtitle="Key user and system flows"
+        data={flows as Record<string, unknown> | null}
+        emptyMessage="Define flows in the solution space"
+      />
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Specifications</h2>
+
+    <div x-data={`{ activeTab: '${SPEC_CATEGORIES[0]}' }`}>
+      <div class="tabs-nav">
+        {specNames.map((spec) => (
+          <button
+            class="tab-btn"
+            x-on:click={`activeTab = '${spec.id}'`}
+            x-bind:class={`{ 'active': activeTab === '${spec.id}' }`}
+          >
+            {spec.label}
+            {spec.hasData && <span class="tab-dot">●</span>}
+          </button>
+        ))}
+      </div>
+
+      {SPEC_CATEGORIES.map((cat) => (
+        <div x-show={`activeTab === '${cat}'`} x-cloak>
+          <SpecTable title={formatSpecName(cat)} data={specs[cat] ?? null} />
+        </div>
+      ))}
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .tab-dot {
+    font-size: 0.5rem;
+    color: var(--color-success);
+    margin-left: var(--space-1);
+  }
+
+  [x-cloak] {
+    display: none !important;
+  }
+</style>
