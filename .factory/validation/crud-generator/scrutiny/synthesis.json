@@ -1,0 +1,95 @@
+{
+  "milestone": "crud-generator",
+  "round": 1,
+  "status": "fail",
+  "validatorsRun": {
+    "test": {
+      "passed": true,
+      "command": "mix test",
+      "exitCode": 0
+    },
+    "typecheck": {
+      "passed": true,
+      "command": "cd web && npx tsc --noEmit",
+      "exitCode": 0
+    },
+    "lint": {
+      "passed": true,
+      "command": "mix compile --warnings-as-errors",
+      "exitCode": 0
+    }
+  },
+  "reviewsSummary": {
+    "total": 4,
+    "passed": 0,
+    "failed": 4,
+    "failedFeatures": [
+      "elixir-crud-library",
+      "typescript-crud-library",
+      "code-generator",
+      "m4-cross-flows"
+    ]
+  },
+  "blockingIssues": [
+    {
+      "featureId": "elixir-crud-library",
+      "severity": "blocking",
+      "description": "CRUD record_path/3 uses unsanitized user-supplied IDs in filesystem paths, enabling path traversal and breaking collection isolation."
+    },
+    {
+      "featureId": "typescript-crud-library",
+      "severity": "blocking",
+      "description": "TypeScript CRUD create flow does not match Elixir duplicate-ID contract (duplicate IDs can overwrite/throw instead of returning a contract error)."
+    },
+    {
+      "featureId": "typescript-crud-library",
+      "severity": "blocking",
+      "description": "Pagination contract mismatch: TypeScript metadata/options use pageSize while Elixir contract uses page_size."
+    },
+    {
+      "featureId": "code-generator",
+      "severity": "blocking",
+      "description": "Bropilot.Generator is not integrated into Step 8 execution flow, so the contract requirement that codegen invokes the generator is unmet."
+    },
+    {
+      "featureId": "m4-cross-flows",
+      "severity": "blocking",
+      "description": "Cross-flow tests under-verify VAL-CROSS-035: they do not assert required foreign-key/join-table evidence and nested-route behavior for multi-relationship entities."
+    }
+  ],
+  "appliedUpdates": [],
+  "suggestedGuidanceUpdates": [
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Add explicit cross-language API parity guidance: when a TS package claims parity with Elixir contracts, field names and error semantics must match exactly (including snake_case fields like page_size and duplicate-id behavior).",
+      "evidence": "typescript-crud-library review found blocking parity drift (`pageSize` vs `page_size`) and duplicate-id mismatch.",
+      "isSystemic": true
+    },
+    {
+      "target": "skills/typescript-packages",
+      "suggestion": "Clarify and enforce RED-test-first requirement in the procedure and review checklist, including objective criteria for when followedProcedure can be set to true.",
+      "evidence": "Transcript ordering showed implementation files created before tests while handoff still reported followedProcedure=true.",
+      "isSystemic": true
+    },
+    {
+      "target": "skills/elixir-backend",
+      "suggestion": "Strengthen guidance/checklist for map-data access abstraction so generator-style features do not bypass Bropilot.Map.Store with direct filesystem reads.",
+      "evidence": "code-generator review found non-blocking direct YAML file reads despite skill guidance to use Map.Store.",
+      "isSystemic": true
+    },
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Add a mission/feature authoring checklist item requiring expectedBehavior to explicitly cover every assertion ID listed in fulfills when assertions are strict integration requirements.",
+      "evidence": "code-generator feature metadata listed VAL-GEN-009 in fulfills but expectedBehavior omitted Step 8 invocation, which contributed to a blocking integration gap.",
+      "isSystemic": true
+    },
+    {
+      "target": "skills/integration-worker",
+      "suggestion": "For cross-flow assertions requiring UI+pipeline concurrency, require explicit agent-browser validation steps rather than API-only substitutes.",
+      "evidence": "m4-cross-flows review found VAL-CROSS-085 semantics reduced to API concurrency checks without page-level interaction evidence.",
+      "isSystemic": true
+    }
+  ],
+  "rejectedObservations": [],
+  "previousRound": null
+}

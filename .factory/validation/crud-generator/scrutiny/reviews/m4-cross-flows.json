@@ -1,0 +1,40 @@
+{
+  "featureId": "m4-cross-flows",
+  "reviewedAt": "2026-04-06T16:26:36Z",
+  "commitId": "93c44f0",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The commit adds substantial M4 cross-flow integration coverage, but it does not fully verify VAL-CROSS-035 as defined in the contract (multi-relationship entities requiring foreign-key/join-table and nested-route behavior), so the feature cannot be accepted as complete.",
+    "issues": [
+      {
+        "file": "test/m4_cross_flow_test.exs",
+        "line": 489,
+        "severity": "blocking",
+        "description": "VAL-CROSS-035 is under-verified: the multi-relationship test only checks *_id columns and index names, but never asserts migration-level foreign key/join-table behavior or nested route generation. The contract explicitly requires REFERENCES and/or join table evidence plus nested routes for multiple relationships, so this test can pass while required behavior is missing."
+      },
+      {
+        "file": "test/m4_cross_flow_test.exs",
+        "line": 346,
+        "severity": "non_blocking",
+        "description": "VAL-CROSS-033 column checks are global over the full SQL blob instead of scoped per table. Reused column names (for example id) can satisfy assertions even if a specific table definition is wrong."
+      },
+      {
+        "file": "test/m4_cross_flow_test.exs",
+        "line": 779,
+        "severity": "non_blocking",
+        "description": "The \"generated TypeScript files compile\" section uses brace/semicolon heuristics rather than invoking tsc in-test. This is weaker than the contract expectation of compiler-backed syntax validation and may miss real TypeScript errors."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "conventions",
+      "observation": "Contract-level expectations for browser-based concurrent-page validation are not enforced by shared guidance, which allowed VAL-CROSS-085 to be treated as API concurrency only.",
+      "evidence": "validation-contract.md:1252-1255 requires page navigation during active pipeline execution (agent-browser evidence), while test/m4_cross_flow_test.exs:712-757 validates only API endpoint responses."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed handoff, transcript skeleton, and commit 93c44f0. The added tests are broad, but a blocking contract gap remains: VAL-CROSS-035 requirements for multi-relationship foreign-key/join-table and nested-route verification are not actually asserted, so this feature review fails."
+}

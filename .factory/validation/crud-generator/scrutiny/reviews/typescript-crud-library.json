@@ -1,0 +1,39 @@
+{
+  "featureId": "typescript-crud-library",
+  "reviewedAt": "2026-04-06T16:26:30Z",
+  "commitId": "b5621fe",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The package structure and core CRUD flows are implemented, but there are contract-level mismatches against the stated requirement to match Elixir CRUD behavior/shape.",
+    "issues": [
+      {
+        "file": "packages/crud/src/crud.ts",
+        "line": 60,
+        "severity": "blocking",
+        "description": "Create does not model Elixir duplicate-ID behavior. Elixir returns `{:error, :duplicate_id}` when a provided id already exists (lib/bropilot/crud/crud.ex:22,40-42), but TS create only returns success or validation errors. MemoryStore also overwrites existing ids (`packages/crud/src/store/memory.ts:21`), and D1Store insert on duplicate id will throw instead of returning a contract error (`packages/crud/src/store/d1.ts:29-31`). This breaks \"same API contract as Elixir CRUD\"."
+      },
+      {
+        "file": "packages/crud/src/types.ts",
+        "line": 42,
+        "severity": "blocking",
+        "description": "Pagination shape uses `pageSize` (camelCase), while Elixir CRUD uses `page_size` (snake_case) in both options and returned metadata (`lib/bropilot/crud/crud.ex:119-127,132,158`). The feature/validation contract requires structural equivalence of field names for API contract matching, so this is a contract mismatch."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "conventions",
+      "observation": "Cross-language API parity rules are not explicit enough in shared conventions for TypeScript package work, which likely allowed pagination naming drift (`pageSize` vs Elixir `page_size`).",
+      "evidence": "AGENTS.md TypeScript section is high-level only; feature requirement says match Elixir contract. Implementation uses `pageSize` in packages/crud/src/types.ts:42 and packages/crud/src/crud.ts:173."
+    },
+    {
+      "area": "skills",
+      "observation": "Skill procedure says \"Write tests first (RED)\", but transcript skeleton shows implementation files were created before tests while handoff still marked `followedProcedure: true`. This suggests procedure wording or adherence signaling is inconsistent.",
+      "evidence": "worker-transcripts.jsonl skeleton (session 417719b9-d823-4966-9a70-0e6b89e84e91) shows Create of src/types.ts, src/store/*, src/crud.ts before first test file creation (src/__tests__/crud.test.ts). Skill: .factory/skills/typescript-packages/SKILL.md step 3."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed handoff, commit b5621fe diff, transcript skeleton, and skill/shared-state docs. Marking feature as fail due to two blocking API-contract mismatches: duplicate-id handling in create and pagination naming parity with Elixir."
+}

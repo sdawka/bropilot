@@ -1,0 +1,39 @@
+{
+  "featureId": "code-generator",
+  "reviewedAt": "2026-04-06T16:27:28Z",
+  "commitId": "c056f43",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The generator module and unit tests are substantial, but there is a blocking contract gap: the implementation is not wired into Step 8 codegen flow, so VAL-GEN-009 is not actually satisfied.",
+    "issues": [
+      {
+        "file": "lib/bropilot/task/agent.ex",
+        "line": 65,
+        "severity": "blocking",
+        "description": "VAL-GEN-009 requires the generator to be invoked during codegen step 8, but step-8 execution still routes through `Bropilot.Codegen.Writer.parse_and_write/2` (LLM mode) and `Bropilot.Codegen.PiBackend.execute/2` (PI mode) with no call to `Bropilot.Generator.generate_all/2`. Repository-wide usage search shows `Bropilot.Generator` is only defined (lib/bropilot/generator/generator.ex:1) and not invoked elsewhere."
+      },
+      {
+        "file": "lib/bropilot/generator/generator.ex",
+        "line": 179,
+        "severity": "non_blocking",
+        "description": "`generate_all/2` bypasses the map data abstraction by reading YAML directly from filesystem paths (`Path.join([map_dir, \"solution\", \"specs\"])` + `Yaml.decode_file/1` in `read_spec_file/2`). This diverges from AGENTS convention to use `Bropilot.Map.Store` for map data access and increases coupling to on-disk layout."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "knowledge",
+      "observation": "Feature metadata for `code-generator` is internally inconsistent: it claims fulfillment of VAL-GEN-009, but its expectedBehavior list does not mention Step 8 invocation. This makes it easy to implement only standalone generation APIs and miss integration.",
+      "evidence": "features.json:1375-1387 (expectedBehavior) vs features.json:1392-1402 (fulfills includes VAL-GEN-009) and validation-contract.md:837-839 (explicit Step 8 invocation requirement)."
+    },
+    {
+      "area": "skills",
+      "observation": "The elixir-backend skill says to use `Bropilot.Map.Store` for map data, but this implementation reads spec files directly and still marks `skillFeedback.followedProcedure=true`. Skill guidance/adherence criteria may need clarification for generator-style features.",
+      "evidence": ".factory/skills/elixir-backend/SKILL.md (implementation guidance) + lib/bropilot/generator/generator.ex:179,462 + handoff skillFeedback.followedProcedure=true."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed feature `code-generator` for commit c056f43 using feature metadata, handoff, full diff, transcript skeleton, and skill instructions. Core generation functionality exists, but the feature is missing Step 8 invocation integration required by VAL-GEN-009, which is blocking; review status is fail."
+}
