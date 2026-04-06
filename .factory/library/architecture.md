@@ -66,7 +66,7 @@ All persistence is YAML files on disk in `.bropilot/`. No database. GenServers h
 
 ## Web UI (Astro)
 
-Located in `web/`. Uses Alpine.js for interactivity, CSS custom properties for theming. Communicates with Elixir API at localhost:4000. Pages include index, problem, solution, work, knowledge, vibe, build, connect, domain (Act 2), and traceability. ER diagram page remains pending.
+Located in `web/`. Uses Alpine.js for interactivity, CSS custom properties for theming. Communicates with Elixir API at localhost:4000. Pages include index, problem, solution, work, knowledge, vibe, build, connect, domain (Act 2), ER (`/er/`), and traceability. The domain page also includes an ER section with Mermaid rendering and an entity explorer panel.
 
 ## API Contract
 

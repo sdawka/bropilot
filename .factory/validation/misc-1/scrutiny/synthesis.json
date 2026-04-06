@@ -1,0 +1,59 @@
+{
+  "milestone": "misc-1",
+  "round": 1,
+  "status": "fail",
+  "validatorsRun": {
+    "test": {
+      "passed": true,
+      "command": "mix test",
+      "exitCode": 0
+    },
+    "test_web": {
+      "passed": true,
+      "command": "cd web && npx vitest run",
+      "exitCode": 0
+    },
+    "typecheck": {
+      "passed": true,
+      "command": "cd web && npx tsc --noEmit",
+      "exitCode": 0
+    },
+    "lint": {
+      "passed": true,
+      "command": "mix compile --warnings-as-errors",
+      "exitCode": 0
+    }
+  },
+  "reviewsSummary": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "failedFeatures": [
+      "misc-fixes-1"
+    ]
+  },
+  "blockingIssues": [
+    {
+      "featureId": "misc-fixes-1",
+      "severity": "blocking",
+      "description": "Act3 :mock mode rewrites files_written as project-root-relative paths; AutoLinker then resolves these against output_dir and drops links due to non-existent doubled paths, breaking deterministic mock traceability linkage."
+    }
+  ],
+  "appliedUpdates": [
+    {
+      "target": "library",
+      "description": "Updated .factory/library/architecture.md Web UI section to reflect that ER functionality is implemented (/er/ page plus ER section on /domain/).",
+      "sourceFeature": "misc-fixes-1"
+    }
+  ],
+  "suggestedGuidanceUpdates": [
+    {
+      "target": ".factory/skills/integration-worker/SKILL.md",
+      "suggestion": "Enforce explicit deviation recording when UI changes are validated without agent-browser checks; if browser validation is skipped, followedProcedure should be false with rationale.",
+      "evidence": "Review for misc-fixes-1 found UI-facing changes with no agent-browser evidence while handoff marked skill procedure as followed.",
+      "isSystemic": false
+    }
+  ],
+  "rejectedObservations": [],
+  "previousRound": null
+}

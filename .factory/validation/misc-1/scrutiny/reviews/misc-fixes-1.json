@@ -1,0 +1,33 @@
+{
+  "featureId": "misc-fixes-1",
+  "reviewedAt": "2026-04-06T19:35:11Z",
+  "commitId": "13596d7b6e1ffdbc28734edff5e15ce230178bf8",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The feature fixes many contract/wiring gaps (status alias, nested map routes, domain/work gate checks, malformed mode, connect layout/sidebar state, pipeline init persistence), but mock build-mode traceability linkage is broken by incorrect file path normalization.",
+    "issues": [
+      {
+        "file": "lib/bropilot/pipeline/act3/executor.ex",
+        "line": 84,
+        "severity": "blocking",
+        "description": "In `:mock` mode, `files_written` is converted to project-root-relative paths (`output/vN/types.ts`). `Bropilot.Traceability.AutoLinker` resolves non-absolute paths against `output_dir` (`lib/bropilot/traceability/auto_linker.ex:294`), yielding non-existent paths like `<output_dir>/output/vN/types.ts`, so links are filtered out. This breaks deterministic mock codegen runs for traceability linkage expectations (e.g., VAL-CROSS-031-style flows)."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "`integration-worker` requires agent-browser verification when UI changes are made, but this worker session made UI changes without agent-browser evidence while `skillFeedback.followedProcedure` remained true.",
+      "evidence": ".factory/skills/integration-worker/SKILL.md:22 and :41 require agent-browser; handoff verification for this feature lists only `commandsRun` with no interactive/browser checks (handoff JSON line 14 onward), and transcript skeleton contains no `agent-browser` usage."
+    },
+    {
+      "area": "knowledge",
+      "observation": "Shared architecture library appears stale about ER visualization status and can mislead future workers.",
+      "evidence": ".factory/library/architecture.md:69 says 'ER diagram page remains pending', but this feature adds ER rendering/explorer UI in `web/src/pages/domain.astro` (ER Diagram section and Mermaid rendering code)."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed transcript skeleton, handoff, and commit diff for misc-fixes-1. Most intended fixes are present, but there is one blocking regression: mock build mode produces file paths incompatible with AutoLinker path resolution, causing traceability links to be dropped."
+}
