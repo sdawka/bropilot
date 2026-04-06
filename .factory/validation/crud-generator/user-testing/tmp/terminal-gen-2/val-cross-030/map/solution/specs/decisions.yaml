@@ -1,0 +1,7 @@
+decisions:
+  - rationale: Provides instant feedback when tasks change, better UX than polling
+    status: accepted
+    title: Use WebSockets for real-time task updates
+  - rationale: Reliable email API with good deliverability and free tier
+    status: accepted
+    title: SendGrid for email delivery

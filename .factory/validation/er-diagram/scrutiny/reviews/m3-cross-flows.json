@@ -1,0 +1,38 @@
+{
+  "featureId": "m3-cross-flows",
+  "reviewedAt": "2026-04-06T15:19:37Z",
+  "commitId": "c5c09f2",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The commit adds useful integration coverage for Act 2 domain YAML round-trip, partial-domain rendering prerequisites, 50-entity scale data handling, and relationship type preservation; transcript/handoff also records manual ER UI checks. However, the feature is declared to fulfill VAL-CROSS-084 and there is no implemented verification for Knowledge Space accumulation across acts.",
+    "issues": [
+      {
+        "file": "test/er_diagram_cross_flow_test.exs",
+        "line": 25,
+        "severity": "blocking",
+        "description": "Feature metadata includes VAL-CROSS-084 (features.json:1391), whose contract requires verifying knowledge glossary/changelog accumulation across acts (validation-contract.md:1247-1249). The added tests only cover ER-domain data flow (tests at lines 33, 95, 151, 201) and the handoff verification commands do not include glossary/changelog assertions (handoff lines 36-41), so one required cross-flow behavior remains unverified."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "knowledge",
+      "observation": ".factory/library/architecture.md is stale for M3 and still says the ER diagram page is pending.",
+      "evidence": ".factory/library/architecture.md:69 says \"ER diagram page remains pending,\" but this repo includes `web/src/pages/er.astro` and the reviewed handoff documents ER page verification."
+    },
+    {
+      "area": "knowledge",
+      "observation": "A newly observed API cold-start race is not captured in shared known-issues docs.",
+      "evidence": "Handoff reports a non-blocking first-request failure for `/api/map/:space/:slot` (`String.to_existing_atom` cold start) with suggested mitigation (handoff line 115), while mission AGENTS known issues list only `test/api_test.exs:238` flake (AGENTS.md:55-57)."
+    },
+    {
+      "area": "skills",
+      "observation": "integration-worker guidance would benefit from an explicit fulfills-to-evidence checklist requirement so every mapped assertion is directly verified.",
+      "evidence": "Skill procedure emphasizes writing tests generally (SKILL.md:33) but this run listed VAL-CROSS-084 among targeted assertions in transcript context while final implemented checks focused on ER-domain flows and omitted glossary/changelog verification."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed feature m3-cross-flows via feature metadata, handoff, commit c5c09f2 diff, transcript skeleton, and skill docs. Despite solid ER-domain cross-flow verification coverage, the feature cannot pass because VAL-CROSS-084 (knowledge accumulation across acts) is marked fulfilled but not actually verified."
+}

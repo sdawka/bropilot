@@ -1,0 +1,7 @@
+api:
+  - description: List settings
+    method: GET
+    path: /api/settings
+  - description: Create setting
+    method: POST
+    path: /api/settings

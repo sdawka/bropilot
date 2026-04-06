@@ -1,0 +1,115 @@
+{
+  "milestone": "er-diagram",
+  "round": 1,
+  "status": "fail",
+  "generatedAt": "2026-04-06T15:57:04.382511Z",
+  "assertionsSummary": {
+    "total": 33,
+    "passed": 16,
+    "failed": 14,
+    "blocked": 3
+  },
+  "passedAssertions": [
+    "VAL-CROSS-010",
+    "VAL-CROSS-014",
+    "VAL-CROSS-063",
+    "VAL-CROSS-081",
+    "VAL-EENT-001",
+    "VAL-EENT-004",
+    "VAL-EENT-005",
+    "VAL-EENT-006",
+    "VAL-ENAV-002",
+    "VAL-ENAV-004",
+    "VAL-ERD-006",
+    "VAL-ERD-007",
+    "VAL-ERD-008",
+    "VAL-ERD-009",
+    "VAL-ERD-010",
+    "VAL-ERD-013"
+  ],
+  "failedAssertions": [
+    {
+      "id": "VAL-CROSS-011",
+      "reason": "Cardinality labels not clearly present as text markers."
+    },
+    {
+      "id": "VAL-CROSS-012",
+      "reason": "Domain extraction flow does not update the map slot consumed by /er/, preventing live or refresh-based updates from Act 2 progression."
+    },
+    {
+      "id": "VAL-CROSS-084",
+      "reason": "Knowledge data is present, but changelog evidence does not span all acts (only build/task entries), and pipeline status does not indicate a completed full pipeline."
+    },
+    {
+      "id": "VAL-EENT-002",
+      "reason": "Task attribute contract mismatch."
+    },
+    {
+      "id": "VAL-ENAV-001",
+      "reason": "ER content area missing on /domain/."
+    },
+    {
+      "id": "VAL-ENAV-003",
+      "reason": "Active nav works but ER content is not on /domain/."
+    },
+    {
+      "id": "VAL-ENAV-005",
+      "reason": "Console regression on /build/ violates no-errors expectation."
+    },
+    {
+      "id": "VAL-ENAV-006",
+      "reason": "Responsive layout is present; required ER content is absent on /domain/."
+    },
+    {
+      "id": "VAL-ERD-001",
+      "reason": "Demo 9-entity precondition not present in current runtime."
+    },
+    {
+      "id": "VAL-ERD-002",
+      "reason": "Task attribute contract mismatch."
+    },
+    {
+      "id": "VAL-ERD-003",
+      "reason": "Expected demo relationship pairs not present."
+    },
+    {
+      "id": "VAL-ERD-004",
+      "reason": "Explicit cardinality label requirement not met."
+    },
+    {
+      "id": "VAL-ERD-011",
+      "reason": "Act 2 extraction response is not reflected in the ER page data source (/api/map/solution/domain), so ER remains empty."
+    },
+    {
+      "id": "VAL-ERD-012",
+      "reason": "Contract-specified ER endpoints are not implemented on this API surface; required entity/relationship paths returned 404."
+    }
+  ],
+  "blockedAssertions": [
+    {
+      "id": "VAL-EENT-003",
+      "blockedBy": "Recipe/Project/Step precondition unavailable."
+    },
+    {
+      "id": "VAL-EENT-007",
+      "blockedBy": "Project-entity precondition unavailable."
+    },
+    {
+      "id": "VAL-ERD-005",
+      "blockedBy": "Missing relationship-type preconditions in runtime data."
+    }
+  ],
+  "appliedUpdates": [
+    {
+      "target": "user-testing.md",
+      "description": "Added er-diagram round-1 validation notes about /domain vs /er surface split, ER endpoint path mismatch, Act2->ER data propagation gap, and /build console error check.",
+      "source": "flow-report"
+    }
+  ],
+  "previousRound": null,
+  "flowReports": [
+    ".factory/validation/er-diagram/user-testing/flows/browser-er-core.json",
+    ".factory/validation/er-diagram/user-testing/flows/browser-er-dynamic.json",
+    ".factory/validation/er-diagram/user-testing/flows/curl-er.json"
+  ]
+}

@@ -1,0 +1,24 @@
+views:
+  - components:
+      - TaskList
+      - TaskStats
+    data_sources:
+      - /api/tasks
+    description: Main workspace dashboard showing task overview
+    name: Dashboard
+    route: /dashboard
+  - components:
+      - TaskForm
+      - TaskComments
+    data_sources:
+      - /api/tasks/:id
+    description: Detailed view of a single task with edit capability
+    name: Task Detail
+    route: /tasks/:id
+  - components:
+      - SettingsForm
+    data_sources:
+      - /api/users
+    description: Workspace and user settings
+    name: Settings
+    route: /settings

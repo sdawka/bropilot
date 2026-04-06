@@ -1,0 +1,251 @@
+{
+  "groupId": "terminal-gen-2",
+  "testedAt": "2026-04-06T16:46:03Z",
+  "isolation": {
+    "repo": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "boundary": "repository-local commands only; no shared service restarts"
+  },
+  "toolsUsed": ["terminal", "mix", "sqlite3", "tsc"],
+  "assertions": [
+    {
+      "id": "VAL-GEN-006",
+      "title": "Generator produces correct indexes in migration SQL",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "mix run --no-start -e '<generate migration from indexed users/tasks specs>'",
+          "expected": "SQL includes CREATE UNIQUE INDEX for users.email and CREATE INDEX for tasks.workspace_id/tasks.user_id",
+          "observed": "Generated SQL contained idx_users_email, idx_tasks_workspace_id, idx_tasks_user_id"
+        },
+        {
+          "action": "rg -n 'CREATE (UNIQUE )?INDEX|idx_users_email|idx_tasks_workspace_id|idx_tasks_user_id' VAL-GEN-006-migration.sql",
+          "expected": "All required index statements are present",
+          "observed": "3 matching index lines found"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-gen-2/VAL-GEN-006-command.txt",
+          "crud-generator/terminal-gen-2/VAL-GEN-006-index-grep.txt"
+        ],
+        "snippets": [
+          "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users (email);",
+          "CREATE INDEX IF NOT EXISTS idx_tasks_workspace_id ON tasks (workspace_id);",
+          "CREATE INDEX IF NOT EXISTS idx_tasks_user_id ON tasks (user_id);"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-GEN-007",
+      "title": "Generator produces test stubs from behaviour specs",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "mix run --no-start val_gen_007.exs (3 behaviour specs)",
+          "expected": "One test/describe block per behaviour with placeholder body",
+          "observed": "Output included behaviour names and placeholder TODO/expect(false); block count was 6 (describe+test pairs for 3 behaviours)"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-gen-2/VAL-GEN-007-command.txt"
+        ],
+        "artifacts": [
+          "crud-generator/terminal-gen-2/VAL-GEN-007-tests.test.ts"
+        ],
+        "snippets": [
+          "test_or_describe_blocks=6",
+          "contains_todo=true",
+          "contains_expect_placeholder=true"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-GEN-008",
+      "title": "Generator handles empty specs gracefully",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "mix test test/generator_test.exs:244 test/generator_test.exs:304 test/generator_test.exs:383 test/generator_test.exs:433",
+          "expected": "Empty entities/api/behaviours paths do not crash and produce valid empty outputs",
+          "observed": "4 targeted ExUnit tests passed, 0 failures"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-gen-2/VAL-GEN-008-exunit.txt"
+        ],
+        "snippets": [
+          "4 tests, 0 failures"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-GEN-009",
+      "title": "Generator is invoked during codegen step 8",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "mix run --no-start val_gen_009.exs (Act3.Executor.run with demo map copy, execution_mode: :llm)",
+          "expected": "Step 8 run emits CRUD generator artifacts (types.ts/routes.ts/migration.sql/tests.test.ts)",
+          "observed": "Step 8 wrote only task LLM output files (output/*/lib/demo/from_step8.ex); required CRUD artifacts all false"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-gen-2/VAL-GEN-009-command.txt",
+          "crud-generator/terminal-gen-2/VAL-GEN-009-step8-summary.txt"
+        ],
+        "snippets": [
+          "required_artifacts_found=%{\"migration.sql\" => false, \"routes.ts\" => false, \"tests.test.ts\" => false, \"types.ts\" => false}",
+          "output_files=[\"output/1/lib/demo/from_step8.ex\", ...]"
+        ]
+      },
+      "issues": "Observed Step 8 path uses Task.Agent + Codegen.Writer outputs and did not invoke Bropilot.Generator.generate_all/2 for CRUD artifact generation."
+    },
+    {
+      "id": "VAL-GEN-010",
+      "title": "Generated TypeScript types reference correct entity relationships",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "mix run --no-start val_gen_010.exs (Task entity with user_id/workspace_id)",
+          "expected": "Type includes camelCase fields userId and workspaceId",
+          "observed": "Generated Task interface includes userId: string | null and workspaceId: string; snake_case names absent"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-gen-2/VAL-GEN-010-command.txt",
+          "crud-generator/terminal-gen-2/VAL-GEN-010-grep.txt"
+        ],
+        "artifacts": [
+          "crud-generator/terminal-gen-2/VAL-GEN-010-types.ts"
+        ],
+        "snippets": [
+          "7:  userId: string | null;",
+          "8:  workspaceId: string;"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-030",
+      "title": "CRUD generator produces code from entity specs",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "mix run --no-start val_cross_030_generate.exs (mock Act2 specs -> generate_all)",
+          "expected": "Generator writes TS types, Hono routes, SQL migration, test stubs and covers each entity",
+          "observed": "Generated types.ts/routes.ts/migration.sql/tests.test.ts with interface_count=3 and table_count=3"
+        },
+        {
+          "action": "tsc -p val-cross-030/tsconfig.json (using local compiler + temporary hono/vitest ambient stubs)",
+          "expected": "TS files compile with no emit",
+          "observed": "tsc_exit_code=0"
+        },
+        {
+          "action": "sqlite3 :memory: < val-cross-030/generated/migration.sql",
+          "expected": "Migration SQL parses without error",
+          "observed": "sqlite_parse_exit_code=0"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-gen-2/VAL-CROSS-030-generate-command.txt",
+          "crud-generator/terminal-gen-2/VAL-CROSS-030-generate-summary.txt",
+          "crud-generator/terminal-gen-2/VAL-CROSS-030-entity-artifact-map-command.txt",
+          "crud-generator/terminal-gen-2/VAL-CROSS-030-tsc.txt",
+          "crud-generator/terminal-gen-2/VAL-CROSS-030-sqlite-parse.txt"
+        ],
+        "snippets": [
+          "interface_count=3",
+          "table_count=3",
+          "tsc_exit_code=0",
+          "sqlite_parse_exit_code=0"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-034",
+      "title": "CRUD generator handles entity with no relationships",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "mix run --no-start val_cross_034_generate.exs (standalone settings entity)",
+          "expected": "Valid CRUD artifacts with no REFERENCES/join tables and no nested resource endpoints",
+          "observed": "Artifacts generated; has_references=false; has_join=false; has_nested_routes=false"
+        },
+        {
+          "action": "tsc -p val-cross-034/tsconfig.json (local compiler + temporary stubs)",
+          "expected": "Generated TS files compile",
+          "observed": "tsc_exit_code=0"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-gen-2/VAL-CROSS-034-generate-command.txt",
+          "crud-generator/terminal-gen-2/VAL-CROSS-034-generate-summary.txt",
+          "crud-generator/terminal-gen-2/VAL-CROSS-034-snippets.txt",
+          "crud-generator/terminal-gen-2/VAL-CROSS-034-tsc.txt"
+        ],
+        "snippets": [
+          "has_references=false",
+          "has_join=false",
+          "has_nested_routes=false",
+          "tsc_exit_code=0"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-035",
+      "title": "CRUD generator handles entity with multiple relationships",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "mix run --no-start val_cross_035_generate.exs (Task entity with belongs_to + many_to_many relationship metadata)",
+          "expected": "Migration includes REFERENCES/join table; routes include nested relationship endpoints; TS includes relationship fields",
+          "observed": "TS relationship fields present, but migration had no REFERENCES/join table and routes only /api/tasks GET/POST"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-gen-2/VAL-CROSS-035-generate-command.txt",
+          "crud-generator/terminal-gen-2/VAL-CROSS-035-generate-summary.txt",
+          "crud-generator/terminal-gen-2/VAL-CROSS-035-snippets.txt"
+        ],
+        "snippets": [
+          "has_user_id_field=true",
+          "has_workspace_id_field=true",
+          "has_category_id_field=true",
+          "has_references=false",
+          "has_join_table=false",
+          "has_nested_routes=false"
+        ]
+      },
+      "issues": "Generator emitted FK-like columns in types/SQL but did not generate SQL REFERENCES/join table or nested relationship routes required by assertion."
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Initial mix run attempted to start app and failed with :eaddrinuse on port 4000.",
+      "resolved": true,
+      "resolution": "Switched to mix run --no-start for all script-based validation commands.",
+      "affectedAssertions": ["VAL-GEN-006", "VAL-GEN-007", "VAL-GEN-009", "VAL-GEN-010", "VAL-CROSS-030", "VAL-CROSS-034", "VAL-CROSS-035"]
+    },
+    {
+      "description": "Repository-root npx tsc command was unavailable ('This is not the tsc command you are looking for').",
+      "resolved": true,
+      "resolution": "Used /web/node_modules/.bin/tsc and temporary ambient type stubs (hono, vitest) in isolated temp validation dirs.",
+      "affectedAssertions": ["VAL-CROSS-030", "VAL-CROSS-034"]
+    }
+  ],
+  "blockers": [],
+  "summary": "Validated 8 assertions: 6 passed (VAL-GEN-006/007/008/010, VAL-CROSS-030/034) and 2 failed (VAL-GEN-009, VAL-CROSS-035). Fails were due to missing Step 8 integration with CRUD generator artifacts and missing relationship-aware SQL/routes for multi-relationship entities."
+}

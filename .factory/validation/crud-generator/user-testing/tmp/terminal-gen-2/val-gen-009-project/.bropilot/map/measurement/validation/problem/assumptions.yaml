@@ -1,0 +1,20 @@
+results:
+  - assumption_id: A1
+    evidence: User interviews with 15+ developers confirmed this pattern. 80% said they skip planning because it feels like overhead.
+    statement: Developers want structured thinking before coding but find it tedious to do manually
+    status: validated
+  - assumption_id: A2
+    evidence: Works well with clear prompts and system instructions. Occasional formatting issues with deeply nested structures.
+    statement: LLMs can reliably extract structured data (YAML) from freeform input
+    status: partially_validated
+  - assumption_id: A3
+    evidence: Mapped against 20+ real projects. No category of work fell outside the 5 spaces.
+    statement: A 5-space model covers all aspects of app building
+    status: validated
+  - assumption_id: A5
+    evidence: Both Claude and GPT-4 parse YAML specs correctly. Human readability is a bonus for debugging.
+    statement: YAML is a sufficient interchange format for specs consumed by coding agents
+    status: validated
+space: problem
+timestamp: 2025-06-01T00:00:00Z
+validation_type: assumption_review

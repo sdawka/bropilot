@@ -1,0 +1,20 @@
+checks:
+  - check: All vocabulary terms referenced in specs exist in vocabulary.yaml
+    details: 20 terms defined, all referenced correctly
+    status: pass
+  - check: All module specs reference real source files
+    details: 18 modules mapped to actual lib/ paths
+    status: pass
+  - check: Entity relationships reference defined entities
+    details: 9 relationships, all entities exist
+    status: pass
+  - check: API endpoints reference existing modules
+    details: 12 endpoints, all module references valid
+    status: pass
+  - check: Event consumers reference existing modules or spaces
+    details: 11 events, all consumer references valid
+    status: pass
+overall: pass
+space: solution
+timestamp: 2025-06-01T00:00:00Z
+validation_type: spec_consistency

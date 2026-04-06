@@ -1,0 +1,13 @@
+context: 18
+definition_of_done:
+  - Functionality removed or deprecated
+  - Related tests cleaned up
+  - No broken references
+dependencies: []
+description: Spec removed at solution.module_count. Remove or deprecate the corresponding functionality.
+id: 12
+priority: low
+related_specs:
+  - solution.module_count
+status: pending
+title: Remove solution.module_count

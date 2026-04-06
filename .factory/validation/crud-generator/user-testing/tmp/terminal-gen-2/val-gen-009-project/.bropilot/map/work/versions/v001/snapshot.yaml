@@ -1,0 +1,12 @@
+problem:
+  audience: Developers and technical founders
+  context: AI coding tools are good at coding but bad at knowing what to code
+  problem: No tool bridges fuzzy ideas to structured specs for coding agents
+solution:
+  api_endpoint_count: 12
+  entity_count: 9
+  module_count: 18
+  spec_categories: 11
+  vocabulary_count: 20
+timestamp: 2025-06-01T00:00:00Z
+version: 1

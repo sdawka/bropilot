@@ -1,0 +1,13 @@
+context: 12
+definition_of_done:
+  - Functionality removed or deprecated
+  - Related tests cleaned up
+  - No broken references
+dependencies: []
+description: Spec removed at solution.api_endpoint_count. Remove or deprecate the corresponding functionality.
+id: 7
+priority: low
+related_specs:
+  - solution.api_endpoint_count
+status: pending
+title: Remove solution.api_endpoint_count

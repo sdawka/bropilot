@@ -1,0 +1,44 @@
+behaviours:
+  - description: When the pipeline crosses a space boundary, all required slots of the current space must be filled.
+    module: Bropilot.Spaces.validate_gate/2
+    name: Gate Validation
+    rules:
+      - "File slots: .yaml or .yml must exist"
+      - "Directory slots: directory must exist"
+      - Only required slots are checked
+      - Cross-cutting spaces (Measurement, Knowledge) are not gated
+    trigger: Pipeline.Engine.advance/1 detects space change
+  - description: Every recipe must map at least one step to each primary space (Problem, Solution, Work).
+    module: Bropilot.Spaces.validate_recipe/1
+    name: Recipe Validation
+    rules:
+      - Extract unique spaces from all steps
+      - Check that Problem, Solution, Work are all covered
+      - Measurement and Knowledge are cross-cutting, not required
+    trigger: Recipe.Registry.load/1
+  - description: Convert freeform LLM output into structured YAML and write to map slots.
+    module: Bropilot.LLM.extract_yaml/2
+    name: LLM Extraction
+    rules:
+      - System prompt instructs YAML-only output
+      - Strip markdown code fences from response
+      - Parse with yaml_elixir
+      - Return {:ok, map} or {:error, reason}
+    trigger: Act1.Worker.extract/1 or Act2.Worker.extract/1
+  - description: Validate map data against recipe-defined schemas (.schema.yaml files).
+    module: Bropilot.Recipe.Schema
+    name: Schema Validation
+    rules:
+      - Check required fields are present
+      - "Validate types: string, text, boolean, enum, list, map, ref, any"
+      - Validate enum values against allowed list
+      - Validate list item types and nested map fields
+    trigger: Recipe.Schema.validate_map_slot/4
+  - description: Bundle all problem and solution YAML into a versioned snapshot.
+    module: Bropilot.Pipeline.Act3.Snapshot
+    name: Snapshot Creation
+    rules:
+      - Read all YAML files recursively from map/problem/ and map/solution/
+      - Auto-increment version number (v001, v002, ...)
+      - Write snapshot.yaml to map/work/versions/v{NNN}/
+    trigger: Act3.Executor.run/2 or mix bro.snapshot

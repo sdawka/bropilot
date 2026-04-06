@@ -1,0 +1,37 @@
+relationships:
+  - description: A project has exactly one active recipe
+    from: Project
+    to: Recipe
+    type: has_one
+  - description: A project has one map directory with all space data
+    from: Project
+    to: Map
+    type: has_one
+  - description: A recipe defines an ordered list of pipeline steps
+    from: Recipe
+    to: Step
+    type: has_many
+  - description: Each step maps to exactly one primary space
+    from: Step
+    to: Space
+    type: belongs_to
+  - description: Each space has required slots that must be filled
+    from: Space
+    to: Slot
+    type: has_many
+  - description: A version generates multiple tasks from its change plan
+    from: Version
+    to: Task
+    type: has_many
+  - description: A completed task produces one or more artifacts
+    from: Task
+    to: Artifact
+    type: produces
+  - description: Completed tasks update changelog, xrefs, and glossary in the Knowledge Space
+    from: Task
+    to: Knowledge
+    type: feeds_back
+  - description: Pipeline checks gate validation when crossing space boundaries
+    from: Pipeline
+    to: Space
+    type: validates_gate

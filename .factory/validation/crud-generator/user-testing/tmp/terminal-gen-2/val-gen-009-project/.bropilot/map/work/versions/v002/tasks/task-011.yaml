@@ -1,0 +1,104 @@
+context:
+  system-flows:
+    flows:
+      - modules:
+          - Bropilot.LLM
+          - Bropilot.Pipeline.Act1.Extractor
+          - Bropilot.Pipeline.Act2.Extractor
+        name: LLM Extraction
+        steps:
+          - Build extraction prompt with system instructions for YAML output
+          - Send to configured LLM provider (Anthropic, OpenAI, or mock)
+          - Strip code fences from response
+          - Parse YAML into Elixir map
+          - Write structured data to appropriate map slots
+        trigger: Act1.Worker.extract/1 or Act2.Worker.extract/1
+      - modules:
+          - Bropilot.Pipeline.Act3.Snapshot
+          - Bropilot.Pipeline.Act3.Diff
+        name: Snapshot and Diff
+        steps:
+          - Read all YAML files from map/problem/ and map/solution/ recursively
+          - Bundle into snapshot map, determine next version number
+          - Write snapshot.yaml to map/work/versions/v{NNN}/
+          - Deep-diff new snapshot against previous (or empty for v001)
+          - Produce path-based change list (added, modified, removed)
+        trigger: Act3.Executor.run/2
+      - modules:
+          - Bropilot.Pipeline.Act3.TaskGenerator
+          - Bropilot.Task.Agent
+          - Bropilot.Task.Supervisor
+          - Bropilot.Pi.Pool
+        name: Task Dispatch
+        steps:
+          - Generate one task per change with context and DoD
+          - Write task YAML files to versions/v{NNN}/tasks/
+          - For each task, build codegen prompt from step8 template
+          - Dispatch to Pi Pool (DynamicSupervisor spawns Pi.Port)
+          - Collect results and update task status
+        trigger: Act3.TaskGenerator.generate_tasks/1
+      - modules:
+          - Bropilot.Pipeline.Feedback
+        name: Feedback Loop
+        steps:
+          - Build changelog entry from task and result
+          - Append to knowledge/changelog.yaml
+          - Build cross-references from task specs and artifact paths
+          - Append to knowledge/xrefs.yaml (deduplicated)
+          - Extract new terms from task title and specs
+          - Merge into knowledge/glossary.yaml
+        trigger: Pipeline.Feedback.update_knowledge/3
+  user-flows:
+    flows:
+      - name: Initialize Project
+        outcome: Ready-to-use .bropilot/ project structure
+        steps:
+          - Create .bropilot/ directory
+          - Write spaces.lock (immutable space definitions)
+          - Copy default recipe (webapp) to .bropilot/recipe/
+          - Scaffold empty map directories for all spaces
+        trigger: mix bro.init [path]
+      - name: Vibe Collection (Act 1)
+        outcome: Problem Space fully populated
+        steps:
+          - "Step 1: User answers 'Tell me about your app' freeform prompt"
+          - LLM extracts name, purpose, problem, context, glossary terms
+          - "Step 2: User answers 6 targeted questions about audience, use cases, design"
+          - LLM extracts audience, assumptions, hypotheses, vibes/basics
+        trigger: mix bro.vibe
+      - name: Domain Modeling (Act 2, Step 3)
+        outcome: Domain model established in Solution Space
+        steps:
+          - Read all Problem Space data from the map
+          - Build prompt with guiding questions from pipeline.yaml
+          - LLM generates vocabulary, entities, relationships, flows
+          - Write to map/solution/ (vocabulary, domain/, flows/, architecture/)
+        trigger: mix bro.plan (step 3)
+      - name: Spec Expansion (Act 2, Step 4)
+        outcome: Full specifications ready for implementation
+        steps:
+          - Read domain model from Solution Space
+          - LLM expands into 11 spec files
+          - Write specs to map/solution/specs/
+        trigger: mix bro.plan (step 4)
+      - name: Build Cycle (Act 3)
+        outcome: Code generated, knowledge updated, version complete
+        steps:
+          - "Step 5: Create version snapshot of problem + solution"
+          - "Step 6: Diff snapshot against previous version, generate changes"
+          - "Step 7: Generate tasks from changes with context and DoDs"
+          - "Step 8: Dispatch tasks to pi coding agents, collect artifacts"
+          - "Feedback: Update Knowledge Space (changelog, xrefs, glossary)"
+        trigger: mix bro.build
+definition_of_done:
+  - Implementation matches spec
+  - Tests written and passing
+  - Documentation updated
+dependencies: []
+description: New spec added at solution.flows. Implement the corresponding functionality.
+id: 11
+priority: high
+related_specs:
+  - solution.flows
+status: pending
+title: Implement solution.flows

@@ -1,0 +1,24 @@
+infra:
+  - config:
+      instances: 2
+      region: iad
+    name: App Server
+    provider: Fly.io
+    serves:
+      - API Server
+    type: compute
+  - config:
+      size: shared-cpu-1x
+      version: 15
+    name: PostgreSQL
+    provider: Fly.io
+    serves:
+      - Database
+    type: storage
+  - config:
+      eviction: volatile-lru
+    name: Redis Cache
+    provider: Upstash
+    serves:
+      - API Server
+    type: storage

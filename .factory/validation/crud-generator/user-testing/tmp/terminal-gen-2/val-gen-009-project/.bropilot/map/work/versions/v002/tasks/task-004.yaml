@@ -1,0 +1,30 @@
+context:
+  hypotheses:
+    - id: H1
+      metric: Spec completeness score (% of slots filled with actionable data)
+      statement: If we guide developers through structured vibe collection, they will produce higher-quality specs than writing specs from scratch
+      target: 80%+ slot fill rate after Act 1 + Act 2
+    - id: H2
+      metric: First-pass acceptance rate of generated code
+      statement: If coding agents receive Bropilot-generated specs, they will produce code that matches requirements on the first pass more often
+      target: 60%+ tasks accepted without revision
+    - id: H3
+      metric: Percentage of specs that remain accurate after 10 build cycles
+      statement: If the Knowledge Space auto-updates after each task, spec drift will be eliminated
+      target: 95%+ spec accuracy after 10 versions
+    - id: H4
+      metric: Pipeline completion rate and user satisfaction
+      statement: A three-act pipeline (Vibe Collection -> Domain Modeling -> Build) matches how developers naturally think about projects
+      target: 70%+ of users complete all 3 acts
+definition_of_done:
+  - Implementation matches spec
+  - Tests written and passing
+  - Documentation updated
+dependencies: []
+description: New spec added at problem.hypotheses. Implement the corresponding functionality.
+id: 4
+priority: high
+related_specs:
+  - problem.hypotheses
+status: pending
+title: Implement problem.hypotheses

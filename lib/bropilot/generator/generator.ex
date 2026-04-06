@@ -342,6 +342,7 @@ defmodule Bropilot.Generator do
     type = column["type"] || "text"
     nullable = column["nullable"]
     default = column["default"]
+    references = column["references"]
 
     sql_type = column_to_sql_type(type)
     safe_name = quote_sql_identifier_if_needed(name)
@@ -360,6 +361,21 @@ defmodule Bropilot.Generator do
         parts ++ ["DEFAULT '#{escape_sql_string(to_string(default))}'"]
       else
         parts
+      end
+
+    # Add REFERENCES for explicit foreign keys or inferred from _id columns
+    parts =
+      cond do
+        references ->
+          ref_table = quote_sql_identifier(references)
+          parts ++ ["REFERENCES #{ref_table}(id)"]
+
+        String.ends_with?(name, "_id") and String.downcase(to_string(type)) == "uuid" ->
+          ref_table = String.trim_trailing(name, "_id") <> "s"
+          parts ++ ["REFERENCES #{quote_sql_identifier(ref_table)}(id)"]
+
+        true ->
+          parts
       end
 
     Enum.join(parts, " ")

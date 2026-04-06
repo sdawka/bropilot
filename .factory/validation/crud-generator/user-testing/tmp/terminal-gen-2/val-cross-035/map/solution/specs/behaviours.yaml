@@ -1,0 +1,5 @@
+behaviours:
+  - given: task exists
+    name: Assign task
+    then: task has assignee
+    when: assign user

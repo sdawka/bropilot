@@ -1,0 +1,64 @@
+components:
+  - description: Renders a single YAML file's content as a structured card with collapsible sections.
+    name: YamlCard
+    props:
+      - data (map)
+      - title (string)
+      - editable (boolean)
+    used_in:
+      - Problem Space
+      - Solution Space
+      - Knowledge Space
+  - description: "Shows fill status for a space: filled slots, empty slots, gate pass/fail indicator."
+    name: SpaceStatus
+    props:
+      - space_id (atom)
+      - slots (list)
+      - gate_status (ok | error)
+    used_in:
+      - Dashboard
+  - description: Compact badge showing task priority and status with color coding.
+    name: TaskBadge
+    props:
+      - priority (high | medium | low)
+      - status (pending | in_progress | completed | failed)
+    used_in:
+      - Work Space
+  - description: Table view of spec entries (e.g., API endpoints, modules, events) with sorting and filtering.
+    name: SpecTable
+    props:
+      - specs (list of maps)
+      - columns (list of strings)
+      - sortable (boolean)
+    used_in:
+      - Solution Space
+  - description: Navigation sidebar with space icons, pipeline progress indicator, and quick links.
+    name: NavSidebar
+    props:
+      - current_path (string)
+      - pipeline_status (map)
+    used_in:
+      - All views (layout component)
+  - description: Visual pipeline progress bar showing acts and steps with completion status.
+    name: PipelineProgress
+    props:
+      - steps (list)
+      - current_step (string)
+      - completed (list)
+    used_in:
+      - Dashboard
+      - NavSidebar
+  - description: Shows changes between two versions with added/modified/removed highlighting.
+    name: DiffViewer
+    props:
+      - changes (list)
+      - version (integer)
+    used_in:
+      - Work Space
+  - description: Alphabetical list of glossary terms with definitions, source space, and first-seen step.
+    name: GlossaryList
+    props:
+      - terms (list of maps)
+      - filterable (boolean)
+    used_in:
+      - Knowledge Space

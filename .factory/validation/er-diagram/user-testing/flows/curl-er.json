@@ -1,0 +1,115 @@
+{
+  "groupId": "curl-er",
+  "testedAt": "2026-04-06T15:29:15Z",
+  "isolation": {
+    "surface": "curl API validation",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "apiBaseUrl": "http://localhost:4000",
+    "webBaseUrl": "http://localhost:3200",
+    "assignedAssertions": [
+      "VAL-ERD-012",
+      "VAL-CROSS-084"
+    ]
+  },
+  "toolsUsed": [
+    "curl"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-ERD-012",
+      "title": "Diagram data sourced from API",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "GET /api/solution/domain/entities",
+          "expected": "HTTP 200 JSON entity list",
+          "observed": "HTTP 404 with body {\"error\":\"not found\",\"ok\":false}"
+        },
+        {
+          "action": "GET /api/solution/domain/relationships",
+          "expected": "HTTP 200 JSON relationship list",
+          "observed": "HTTP 404 with body {\"error\":\"not found\",\"ok\":false}"
+        },
+        {
+          "action": "Quick-fix attempt: query map surface for domain data",
+          "expected": "If contract paths are aliases, map variants should resolve to same payload",
+          "observed": "GET /api/map/solution/domain%2Fentities -> 400 unknown slot; GET /api/map/solution/domain%2Frelationships -> 400 unknown slot; only GET /api/map/solution/domain -> 200 with nested entities/relationships"
+        }
+      ],
+      "evidence": {
+        "network": "GET /api/solution/domain/entities -> 404; GET /api/solution/domain/relationships -> 404; GET /api/map/solution/domain%2Fentities -> 400; GET /api/map/solution/domain%2Frelationships -> 400; GET /api/map/solution/domain -> 200",
+        "files": [
+          "er-diagram/curl-er/VAL-ERD-012-entities.headers.txt",
+          "er-diagram/curl-er/VAL-ERD-012-entities.body.json",
+          "er-diagram/curl-er/VAL-ERD-012-relationships.headers.txt",
+          "er-diagram/curl-er/VAL-ERD-012-relationships.body.json",
+          "er-diagram/curl-er/VAL-ERD-012-entities-alt.headers.txt",
+          "er-diagram/curl-er/VAL-ERD-012-entities-alt.body.json",
+          "er-diagram/curl-er/VAL-ERD-012-relationships-alt.headers.txt",
+          "er-diagram/curl-er/VAL-ERD-012-relationships-alt.body.json",
+          "er-diagram/curl-er/VAL-ERD-012-domain-slot.headers.txt",
+          "er-diagram/curl-er/VAL-ERD-012-domain-slot.body.json"
+        ]
+      },
+      "issues": "Contract-specified ER endpoints are not implemented on this API surface; required entity/relationship paths returned 404."
+    },
+    {
+      "id": "VAL-CROSS-084",
+      "title": "Knowledge Space accumulates across all acts",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "POST /api/init then GET /api/pipeline/status",
+          "expected": "Pipeline precondition indicates full run completed",
+          "observed": "POST /api/init -> 200 already_initialized; GET /api/pipeline/status -> step1..step7 pending and step8 in_progress"
+        },
+        {
+          "action": "GET /api/map/knowledge/glossary",
+          "expected": "Glossary contains terms from all 3 acts",
+          "observed": "HTTP 200; glossary includes terms tagged from step1, step2, step3, step4 and untagged build-related terms"
+        },
+        {
+          "action": "GET /api/map/knowledge/changelog",
+          "expected": "Changelog contains entries for Act 1 (vibe), Act 2 (domain), and Act 3 (build)",
+          "observed": "HTTP 200; all entries are task/build style records (task_id, related_specs, files_touched); no Act1/Act2 entries present"
+        },
+        {
+          "action": "GET /api/map/knowledge/xrefs",
+          "expected": "Cross-references link terms to specs and artifacts",
+          "observed": "HTTP 200; xrefs include term + spec_path + artifact_path mappings"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/init -> 200; GET /api/pipeline/status -> 200; GET /api/map/knowledge/glossary -> 200; GET /api/map/knowledge/changelog -> 200; GET /api/map/knowledge/xrefs -> 200",
+        "files": [
+          "er-diagram/curl-er/VAL-CROSS-084-init.headers.txt",
+          "er-diagram/curl-er/VAL-CROSS-084-init.body.json",
+          "er-diagram/curl-er/VAL-CROSS-084-pipeline-status-after-init.headers.txt",
+          "er-diagram/curl-er/VAL-CROSS-084-pipeline-status-after-init.body.json",
+          "er-diagram/curl-er/VAL-CROSS-084-glossary.headers.txt",
+          "er-diagram/curl-er/VAL-CROSS-084-glossary.body.json",
+          "er-diagram/curl-er/VAL-CROSS-084-changelog.headers.txt",
+          "er-diagram/curl-er/VAL-CROSS-084-changelog.body.json",
+          "er-diagram/curl-er/VAL-CROSS-084-xrefs.headers.txt",
+          "er-diagram/curl-er/VAL-CROSS-084-xrefs.body.json",
+          "er-diagram/curl-er/VAL-CROSS-084-knowledge.headers.txt",
+          "er-diagram/curl-er/VAL-CROSS-084-knowledge.body.json"
+        ]
+      },
+      "issues": "Knowledge data is present, but changelog evidence does not span all acts (only build/task entries), and pipeline status does not indicate a completed full pipeline."
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Validation contract path examples for ER data (/api/solution/domain/entities, /api/solution/domain/relationships) do not match implemented route surface; API serves ER data through /api/map/solution/domain.",
+      "resolved": true,
+      "resolution": "Captured both contract-path failures and implemented-path success as evidence.",
+      "affectedAssertions": [
+        "VAL-ERD-012"
+      ]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 2 assertions: 0 passed, 2 failed, 0 blocked. VAL-ERD-012 failed due missing contract ER endpoints; VAL-CROSS-084 failed because changelog evidence did not cover all acts and pipeline status was not fully complete."
+}

@@ -1,0 +1,18 @@
+alternatives_considered:
+  - name: 3 spaces (Problem, Solution, Work)
+    reason_rejected: Missing validation and documentation as first-class concerns. They get neglected.
+  - name: 7+ spaces with finer granularity
+    reason_rejected: Too many categories creates confusion. 5 is the sweet spot — covers everything without overhead.
+  - name: Configurable spaces per recipe
+    reason_rejected: Defeats the purpose of a universal framework. Recipes should configure steps, not spaces.
+consequences:
+  - Every piece of project data has a clear home
+  - Cross-cutting spaces ensure validation and docs are never forgotten
+  - Gate validation enforces discipline at space boundaries
+  - New recipes work with the same 5 spaces — universal compatibility
+context: Needed a universal framework for categorizing all aspects of app building. Must be exhaustive (nothing falls outside) and immutable (recipes can't change the categories).
+date: 2025-01-10
+decision: "Define 5 immutable spaces: Problem (why), Solution (what), Work (how/when), Measurement (validation), Knowledge (documentation). Problem/Solution/Work are primary; Measurement and Knowledge are cross-cutting."
+source_step: step3
+status: accepted
+title: Why Five Spaces

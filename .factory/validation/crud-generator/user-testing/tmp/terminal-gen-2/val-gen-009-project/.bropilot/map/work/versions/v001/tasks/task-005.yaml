@@ -1,0 +1,19 @@
+context:
+  related_module: Bropilot.Pipeline.Feedback
+  space: knowledge
+definition_of_done:
+  - update_changelog/2 appends timestamped entries
+  - update_xrefs/2 maps specs to artifact paths (deduplicated)
+  - update_glossary/2 merges new terms (latest definition wins)
+  - summarize_version/2 writes version summary with stats
+  - All knowledge files are valid YAML parseable by yaml_elixir
+dependencies:
+  - 4
+description: Build the Pipeline.Feedback module that updates changelog, cross-references, and glossary after each completed task.
+id: 5
+priority: medium
+related_specs:
+  - solution.specs.modules.Pipeline.Feedback
+  - solution.specs.events.knowledge_updated
+status: completed
+title: Implement Knowledge Space feedback loop

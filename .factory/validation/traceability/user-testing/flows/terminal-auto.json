@@ -1,0 +1,330 @@
+{
+  "groupId": "terminal-auto",
+  "testedAt": "2026-04-06T14:10:37.775570+00:00",
+  "isolation": {
+    "apiBaseUrl": "http://localhost:4000",
+    "webBaseUrl": "http://localhost:3200",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "evidenceDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/evidence/traceability/terminal-auto",
+    "allowedApiRestartUsed": true,
+    "temporaryApiPortUsedForRestartCheck": 4001,
+    "primaryServicesHealthyAtEnd": true
+  },
+  "toolsUsed": [
+    "terminal",
+    "curl",
+    "mix",
+    "python3",
+    "ruby",
+    "lsof"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-TRACE-001",
+      "title": "Traceability file exists after init",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Initialize fresh project under mission evidence dir with `BROPILOT_API=false mix bro.init <path>`",
+          "expected": "Project initializes without touching shared API port",
+          "observed": "Init succeeded in isolated temp directory"
+        },
+        {
+          "action": "Check `.bropilot/map/knowledge/traceability.yaml`",
+          "expected": "File exists and has top-level `traceability` key",
+          "observed": "File exists; YAML keys include `traceability`"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "traceability/terminal-auto/VAL-TRACE-001-init.log",
+          "traceability/terminal-auto/VAL-TRACE-001-check.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TRACE-002",
+      "title": "Link structure conforms to typed schema",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "PUT `/api/traceability/api/ValTrace002RoundTrip` with implementation/test/type/migration links",
+          "expected": "API accepts typed links",
+          "observed": "PUT returned ok=true"
+        },
+        {
+          "action": "GET same entry and compare payload",
+          "expected": "Round-trip equality with no field loss",
+          "observed": "Observed links exactly match submitted payload (`round_trip_equal: true`)"
+        }
+      ],
+      "evidence": {
+        "network": "PUT/GET /api/traceability/api/ValTrace002RoundTrip -> 200",
+        "artifacts": [
+          "traceability/terminal-auto/VAL-TRACE-002-payload.json",
+          "traceability/terminal-auto/VAL-TRACE-002-put.headers.txt",
+          "traceability/terminal-auto/VAL-TRACE-002-put.body.json",
+          "traceability/terminal-auto/VAL-TRACE-002-get.headers.txt",
+          "traceability/terminal-auto/VAL-TRACE-002-get.body.json",
+          "traceability/terminal-auto/VAL-TRACE-002-compare.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TRACE-005",
+      "title": "Traceability data persists across server restarts",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Start isolated API instance on port 4001",
+          "expected": "Temporary test server available without taking down primary 4000 service",
+          "observed": "Healthcheck on 4001 returned healthy"
+        },
+        {
+          "action": "PUT and GET `api/ValTrace005Persist` before restart",
+          "expected": "Entry readable before restart",
+          "observed": "GET returned expected entry"
+        },
+        {
+          "action": "Restart isolated 4001 API and GET entry again",
+          "expected": "Post-restart entry matches pre-restart",
+          "observed": "Before/after data equal (`equal: true`)"
+        }
+      ],
+      "evidence": {
+        "network": "PUT/GET on http://localhost:4001 plus before/after comparison",
+        "artifacts": [
+          "traceability/terminal-auto/VAL-TRACE-005-health-4001.headers.txt",
+          "traceability/terminal-auto/VAL-TRACE-005-health-4001.body.json",
+          "traceability/terminal-auto/VAL-TRACE-005-put-before.headers.txt",
+          "traceability/terminal-auto/VAL-TRACE-005-put-before.body.json",
+          "traceability/terminal-auto/VAL-TRACE-005-get-before.body.json",
+          "traceability/terminal-auto/VAL-TRACE-005-get-after.body.json",
+          "traceability/terminal-auto/VAL-TRACE-005-compare.json",
+          "traceability/terminal-auto/final-health-4000-after-clean.body.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TAUTO-001",
+      "title": "Step 8 codegen records implementation links",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Capture traceability matrix before build",
+          "expected": "Baseline collected",
+          "observed": "Baseline captured"
+        },
+        {
+          "action": "POST `/api/build`",
+          "expected": "Codegen writes artifacts and auto-records implementation links",
+          "observed": "Build returned ok with tasks_completed=3 but files_written=[]"
+        },
+        {
+          "action": "Diff pre/post matrices and inspect generated output dir",
+          "expected": "New implementation links to generated files",
+          "observed": "Pre/post diff added 0 links; repository `output/` directory absent"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/build -> 200",
+        "artifacts": [
+          "traceability/terminal-auto/VAL-TAUTO-pre-build.body.json",
+          "traceability/terminal-auto/VAL-TAUTO-build-1.body.json",
+          "traceability/terminal-auto/VAL-TAUTO-post-build-1.body.json",
+          "traceability/terminal-auto/VAL-TAUTO-pre-post-diff.json",
+          "traceability/terminal-auto/VAL-TAUTO-output-files.json"
+        ]
+      },
+      "issues": "Build did not produce new traceability links for generated artifacts in this run."
+    },
+    {
+      "id": "VAL-TAUTO-002",
+      "title": "Auto-linked file_path values point to existing files",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Enumerate all traceability link file paths from final matrix",
+          "expected": "Every file_path resolves under project root",
+          "observed": "31 file paths were missing on disk"
+        }
+      ],
+      "evidence": {
+        "artifacts": [
+          "traceability/terminal-auto/VAL-TAUTO-matrix-final.body.json",
+          "traceability/terminal-auto/VAL-TAUTO-analysis.json"
+        ]
+      },
+      "issues": "Traceability matrix contains many non-existent file paths."
+    },
+    {
+      "id": "VAL-TAUTO-003",
+      "title": "API spec links point to route handler functions",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Inspect all `api` category links from matrix",
+          "expected": "Links point to router/controller files and function names match definitions when provided",
+          "observed": "API links were not router/controller paths and linked files were missing, so function checks could not be satisfied"
+        }
+      ],
+      "evidence": {
+        "artifacts": [
+          "traceability/terminal-auto/VAL-TAUTO-matrix-final.body.json",
+          "traceability/terminal-auto/VAL-TAUTO-analysis.json"
+        ]
+      },
+      "issues": "API traceability links did not map to existing route handler files/functions."
+    },
+    {
+      "id": "VAL-TAUTO-004",
+      "title": "Entity spec links include type, migration, and implementation",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Inspect `entities` entries and link-type sets",
+          "expected": "At least one entities entry includes `type`, `migration`, and `implementation`",
+          "observed": "Entities entries contained implementation/test only; no entity entry had all required link types"
+        }
+      ],
+      "evidence": {
+        "artifacts": [
+          "traceability/terminal-auto/VAL-TAUTO-matrix-final.body.json",
+          "traceability/terminal-auto/VAL-TAUTO-analysis.json"
+        ]
+      },
+      "issues": "Required entity link-type coverage (type+migration+implementation) was missing."
+    },
+    {
+      "id": "VAL-TAUTO-005",
+      "title": "Behaviour spec links include test links",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Inspect `behaviours` entries for implementation+test combination",
+          "expected": "At least one behaviour entry has both `implementation` and `test` links",
+          "observed": "Behaviour entries had implementation links only; no test links present"
+        }
+      ],
+      "evidence": {
+        "artifacts": [
+          "traceability/terminal-auto/VAL-TAUTO-matrix-final.body.json",
+          "traceability/terminal-auto/VAL-TAUTO-analysis.json"
+        ]
+      },
+      "issues": "No behaviour traceability entry contained test-type links."
+    },
+    {
+      "id": "VAL-TAUTO-006",
+      "title": "Component and view specs link to correct file types",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Inspect `components` and `views` link paths/extensions",
+          "expected": "Components link to component-source file types; views link to page/view files",
+          "observed": "Components included non-component `.ex`/missing links; only one view link pointed to an existing `.astro` page"
+        }
+      ],
+      "evidence": {
+        "artifacts": [
+          "traceability/terminal-auto/VAL-TAUTO-matrix-final.body.json",
+          "traceability/terminal-auto/VAL-TAUTO-analysis.json"
+        ]
+      },
+      "issues": "Component/view link typing was inconsistent and included missing/non-matching files."
+    },
+    {
+      "id": "VAL-TAUTO-008",
+      "title": "Re-running codegen updates stale links",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Seed stale link for `components/components.2.events`",
+          "expected": "Stale baseline established",
+          "observed": "Entry contained stale `stale/old_component.tsx` link"
+        },
+        {
+          "action": "Run POST `/api/build` again and re-read entry",
+          "expected": "Stale link replaced/updated/marked by rerun",
+          "observed": "Stale link remained unchanged before/after rerun"
+        }
+      ],
+      "evidence": {
+        "network": "PUT stale entry -> 200; POST /api/build -> 200; GET before/after -> 200",
+        "artifacts": [
+          "traceability/terminal-auto/VAL-TAUTO-008-stale-payload.json",
+          "traceability/terminal-auto/VAL-TAUTO-008-get-before.body.json",
+          "traceability/terminal-auto/VAL-TAUTO-008-build-2.body.json",
+          "traceability/terminal-auto/VAL-TAUTO-008-get-after.body.json",
+          "traceability/terminal-auto/VAL-TAUTO-008-compare.json"
+        ]
+      },
+      "issues": "Codegen rerun did not update or mark stale traceability link in tested spec entry."
+    },
+    {
+      "id": "VAL-TAUTO-009",
+      "title": "Codegen for all 11 spec categories produces links",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Run POST `/api/build` and compare matrix before/after",
+          "expected": "Build generates links across all 11 categories for this run",
+          "observed": "Coverage remained populated from existing entries, but build added 0 new links (no category-level new linkage)"
+        }
+      ],
+      "evidence": {
+        "artifacts": [
+          "traceability/terminal-auto/VAL-TAUTO-build-1.body.json",
+          "traceability/terminal-auto/VAL-TAUTO-pre-build.body.json",
+          "traceability/terminal-auto/VAL-TAUTO-post-build-1.body.json",
+          "traceability/terminal-auto/VAL-TAUTO-pre-post-diff.json",
+          "traceability/terminal-auto/VAL-TAUTO-analysis.json"
+        ]
+      },
+      "issues": "This build run did not produce new traceability links across categories (0 new links added)."
+    },
+    {
+      "id": "VAL-CROSS-021",
+      "title": "Traceability links match actual generated files",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Iterate all file_path values from `GET /api/traceability` and check `test -f` under repo root",
+          "expected": "Zero missing files",
+          "observed": "31 linked file paths did not exist"
+        }
+      ],
+      "evidence": {
+        "artifacts": [
+          "traceability/terminal-auto/VAL-TAUTO-matrix-final.body.json",
+          "traceability/terminal-auto/VAL-TAUTO-analysis.json"
+        ]
+      },
+      "issues": "Traceability matrix includes many links to files absent from the project root."
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Running `mix bro.init` without disabling API attempted to bind port 4000 and failed with `:eaddrinuse` against the already-running shared API.",
+      "resolved": true,
+      "resolution": "Re-ran init command with `BROPILOT_API=false` for isolated filesystem validation.",
+      "affectedAssertions": [
+        "VAL-TRACE-001"
+      ]
+    },
+    {
+      "description": "Background server PID from fire-and-forget did not reliably map to the listener process when cleaning up port 4001.",
+      "resolved": true,
+      "resolution": "Used `lsof -ti tcp:4001 | xargs kill` to cleanly stop temporary API listener and confirmed primary API on 4000 remained healthy.",
+      "affectedAssertions": [
+        "VAL-TRACE-005"
+      ]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 12 assertions: 3 passed, 9 failed, 0 blocked."
+}

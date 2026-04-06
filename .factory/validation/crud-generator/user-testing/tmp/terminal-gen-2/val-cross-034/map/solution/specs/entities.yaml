@@ -1,0 +1,17 @@
+entities:
+  - columns:
+      - name: id
+        nullable: false
+        type: uuid
+      - name: key
+        nullable: false
+        type: varchar(255)
+      - name: value
+        nullable: true
+        type: text
+      - name: is_active
+        nullable: false
+        type: boolean
+    domain_entity: Settings
+    name: settings
+    table: settings

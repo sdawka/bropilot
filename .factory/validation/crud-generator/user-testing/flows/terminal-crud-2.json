@@ -1,0 +1,160 @@
+{
+  "groupId": "terminal-crud-2",
+  "testedAt": "2026-04-06T16:36:05Z",
+  "isolation": {
+    "repo": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "milestone": "crud-generator",
+    "surface": "terminal",
+    "boundary": "repository-local commands only; no shared service restarts"
+  },
+  "toolsUsed": [
+    "terminal",
+    "mix test"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-CRUD-006",
+      "title": "List with filters narrows results",
+      "status": "pass",
+      "commands": [
+        "cd \"/Users/sdawka/Code/bropilot\" && mix test \"test/crud_test.exs:191\" --trace 2>&1 | tee \"/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/evidence/crud-generator/terminal-crud-2/VAL-CRUD-006.log\""
+      ],
+      "steps": [
+        {
+          "action": "Run targeted ExUnit test for list filtering",
+          "expected": "Filtering by status=todo returns exactly 2 records and all have status todo",
+          "observed": "Test 'list/3 with filters filters by field value' passed."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-crud-2/VAL-CRUD-006.log"
+        ],
+        "snippets": [
+          "* test list/3 with filters filters by field value (13.4ms) [L#191]",
+          "Finished in 0.1 seconds ... 1 test, 0 failures (34 excluded)"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CRUD-007",
+      "title": "List with pagination returns correct pages",
+      "status": "pass",
+      "commands": [
+        "cd \"/Users/sdawka/Code/bropilot\" && mix test \"test/crud_test.exs:226\" \"test/crud_test.exs:246\" \"test/crud_test.exs:252\" --trace 2>&1 | tee \"/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/evidence/crud-generator/terminal-crud-2/VAL-CRUD-007.log\""
+      ],
+      "steps": [
+        {
+          "action": "Run targeted pagination tests for page 1, page 4, and page 5 behaviors",
+          "expected": "page1=>3 records with metadata, page4=>1 record, page5=>0 records",
+          "observed": "All three pagination tests passed."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-crud-2/VAL-CRUD-007.log"
+        ],
+        "snippets": [
+          "* test list/3 with pagination returns correct page size (9.3ms) [L#226]",
+          "* test list/3 with pagination last partial page returns remaining records (14.3ms) [L#246]",
+          "* test list/3 with pagination page beyond data returns empty records (6.8ms) [L#252]",
+          "Finished in 0.1 seconds ... 3 tests, 0 failures (32 excluded)"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CRUD-008",
+      "title": "Schema validation rejects invalid creates",
+      "status": "pass",
+      "commands": [
+        "cd \"/Users/sdawka/Code/bropilot\" && mix test \"test/crud_test.exs:86\" --trace 2>&1 | tee \"/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/evidence/crud-generator/terminal-crud-2/VAL-CRUD-008.log\""
+      ],
+      "steps": [
+        {
+          "action": "Run targeted schema-validation create test",
+          "expected": "Missing title + invalid priority enum returns at least two validation errors",
+          "observed": "Test 'rejects both missing required and invalid enum' passed."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-crud-2/VAL-CRUD-008.log"
+        ],
+        "snippets": [
+          "* test create/4 (with schema validation) rejects both missing required and invalid enum (1.9ms) [L#86]",
+          "Finished in 0.1 seconds ... 1 test, 0 failures (34 excluded)"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CRUD-009",
+      "title": "Schema validation rejects invalid updates",
+      "status": "pass",
+      "commands": [
+        "cd \"/Users/sdawka/Code/bropilot\" && mix test \"test/crud_test.exs:136\" --trace 2>&1 | tee \"/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/evidence/crud-generator/terminal-crud-2/VAL-CRUD-009.log\""
+      ],
+      "steps": [
+        {
+          "action": "Run targeted schema-validation update test",
+          "expected": "Updating title to wrong type returns type mismatch validation error",
+          "observed": "Test 'rejects invalid type on update' passed."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-crud-2/VAL-CRUD-009.log"
+        ],
+        "snippets": [
+          "* test update/5 (with schema validation) rejects invalid type on update (8.5ms) [L#136]",
+          "Finished in 0.1 seconds ... 1 test, 0 failures (34 excluded)"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CRUD-010",
+      "title": "CRUD operations are isolated per collection",
+      "status": "pass",
+      "commands": [
+        "cd \"/Users/sdawka/Code/bropilot\" && mix test \"test/crud_test.exs:282\" --trace 2>&1 | tee \"/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/evidence/crud-generator/terminal-crud-2/VAL-CRUD-010.log\""
+      ],
+      "steps": [
+        {
+          "action": "Run targeted collection-isolation test",
+          "expected": "tasks and users collections return independent counts with no leakage",
+          "observed": "Test 'records in tasks don't leak to users' passed."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-crud-2/VAL-CRUD-010.log"
+        ],
+        "snippets": [
+          "* test collection isolation records in 'tasks' don't leak to 'users' (9.1ms) [L#282]",
+          "Finished in 0.1 seconds ... 1 test, 0 failures (34 excluded)"
+        ]
+      },
+      "issues": null
+    }
+  ],
+  "frictions": [
+    {
+      "description": "ExUnit location filtering with --trace prints many excluded tests before the targeted passing test, which adds noise to evidence logs.",
+      "resolved": true,
+      "resolution": "Used line-targeted test commands and referenced only the relevant passing test lines and summary in report snippets.",
+      "affectedAssertions": [
+        "VAL-CRUD-006",
+        "VAL-CRUD-007",
+        "VAL-CRUD-008",
+        "VAL-CRUD-009",
+        "VAL-CRUD-010"
+      ]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 5 assigned CRUD assertions on terminal surface; all 5 passed with targeted ExUnit evidence logs."
+}

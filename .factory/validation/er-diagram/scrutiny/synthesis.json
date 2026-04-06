@@ -1,0 +1,69 @@
+{
+  "milestone": "er-diagram",
+  "round": 1,
+  "status": "fail",
+  "validatorsRun": {
+    "test": {
+      "passed": true,
+      "command": "mix test && cd web && npx vitest run",
+      "exitCode": 0
+    },
+    "typecheck": {
+      "passed": true,
+      "command": "cd web && npx tsc --noEmit",
+      "exitCode": 0
+    },
+    "lint": {
+      "passed": true,
+      "command": "mix compile --warnings-as-errors",
+      "exitCode": 0
+    }
+  },
+  "reviewsSummary": {
+    "total": 4,
+    "passed": 3,
+    "failed": 1,
+    "failedFeatures": [
+      "m3-cross-flows"
+    ]
+  },
+  "blockingIssues": [
+    {
+      "featureId": "m3-cross-flows",
+      "severity": "blocking",
+      "description": "Feature declares fulfillment of VAL-CROSS-084 but implementation/verification does not validate Knowledge Space accumulation across acts (glossary/changelog)."
+    }
+  ],
+  "appliedUpdates": [],
+  "suggestedGuidanceUpdates": [
+    {
+      "target": ".factory/skills/astro-frontend/SKILL.md",
+      "suggestion": "Clarify when agent-browser verification is mandatory versus optional, and when adding new Vitest tests is expected versus not practical (e.g., Mermaid/SVG-heavy interactions or CSS-only/navigation tweaks).",
+      "evidence": "Multiple er-diagram reviews reported successful features validated without new tests and/or without agent-browser despite current wording implying hard requirements.",
+      "isSystemic": true
+    },
+    {
+      "target": ".factory/skills/integration-worker/SKILL.md",
+      "suggestion": "Add an explicit fulfills-to-evidence checklist step: each assertion listed in a feature's fulfills must map to at least one concrete verification artifact before marking complete.",
+      "evidence": "m3-cross-flows reported VAL-CROSS-084 in scope but omitted direct verification evidence, causing scrutiny failure.",
+      "isSystemic": true
+    },
+    {
+      "target": ".factory/library/architecture.md",
+      "suggestion": "Refresh milestone status and API notes: remove stale 'ER diagram pending' statement and document /api/map/solution/domain payload shape plus Mermaid implementation quirks discovered during M3 work.",
+      "evidence": "Three reviews independently flagged stale ER status; reviewers also noted repeated rediscovery of API payload details and Mermaid sanitization/id-targeting quirks.",
+      "isSystemic": true
+    }
+  ],
+  "rejectedObservations": [
+    {
+      "observation": "Duplicate stale-architecture reports across er-diagram-page, er-navigation, and m3-cross-flows",
+      "reason": "duplicate"
+    },
+    {
+      "observation": "Cold-start API race note from m3-cross-flows handoff",
+      "reason": "ambiguous"
+    }
+  ],
+  "previousRound": null
+}

@@ -1,0 +1,69 @@
+{
+  "groupId": "browser-cross-085",
+  "testedAt": "2026-04-06T16:36:57Z",
+  "isolation": {
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "webUrl": "http://localhost:3200",
+    "apiUrl": "http://localhost:4000",
+    "assertionIds": ["VAL-CROSS-085"]
+  },
+  "toolsUsed": ["agent-browser"],
+  "assertions": [
+    {
+      "id": "VAL-CROSS-085",
+      "title": "Concurrent page access during pipeline execution",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Open /domain/ and start domain modeling",
+          "expected": "Act 2 session starts and domain input UI is available",
+          "observed": "Domain session started and input textbox plus Submit & Extract button rendered."
+        },
+        {
+          "action": "Submit domain description to trigger extract",
+          "expected": "LLM-backed Step 3 extraction enters in-progress state",
+          "observed": "After submit, the button became disabled and in-progress UI state was visible while extraction request was active."
+        },
+        {
+          "action": "During extraction, navigate to Dashboard (/)",
+          "expected": "Dashboard loads normally without hang",
+          "observed": "Dashboard loaded normally in a new tab while domain extraction was active."
+        },
+        {
+          "action": "Navigate to Problem Space (/problem/) during same run",
+          "expected": "Problem Space loads normally without hang",
+          "observed": "Problem Space loaded normally with no timeout or blocked render."
+        },
+        {
+          "action": "Navigate to Knowledge (/knowledge/) during same run",
+          "expected": "Knowledge page loads normally and remains interactive",
+          "observed": "Knowledge page loaded normally; search input was present and interactive."
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "crud-generator/browser-cross-085/VAL-CROSS-085-domain-initial.png",
+          "crud-generator/browser-cross-085/VAL-CROSS-085-domain-after-start.png",
+          "crud-generator/browser-cross-085/VAL-CROSS-085-domain-extract-in-progress.png",
+          "crud-generator/browser-cross-085/VAL-CROSS-085-dashboard-during-extract.png",
+          "crud-generator/browser-cross-085/VAL-CROSS-085-problem-during-extract.png",
+          "crud-generator/browser-cross-085/VAL-CROSS-085-knowledge-during-extract.png",
+          "crud-generator/browser-cross-085/VAL-CROSS-085-domain-after-concurrent-nav.png"
+        ],
+        "consoleErrors": "none from `agent-browser errors` during navigation checks; console stream showed one transient \"Failed to load resource: 400\" during domain extract",
+        "network": "fetch http://localhost:4000/api/domain/start (27ms), fetch http://localhost:4000/api/domain/input (3ms), fetch http://localhost:4000/api/domain/extract (422ms)"
+      },
+      "issues": null
+    }
+  ],
+  "frictions": [
+    {
+      "description": "A transient console message (Failed to load resource: 400) appeared during extract flow, even though concurrent page navigation still worked.",
+      "resolved": false,
+      "resolution": "Not resolved in this validation run; recorded as non-blocking observation for this assertion.",
+      "affectedAssertions": ["VAL-CROSS-085"]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 1 assertion (VAL-CROSS-085): passed. During an active Act 2 extract request, Dashboard, Problem Space, and Knowledge pages all loaded without timeout/hang."
+}

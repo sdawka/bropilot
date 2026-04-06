@@ -88,3 +88,29 @@ Avoid ports: 4000 (dev), 4321-4340 (occupied), 5000, 7000, 8108
 - Contract/path mismatch observed during curl validation: implemented snapshot endpoint is `POST /api/snapshot` (not `POST /api/build/snapshot`).
 - `GET /api/domain/status` is not available in current API surface; assertions that require this endpoint should use alternative state checks.
 - For deterministic Act 2 UI checks, the backend should be started with/through `mode=mock`; current domain UI does not expose a direct mock-mode toggle.
+
+## Validation Notes: core-gaps (round 2 rerun)
+
+- Restart/crash assertions on isolated API instances can leave the assigned API port down; always perform a healthcheck and restart the isolated API before subsequent browser validation batches.
+- Nested solution-map read paths used by some assertions (`/api/map/solution/domain/entities`, `/api/map/solution/flows/*`, `/api/map/solution/architecture/*`) returned 404 in this environment; use available map endpoints for evidence where possible and record path mismatch when contract requires unavailable routes.
+
+## Validation Notes: traceability (round 1)
+
+- Current traceability API surface is project-global on this branch (`/api/traceability` and `/api/traceability/:category/:spec_id`); project-scoped paths like `/api/projects/:path/traceability` returned 404 during user testing.
+- On this run, `POST /api/build` repeatedly returned success with `files_written: []` and produced no traceability count deltas; assertions that require newly generated links (UI auto-refresh / partial-build behavior) were blocked by missing runtime preconditions.
+- Shared localhost runtime already had populated traceability data before browser validation; empty-state assertions require an isolated fresh project state if they must be validated deterministically.
+- `/build/` page navigation produced a browser error (`Unexpected token ':'`) during sidebar regression flow; include console checks when validating cross-page navigation.
+
+## Validation Notes: er-diagram (round 1)
+
+- ER rendering surface in this runtime is `/er/`; `/domain/` currently hosts Act 2 domain modeling UI. Assertions that require ER content specifically on `/domain/` fail unless routing/UI behavior changes.
+- Contract example endpoints `GET /api/solution/domain/entities` and `GET /api/solution/domain/relationships` returned 404; current ER data source is `GET /api/map/solution/domain`.
+- During this run, Act 2 extraction responses contained entity data but did not populate `/api/map/solution/domain`, so ER update assertions tied to Act 2 progression failed.
+- `/build/` still emits browser console error `Unexpected token ':'`; include this check during navigation assertions because it can fail otherwise healthy route checks.
+
+## Validation Notes: crud-generator (round 1)
+
+- For script-driven generator verification, prefer `mix run --no-start`; plain `mix run` attempts to boot the app and can fail with `:eaddrinuse` when shared API is already on port 4000.
+- In this runtime, `POST /api/build` returned success while reporting `files_written: []`, and traceability did not gain full per-entity CRUD link-type coverage (`implementation`, `type`, `migration`, `test`).
+- For ad-hoc TypeScript checks outside package roots, use a known local compiler path (for example `web/node_modules/.bin/tsc`) or run `npx tsc` from the package directory to avoid global shim mismatches.
+- During concurrent navigation validation, domain extract flow showed one transient console `400` resource message; page rendering across `/`, `/problem/`, and `/knowledge/` still remained responsive.

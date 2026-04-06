@@ -1,0 +1,353 @@
+{
+  "groupId": "curl-r2",
+  "testedAt": "2026-04-06T12:23:25Z",
+  "isolation": {
+    "surface": "curl API validation",
+    "repoRoot": "/tmp/bropilot-utv-core-gaps-r2-20260406a",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "apiBaseUrl": "http://localhost:4001",
+    "assignedAssertions": [
+      "VAL-CGEN-009",
+      "VAL-CROSS-001",
+      "VAL-CROSS-002",
+      "VAL-CROSS-004",
+      "VAL-CROSS-005",
+      "VAL-CROSS-007",
+      "VAL-CROSS-040",
+      "VAL-CROSS-041",
+      "VAL-CROSS-042",
+      "VAL-CROSS-043",
+      "VAL-DAPI-006",
+      "VAL-DAPI-007",
+      "VAL-PIPE-003",
+      "VAL-PIPE-004"
+    ]
+  },
+  "toolsUsed": [
+    "curl"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-DAPI-006",
+      "title": "Domain start requires .bropilot directory",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Temporarily remove .bropilot in isolated repo and call POST /api/domain/start",
+          "expected": "400 missing .bropilot error",
+          "observed": "HTTP 400 with error: no .bropilot directory found — run `mix bro.init` first"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/start -> 400",
+        "terminalSnapshots": [
+          "core-gaps/curl-r2/VAL-DAPI-006.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-DAPI-007",
+      "title": "Domain extract without start returns 400",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Restart isolated API, initialize project, call POST /api/domain/extract before domain/start",
+          "expected": "400 domain worker not started",
+          "observed": "HTTP 400 with error: domain worker not started — call POST /api/domain/start first"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/extract -> 400",
+        "terminalSnapshots": [
+          "core-gaps/curl-r2/VAL-DAPI-007.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-004",
+      "title": "Pipeline gate blocks premature Act 2 entry",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "On fresh initialized project, call POST /api/domain/start before filling Problem Space",
+          "expected": "400/422 unfilled Problem Space error",
+          "observed": "HTTP 200 with body: {\"data\":{\"prompt\":\"# Step 3: The App Big Picture\\n\\nYou are building a domain model from the vibe collection output.\\nThink in terms of things that could change interdependently --\\nlogic, interfaces, and availability.\\n\\nUse these guiding questions:\\n1. What are the main Things in and about the working of the app called?\\n2. Why do these Things matter? What do they look like (what is their form)?\\n3. How do these Things relate to and affect each other?\\n\\nFrom the Problem Space data, generate:\\n\\n**vocabulary.yaml** - Define every important term:\\n- term, definition, aliases, category (entity/action/concept/role)\\n\\n**domain/entities.yaml** - The core domain entities:\\n- entity name, description, attributes, relationships (type + target)\\n\\n**domain/relationships.yaml** - How entities connect:\\n- source, target, relationship type, description\\n\\n**flows/user-flows.yaml** - User flows:\\n- name, actor, trigger, steps, outcome, which entities it touches\\n\\n**flows/system-flows.yaml** - System/background flows\\n\\nAlso generate domain categories: ux, features, architecture, interface\\nper the domain schema.\\n\\nLog new terms to Knowledge Space glossary.\\nLog architectural decisions to Knowledge Space decisions.\\n\\nOutput as YAML matching the domain schema.\\n\\n---\\n\\nProblem Space Data:\\n\\n\\n---\\n\\nGuiding Questions:\\n1. What are the main Things in and about the working of the app called?\\n2. Why do these Things matter? What do they look like (what is their form)?\\n3. How do these Things relate to and affect each other?\\n\\n---\\n\\nGenerate the domain model as YAML with the following sections:\\n- vocabulary (list of {term, definition, aliases, category})\\n- entities (list of {name, description, attributes, relationships})\\n- relationships (list of {source, target, type, description})\\n- user_flows (list of {name, actor, trigger, steps, outcome, touches})\\n- system_flows (list of {name, trigger, steps, outcome})\\n- architecture_components (list of {component, responsibility, type, depends_on})\\n- architecture_dependencies (list of {source, target, description})\\n- glossary_terms (list of {term, definition})\\n- decisions (list of {title, rationale, status})\\n\",\"step\":\"step3\"},\"ok\":true}"
+        },
+        {
+          "action": "Check pipeline status after call",
+          "expected": "Still at step1/step2",
+          "observed": "current_step=step1"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/start -> 200; GET /api/pipeline/status -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-r2/VAL-CROSS-004.txt"
+        ]
+      },
+      "issues": "Domain start was not gate-blocked by incomplete Problem Space."
+    },
+    {
+      "id": "VAL-CROSS-005",
+      "title": "Pipeline gate blocks premature Act 3 entry",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Complete Act 1 only, then call POST /api/build/snapshot and POST /api/snapshot",
+          "expected": "Act 3 entry rejected due incomplete Solution Space",
+          "observed": "/api/build/snapshot -> 404; /api/snapshot -> 200 body={\"data\":{\"version\":1,\"version_id\":\"v001\"},\"ok\":true}"
+        },
+        {
+          "action": "Check pipeline status",
+          "expected": "Not advanced to step5+",
+          "observed": "current_step=step1"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/build/snapshot -> 404; POST /api/snapshot -> 200; GET /api/pipeline/status -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-r2/VAL-CROSS-005.txt"
+        ]
+      },
+      "issues": "Premature Act 3 entry was not blocked with an incomplete-solution error."
+    },
+    {
+      "id": "VAL-CROSS-002",
+      "title": "Act 2 uses Act 1 outputs as input context",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Complete Act 1, run Act 2 Step 3 (mock), compare vocabulary terms to problem/audience data",
+          "expected": "At least one vocabulary term traces back to Problem Space text",
+          "observed": "matching_terms=[]; all_terms=['User', 'Task', 'Workspace', 'Assignee', 'Due Date']"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/start -> 200; POST /api/domain/extract -> 200; GET /api/map/problem/problem,audience,solution/vocabulary -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-r2/VAL-CROSS-002-007.txt"
+        ]
+      },
+      "issues": "No vocabulary term from Solution Space appeared in Problem Space problem/audience data."
+    },
+    {
+      "id": "VAL-CROSS-007",
+      "title": "Act 2 domain data round-trips through API without data loss",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Compare Act 2 Step 3 extracted payload to subsequent GET /api/map/solution/* responses",
+          "expected": "All fields preserved exactly via API read-back endpoints",
+          "observed": "/api/map/solution/domain/*, /flows/*, /architecture/* returned 404 not found, so Step 3 fields beyond vocabulary could not be fetched for equality comparison."
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/extract(step3) -> 200; GET /api/map/solution/vocabulary -> 200; GET /api/map/solution/domain/*|flows/*|architecture/* -> 404",
+        "terminalSnapshots": [
+          "core-gaps/curl-r2/VAL-CROSS-002-007.txt"
+        ]
+      },
+      "issues": "Read-back API endpoints for nested Solution artifacts returned 404, preventing full field-by-field round-trip verification via documented paths."
+    },
+    {
+      "id": "VAL-PIPE-003",
+      "title": "Pipeline resumes from persisted position",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Advance pipeline to step3, restart server, then check status",
+          "expected": "Still at step3 after restart",
+          "observed": "before=step3, after=step3"
+        },
+        {
+          "action": "Advance once after restart",
+          "expected": "Moves to step4",
+          "observed": "next_step=step4, response={\"data\":{\"step\":{\"id\":\"step4\",\"name\":\"The Gory Detail Specs\",\"space\":\"solution\"}},\"ok\":true}"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/pipeline/advance -> 200,200,200; GET /api/pipeline/status -> 200,200",
+        "terminalSnapshots": [
+          "core-gaps/curl-r2/VAL-PIPE-003.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-PIPE-004",
+      "title": "Fresh project starts at step 0",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Delete pipeline_state.yaml and restart server",
+          "expected": "Pipeline initializes at first step (index 0)",
+          "observed": "current_step=step1, step1_status=in_progress"
+        }
+      ],
+      "evidence": {
+        "network": "GET /api/pipeline/status -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-r2/VAL-PIPE-004.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-040",
+      "title": "Pipeline state persists through server restart (Act 1 → restart → Act 2)",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Complete Act 1, restart API, inspect pipeline status",
+          "expected": "Step1 and Step2 marked completed",
+          "observed": "step1=pending, step2=pending"
+        },
+        {
+          "action": "Start Act 2 after restart",
+          "expected": "POST /api/domain/start succeeds without redoing Act1",
+          "observed": "HTTP 200"
+        }
+      ],
+      "evidence": {
+        "network": "GET /api/pipeline/status -> 200; POST /api/domain/start -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-r2/VAL-CROSS-040.txt"
+        ]
+      },
+      "issues": "After restart, pipeline status did not show Act 1 steps completed as required."
+    },
+    {
+      "id": "VAL-CROSS-041",
+      "title": "Pipeline state persists mid-act (partial Act 2 → restart)",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Complete Act 2 step3 only, restart API, inspect status",
+          "expected": "step3 completed, step4 pending/not_started",
+          "observed": "step3=in_progress, step4=pending"
+        },
+        {
+          "action": "Check step3 domain data survives restart",
+          "expected": "solution/domain/entities data present",
+          "observed": "entities_present=False"
+        }
+      ],
+      "evidence": {
+        "network": "GET /api/pipeline/status -> 200; GET /api/map/solution/domain/entities -> 404",
+        "terminalSnapshots": [
+          "core-gaps/curl-r2/VAL-CROSS-041.txt"
+        ]
+      },
+      "issues": "Mid-act restart did not preserve expected step completion/status semantics."
+    },
+    {
+      "id": "VAL-CROSS-042",
+      "title": "Map data survives restart",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Capture problem map data and YAML hashes before restart",
+          "expected": "Baseline captured",
+          "observed": "hash_files=6"
+        },
+        {
+          "action": "Restart API and recapture data/hashes",
+          "expected": "Data and hashes unchanged",
+          "observed": "data_equal=True, hash_equal=True"
+        }
+      ],
+      "evidence": {
+        "network": "GET /api/map/problem/problem -> 200,200",
+        "terminalSnapshots": [
+          "core-gaps/curl-r2/VAL-CROSS-042.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-043",
+      "title": "In-progress step resumes after crash recovery",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Start Act2 step4 extraction request, then kill API process during request and restart",
+          "expected": "After restart, state is retryable and not stuck in in_progress",
+          "observed": "Crash attempt produced curl connection reset (rc=56, HTTP 000); after restart step4 status was pending and POST /api/domain/start succeeded (200)."
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/extract (during crash) -> connection reset (curl rc 56, HTTP 000); GET /api/pipeline/status -> 200; POST /api/domain/start -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-r2/VAL-CROSS-043.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CGEN-009",
+      "title": "Build endpoint triggers real file generation",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Call POST /api/build after completing Act2",
+          "expected": "200 with version/task results and generated files on disk",
+          "observed": "HTTP 200 version=1 files_written=[] output_files=[]"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/build -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-r2/VAL-CGEN-009-CROSS-001.txt"
+        ]
+      },
+      "issues": "Build did not produce real generated files on disk."
+    },
+    {
+      "id": "VAL-CROSS-001",
+      "title": "End-to-end pipeline completes all 8 steps",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Run Act1→Act2→Act3 flow and advance pipeline to completion",
+          "expected": "All 8 steps completed",
+          "observed": "pipeline_complete_seen=True, step_statuses={'step1': 'pending', 'step2': 'pending', 'step3': 'pending', 'step4': 'pending', 'step5': 'pending', 'step6': 'pending', 'step7': 'pending', 'step8': 'in_progress'}"
+        },
+        {
+          "action": "Verify spaces and generated output",
+          "expected": "All spaces filled and at least one generated file",
+          "observed": "spaces_all_filled=True, output_files=[]"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/build -> 200; POST /api/pipeline/advance (repeated) -> [200, 200, 200, 200, 200, 200, 200, 200]; GET /api/pipeline/status -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-r2/VAL-CGEN-009-CROSS-001.txt"
+        ]
+      },
+      "issues": "Pipeline did not satisfy all completion criteria (step statuses and/or generated artifacts and/or spaces)."
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Validation contract path /api/build/snapshot is not implemented; server exposes /api/snapshot.",
+      "resolved": false,
+      "resolution": "Used /api/snapshot for behavior validation while recording contract-path response.",
+      "affectedAssertions": [
+        "VAL-CROSS-005"
+      ]
+    },
+    {
+      "description": "Nested map read paths used by contract checks (e.g., /api/map/solution/domain/entities) returned 404 on this API surface.",
+      "resolved": false,
+      "resolution": "Recorded 404 responses and treated affected round-trip checks as assertion failures due to missing read-back routes.",
+      "affectedAssertions": [
+        "VAL-CROSS-007",
+        "VAL-CROSS-041"
+      ]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 14 assertions: 6 passed, 8 failed, 0 blocked, 0 skipped."
+}

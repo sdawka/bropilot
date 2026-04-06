@@ -1,0 +1,25 @@
+behaviours:
+  - actors:
+      - User
+    given: User is authenticated and in a workspace
+    name: Create task with valid data
+    side_effects:
+      - task.created event emitted
+    then: Task is created and appears in task list
+    when: User submits task form with title
+  - actors:
+      - User
+    given: Task exists and assignee is workspace member
+    name: Assign task to user
+    side_effects:
+      - notification sent to assignee
+    then: Task assignee is updated and notification sent
+    when: User selects assignee on task
+  - actors:
+      - User
+    given: Task exists and is not already completed
+    name: Complete a task
+    side_effects:
+      - task.completed event emitted
+    then: Task status changes to done
+    when: User marks task as done

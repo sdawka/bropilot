@@ -1,0 +1,13 @@
+context: 9
+definition_of_done:
+  - Functionality removed or deprecated
+  - Related tests cleaned up
+  - No broken references
+dependencies: []
+description: Spec removed at solution.entity_count. Remove or deprecate the corresponding functionality.
+id: 10
+priority: low
+related_specs:
+  - solution.entity_count
+status: pending
+title: Remove solution.entity_count

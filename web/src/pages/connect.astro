@@ -1,20 +1,11 @@
 ---
 export const prerender = false;
 
-import '../styles/global.css';
+import Layout from '../layouts/Layout.astro';
 import '../styles/connect.css';
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Connect to Bropilot server" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Connect | Bropilot</title>
-  </head>
-  <body>
+<Layout title="Connect">
     <div class="connect-page" x-data="connectPage()" x-init="init()">
       <div class="connect-card">
         <!-- Brand -->
@@ -253,5 +244,4 @@ import '../styles/connect.css';
         }));
       });
     </script>
-  </body>
-</html>
+</Layout>

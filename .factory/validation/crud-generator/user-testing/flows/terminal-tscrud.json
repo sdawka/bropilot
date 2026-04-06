@@ -1,0 +1,168 @@
+{
+  "groupId": "terminal-tscrud",
+  "testedAt": "2026-04-06T16:37:24.026850+00:00",
+  "isolation": {
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "evidenceDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/evidence/crud-generator/terminal-tscrud",
+    "boundary": "repository-local commands only; no service restarts"
+  },
+  "toolsUsed": [
+    "terminal",
+    "npx",
+    "vitest"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-TSCRUD-001",
+      "title": "TypeScript CRUD create returns record with ID",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot/packages/crud\" && npx vitest run src/__tests__/crud.test.ts -t \"inserts a record and returns it with auto-generated id\" --reporter=verbose",
+          "expected": "Create test passes with response shape { ok: true, data: { id, title, status } }.",
+          "observed": "Test passed: Crud > create (without schema) > inserts a record and returns it with auto-generated id."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-tscrud/VAL-TSCRUD-001.log"
+        ],
+        "snippet": "\u2713 Crud > create (without schema) > inserts a record and returns it with auto-generated id"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TSCRUD-002",
+      "title": "TypeScript CRUD read retrieves by ID",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot/packages/crud\" && npx vitest run src/__tests__/crud.test.ts -t \"retrieves an existing record by ID|read not_found returns\" --reporter=verbose",
+          "expected": "Read returns existing record; missing ID returns { ok: false, error: 'not_found' }.",
+          "observed": "Both tests passed: read retrieval and read not_found contract case."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-tscrud/VAL-TSCRUD-002.log"
+        ],
+        "snippet": "\u2713 Crud > read > retrieves an existing record by ID; \u2713 API contract matches Elixir CRUD contract > read not_found returns { ok: false, error: 'not_found' }"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TSCRUD-003",
+      "title": "TypeScript CRUD update modifies record",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot/packages/crud\" && npx vitest run src/__tests__/crud.test.ts -t \"merges attributes and preserves unchanged fields|update not_found returns\" --reporter=verbose",
+          "expected": "Update merges fields and non-existent ID returns not_found.",
+          "observed": "Both tests passed: merged update behavior and update not_found contract case."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-tscrud/VAL-TSCRUD-003.log"
+        ],
+        "snippet": "\u2713 Crud > update (without schema) > merges attributes and preserves unchanged fields; \u2713 ... > update not_found returns { ok: false, error: 'not_found' }"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TSCRUD-004",
+      "title": "TypeScript CRUD delete removes record",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot/packages/crud\" && npx vitest run src/__tests__/crud.test.ts -t \"removes a record\" --reporter=verbose",
+          "expected": "Delete returns { ok: true } and subsequent read is not_found.",
+          "observed": "Delete flow test passed and includes post-delete read check in assertion body."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-tscrud/VAL-TSCRUD-004.log"
+        ],
+        "snippet": "\u2713 Crud > delete > removes a record"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TSCRUD-005",
+      "title": "TypeScript CRUD list with filters and pagination",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot/packages/crud\" && npx vitest run src/__tests__/crud.test.ts -t \"filters first, then paginates|returns correct page size\" --reporter=verbose",
+          "expected": "Filtered/paginated list returns correct subset and pagination metadata.",
+          "observed": "Both relevant tests passed for filter+pagination and page metadata counts."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-tscrud/VAL-TSCRUD-005.log"
+        ],
+        "snippet": "\u2713 Crud > list with pagination > returns correct page size; \u2713 Crud > list with filter + pagination > filters first, then paginates"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TSCRUD-006",
+      "title": "TypeScript CRUD schema validation rejects invalid data",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot/packages/crud\" && npx vitest run src/__tests__/crud.test.ts -t \"rejects both missing required and invalid enum\" --reporter=verbose",
+          "expected": "Invalid create returns { ok: false, errors: [...] } with field-level validation info.",
+          "observed": "Validation test passed for missing title + invalid enum in one request."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-tscrud/VAL-TSCRUD-006.log"
+        ],
+        "snippet": "\u2713 Crud > create (with schema validation) > rejects both missing required and invalid enum"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TSCRUD-007",
+      "title": "TypeScript CRUD API contract matches Elixir CRUD contract",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot/packages/crud\" && npx vitest run src/__tests__/crud.test.ts -t \"API contract matches Elixir CRUD contract\" --reporter=verbose",
+          "expected": "Create/read/update/delete/list + validation error shapes are structurally equivalent to Elixir contract.",
+          "observed": "Contract suite passed (10 passed, 34 skipped) covering all operation return shapes and error formats."
+        },
+        {
+          "action": "Run full verifier: cd \"/Users/sdawka/Code/bropilot/packages/crud\" && npx vitest run src/__tests__/crud.test.ts --reporter=verbose",
+          "expected": "No regressions in full TS CRUD suite.",
+          "observed": "Full file passed: 44 passed."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-tscrud/VAL-TSCRUD-007.log",
+          "crud-generator/terminal-tscrud/VAL-TSCRUD-full-suite.log"
+        ],
+        "snippet": "Contract suite: 10 passed; Full suite: 44 passed"
+      },
+      "issues": null
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Initial test-name filter for VAL-TSCRUD-002 matched zero tests.",
+      "resolved": true,
+      "resolution": "Adjusted filter to include exact read retrieval plus read not_found contract test name and reran.",
+      "affectedAssertions": [
+        "VAL-TSCRUD-002"
+      ]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 7 assertions (VAL-TSCRUD-001..007): 7 passed, 0 failed, 0 blocked."
+}

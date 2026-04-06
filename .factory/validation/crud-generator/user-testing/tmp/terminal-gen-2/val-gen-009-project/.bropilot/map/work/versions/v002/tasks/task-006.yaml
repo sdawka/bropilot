@@ -1,0 +1,41 @@
+context:
+  basics:
+    assumptions:
+      - Developers want structure but not bureaucracy
+      - LLMs can extract structured data from conversation
+      - Five spaces cover all aspects of app building
+      - YAML is the right interchange format
+    audience: Developers and technical founders who want to go from vague app idea to working code
+    capabilities:
+      - Guided vibe collection through conversational prompts
+      - LLM-powered extraction of structured data from freeform input
+      - Domain model generation (entities, relationships, flows)
+      - Spec expansion (API, behaviours, constraints, modules, events)
+      - Version snapshots with diff-based change tracking
+      - Task generation with context and definition of done
+      - Codegen dispatch to pi coding agents
+      - Self-updating Knowledge Space (glossary, decisions, changelog, cross-references)
+    design: CLI-first with optional web UI. Minimal, developer-friendly. YAML-based data layer for transparency and version control. Pipeline metaphor with acts and steps.
+    hypotheses:
+      - Guided structure beats freeform for spec quality
+      - Coding agents work dramatically better with structured specs
+      - Self-referential feedback loops keep specs alive
+    use_cases:
+      - Solo founder starts with an idea, ends with a spec-driven codebase
+      - Team uses Bropilot to align on what to build before splitting work
+      - Developer feeds Bropilot specs into pi coding agents for autonomous builds
+      - Product manager uses filled map to understand technical architecture
+      - Developer revisits a project after months and uses the map as documentation
+    volo: An app that makes apps — by thinking before coding. The developer's structured thinking partner that bridges the gap between idea and implementation.
+definition_of_done:
+  - Implementation matches spec
+  - Tests written and passing
+  - Documentation updated
+dependencies: []
+description: New spec added at problem.vibes. Implement the corresponding functionality.
+id: 6
+priority: high
+related_specs:
+  - problem.vibes
+status: pending
+title: Implement problem.vibes

@@ -1,0 +1,11 @@
+externals:
+  - auth_method: api_key
+    name: Email Service
+    provider: SendGrid
+    purpose: Send email notifications for task assignments and reminders
+    type: api
+  - auth_method: service_account
+    name: Push Notification Service
+    provider: Firebase
+    purpose: Send push notifications to mobile and web clients
+    type: sdk

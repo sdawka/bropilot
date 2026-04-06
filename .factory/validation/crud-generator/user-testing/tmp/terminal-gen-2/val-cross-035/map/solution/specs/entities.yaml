@@ -1,0 +1,51 @@
+entities:
+  - columns:
+      - name: id
+        nullable: false
+        type: uuid
+      - name: title
+        nullable: false
+        type: varchar(255)
+      - name: user_id
+        nullable: true
+        type: uuid
+      - name: workspace_id
+        nullable: false
+        type: uuid
+      - name: category_id
+        nullable: true
+        type: uuid
+    domain_entity: Task
+    name: tasks
+    relationships:
+      - foreign_key: user_id
+        target: users
+        type: belongs_to
+      - foreign_key: workspace_id
+        target: workspaces
+        type: belongs_to
+      - target: tags
+        through: task_tags
+        type: many_to_many
+    table: tasks
+  - columns:
+      - name: id
+        nullable: false
+        type: uuid
+    domain_entity: User
+    name: users
+    table: users
+  - columns:
+      - name: id
+        nullable: false
+        type: uuid
+    domain_entity: Workspace
+    name: workspaces
+    table: workspaces
+  - columns:
+      - name: id
+        nullable: false
+        type: uuid
+    domain_entity: Category
+    name: categories
+    table: categories

@@ -1,0 +1,48 @@
+flows:
+  - modules:
+      - Bropilot.LLM
+      - Bropilot.Pipeline.Act1.Extractor
+      - Bropilot.Pipeline.Act2.Extractor
+    name: LLM Extraction
+    steps:
+      - Build extraction prompt with system instructions for YAML output
+      - Send to configured LLM provider (Anthropic, OpenAI, or mock)
+      - Strip code fences from response
+      - Parse YAML into Elixir map
+      - Write structured data to appropriate map slots
+    trigger: Act1.Worker.extract/1 or Act2.Worker.extract/1
+  - modules:
+      - Bropilot.Pipeline.Act3.Snapshot
+      - Bropilot.Pipeline.Act3.Diff
+    name: Snapshot and Diff
+    steps:
+      - Read all YAML files from map/problem/ and map/solution/ recursively
+      - Bundle into snapshot map, determine next version number
+      - Write snapshot.yaml to map/work/versions/v{NNN}/
+      - Deep-diff new snapshot against previous (or empty for v001)
+      - Produce path-based change list (added, modified, removed)
+    trigger: Act3.Executor.run/2
+  - modules:
+      - Bropilot.Pipeline.Act3.TaskGenerator
+      - Bropilot.Task.Agent
+      - Bropilot.Task.Supervisor
+      - Bropilot.Pi.Pool
+    name: Task Dispatch
+    steps:
+      - Generate one task per change with context and DoD
+      - Write task YAML files to versions/v{NNN}/tasks/
+      - For each task, build codegen prompt from step8 template
+      - Dispatch to Pi Pool (DynamicSupervisor spawns Pi.Port)
+      - Collect results and update task status
+    trigger: Act3.TaskGenerator.generate_tasks/1
+  - modules:
+      - Bropilot.Pipeline.Feedback
+    name: Feedback Loop
+    steps:
+      - Build changelog entry from task and result
+      - Append to knowledge/changelog.yaml
+      - Build cross-references from task specs and artifact paths
+      - Append to knowledge/xrefs.yaml (deduplicated)
+      - Extract new terms from task title and specs
+      - Merge into knowledge/glossary.yaml
+    trigger: Pipeline.Feedback.update_knowledge/3

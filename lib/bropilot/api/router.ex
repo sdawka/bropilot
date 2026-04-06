@@ -40,7 +40,15 @@ defmodule Bropilot.Api.Router do
     Project.get_space(conn, space)
   end
 
-  # Map
+  # Map (nested paths first for priority)
+  get "/api/map/:space/:slot/:subslot" do
+    Project.get_slot(conn, space, slot <> "/" <> subslot)
+  end
+
+  put "/api/map/:space/:slot/:subslot" do
+    Project.put_slot(conn, space, slot <> "/" <> subslot)
+  end
+
   get "/api/map/:space/:slot" do
     Project.get_slot(conn, space, slot)
   end
@@ -63,6 +71,11 @@ defmodule Bropilot.Api.Router do
     Pipeline.get_status(conn)
   end
 
+  # Alias for /api/pipeline/status (used by cross-flow assertions)
+  get "/api/status" do
+    Pipeline.get_status(conn)
+  end
+
   post "/api/pipeline/advance" do
     Pipeline.advance(conn)
   end
@@ -81,6 +94,10 @@ defmodule Bropilot.Api.Router do
   end
 
   # Act 2 - Domain
+  get "/api/domain/status" do
+    Domain.status(conn)
+  end
+
   post "/api/domain/start" do
     Domain.start(conn)
   end
@@ -135,6 +152,15 @@ defmodule Bropilot.Api.Router do
 
   put "/api/traceability/:category/:spec_id" do
     Traceability.put_entry(conn, category, spec_id)
+  end
+
+  # Aliases for ER diagram contract paths
+  get "/api/solution/domain/entities" do
+    Project.get_slot(conn, "solution", "domain/entities")
+  end
+
+  get "/api/solution/domain/relationships" do
+    Project.get_slot(conn, "solution", "domain/relationships")
   end
 
   # Catch-all

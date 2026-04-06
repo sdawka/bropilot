@@ -62,6 +62,9 @@ defmodule Bropilot.Pipeline.Engine do
           completed_steps: completed
         }
 
+        # Ensure the YAML state file always contains all 8 step statuses
+        persist_state(state)
+
         {:ok, state}
 
       {:error, reason} ->

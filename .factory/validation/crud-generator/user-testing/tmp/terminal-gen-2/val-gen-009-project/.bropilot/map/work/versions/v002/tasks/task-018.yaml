@@ -1,0 +1,13 @@
+context: 1
+definition_of_done:
+  - Functionality removed or deprecated
+  - Related tests cleaned up
+  - No broken references
+dependencies: []
+description: Spec removed at version. Remove or deprecate the corresponding functionality.
+id: 18
+priority: low
+related_specs:
+  - version
+status: pending
+title: Remove version

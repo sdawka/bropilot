@@ -1,0 +1,20 @@
+context:
+  related_module: Bropilot.Pipeline.Act1.Worker
+  space: problem
+definition_of_done:
+  - Step 1 returns basics prompt, accepts freeform input
+  - Step 2 walks through 6 targeted questions
+  - Mock extraction returns hardcoded structured data
+  - LLM extraction sends prompt and parses YAML response
+  - Extracted data is written to Problem Space map slots
+dependencies:
+  - 1
+  - 2
+description: Build the Act1.Worker GenServer and Extractor for collecting user vibes and extracting structured data into the Problem Space.
+id: 3
+priority: high
+related_specs:
+  - solution.specs.modules.Act1.Worker
+  - solution.specs.events.extraction_done
+status: completed
+title: Implement Act 1 vibe collection workers

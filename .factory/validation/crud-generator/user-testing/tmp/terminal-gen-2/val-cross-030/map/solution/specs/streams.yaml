@@ -1,0 +1,14 @@
+streams:
+  - data_type: TaskChange
+    name: Task Updates
+    protocol: ws
+    related_events:
+      - task.created
+      - task.completed
+    sink: Web Frontend
+    source: TaskService
+  - data_type: Notification
+    name: Notification Feed
+    protocol: sse
+    sink: Web Frontend
+    source: NotificationService

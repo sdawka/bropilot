@@ -1,0 +1,18 @@
+alternatives_considered:
+  - name: TypeScript/Node.js
+    reason_rejected: Single-threaded event loop. Would need external process management for concurrent task execution.
+  - name: Go
+    reason_rejected: Good concurrency but lacks the supervision tree model. Error handling less elegant for long-running pipelines.
+  - name: Python
+    reason_rejected: GIL limits true concurrency. Would need multiprocessing or external task queues.
+consequences:
+  - Excellent concurrency and fault tolerance via OTP
+  - Pattern matching and immutable data structures suit YAML processing
+  - Mix provides first-class CLI task support
+  - Smaller ecosystem than Node.js — fewer UI libraries
+context: Needed a language for building the core pipeline engine with reliable concurrency, fault tolerance, and a strong process model.
+date: 2025-01-15
+decision: Use Elixir/OTP as the primary language. GenServers for pipeline engine, act workers, and task agents. DynamicSupervisor for Pi pool management.
+source_step: step3
+status: accepted
+title: Why Elixir

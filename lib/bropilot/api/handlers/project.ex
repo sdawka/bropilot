@@ -254,8 +254,21 @@ defmodule Bropilot.Api.Handlers.Project do
     glossary decisions changelog xrefs
   )
 
+  # Known nested slot paths (sub-slot files within slot directories)
+  @known_nested_slots ~w(
+    domain/entities domain/relationships
+    flows/user-flows flows/system-flows
+    architecture/components architecture/dependencies
+    specs/api specs/behaviours specs/constraints specs/entities specs/modules
+    specs/events specs/externals specs/views specs/components specs/streams specs/infra
+  )
+
   defp parse_slot(slot_str) when slot_str in @known_slot_ids do
     {:ok, String.to_existing_atom(slot_str)}
+  end
+
+  defp parse_slot(slot_str) when slot_str in @known_nested_slots do
+    {:ok, String.to_atom(slot_str)}
   end
 
   defp parse_slot(slot_str) do

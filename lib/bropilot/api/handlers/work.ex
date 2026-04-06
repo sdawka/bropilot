@@ -9,13 +9,19 @@ defmodule Bropilot.Api.Handlers.Work do
 
   def snapshot(conn) do
     with {:ok, map_dir} <- get_map_dir(),
+         :ok <- validate_solution_space(map_dir),
          {:ok, version} <- Snapshot.create_snapshot(map_dir) do
       json(conn, 200, %{
         ok: true,
         data: %{version: version, version_id: Snapshot.format_version(version)}
       })
     else
-      {:error, msg} -> json(conn, 400, %{ok: false, error: to_string(msg)})
+      {:error, {:unfilled_slots, slots}} ->
+        slot_names = Enum.map(slots, &to_string/1) |> Enum.join(", ")
+        json(conn, 422, %{ok: false, error: "Solution Space incomplete — unfilled slots: #{slot_names}. Complete Act 2 first."})
+
+      {:error, msg} ->
+        json(conn, 400, %{ok: false, error: to_string(msg)})
     end
   end
 
@@ -70,7 +76,8 @@ defmodule Bropilot.Api.Handlers.Work do
   end
 
   def build(conn) do
-    with {:ok, map_dir} <- get_map_dir() do
+    with {:ok, map_dir} <- get_map_dir(),
+         :ok <- validate_solution_space(map_dir) do
       project_path = File.cwd!()
 
       # Determine execution mode from request body or default to :llm
@@ -78,6 +85,7 @@ defmodule Bropilot.Api.Handlers.Work do
         case conn.body_params do
           %{"mode" => "prompt_only"} -> :prompt_only
           %{"mode" => "pi"} -> :pi
+          %{"mode" => "mock"} -> :mock
           _ -> :llm
         end
 
@@ -99,7 +107,12 @@ defmodule Bropilot.Api.Handlers.Work do
           json(conn, 400, %{ok: false, error: to_string(reason)})
       end
     else
-      {:error, msg} -> json(conn, 400, %{ok: false, error: msg})
+      {:error, {:unfilled_slots, slots}} ->
+        slot_names = Enum.map(slots, &to_string/1) |> Enum.join(", ")
+        json(conn, 422, %{ok: false, error: "Solution Space incomplete — unfilled slots: #{slot_names}. Complete Act 2 first."})
+
+      {:error, msg} ->
+        json(conn, 400, %{ok: false, error: to_string(msg)})
     end
   end
 
@@ -170,6 +183,10 @@ defmodule Bropilot.Api.Handlers.Work do
   end
 
   # -- Private --
+
+  defp validate_solution_space(map_dir) do
+    Bropilot.Spaces.validate_gate(map_dir, :solution)
+  end
 
   defp get_map_dir do
     bropilot_dir = Path.join(File.cwd!(), ".bropilot")

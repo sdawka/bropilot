@@ -1,0 +1,21 @@
+changes:
+  - new_value: Developers and technical founders
+    old_value: null
+    path: problem.audience
+    type: added
+  - new_value: No tool bridges fuzzy ideas to structured specs
+    old_value: null
+    path: problem.problem
+    type: added
+  - new_value: 20 terms defined
+    old_value: null
+    path: solution.vocabulary
+    type: added
+  - new_value: 9 entities defined
+    old_value: null
+    path: solution.domain.entities
+    type: added
+  - new_value: 11 spec categories with detailed entries
+    old_value: null
+    path: solution.specs
+    type: added

@@ -1,0 +1,43 @@
+externals:
+  - config: ANTHROPIC_API_KEY environment variable
+    description: Primary LLM provider for extraction and codegen. Anthropic Claude models via direct API or OpenRouter.
+    fallback: OpenAI-compatible API
+    module: Bropilot.LLM.Anthropic
+    name: OpenRouter / Anthropic API
+    type: LLM Provider
+  - config: OPENAI_API_KEY environment variable
+    description: Alternative LLM provider. GPT-4 and compatible models.
+    fallback: Mock provider for testing
+    module: Bropilot.LLM.OpenAI
+    name: OpenAI API
+    type: LLM Provider
+  - config: deploy.sh script
+    description: Hosts the Astro-based web UI (future). Edge-deployed for low latency.
+    module: N/A (deployment)
+    name: Cloudflare Pages
+    type: Static Hosting
+  - config: fly.toml (future)
+    description: Hosts the Elixir OTP application for API access and long-running pipeline execution.
+    module: Bropilot.Application
+    name: Fly.io
+    type: Application Hosting
+  - config: Git remote
+    description: Source code hosting, PR-based workflow for codegen artifacts, CI/CD pipeline.
+    module: N/A (external)
+    name: GitHub
+    type: Version Control + CI
+  - description: YAML parsing library. Used by Bropilot.Yaml.decode_file/1 and decode/1.
+    module: Bropilot.Yaml
+    name: yaml_elixir
+    type: Elixir Dependency
+    version: ~> 2.11
+  - description: HTTP client for LLM API calls. Used by Anthropic and OpenAI providers.
+    module: Bropilot.LLM.Anthropic, Bropilot.LLM.OpenAI
+    name: Req
+    type: Elixir Dependency
+    version: ~> 0.5
+  - description: JSON encoding/decoding for API request/response bodies.
+    module: Bropilot.LLM.Anthropic, Bropilot.LLM.OpenAI
+    name: Jason
+    type: Elixir Dependency
+    version: ~> 1.4

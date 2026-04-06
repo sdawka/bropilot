@@ -1,0 +1,694 @@
+context:
+  api:
+    api:
+      - description: Initialize a new Bropilot project
+        method: POST
+        module: Bropilot
+        path: /api/projects
+        request:
+          path: string
+          recipe: "string (optional, default: webapp)"
+        response:
+          bropilot_dir: string
+          project_path: string
+      - description: Get pipeline status for a project
+        method: GET
+        module: Bropilot.Pipeline.Engine
+        path: /api/projects/:path/status
+        response:
+          completed_steps: list
+          current_step: map
+          spaces: map
+      - description: Read all slots for a space
+        method: GET
+        module: Bropilot.Map.Store
+        path: /api/projects/:path/map/:space
+        response:
+          slots: map of slot_name -> data
+      - description: Read a specific map slot
+        method: GET
+        module: Bropilot.Map.Store
+        path: /api/projects/:path/map/:space/:slot
+        response:
+          data: map
+      - description: Start Act 1 Step 1 (basics prompt)
+        method: POST
+        module: Bropilot.Pipeline.Act1.Worker
+        path: /api/projects/:path/pipeline/step1
+        response:
+          prompt: string
+      - description: Submit freeform user input for Step 1
+        method: POST
+        module: Bropilot.Pipeline.Act1.Worker
+        path: /api/projects/:path/pipeline/step1/input
+        request:
+          text: string
+        response:
+          status: ok
+      - description: Run LLM extraction for Step 1
+        method: POST
+        module: Bropilot.Pipeline.Act1.Worker
+        path: /api/projects/:path/pipeline/step1/extract
+        response:
+          data: map (extracted structured data)
+      - description: Start Act 2 Step 3 (domain model)
+        method: POST
+        module: Bropilot.Pipeline.Act2.Worker
+        path: /api/projects/:path/pipeline/step3
+        response:
+          prompt: string
+      - description: Advance pipeline to next step (with gate validation)
+        method: POST
+        module: Bropilot.Pipeline.Engine
+        path: /api/projects/:path/pipeline/advance
+        response:
+          next_step: map
+      - description: Run full Act 3 build cycle (snapshot, diff, tasks, codegen)
+        method: POST
+        module: Bropilot.Pipeline.Act3.Executor
+        path: /api/projects/:path/build
+        response:
+          summary: map
+          tasks_count: integer
+          version: integer
+      - description: List all versions for a project
+        method: GET
+        module: Bropilot.Pipeline.Act3.Snapshot
+        path: /api/projects/:path/versions
+        response:
+          versions: list of version numbers
+      - description: List tasks for a specific version
+        method: GET
+        module: Bropilot.Pipeline.Act3.TaskGenerator
+        path: /api/projects/:path/versions/:version/tasks
+        response:
+          tasks: list of task maps
+  behaviours:
+    behaviours:
+      - description: When the pipeline crosses a space boundary, all required slots of the current space must be filled.
+        module: Bropilot.Spaces.validate_gate/2
+        name: Gate Validation
+        rules:
+          - "File slots: .yaml or .yml must exist"
+          - "Directory slots: directory must exist"
+          - Only required slots are checked
+          - Cross-cutting spaces (Measurement, Knowledge) are not gated
+        trigger: Pipeline.Engine.advance/1 detects space change
+      - description: Every recipe must map at least one step to each primary space (Problem, Solution, Work).
+        module: Bropilot.Spaces.validate_recipe/1
+        name: Recipe Validation
+        rules:
+          - Extract unique spaces from all steps
+          - Check that Problem, Solution, Work are all covered
+          - Measurement and Knowledge are cross-cutting, not required
+        trigger: Recipe.Registry.load/1
+      - description: Convert freeform LLM output into structured YAML and write to map slots.
+        module: Bropilot.LLM.extract_yaml/2
+        name: LLM Extraction
+        rules:
+          - System prompt instructs YAML-only output
+          - Strip markdown code fences from response
+          - Parse with yaml_elixir
+          - Return {:ok, map} or {:error, reason}
+        trigger: Act1.Worker.extract/1 or Act2.Worker.extract/1
+      - description: Validate map data against recipe-defined schemas (.schema.yaml files).
+        module: Bropilot.Recipe.Schema
+        name: Schema Validation
+        rules:
+          - Check required fields are present
+          - "Validate types: string, text, boolean, enum, list, map, ref, any"
+          - Validate enum values against allowed list
+          - Validate list item types and nested map fields
+        trigger: Recipe.Schema.validate_map_slot/4
+      - description: Bundle all problem and solution YAML into a versioned snapshot.
+        module: Bropilot.Pipeline.Act3.Snapshot
+        name: Snapshot Creation
+        rules:
+          - Read all YAML files recursively from map/problem/ and map/solution/
+          - Auto-increment version number (v001, v002, ...)
+          - Write snapshot.yaml to map/work/versions/v{NNN}/
+        trigger: Act3.Executor.run/2 or mix bro.snapshot
+  components:
+    components:
+      - description: Renders a single YAML file's content as a structured card with collapsible sections.
+        name: YamlCard
+        props:
+          - data (map)
+          - title (string)
+          - editable (boolean)
+        used_in:
+          - Problem Space
+          - Solution Space
+          - Knowledge Space
+      - description: "Shows fill status for a space: filled slots, empty slots, gate pass/fail indicator."
+        name: SpaceStatus
+        props:
+          - space_id (atom)
+          - slots (list)
+          - gate_status (ok | error)
+        used_in:
+          - Dashboard
+      - description: Compact badge showing task priority and status with color coding.
+        name: TaskBadge
+        props:
+          - priority (high | medium | low)
+          - status (pending | in_progress | completed | failed)
+        used_in:
+          - Work Space
+      - description: Table view of spec entries (e.g., API endpoints, modules, events) with sorting and filtering.
+        name: SpecTable
+        props:
+          - specs (list of maps)
+          - columns (list of strings)
+          - sortable (boolean)
+        used_in:
+          - Solution Space
+      - description: Navigation sidebar with space icons, pipeline progress indicator, and quick links.
+        name: NavSidebar
+        props:
+          - current_path (string)
+          - pipeline_status (map)
+        used_in:
+          - All views (layout component)
+      - description: Visual pipeline progress bar showing acts and steps with completion status.
+        name: PipelineProgress
+        props:
+          - steps (list)
+          - current_step (string)
+          - completed (list)
+        used_in:
+          - Dashboard
+          - NavSidebar
+      - description: Shows changes between two versions with added/modified/removed highlighting.
+        name: DiffViewer
+        props:
+          - changes (list)
+          - version (integer)
+        used_in:
+          - Work Space
+      - description: Alphabetical list of glossary terms with definitions, source space, and first-seen step.
+        name: GlossaryList
+        props:
+          - terms (list of maps)
+          - filterable (boolean)
+        used_in:
+          - Knowledge Space
+  constraints:
+    constraints:
+      - description: The 5 spaces (Problem, Solution, Work, Measurement, Knowledge) are defined in Bropilot core and cannot be added, removed, or renamed by recipes.
+        enforced_by: Bropilot.Spaces module (compile-time constant @space_ids)
+        id: C1
+        name: Immutable Spaces
+        severity: critical
+      - description: "Every recipe must have at least one step mapped to each primary space: Problem, Solution, Work."
+        enforced_by: Bropilot.Spaces.validate_recipe/1
+        id: C2
+        name: Recipe Must Cover All Primary Spaces
+        severity: critical
+      - description: Pipeline cannot advance to a step in a new space until all required slots of the current space are filled.
+        enforced_by: Bropilot.Pipeline.Engine.handle_call(:advance, ...)
+        id: C3
+        name: Gate Validation Before Space Transition
+        severity: high
+      - description: All map data is stored as YAML files. No database. Files are human-readable and version-controllable.
+        enforced_by: Bropilot.Map.Store and Bropilot.Yaml
+        id: C4
+        name: YAML-Only Data Layer
+        severity: high
+      - description: The spaces.lock file is generated by Bropilot core on init and must never be manually edited.
+        enforced_by: Bropilot.init/2 calls Spaces.generate_lock/0
+        id: C5
+        name: spaces.lock Is Auto-Generated
+        severity: high
+      - description: Versions are auto-incremented (v001, v002, ...). No gaps, no manual numbering.
+        enforced_by: Bropilot.Pipeline.Act3.Snapshot.create_snapshot/1
+        id: C6
+        name: Version Numbers Are Sequential
+        severity: medium
+      - description: Changelog entries, xrefs, and glossary terms are only appended, never removed. Glossary terms may be updated with latest definitions.
+        enforced_by: Bropilot.Pipeline.Feedback
+        id: C7
+        name: Knowledge Space Is Append-Only
+        severity: medium
+  entities:
+    entities:
+      - fields:
+          - description: Absolute path to project root
+            name: path
+            type: string
+          - description: Project name from map/project.yaml
+            name: name
+            type: string
+          - description: One-line purpose statement
+            name: purpose
+            type: string
+        name: Project
+        storage: File system (.bropilot/ directory)
+      - fields:
+          - description: Recipe identifier
+            name: name
+            type: string
+          - description: Semver version
+            name: version
+            type: string
+          - description: What this recipe does
+            name: description
+            type: text
+          - description: Pipeline act definitions
+            name: acts
+            type: list
+          - description: Flattened step list with space mappings
+            name: steps
+            type: list
+        name: Recipe
+        storage: .bropilot/recipe/ directory
+      - fields:
+          - description: Sequential version number
+            name: number
+            type: integer
+          - description: Frozen problem + solution data
+            name: snapshot
+            type: map
+          - description: Diff from previous version
+            name: changes
+            type: list
+          - description: Generated work tasks
+            name: tasks
+            type: list
+        name: Version
+        storage: .bropilot/map/work/versions/v{NNN}/
+      - fields:
+          - description: Sequential task ID
+            name: id
+            type: integer
+          - description: Human-readable title
+            name: title
+            type: string
+          - description: What needs to be done
+            name: description
+            type: text
+          - description: Relevant spec data from the change
+            name: context
+            type: map
+          - description: Acceptance criteria
+            name: definition_of_done
+            type: list
+          - name: priority
+            type: enum
+            values:
+              - high
+              - medium
+              - low
+          - name: status
+            type: enum
+            values:
+              - pending
+              - in_progress
+              - completed
+              - failed
+        name: Task
+        storage: versions/v{NNN}/tasks/task-{NNN}.yaml
+  events:
+    events:
+      - consumers:
+          - CLI output
+        data:
+          project_path: string
+          recipe: string
+        name: project_initialized
+        trigger: Bropilot.init/2 succeeds
+      - consumers:
+          - Pipeline.Engine
+          - CLI status display
+        data:
+          space: atom
+          step_id: string
+        name: step_completed
+        trigger: Pipeline.Engine.mark_complete/2
+      - consumers:
+          - Pipeline.Engine
+        data:
+          from_space: atom
+          to_space: atom
+        name: gate_passed
+        trigger: Spaces.validate_gate/2 returns :ok during advance
+      - consumers:
+          - Pipeline.Engine
+          - CLI error display
+        data:
+          space: atom
+          unfilled_slots: list of atoms
+        name: gate_failed
+        trigger: Spaces.validate_gate/2 returns error during advance
+      - consumers:
+          - Map.Store (writes)
+          - CLI progress
+        data:
+          slot_count: integer
+          step: atom
+        name: extraction_done
+        trigger: Act1.Worker.extract/1 or Act2.Worker.extract/1 succeeds
+      - consumers:
+          - Act3.Diff
+          - CLI output
+        data:
+          spaces: list
+          version: integer
+        name: snapshot_created
+        trigger: Act3.Snapshot.create_snapshot/1 succeeds
+      - consumers:
+          - Act3.TaskGenerator
+          - CLI output
+        data:
+          added: integer
+          modified: integer
+          removed: integer
+          version: integer
+        name: changes_generated
+        trigger: Act3.Diff.generate_change_plan/2 succeeds
+      - consumers:
+          - Task.Supervisor
+          - CLI task display
+        data:
+          task_id: integer
+          title: string
+        name: task_dispatched
+        trigger: Task.Agent.start_link/2
+      - consumers:
+          - Task.Supervisor
+          - Pipeline.Feedback
+        data:
+          status: completed | failed
+          task_id: integer
+        name: task_completed
+        trigger: Task.Agent sends {:task_completed, task_id}
+      - consumers:
+          - Knowledge Space files
+        data:
+          changelog_entry: map
+          new_terms: integer
+          new_xrefs: integer
+        name: knowledge_updated
+        trigger: Pipeline.Feedback.update_knowledge/3 succeeds
+      - consumers:
+          - Knowledge Space
+          - CLI summary
+        data:
+          artifacts_produced: integer
+          tasks_completed: integer
+          version: integer
+        name: version_summarized
+        trigger: Pipeline.Feedback.summarize_version/2 succeeds
+  externals:
+    externals:
+      - config: ANTHROPIC_API_KEY environment variable
+        description: Primary LLM provider for extraction and codegen. Anthropic Claude models via direct API or OpenRouter.
+        fallback: OpenAI-compatible API
+        module: Bropilot.LLM.Anthropic
+        name: OpenRouter / Anthropic API
+        type: LLM Provider
+      - config: OPENAI_API_KEY environment variable
+        description: Alternative LLM provider. GPT-4 and compatible models.
+        fallback: Mock provider for testing
+        module: Bropilot.LLM.OpenAI
+        name: OpenAI API
+        type: LLM Provider
+      - config: deploy.sh script
+        description: Hosts the Astro-based web UI (future). Edge-deployed for low latency.
+        module: N/A (deployment)
+        name: Cloudflare Pages
+        type: Static Hosting
+      - config: fly.toml (future)
+        description: Hosts the Elixir OTP application for API access and long-running pipeline execution.
+        module: Bropilot.Application
+        name: Fly.io
+        type: Application Hosting
+      - config: Git remote
+        description: Source code hosting, PR-based workflow for codegen artifacts, CI/CD pipeline.
+        module: N/A (external)
+        name: GitHub
+        type: Version Control + CI
+      - description: YAML parsing library. Used by Bropilot.Yaml.decode_file/1 and decode/1.
+        module: Bropilot.Yaml
+        name: yaml_elixir
+        type: Elixir Dependency
+        version: ~> 2.11
+      - description: HTTP client for LLM API calls. Used by Anthropic and OpenAI providers.
+        module: Bropilot.LLM.Anthropic, Bropilot.LLM.OpenAI
+        name: Req
+        type: Elixir Dependency
+        version: ~> 0.5
+      - description: JSON encoding/decoding for API request/response bodies.
+        module: Bropilot.LLM.Anthropic, Bropilot.LLM.OpenAI
+        name: Jason
+        type: Elixir Dependency
+        version: ~> 1.4
+  infra:
+    infra:
+      - description: BEAM VM running the OTP application. Handles pipeline execution, LLM calls, and task dispatch.
+        hosting: Fly.io (production), local (development)
+        name: Elixir Runtime
+        requirements:
+          - Elixir ~> 1.19
+          - Erlang/OTP
+          - Mix build tool
+        type: Application Server
+      - description: Hosts the Astro-based web UI. Edge-deployed for global low latency.
+        hosting: Cloudflare
+        name: Cloudflare Pages
+        requirements:
+          - Node.js for build
+          - Astro framework
+        type: Static Site Hosting
+      - description: Unified API gateway for multiple LLM providers. Allows switching between Claude, GPT-4, and others without code changes.
+        hosting: SaaS
+        name: OpenRouter
+        requirements:
+          - API key
+          - HTTPS access
+        type: LLM Gateway
+      - description: All project data stored as YAML files in .bropilot/. No database required. Git-friendly.
+        hosting: Local + version control
+        name: File System
+        requirements:
+          - Read/write access to project directory
+        type: Data Storage
+  modules:
+    modules:
+      - name: Bropilot
+        path: lib/bropilot.ex
+        public_functions:
+          - init/2
+        responsibility: "Top-level API: init/2, three-tier model documentation"
+      - name: Bropilot.Application
+        path: lib/bropilot/application.ex
+        public_functions:
+          - start/2
+        responsibility: OTP application supervisor tree startup
+      - name: Bropilot.Spaces
+        path: lib/bropilot/spaces/spaces.ex
+        public_functions:
+          - all/0
+          - ids/0
+          - primary_ids/0
+          - definition/1
+          - validate_recipe/1
+          - validate_gate/2
+          - generate_lock/0
+        responsibility: Immutable space definitions, gate validation, recipe validation, lock generation
+      - name: Bropilot.Map.Store
+        path: lib/bropilot/map/store.ex
+        public_functions:
+          - read/3
+          - write/4
+          - exists?/3
+          - slot_path/3
+        responsibility: Read/write YAML files in the map/ directory
+      - name: Bropilot.Yaml
+        path: lib/bropilot/yaml.ex
+        public_functions:
+          - decode_file/1
+          - decode/1
+          - encode/1
+          - encode_to_file/2
+        responsibility: "YAML encoding/decoding: custom encoder for writing, yaml_elixir for parsing"
+      - name: Bropilot.Pipeline.Engine
+        path: lib/bropilot/pipeline/engine.ex
+        public_functions:
+          - start_link/1
+          - current_step/1
+          - advance/1
+          - step_status/1
+          - mark_complete/2
+        responsibility: GenServer holding pipeline position, step tracking, gate enforcement
+      - name: Bropilot.Pipeline.Act1.Worker
+        path: lib/bropilot/pipeline/act1/worker.ex
+        public_functions:
+          - start_link/1
+          - run_step1/1
+          - run_step2/1
+          - submit_input/2
+          - next_question/1
+          - extract/1
+        responsibility: "GenServer for Act 1 vibe collection: step1 basics, step2 gory detail"
+      - name: Bropilot.Pipeline.Act2.Worker
+        path: lib/bropilot/pipeline/act2/worker.ex
+        public_functions:
+          - start_link/1
+          - run_step3/1
+          - run_step4/1
+          - submit_extraction/2
+          - extract/1
+        responsibility: "GenServer for Act 2 domain modeling: step3 big picture, step4 specs"
+      - name: Bropilot.Pipeline.Act3.Executor
+        path: lib/bropilot/pipeline/act3/executor.ex
+        public_functions:
+          - run/2
+          - run_step/3
+        responsibility: "Orchestrates full Act 3: snapshot, diff, tasks, feedback"
+      - name: Bropilot.Pipeline.Act3.Snapshot
+        path: lib/bropilot/pipeline/act3/snapshot.ex
+        public_functions:
+          - create_snapshot/1
+          - latest_version/1
+          - read_snapshot/2
+          - list_versions/1
+        responsibility: Creates versioned snapshots of problem + solution spaces
+      - name: Bropilot.Pipeline.Act3.Diff
+        path: lib/bropilot/pipeline/act3/diff.ex
+        public_functions:
+          - diff/2
+          - generate_change_plan/2
+          - summarize/1
+        responsibility: Deep-diffs two snapshot maps, produces path-based change lists
+      - name: Bropilot.Pipeline.Act3.TaskGenerator
+        path: lib/bropilot/pipeline/act3/task_generator.ex
+        public_functions:
+          - generate_tasks/1
+          - write_tasks/3
+          - read_tasks/2
+        responsibility: Generates work tasks from changes, writes task YAML files
+      - name: Bropilot.Pipeline.Feedback
+        path: lib/bropilot/pipeline/feedback.ex
+        public_functions:
+          - update_knowledge/3
+          - update_changelog/2
+          - update_xrefs/2
+          - update_glossary/2
+          - summarize_version/2
+        responsibility: "Closes the feedback loop: updates changelog, xrefs, glossary after tasks"
+      - name: Bropilot.LLM
+        path: lib/bropilot/llm.ex
+        public_functions:
+          - chat/2
+          - extract_yaml/2
+          - provider/0
+        responsibility: "Facade for LLM interactions: provider routing, YAML extraction"
+      - name: Bropilot.Recipe.Registry
+        path: lib/bropilot/recipe/registry.ex
+        public_functions:
+          - start_link/1
+          - load/1
+          - get/0
+        responsibility: Loads, validates, and caches recipe definitions
+      - name: Bropilot.Recipe.Schema
+        path: lib/bropilot/recipe/schema.ex
+        public_functions:
+          - load_schema/1
+          - validate/2
+          - validate_map_slot/4
+        responsibility: Validates map data against recipe .schema.yaml files
+      - name: Bropilot.Pi.Pool
+        path: lib/bropilot/pi/pool.ex
+        public_functions:
+          - start_link/1
+          - checkout/1
+          - checkin/1
+        responsibility: DynamicSupervisor managing pi coding-agent processes
+      - name: Bropilot.Task.Agent
+        path: lib/bropilot/task/agent.ex
+        public_functions:
+          - start_link/2
+          - execute/1
+          - get_status/1
+          - get_result/1
+        responsibility: "GenServer for a single codegen task: builds prompt, executes, updates knowledge"
+  streams:
+    streams:
+      - description: Real-time pipeline progress updates. Pushes step completion, gate results, and extraction progress.
+        events:
+          - step_started
+          - step_completed
+          - gate_passed
+          - gate_failed
+          - extraction_progress
+        name: Pipeline Status Stream
+        path: /ws/pipeline
+        protocol: WebSocket
+      - description: Real-time task status updates during Act 3 build cycles.
+        events:
+          - task_dispatched
+          - task_progress
+          - task_completed
+          - task_failed
+        name: Task Execution Stream
+        path: /ws/tasks
+        protocol: WebSocket
+      - description: Streaming LLM responses during vibe collection for a conversational feel.
+        events:
+          - prompt_ready
+          - llm_chunk
+          - extraction_complete
+        name: Vibe Chat Stream
+        path: /ws/vibe
+        protocol: WebSocket
+  views:
+    views:
+      - data_sources:
+          - Pipeline.Engine.step_status/1
+          - Spaces.validate_gate/2
+          - Act3.Snapshot.latest_version/1
+        description: "Overview of project status: pipeline progress, space fill rates, latest version summary."
+        name: Dashboard
+        path: /
+      - data_sources:
+          - Map.Store.read/3 for :problem space
+        description: "View and edit Problem Space data: audience, problem statement, context, assumptions, hypotheses, vibes."
+        name: Problem Space
+        path: /problem
+      - data_sources:
+          - Map.Store.read/3 for :solution space
+        description: "Browse Solution Space: vocabulary, domain model, flows, architecture, all 11 spec categories."
+        name: Solution Space
+        path: /solution
+      - data_sources:
+          - Act3.Snapshot.list_versions/1
+          - Act3.TaskGenerator.read_tasks/2
+        description: Version history, change plans, task lists with status tracking.
+        name: Work Space
+        path: /work
+      - data_sources:
+          - Pipeline.Feedback.glossary_path/1
+          - Pipeline.Feedback.changelog_path/1
+          - Pipeline.Feedback.xrefs_path/1
+        description: Glossary, architectural decisions, changelog, cross-references.
+        name: Knowledge Space
+        path: /knowledge
+      - data_sources:
+          - Act1.Worker.run_step1/1
+          - Act1.Worker.next_question/1
+        description: Conversational interface for Act 1 vibe collection. Step-by-step guided prompts.
+        name: Vibe Chat
+        path: /vibe
+definition_of_done:
+  - Implementation matches spec
+  - Tests written and passing
+  - Documentation updated
+dependencies: []
+description: New spec added at solution.specs. Implement the corresponding functionality.
+id: 14
+priority: high
+related_specs:
+  - solution.specs
+status: pending
+title: Implement solution.specs

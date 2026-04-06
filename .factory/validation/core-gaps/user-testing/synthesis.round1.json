@@ -1,0 +1,203 @@
+{
+  "milestone": "core-gaps",
+  "round": 1,
+  "status": "fail",
+  "generatedAt": "2026-04-06T11:57:13.907788+00:00",
+  "assertionsSummary": {
+    "total": 89,
+    "passed": 63,
+    "failed": 13,
+    "blocked": 13
+  },
+  "passedAssertions": [
+    "VAL-ACT2-001",
+    "VAL-ACT2-002",
+    "VAL-ACT2-003",
+    "VAL-ACT2-004",
+    "VAL-ACT2-005",
+    "VAL-ACT2-006",
+    "VAL-ACT2-007",
+    "VAL-ACT2-008",
+    "VAL-ACT2-009",
+    "VAL-ACT2-010",
+    "VAL-ACT2-011",
+    "VAL-ACT2-012",
+    "VAL-ACT2-013",
+    "VAL-ACT2-014",
+    "VAL-ACT2-015",
+    "VAL-ACT2-016",
+    "VAL-ACT2-019",
+    "VAL-ACT2-020",
+    "VAL-ACT2-021",
+    "VAL-ACT2-022",
+    "VAL-ACT2-025",
+    "VAL-ACT2-026",
+    "VAL-CGEN-001",
+    "VAL-CGEN-002",
+    "VAL-CGEN-003",
+    "VAL-CGEN-004",
+    "VAL-CGEN-005",
+    "VAL-CGEN-006",
+    "VAL-CGEN-007",
+    "VAL-CGEN-008",
+    "VAL-CGEN-010",
+    "VAL-CLEAN-001",
+    "VAL-CLEAN-002",
+    "VAL-CLEAN-004",
+    "VAL-CLEAN-006",
+    "VAL-CLEAN-007",
+    "VAL-CLEAN-008",
+    "VAL-CROSS-003",
+    "VAL-CROSS-006",
+    "VAL-DAPI-001",
+    "VAL-DAPI-002",
+    "VAL-DAPI-003",
+    "VAL-DAPI-004",
+    "VAL-DAPI-005",
+    "VAL-DAPI-008",
+    "VAL-DAPI-009",
+    "VAL-DAPI-010",
+    "VAL-DAPI-011",
+    "VAL-PIPE-001",
+    "VAL-PIPE-002",
+    "VAL-PIPE-005",
+    "VAL-PIPE-006",
+    "VAL-PIPE-007",
+    "VAL-PIPE-008",
+    "VAL-REG-001",
+    "VAL-REG-002",
+    "VAL-REG-003",
+    "VAL-VTEST-001",
+    "VAL-VTEST-002",
+    "VAL-VTEST-003",
+    "VAL-VTEST-004",
+    "VAL-VTEST-005",
+    "VAL-VTEST-006"
+  ],
+  "failedAssertions": [
+    {
+      "id": "VAL-ACT2-023",
+      "reason": "Solution page did not surface Step 3 domain model content after Act 2 completion."
+    },
+    {
+      "id": "VAL-ACT2-024",
+      "reason": "Mobile layout overflows horizontally at 375px width."
+    },
+    {
+      "id": "VAL-CGEN-009",
+      "reason": "Build response reports artifacts, but no generated files exist under output/ and changelog entries are marked failed with missing file paths."
+    },
+    {
+      "id": "VAL-CLEAN-003",
+      "reason": "connect.astro uses inline fetch without importing api.ts"
+    },
+    {
+      "id": "VAL-CLEAN-005",
+      "reason": "Inline fetch logic remains in web/src/pages/connect.astro"
+    },
+    {
+      "id": "VAL-CROSS-001",
+      "reason": "Step completion tracking did not reach completed statuses and no generated output files were present."
+    },
+    {
+      "id": "VAL-CROSS-002",
+      "reason": "Vocabulary terms (User, Task, Workspace, Assignee, Due Date) did not appear in Problem Space text."
+    },
+    {
+      "id": "VAL-CROSS-007",
+      "reason": "Round-trip mutation observed: empty arrays became null in architecture component depends_on fields."
+    },
+    {
+      "id": "VAL-CROSS-044",
+      "reason": "pipeline_state.yaml lacks explicit status entries for all 8 steps"
+    },
+    {
+      "id": "VAL-CROSS-060",
+      "reason": "Traceability route did not load (404)."
+    },
+    {
+      "id": "VAL-CROSS-061",
+      "reason": "Connect page lacks sidebar active state; contract expects one active link at a time."
+    },
+    {
+      "id": "VAL-CROSS-080",
+      "reason": "Partial pipeline view did not present expected Step 3-only state."
+    },
+    {
+      "id": "VAL-CROSS-081",
+      "reason": "ER diagram route unavailable."
+    }
+  ],
+  "blockedAssertions": [
+    {
+      "id": "VAL-ACT2-017",
+      "blockedBy": "Blocked by shared-service isolation: creating a missing .bropilot condition would require disruptive shared state mutation."
+    },
+    {
+      "id": "VAL-ACT2-018",
+      "blockedBy": "Blocked by shared global DomainWorker lifecycle and non-disruptive rule (no shared service restart)."
+    },
+    {
+      "id": "VAL-ACT2-027",
+      "blockedBy": "Blocked: malformed-output scenario not controllable in shared environment; status-verification endpoint from contract is unavailable."
+    },
+    {
+      "id": "VAL-CROSS-004",
+      "blockedBy": "Could not create a fresh/unfilled Problem Space scenario without destructive reset of shared project state."
+    },
+    {
+      "id": "VAL-CROSS-005",
+      "blockedBy": "Premature-entry precondition could not be recreated safely in shared state; contract route also differs from implemented route."
+    },
+    {
+      "id": "VAL-CROSS-040",
+      "blockedBy": "Blocked by explicit mission constraint: do not stop/restart shared services."
+    },
+    {
+      "id": "VAL-CROSS-041",
+      "blockedBy": "Blocked by explicit mission constraint: do not stop/restart shared services."
+    },
+    {
+      "id": "VAL-CROSS-042",
+      "blockedBy": "Blocked by explicit mission constraint: do not stop/restart shared services."
+    },
+    {
+      "id": "VAL-CROSS-043",
+      "blockedBy": "Blocked by explicit mission constraint: cannot kill or restart shared server."
+    },
+    {
+      "id": "VAL-DAPI-006",
+      "blockedBy": "Missing-.bropilot precondition cannot be tested without destructive modification of shared project directory."
+    },
+    {
+      "id": "VAL-DAPI-007",
+      "blockedBy": "Precondition (no domain worker started) was not controllable on shared long-lived service; no stop endpoint and restart is prohibited."
+    },
+    {
+      "id": "VAL-PIPE-003",
+      "blockedBy": "Blocked by explicit mission constraint: do not stop/restart shared services."
+    },
+    {
+      "id": "VAL-PIPE-004",
+      "blockedBy": "Fresh-start precondition requires destructive reset of shared state and restart, both out of bounds."
+    }
+  ],
+  "appliedUpdates": [
+    {
+      "target": "user-testing.md",
+      "description": "Added flow validator guidance sections for agent-browser/curl/terminal isolation and evidence expectations.",
+      "source": "setup"
+    },
+    {
+      "target": "user-testing.md",
+      "description": "Documented route/status endpoint validation frictions discovered from flow reports for future reruns.",
+      "source": "flow-report"
+    }
+  ],
+  "flowReports": [
+    ".factory/validation/core-gaps/user-testing/flows/terminal-core.json",
+    ".factory/validation/core-gaps/user-testing/flows/curl-core.json",
+    ".factory/validation/core-gaps/user-testing/flows/web-ui-core.json"
+  ],
+  "previousRound": null
+}

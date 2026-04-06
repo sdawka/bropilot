@@ -1,0 +1,267 @@
+{
+  "groupId": "web-ui-r2",
+  "testedAt": "2026-04-06T12:43:57Z",
+  "isolation": {
+    "surface": "web UI",
+    "tool": "agent-browser",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "apiBaseUrl": "http://localhost:4001",
+    "webBaseUrl": "http://localhost:3201",
+    "milestone": "core-gaps",
+    "constraints": [
+      "Used assigned isolated URLs only (localhost:4001 and localhost:3201)",
+      "Avoided destructive filesystem mutations per task instructions"
+    ]
+  },
+  "toolsUsed": [
+    "agent-browser",
+    "curl"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-ACT2-017",
+      "title": "Error state — UI displays error when .bropilot directory is missing",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Check current project initialization and attempt domain start from /domain/",
+          "expected": "UI should show missing-.bropilot initialization error",
+          "observed": "Isolated API project is initialized (/api/project -> 200) and Start transitioned to Step 3 prompt (no missing-.bropilot error)."
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-r2/VAL-ACT2-017-precondition-unavailable-v3.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/project -> 200; POST /api/domain/start -> 200"
+      },
+      "issues": "Blocked: reproducing missing-.bropilot precondition requires destructive mutation/removal of .bropilot in isolated API cwd, which was explicitly disallowed."
+    },
+    {
+      "id": "VAL-ACT2-018",
+      "title": "Error state — UI displays error when extracting before starting",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "On /domain/ before start, trigger submitInput path with non-empty text",
+          "expected": "Graceful user-facing worker-not-started error",
+          "observed": "UI displayed: 'Domain worker not started. Please restart the session.' and remained stable."
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-r2/VAL-ACT2-018-extract-before-start-v3.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/input -> 400 {\"error\":\"domain worker not started — call POST /api/domain/start first\"}"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-023",
+      "title": "Navigation back to solution page shows extracted data",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Complete Act 2 in isolated environment (Step3 then Step4), then navigate to /solution/",
+          "expected": "Solution page shows extracted domain model and populated spec tabs",
+          "observed": "Domain data sections (vocabulary/entities/flows) were populated and all 11 spec tabs displayed populated indicators/content."
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-r2/VAL-ACT2-023-domain-step4-complete-v3.png",
+          "core-gaps/web-ui-r2/VAL-ACT2-023-solution-after-act2-v3.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/start (mock pre-start) -> 200; POST /api/domain/input -> 200; POST /api/domain/extract (step3) -> 200; POST /api/domain/extract (step4) -> 200; GET /solution/ -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-024",
+      "title": "Mobile responsive layout",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Set viewport to 375x812 and load /domain/",
+          "expected": "No horizontal overflow; chat/input/buttons accessible",
+          "observed": "scrollWidth==clientWidth (375), no horizontal overflow, textarea and submit button visible and interactive."
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-r2/VAL-ACT2-024-mobile-domain-v3.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /domain/ -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-027",
+      "title": "Malformed LLM output returns error without advancing state",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Attempt extraction in LLM mode on /domain/ and check state-verification endpoint",
+          "expected": "Malformed-output error path exercised and worker confirmed pre-step3_done",
+          "observed": "Extraction attempts returned rate-limit error (`Extraction failed. :rate_limited`), and `/api/domain/status` is not available (404), so malformed-output state-transition contract could not be verified."
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-r2/VAL-ACT2-027-malformed-precondition-v3.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/extract (via UI flow) -> extraction error :rate_limited; GET /api/domain/status -> 404"
+      },
+      "issues": "Blocked by infrastructure/surface limitations: could not deterministically force malformed LLM payload, and required status endpoint for non-advancement verification is unavailable."
+    },
+    {
+      "id": "VAL-CROSS-060",
+      "title": "All sidebar pages load without error",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Navigate all required routes on isolated web URL and capture each page",
+          "expected": "All listed pages return 200 and render without JS errors",
+          "observed": "Core pages and /domain/ returned 200 with clean console; /traceability/ and /er/ returned 404 Not Found."
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-r2/VAL-CROSS-060-dashboard-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-060-problem-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-060-solution-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-060-work-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-060-knowledge-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-060-vibe-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-060-build-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-060-connect-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-060-domain-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-060-traceability-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-060-er-v3.png"
+        ],
+        "consoleErrors": "none",
+        "network": "HTTP status checks: /,/problem/,/solution/,/work/,/knowledge/,/vibe/,/build/,/connect/,/domain/ -> 200; /traceability/ -> 404; /er/ -> 404"
+      },
+      "issues": "Required new pages were not all available on the isolated web instance (/traceability and /er missing)."
+    },
+    {
+      "id": "VAL-CROSS-061",
+      "title": "Sidebar highlights active page",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Navigate each sidebar page and inspect `.sidebar-link.active` count",
+          "expected": "Exactly one active sidebar link on every page",
+          "observed": "Active count was 1 on dashboard/problem/solution/work/knowledge/vibe/build/domain, but 0 on /connect/."
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-r2/VAL-CROSS-061-dashboard-active-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-061-problem-active-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-061-solution-active-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-061-work-active-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-061-knowledge-active-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-061-vibe-active-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-061-build-active-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-061-connect-active-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-061-domain-active-v3.png"
+        ],
+        "consoleErrors": "none",
+        "network": "DOM checks per page: connect activeCount=0; all others tested activeCount=1"
+      },
+      "issues": "Connect page does not apply active sidebar state."
+    },
+    {
+      "id": "VAL-CROSS-080",
+      "title": "Partial pipeline — Solution page shows available data only",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Create Step3-only state (without running Step4 in current flow) and navigate to /solution/",
+          "expected": "Domain model shown, specs indicated as pending/not yet generated",
+          "observed": "Solution page showed domain model data but also showed populated spec tabs/content instead of pending-specs state."
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-r2/VAL-CROSS-080-solution-partial-v3.png"
+        ],
+        "consoleErrors": "none",
+        "network": "Step3-only run succeeded (POST /api/domain/extract step3 -> 200), then GET /solution/ -> 200 with populated spec sections"
+      },
+      "issues": "Expected partial-state pending-spec UX was not present; spec sections appeared populated."
+    },
+    {
+      "id": "VAL-CROSS-081",
+      "title": "ER diagram with partial domain data",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Create Step3-only state and navigate to ER page",
+          "expected": "ER diagram renders Step3 entities even when Step4 specs are missing",
+          "observed": "Step3 domain data existed on /domain/, but /er/ route returned 404 and no ER diagram rendered."
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-r2/VAL-CROSS-081-domain-step3-v3.png",
+          "core-gaps/web-ui-r2/VAL-CROSS-081-er-route-v3.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/extract (step3) -> 200; GET /er/ -> 404"
+      },
+      "issues": "ER route unavailable on isolated web instance for this run."
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Domain UI has no user-surface toggle for extraction mode; deterministic Act2 checks required pre-starting the worker in mock mode via API.",
+      "resolved": true,
+      "resolution": "Used `POST /api/domain/start` with `{\"mode\":\"mock\"}` before UI extraction assertions.",
+      "affectedAssertions": [
+        "VAL-ACT2-023",
+        "VAL-CROSS-080",
+        "VAL-CROSS-081"
+      ]
+    },
+    {
+      "description": "Missing-.bropilot assertion precondition requires removing/renaming .bropilot in API cwd.",
+      "resolved": false,
+      "resolution": "Did not perform destructive filesystem mutation per assignment constraints; marked assertion blocked.",
+      "affectedAssertions": [
+        "VAL-ACT2-017"
+      ]
+    },
+    {
+      "description": "Malformed-output assertion depends on forcing malformed LLM output and checking `/api/domain/status`, but test run hit rate limits and status endpoint is unavailable.",
+      "resolved": false,
+      "resolution": "Recorded rate-limit behavior and endpoint absence; marked assertion blocked.",
+      "affectedAssertions": [
+        "VAL-ACT2-027"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "description": "Cannot safely induce missing-.bropilot state without destructive mutation in isolated API working directory.",
+      "affectedAssertions": [
+        "VAL-ACT2-017"
+      ],
+      "quickFixAttempted": "Checked current initialization state and domain start behavior via UI/API; precondition remained unavailable without forbidden mutation."
+    },
+    {
+      "description": "Could not deterministically exercise malformed-LLM-output path; extraction attempts returned provider rate limits and `/api/domain/status` returned 404.",
+      "affectedAssertions": [
+        "VAL-ACT2-027"
+      ],
+      "quickFixAttempted": "Retried extraction through UI and checked status endpoint availability; still unable to satisfy contract evidence path."
+    }
+  ],
+  "summary": "Tested 9 assertions: 3 passed, 4 failed, 2 blocked. PASS: VAL-ACT2-018, VAL-ACT2-023, VAL-ACT2-024. FAIL: VAL-CROSS-060, VAL-CROSS-061, VAL-CROSS-080, VAL-CROSS-081. BLOCKED: VAL-ACT2-017, VAL-ACT2-027."
+}

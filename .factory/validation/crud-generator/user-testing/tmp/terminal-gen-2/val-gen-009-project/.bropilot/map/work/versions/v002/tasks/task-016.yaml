@@ -1,0 +1,13 @@
+context: 20
+definition_of_done:
+  - Functionality removed or deprecated
+  - Related tests cleaned up
+  - No broken references
+dependencies: []
+description: Spec removed at solution.vocabulary_count. Remove or deprecate the corresponding functionality.
+id: 16
+priority: low
+related_specs:
+  - solution.vocabulary_count
+status: pending
+title: Remove solution.vocabulary_count

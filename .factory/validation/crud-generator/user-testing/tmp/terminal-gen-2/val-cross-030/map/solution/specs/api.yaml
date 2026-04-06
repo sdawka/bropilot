@@ -1,0 +1,30 @@
+api:
+  - auth: token
+    description: List all tasks in a workspace
+    method: GET
+    path: /api/tasks
+    related_entity: Task
+  - auth: token
+    description: Create a new task
+    method: POST
+    path: /api/tasks
+    related_entity: Task
+    request_body:
+      description: string
+      priority: string
+      title: string
+  - auth: token
+    description: Update an existing task
+    method: PUT
+    path: /api/tasks/:id
+    related_entity: Task
+  - auth: token
+    description: Delete a task
+    method: DELETE
+    path: /api/tasks/:id
+    related_entity: Task
+  - auth: token
+    description: List workspace members
+    method: GET
+    path: /api/users
+    related_entity: User

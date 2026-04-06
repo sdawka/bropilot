@@ -1,0 +1,31 @@
+modules:
+  - arch_component: API Server
+    exports:
+      - index
+      - create
+      - update
+      - delete
+    name: TaskController
+    path: lib/app_web/controllers/task_controller.ex
+    responsibility: Handle HTTP requests for task operations
+  - arch_component: API Server
+    depends_on:
+      - TaskRepo
+    exports:
+      - list_tasks
+      - create_task
+      - update_task
+      - delete_task
+    name: TaskService
+    path: lib/app/tasks/task_service.ex
+    responsibility: Business logic for task operations
+  - arch_component: Database
+    exports:
+      - all
+      - get
+      - insert
+      - update
+      - delete
+    name: TaskRepo
+    path: lib/app/tasks/task_repo.ex
+    responsibility: Database access for tasks

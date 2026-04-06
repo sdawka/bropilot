@@ -1,0 +1,287 @@
+{
+  "groupId": "browser-er-dynamic",
+  "testedAt": "2026-04-06T15:55:26Z",
+  "isolation": {
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "apiBaseUrl": "http://localhost:4000",
+    "webBaseUrl": "http://localhost:3200",
+    "browserSession": "er-dynamic",
+    "evidenceDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/evidence/er-diagram/browser-er-dynamic"
+  },
+  "toolsUsed": [
+    "agent-browser",
+    "curl",
+    "python3"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-ERD-007",
+      "title": "Diagram renders correctly with 5 entities",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "PUT dataset with exactly 5 entities to /api/map/solution/domain",
+          "expected": "ER data source has 5 entities",
+          "observed": "GET domain slot confirmed 5 entities, 5 relationships"
+        },
+        {
+          "action": "Open /er/ and inspect rendered SVG/layout",
+          "expected": "All 5 entities render without overlap/clipping errors",
+          "observed": "Count label shows 5 entities; SVG entity groups=5; overlapPairs=0"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-dynamic/VAL-ERD-007-diagram-5.png"
+        ],
+        "consoleErrors": "none (VAL-ERD-007-console.txt size=0)",
+        "network": "PUT /api/map/solution/domain -> 200; GET /api/map/solution/domain -> 200; GET /er/ -> 200",
+        "files": [
+          "er-diagram/browser-er-dynamic/VAL-ERD-007-get.body.json",
+          "er-diagram/browser-er-dynamic/VAL-ERD-007-metrics.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ERD-008",
+      "title": "Diagram renders correctly with 20 entities",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "PUT dataset with 20 entities to /api/map/solution/domain",
+          "expected": "ER data source has 20 entities",
+          "observed": "GET domain slot confirmed 20 entities, 25 relationships"
+        },
+        {
+          "action": "Open /er/, then scroll diagram container",
+          "expected": "All entities accessible via scrolling/panning controls",
+          "observed": "Count label 20 entities; container scrollable=true; scrolled from top to deeper region and captured second screenshot"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-dynamic/VAL-ERD-008-diagram-20-top.png",
+          "er-diagram/browser-er-dynamic/VAL-ERD-008-diagram-20-scrolled.png"
+        ],
+        "consoleErrors": "none (VAL-ERD-008-console.txt size=0)",
+        "network": "PUT /api/map/solution/domain -> 200; GET /er/ -> 200",
+        "files": [
+          "er-diagram/browser-er-dynamic/VAL-ERD-008-get.body.json",
+          "er-diagram/browser-er-dynamic/VAL-ERD-008-metrics.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ERD-009",
+      "title": "Diagram renders correctly with 50 entities",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "PUT dataset with 50 entities to /api/map/solution/domain",
+          "expected": "ER data source has 50 entities",
+          "observed": "GET domain slot confirmed 50 entities, 65 relationships"
+        },
+        {
+          "action": "Load /er/ and test responsiveness/scroll",
+          "expected": "No crash/freeze; page remains responsive and scrollable; load <10s",
+          "observed": "open+wait measured 0.747s; count label 50 entities; scrollable=true; additional scroll and screenshot succeeded"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-dynamic/VAL-ERD-009-diagram-50-top.png",
+          "er-diagram/browser-er-dynamic/VAL-ERD-009-diagram-50-scrolled.png"
+        ],
+        "consoleErrors": "none (VAL-ERD-009-console.txt size=0)",
+        "network": "PUT /api/map/solution/domain -> 200; GET /er/ -> 200",
+        "files": [
+          "er-diagram/browser-er-dynamic/VAL-ERD-009-get.body.json",
+          "er-diagram/browser-er-dynamic/VAL-ERD-009-metrics.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ERD-010",
+      "title": "Empty state when no domain data exists",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "PUT empty domain dataset to /api/map/solution/domain",
+          "expected": "No entities in ER source data",
+          "observed": "GET domain slot returns empty entities/relationships arrays"
+        },
+        {
+          "action": "Open /er/",
+          "expected": "Meaningful empty state shown instead of crash/blank screen",
+          "observed": "UI shows: \"No domain model yet. Run Act 2 domain modeling to extract entities and relationships.\""
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-dynamic/VAL-ERD-010-empty-state.png"
+        ],
+        "consoleErrors": "none (VAL-ERD-010-console.txt size=0)",
+        "network": "PUT /api/map/solution/domain -> 200; GET /er/ -> 200",
+        "files": [
+          "er-diagram/browser-er-dynamic/VAL-ERD-010-metrics.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ERD-011",
+      "title": "Diagram updates after Act 2 domain extraction",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Start from empty domain slot and open /er/",
+          "expected": "Baseline empty-state before extraction",
+          "observed": "Empty-state confirmed (no rendered entities)"
+        },
+        {
+          "action": "Run Act 2 flow: POST /api/domain/start (mock), POST /api/domain/input, POST /api/domain/extract",
+          "expected": "Extraction writes entities/relationships used by ER page and diagram becomes populated after refresh",
+          "observed": "Extract response contained entity data, but /api/map/solution/domain remained empty (0 entities, 0 relationships)"
+        },
+        {
+          "action": "Check ER page without reload and after reload",
+          "expected": "Diagram updates with extracted entities",
+          "observed": "Page stayed in empty-state both before and after reload"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-dynamic/VAL-ERD-011-before-empty.png",
+          "er-diagram/browser-er-dynamic/VAL-ERD-011-after-extract.png",
+          "er-diagram/browser-er-dynamic/VAL-CROSS-012-real-after-reload.png"
+        ],
+        "consoleErrors": "none (VAL-ERD-011-console.txt size=0)",
+        "network": "POST /api/domain/start -> 200; POST /api/domain/input -> 200; POST /api/domain/extract -> 200; GET /api/map/solution/domain -> 200 with empty entities",
+        "files": [
+          "er-diagram/browser-er-dynamic/VAL-ERD-011-extract.body.json",
+          "er-diagram/browser-er-dynamic/VAL-ERD-011-domain-after2.body.json",
+          "er-diagram/browser-er-dynamic/VAL-ERD-011-metrics.json"
+        ]
+      },
+      "issues": "Act 2 extraction response is not reflected in the ER page data source (/api/map/solution/domain), so ER remains empty."
+    },
+    {
+      "id": "VAL-ERD-013",
+      "title": "Self-referential entity relationship renders as self-loop",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "PUT self-loop dataset (User -> User, manager_of)",
+          "expected": "Self-referential relationship is available in ER source",
+          "observed": "Domain slot shows 1 entity and 1 relationship"
+        },
+        {
+          "action": "Open /er/ and inspect rendered relationship",
+          "expected": "Visible self-loop on the same entity with relationship label and no rendering artifact/crash",
+          "observed": "Rendered loop attached to User entity with visible manager_of label in screenshot; SVG markup also contains manager_of"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-dynamic/VAL-ERD-013-self-loop.png"
+        ],
+        "consoleErrors": "none (VAL-ERD-013-console.txt size=0)",
+        "network": "PUT /api/map/solution/domain -> 200; GET /er/ -> 200",
+        "files": [
+          "er-diagram/browser-er-dynamic/VAL-ERD-013-get.body.json",
+          "er-diagram/browser-er-dynamic/VAL-ERD-013-svg-check.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-012",
+      "title": "ER diagram updates live as domain modeling progresses",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Open /er/ on empty domain state",
+          "expected": "Baseline empty-state prior to domain modeling updates",
+          "observed": "Empty-state shown"
+        },
+        {
+          "action": "Run domain modeling progression via API (start + input + extract) while ER page session remains active",
+          "expected": "Entity count increases live, or at minimum after page refresh",
+          "observed": "Act 2 extract completed, but domain slot used by ER page remained empty"
+        },
+        {
+          "action": "Observe ER page before and after reload",
+          "expected": "Post-extraction diagram includes new entities",
+          "observed": "Still empty-state; entityGroups remained 0 before and after reload"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-dynamic/VAL-CROSS-012-real-before-empty.png",
+          "er-diagram/browser-er-dynamic/VAL-CROSS-012-real-after-reload.png"
+        ],
+        "consoleErrors": "none (VAL-CROSS-012-real-console.txt size=0)",
+        "network": "POST /api/domain/start -> 200; POST /api/domain/input -> 200; POST /api/domain/extract -> 200; GET /api/map/solution/domain -> 200 (still empty)",
+        "files": [
+          "er-diagram/browser-er-dynamic/VAL-CROSS-012-real-extract.body.json",
+          "er-diagram/browser-er-dynamic/VAL-CROSS-012-real-after-no-reload-metrics.json",
+          "er-diagram/browser-er-dynamic/VAL-CROSS-012-real-after-reload-metrics.json"
+        ]
+      },
+      "issues": "Domain extraction flow does not update the map slot consumed by /er/, preventing live or refresh-based updates from Act 2 progression."
+    },
+    {
+      "id": "VAL-CROSS-014",
+      "title": "ER diagram handles large domain model (50 entities)",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Load 50-entity, 65-relationship dataset into /api/map/solution/domain",
+          "expected": "ER page receives large domain graph",
+          "observed": "Count label reports 50 entities, 65 relationships"
+        },
+        {
+          "action": "Measure page load and validate usability",
+          "expected": "Render under 10 seconds with no hang/crash; page remains scrollable/zoomable",
+          "observed": "open+wait completed in 0.747s; diagram rendered and remained scrollable/interactive"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-dynamic/VAL-CROSS-014-diagram-50.png"
+        ],
+        "consoleErrors": "none (VAL-CROSS-014-console.txt size=0)",
+        "network": "PUT /api/map/solution/domain -> 200; GET /er/ -> 200",
+        "files": [
+          "er-diagram/browser-er-dynamic/VAL-CROSS-014-metrics.json"
+        ]
+      },
+      "issues": null
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Act 2 extraction returned rich entity data in response payloads, but ER page sources /api/map/solution/domain and that slot remained unchanged/empty during extraction-driven tests.",
+      "resolved": false,
+      "resolution": "Validated behavior directly and recorded fail evidence for VAL-ERD-011 and VAL-CROSS-012.",
+      "affectedAssertions": [
+        "VAL-ERD-011",
+        "VAL-CROSS-012"
+      ]
+    },
+    {
+      "description": "The ER page does not auto-refresh after backend data mutation; a manual in-page refresh action is required to reflect direct map updates.",
+      "resolved": true,
+      "resolution": "Used the page Refresh button for supplemental dynamic checks during investigation; primary assertion result still based on real Act 2 flow behavior.",
+      "affectedAssertions": [
+        "VAL-CROSS-012"
+      ]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 8 assertions: 6 passed, 2 failed, 0 blocked. Failures: VAL-ERD-011 and VAL-CROSS-012 because Act 2 extraction did not propagate to /api/map/solution/domain consumed by /er/."
+}

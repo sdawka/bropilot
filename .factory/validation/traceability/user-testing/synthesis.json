@@ -1,0 +1,152 @@
+{
+  "milestone": "traceability",
+  "round": 1,
+  "status": "fail",
+  "assertionsSummary": {
+    "total": 47,
+    "passed": 23,
+    "failed": 18,
+    "blocked": 6
+  },
+  "passedAssertions": [
+    "VAL-CROSS-020",
+    "VAL-CROSS-023",
+    "VAL-CROSS-062",
+    "VAL-TAPI-001",
+    "VAL-TAPI-002",
+    "VAL-TAPI-003",
+    "VAL-TAPI-004",
+    "VAL-TAPI-005",
+    "VAL-TAPI-006",
+    "VAL-TAUTO-007",
+    "VAL-TRACE-001",
+    "VAL-TRACE-002",
+    "VAL-TRACE-003",
+    "VAL-TRACE-004",
+    "VAL-TRACE-005",
+    "VAL-TRACE-006",
+    "VAL-TUI-001",
+    "VAL-TUI-002",
+    "VAL-TUI-005",
+    "VAL-TUI-008",
+    "VAL-TUI-009",
+    "VAL-TUI-013",
+    "VAL-TUI-014"
+  ],
+  "failedAssertions": [
+    {
+      "id": "VAL-CROSS-021",
+      "reason": "Traceability matrix includes many links to files absent from the project root."
+    },
+    {
+      "id": "VAL-CROSS-022",
+      "reason": "File-path navigation/linking is missing, so spec\u2192code navigation is incomplete."
+    },
+    {
+      "id": "VAL-CROSS-060",
+      "reason": "Console error observed on /build/ violates assertion requirement of zero JavaScript errors across sidebar pages."
+    },
+    {
+      "id": "VAL-CROSS-083",
+      "reason": "Contract-specified endpoints for verification were unavailable on this API surface (/api/map/solution/domain/entities and /api/status)."
+    },
+    {
+      "id": "VAL-TAPI-007",
+      "reason": "Project-scoped traceability API route is not implemented in this surface."
+    },
+    {
+      "id": "VAL-TAUTO-001",
+      "reason": "Build did not produce new traceability links for generated artifacts in this run."
+    },
+    {
+      "id": "VAL-TAUTO-002",
+      "reason": "Traceability matrix contains many non-existent file paths."
+    },
+    {
+      "id": "VAL-TAUTO-003",
+      "reason": "API traceability links did not map to existing route handler files/functions."
+    },
+    {
+      "id": "VAL-TAUTO-004",
+      "reason": "Required entity link-type coverage (type+migration+implementation) was missing."
+    },
+    {
+      "id": "VAL-TAUTO-005",
+      "reason": "No behaviour traceability entry contained test-type links."
+    },
+    {
+      "id": "VAL-TAUTO-006",
+      "reason": "Component/view link typing was inconsistent and included missing/non-matching files."
+    },
+    {
+      "id": "VAL-TAUTO-008",
+      "reason": "Codegen rerun did not update or mark stale traceability link in tested spec entry."
+    },
+    {
+      "id": "VAL-TAUTO-009",
+      "reason": "This build run did not produce new traceability links across categories (0 new links added)."
+    },
+    {
+      "id": "VAL-TUI-003",
+      "reason": "No positive/green linked indicator was observed."
+    },
+    {
+      "id": "VAL-TUI-004",
+      "reason": "Warning-specific indicator styling for unlinked specs was not present."
+    },
+    {
+      "id": "VAL-TUI-006",
+      "reason": "GitHub URL linkage was not generated despite origin remote being GitHub."
+    },
+    {
+      "id": "VAL-TUI-007",
+      "reason": "Line-range deep-linking could not occur because GitHub href generation failed."
+    },
+    {
+      "id": "VAL-TUI-012",
+      "reason": "DOM probe found hasNotFoundText=false and warningClassCount=0 while displaying missing path stale/old_component.tsx."
+    }
+  ],
+  "blockedAssertions": [
+    {
+      "id": "VAL-CROSS-024",
+      "blockedBy": "Blocked by assignment constraint: do not start/stop shared services in this run."
+    },
+    {
+      "id": "VAL-CROSS-025",
+      "blockedBy": "Blocked by shared preloaded data (non-empty traceability matrix) and no safe in-scope reset path without impacting other validators."
+    },
+    {
+      "id": "VAL-CROSS-026",
+      "blockedBy": "Blocked by missing test preconditions in assigned running environment: no 50+ entity / 100+ file traceability dataset available to validate large-scale rendering behavior."
+    },
+    {
+      "id": "VAL-CROSS-082",
+      "blockedBy": "Blocked by inability to reliably create a partial-codegen state on shared running services; build requests either complete quickly or interruption yields no partial traceability updates."
+    },
+    {
+      "id": "VAL-TUI-010",
+      "blockedBy": "Blocked by environment/state precondition: build endpoint completed successfully but did not produce any new traceability links (files_written=[]; entry/coverage counts unchanged), so assertion condition of 'newly generated links appear without reload' could not be exercised."
+    },
+    {
+      "id": "VAL-TUI-011",
+      "blockedBy": "Precondition not satisfiable in assigned shared runtime: traceability data already populated before this run, and validator was not permitted to restart/reset shared services."
+    }
+  ],
+  "appliedUpdates": [
+    {
+      "target": "user-testing.md",
+      "description": "Added traceability round-1 validation notes covering API route surface, build/no-delta behavior, empty-state preconditions, and build-page console error check.",
+      "source": "flow-report"
+    }
+  ],
+  "previousRound": null,
+  "generatedAt": "2026-04-06T14:34:40Z",
+  "flowReports": [
+    "browser-dynamic-edge.json",
+    "browser-matrix-core.json",
+    "browser-nav-empty.json",
+    "curl-api.json",
+    "terminal-auto.json"
+  ]
+}

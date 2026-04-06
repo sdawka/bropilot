@@ -43,6 +43,9 @@ defmodule Bropilot.Pipeline.Act3.Executor do
         :pi ->
           execute_tasks_with_codegen(tasks, project_path, map_dir, version, :pi, opts)
 
+        :mock ->
+          execute_tasks_with_generator(tasks, project_path, map_dir, version, opts)
+
         _ ->
           execute_tasks_simulated(tasks, map_dir, version, opts)
       end
@@ -65,6 +68,39 @@ defmodule Bropilot.Pipeline.Act3.Executor do
       end
     else
       {:error, "no specs to generate from — run Act 2 domain modeling first"}
+    end
+  end
+
+  defp execute_tasks_with_generator(tasks, project_path, map_dir, version, _opts) do
+    output_dir = Path.join([project_path, "output", "v#{version}"])
+    File.mkdir_p!(output_dir)
+
+    try do
+      {:ok, gen_result} = Bropilot.Generator.generate_all(map_dir, output_dir)
+
+      files_written =
+        gen_result
+        |> Map.values()
+        |> Enum.map(&Path.relative_to(&1, project_path))
+
+      # Create mock task results for knowledge/traceability
+      task_results =
+        Enum.map(tasks, fn task ->
+          task_map = task_struct_to_map(task, version)
+          result = {:ok, %{files_written: files_written, output_dir: output_dir}}
+          {task, task_map, result}
+        end)
+
+      Enum.each(task_results, fn {_task, task_map, result} ->
+        Feedback.update_knowledge(map_dir, task_map, result)
+      end)
+
+      record_traceability_links(task_results, map_dir, project_path)
+
+      {:ok, summary} = Feedback.summarize_version(map_dir, version)
+      {:ok, %{version: version, tasks: tasks, summary: summary, files_written: files_written}}
+    rescue
+      e -> {:error, Exception.message(e)}
     end
   end
 

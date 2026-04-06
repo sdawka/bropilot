@@ -1,0 +1,259 @@
+{
+  "groupId": "browser-matrix-core",
+  "testedAt": "2026-04-06T14:23:27Z",
+  "isolation": {
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "apiBaseUrl": "http://localhost:4000",
+    "webBaseUrl": "http://localhost:3200",
+    "evidenceDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/evidence/traceability/browser-matrix-core"
+  },
+  "toolsUsed": [
+    "agent-browser",
+    "curl"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-TUI-002",
+      "title": "Coverage matrix renders all 11 categories",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Open /traceability and inspect matrix rows",
+          "expected": "All 11 categories appear with linked/total counts",
+          "observed": "Rows for api, behaviours, constraints, entities, modules, events, externals, views, components, streams, infra were visible with totals/linked/unlinked counts"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-matrix-core/VAL-TUI-002-initial-matrix.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/traceability -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TUI-003",
+      "title": "Linked specs display green/positive indicator",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Inspect linked vs unlinked matrix cells and spec list presentation",
+          "expected": "Linked specs are shown with positive/green visual indicator",
+          "observed": "Linked and unlinked cells rendered with same computed styling (color rgb(85,85,112), transparent background, no indicator classes); linked spec list entries showed plain 'N link(s)' text"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-matrix-core/VAL-TUI-003-004-linked-unlinked-indicators.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/traceability -> 200"
+      },
+      "issues": "No positive/green linked indicator was observed."
+    },
+    {
+      "id": "VAL-TUI-004",
+      "title": "Unlinked specs display warning indicator",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Inspect rows with non-zero unlinked counts (e.g., Behaviours, Constraints)",
+          "expected": "Unlinked specs show warning-style visual indicator",
+          "observed": "Unlinked values were numeric only; no warning icon/badge/color differentiation beyond count values"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-matrix-core/VAL-TUI-003-004-linked-unlinked-indicators.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/traceability -> 200"
+      },
+      "issues": "Warning-specific indicator styling for unlinked specs was not present."
+    },
+    {
+      "id": "VAL-TUI-005",
+      "title": "Click spec → see linked files",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Expand Api category and click spec ValTapi006",
+          "expected": "Detail panel lists linked files with type, file_path, function_name(if present)",
+          "observed": "Detail table displayed implementation/test/type/migration links; function names shown where present"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-matrix-core/VAL-TUI-005-api-expanded.png",
+          "traceability/browser-matrix-core/VAL-TUI-005-spec-detail-links.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/traceability -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TUI-006",
+      "title": "Linked file paths are clickable GitHub URLs for GitHub repos",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Inspect file-path elements/href in spec detail for GitHub-backed repo",
+          "expected": "File paths render as clickable https://github.com/{owner}/{repo}/blob/{branch}/{file_path}",
+          "observed": "No GitHub anchors were rendered (anchorCount=0); file paths rendered as span.file-path text"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-matrix-core/VAL-TUI-005-spec-detail-links.png",
+          "traceability/browser-matrix-core/VAL-TUI-007-line-range-spec.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/project -> 200, GET /api/traceability -> 200"
+      },
+      "issues": "GitHub URL linkage was not generated despite origin remote being GitHub."
+    },
+    {
+      "id": "VAL-TUI-007",
+      "title": "GitHub URL includes line range when present",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Select spec ValTrace002RoundTrip with line_range [10,25] and inspect computed link target",
+          "expected": "Href ends with #L10-L25",
+          "observed": "line_range existed in data, but buildGitHubUrl(link) returned '#' (no GitHub URL, no line-fragment)"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-matrix-core/VAL-TUI-007-line-range-spec.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/traceability -> 200"
+      },
+      "issues": "Line-range deep-linking could not occur because GitHub href generation failed."
+    },
+    {
+      "id": "VAL-TUI-009",
+      "title": "Click file → see linked specs (reverse navigation)",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Switch to By File view and expand lib/val_tapi_006.ex",
+          "expected": "File-centric entry expands and lists linked specs",
+          "observed": "Expanded file row showed associated spec 'Api / ValTapi006'"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-matrix-core/VAL-TUI-009-by-file-view.png",
+          "traceability/browser-matrix-core/VAL-TUI-009-file-expanded-specs.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/traceability -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TUI-013",
+      "title": "Filter matrix by link type",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Set Link Type filter to Test",
+          "expected": "Coverage reduces to only test-linked specs",
+          "observed": "Coverage changed from 26/33 (79%) in All Types to 3/33 (9%) in Test filter; matrix rows updated accordingly"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-matrix-core/VAL-TUI-013-test-filter.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/traceability -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TUI-014",
+      "title": "Spec count totals are accurate",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Manually count entries in .bropilot/map/solution/specs/api.yaml",
+          "expected": "UI api total matches YAML count",
+          "observed": "api.yaml contained 5 api specs; UI api row displayed Total=5"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-matrix-core/VAL-TUI-014-api-total-compare.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/traceability -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-022",
+      "title": "Traceability UI displays spec-to-code matrix",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Open traceability matrix",
+          "expected": "Matrix/table with categories/files coverage is visible",
+          "observed": "Matrix rendered and categories were visible"
+        },
+        {
+          "action": "Click spec item",
+          "expected": "Linked files panel appears",
+          "observed": "Spec detail panel opened with linked files"
+        },
+        {
+          "action": "Click file path entry",
+          "expected": "Navigates to file or GitHub URL",
+          "observed": "File path element clicked but remained on http://localhost:3200/traceability/; no link navigation occurred"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-matrix-core/VAL-CROSS-022-matrix-spec-detail.png",
+          "traceability/browser-matrix-core/VAL-TUI-002-initial-matrix.png",
+          "traceability/browser-matrix-core/VAL-TUI-005-spec-detail-links.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/traceability -> 200"
+      },
+      "issues": "File-path navigation/linking is missing, so spec→code navigation is incomplete."
+    }
+  ],
+  "frictions": [
+    {
+      "description": "agent-browser 'find text ... click' on file path hit strict-mode ambiguity because duplicate file-path text existed in two panels.",
+      "resolved": true,
+      "resolution": "Used explicit selector targeting first span.file-path and then verified URL remained unchanged.",
+      "affectedAssertions": [
+        "VAL-CROSS-022"
+      ]
+    },
+    {
+      "description": "agent-browser network request log returned 'No requests captured' for this session.",
+      "resolved": true,
+      "resolution": "Used browser performance resource entries and local curl calls to capture API request evidence.",
+      "affectedAssertions": [
+        "VAL-TUI-002",
+        "VAL-TUI-005",
+        "VAL-TUI-006",
+        "VAL-TUI-007",
+        "VAL-TUI-009",
+        "VAL-TUI-013",
+        "VAL-TUI-014",
+        "VAL-CROSS-022"
+      ]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 10 assigned assertions: 5 passed (VAL-TUI-002, VAL-TUI-005, VAL-TUI-009, VAL-TUI-013, VAL-TUI-014) and 5 failed (VAL-TUI-003, VAL-TUI-004, VAL-TUI-006, VAL-TUI-007, VAL-CROSS-022). Main failures were missing linked/unlinked visual indicators and missing clickable GitHub/file navigation from spec detail rows."
+}

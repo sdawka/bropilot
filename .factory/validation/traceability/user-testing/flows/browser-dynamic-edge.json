@@ -1,0 +1,175 @@
+{
+  "groupId": "browser-dynamic-edge",
+  "testedAt": "2026-04-06T14:32:55.847296Z",
+  "isolation": {
+    "apiBaseUrl": "http://localhost:4000",
+    "webBaseUrl": "http://localhost:3200",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "repoRoot": "/Users/sdawka/Code/bropilot"
+  },
+  "toolsUsed": [
+    "agent-browser",
+    "curl"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-TUI-008",
+      "title": "Non-GitHub repos show raw file paths",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Open /traceability, expand API category, and select spec ValTapi006 in matrix detail panel",
+          "expected": "For local/non-GitHub project context, linked file paths render as readable plain text, not GitHub hyperlinks",
+          "observed": "Detail panel showed 4 file paths as plain text; DOM check returned linkCount=0 and pathCount=4 in the selected spec detail"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-dynamic-edge/VAL-TUI-008-raw-file-paths.png"
+        ],
+        "consoleErrors": "none",
+        "network": "Browser fetches included GET /api/project -> 200 (used for git remote detection); no GitHub URL was detected in project metadata"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TUI-010",
+      "title": "Matrix updates after codegen without page reload",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Capture baseline matrix on /traceability in one browser session",
+          "expected": "Baseline screenshot with sparse/initial link state",
+          "observed": "Baseline captured; counters were total_specs=33, linked=26, unlinked=7"
+        },
+        {
+          "action": "Trigger codegen via POST /api/build from a parallel terminal call",
+          "expected": "Build generates new links to appear in matrix after refresh",
+          "observed": "POST /api/build returned 200 but files_written=[] and no traceability count changes"
+        },
+        {
+          "action": "Click in-page Refresh button (no navigation) and compare matrix counters",
+          "expected": "Matrix reflects newly generated links in the same page session",
+          "observed": "Refresh issued browser GET /api/traceability -> 200, but counters remained unchanged (33/26/7)"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-dynamic-edge/VAL-TUI-010-before-build.png",
+          "traceability/browser-dynamic-edge/VAL-TUI-010-after-build-refresh.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/build -> 200 (curl); GET /api/traceability -> 200 on in-page refresh"
+      },
+      "issues": "Blocked by environment/state precondition: build endpoint completed successfully but did not produce any new traceability links (files_written=[]; entry/coverage counts unchanged), so assertion condition of 'newly generated links appear without reload' could not be exercised."
+    },
+    {
+      "id": "VAL-TUI-012",
+      "title": "Broken link detection in UI",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Use existing components.2.events link with file_path stale/old_component.tsx (file absent on disk) and open spec detail in /traceability",
+          "expected": "UI shows visual broken-link warning indicator (e.g., badge/highlight/not-found marker)",
+          "observed": "UI rendered stale/old_component.tsx as a normal file path with no warning text or warning/broken classes"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-dynamic-edge/VAL-TUI-012-broken-link-detail.png"
+        ],
+        "consoleErrors": "none",
+        "network": "No additional API request required for indicator rendering once detail panel was open"
+      },
+      "issues": "DOM probe found hasNotFoundText=false and warningClassCount=0 while displaying missing path stale/old_component.tsx."
+    },
+    {
+      "id": "VAL-CROSS-026",
+      "title": "Traceability matrix loads with large spec set",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Load /traceability and measure load timing in browser session",
+          "expected": "Matrix with 50+ entities and 100+ generated-file links should render within 10s without hang",
+          "observed": "Page loaded quickly (navigation timing ~74ms) and rendered current dataset"
+        },
+        {
+          "action": "Verify dataset size prerequisites via /api/traceability",
+          "expected": "Large dataset preconditions (50+ entities, 100+ files) are present",
+          "observed": "Current dataset is much smaller: total_specs=33, entries=26, unique_linked_files=33"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-dynamic-edge/VAL-CROSS-026-matrix-load.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /traceability/ -> 200; GET /api/traceability -> 200"
+      },
+      "issues": "Blocked by missing test preconditions in assigned running environment: no 50+ entity / 100+ file traceability dataset available to validate large-scale rendering behavior."
+    },
+    {
+      "id": "VAL-CROSS-082",
+      "title": "Traceability page after partial codegen",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Attempt to induce partial codegen by starting POST /api/build then killing client request early",
+          "expected": "Some tasks complete while others remain incomplete, allowing partial-link validation",
+          "observed": "Client was killed, but traceability remained unchanged (entries=26, linked=26); no observable partial-codegen state was produced"
+        },
+        {
+          "action": "Use in-page Refresh on /traceability after interrupted build attempt",
+          "expected": "Page displays links for completed tasks only and excludes incomplete-task broken links",
+          "observed": "Refresh succeeded and page remained clean, but no partial task/link delta was available to validate contract condition"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-dynamic-edge/VAL-CROSS-082-after-interrupted-build.png"
+        ],
+        "consoleErrors": "none",
+        "network": "Interrupted POST /api/build (client kill) attempt; subsequent GET /api/traceability -> 200 on refresh"
+      },
+      "issues": "Blocked by inability to reliably create a partial-codegen state on shared running services; build requests either complete quickly or interruption yields no partial traceability updates."
+    }
+  ],
+  "frictions": [
+    {
+      "description": "`agent-browser network requests` returned no captured entries in this run.",
+      "resolved": true,
+      "resolution": "Used browser Performance API resource entries and explicit curl status checks to capture request evidence.",
+      "affectedAssertions": [
+        "VAL-TUI-008",
+        "VAL-TUI-010",
+        "VAL-TUI-012",
+        "VAL-CROSS-026",
+        "VAL-CROSS-082"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "description": "Build endpoint did not generate new traceability links in this environment (files_written=[]; coverage unchanged).",
+      "affectedAssertions": [
+        "VAL-TUI-010"
+      ],
+      "quickFixAttempted": "Triggered POST /api/build multiple times and refreshed in-page matrix in same browser session; counts remained unchanged."
+    },
+    {
+      "description": "Large-dataset preconditions for stress test were not present (required 50+ entities / 100+ files; observed 33 specs / 33 unique linked files).",
+      "affectedAssertions": [
+        "VAL-CROSS-026"
+      ],
+      "quickFixAttempted": "Verified dataset and attempted additional build runs; dataset size remained below contract threshold."
+    },
+    {
+      "description": "Could not reliably force partial codegen state by cancelling build request mid-flight on shared running service.",
+      "affectedAssertions": [
+        "VAL-CROSS-082"
+      ],
+      "quickFixAttempted": "Started POST /api/build and killed client shortly after start; traceability counts and entries remained unchanged."
+    }
+  ],
+  "summary": "Tested 5 assigned assertions: 1 passed (VAL-TUI-008), 1 failed (VAL-TUI-012), and 3 blocked by missing/unstable preconditions for dynamic-edge scenarios (VAL-TUI-010, VAL-CROSS-026, VAL-CROSS-082)."
+}

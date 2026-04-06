@@ -1,0 +1,91 @@
+{
+  "groupId": "terminal-r2",
+  "testedAt": "2026-04-06T12:18:20Z",
+  "isolation": {
+    "repoPath": "/tmp/bropilot-utv-core-gaps-r2-20260406a",
+    "mode": "isolated repo copy only",
+    "sharedServices": "not used (avoided 4000/3200)"
+  },
+  "toolsUsed": ["terminal"],
+  "assertions": [
+    {
+      "id": "VAL-CLEAN-003",
+      "title": "All pages use api.ts for data fetching",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run grep -l 'from.*lib/api' /tmp/bropilot-utv-core-gaps-r2-20260406a/web/src/pages/*.astro",
+          "expected": "Data-fetching pages import from ../lib/api",
+          "observed": "All page files listed (build, connect, domain, index, knowledge, problem, solution, vibe, work)."
+        },
+        {
+          "action": "Run grep -l 'from.*lib/loader' /tmp/bropilot-utv-core-gaps-r2-20260406a/web/src/pages/*.astro",
+          "expected": "No page imports ../lib/loader",
+          "observed": "No matches; grep exited 1 as expected for empty result."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-r2/VAL-CLEAN-003-grep-imports.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CLEAN-005",
+      "title": "API deduplication — no inline fetch in page scripts",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run grep -c 'fetch(' /tmp/bropilot-utv-core-gaps-r2-20260406a/web/src/pages/*.astro",
+          "expected": "Inline page fetch usage is removed/reduced in favor of shared API helpers",
+          "observed": "All page files reported count 0 for fetch(."
+        },
+        {
+          "action": "Run grep -n \"from '../lib/api'\" /tmp/bropilot-utv-core-gaps-r2-20260406a/web/src/pages/*.astro and grep -n 'window.Alpine.data' /tmp/bropilot-utv-core-gaps-r2-20260406a/web/src/pages/*.astro",
+          "expected": "Interactive Alpine pages import shared API helpers",
+          "observed": "Alpine pages (build/connect/domain/vibe) import ../lib/api helpers and define Alpine data blocks without inline fetch calls."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-r2/VAL-CLEAN-005-fetch-dedup.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-044",
+      "title": "Pipeline persistence file is valid YAML",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Run cat /tmp/bropilot-utv-core-gaps-r2-20260406a/.bropilot/pipeline_state.yaml",
+          "expected": "Valid YAML containing step status entries for all 8 pipeline steps",
+          "observed": "File contents are only 'completed_steps:' and 'current_step_index: 7'."
+        },
+        {
+          "action": "Run Ruby YAML parse check (YAML.load_file) and inspect keys/status entries",
+          "expected": "YAML parses and includes 8 step entries with status fields",
+          "observed": "YAML parse succeeded, but top-level keys are only completed_steps,current_step_index with 0 status-bearing step entries."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-r2/VAL-CROSS-044-pipeline-state-yaml.txt"
+        ]
+      },
+      "issues": "pipeline_state.yaml is parseable YAML but does not contain explicit status entries for all 8 steps."
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Attempting optional precondition check via `mix bro.status` tried to bind port 4000 and failed with eaddrinuse in this environment.",
+      "resolved": true,
+      "resolution": "Used file-level terminal validation only (cat + YAML parse) to keep verification within isolated, non-service boundary.",
+      "affectedAssertions": ["VAL-CROSS-044"]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 3 terminal assertions: 2 passed (VAL-CLEAN-003, VAL-CLEAN-005) and 1 failed (VAL-CROSS-044: missing per-step status entries in pipeline_state.yaml)."
+}

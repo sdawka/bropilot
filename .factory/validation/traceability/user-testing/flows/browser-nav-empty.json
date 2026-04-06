@@ -1,0 +1,177 @@
+{
+  "groupId": "browser-nav-empty",
+  "testedAt": "2026-04-06T14:16:22Z",
+  "isolation": {
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "apiBaseUrl": "http://localhost:4000",
+    "webBaseUrl": "http://localhost:3200",
+    "servicesRestarted": false
+  },
+  "toolsUsed": [
+    "agent-browser"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-TUI-001",
+      "title": "Traceability page is accessible from navigation",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Open dashboard at / and inspect sidebar",
+          "expected": "Traceability nav item is visible",
+          "observed": "Sidebar contains \"\ud83d\udcca Traceability\" link"
+        },
+        {
+          "action": "Click Traceability link",
+          "expected": "Navigates to dedicated traceability route",
+          "observed": "Navigated to http://localhost:3200/traceability/ and page title is \"Traceability | Bropilot\""
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-nav-empty/VAL-TUI-001-traceability-page.png"
+        ],
+        "consoleErrors": "none",
+        "network": "Not captured (agent-browser network log returned no tracked requests in this run)"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TUI-011",
+      "title": "Empty state renders gracefully",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Open /traceability/ and inspect primary content",
+          "expected": "Fresh project shows empty-state guidance message",
+          "observed": "Page shows populated matrix (33 total specs, 26 linked, 79% coverage) rather than an empty state"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-nav-empty/VAL-TUI-011-traceability-state.png"
+        ],
+        "consoleErrors": "none",
+        "network": "Not captured (agent-browser network log returned no tracked requests in this run)",
+        "artifacts": [
+          "traceability/browser-nav-empty/VAL-TUI-011-body.txt",
+          "traceability/browser-nav-empty/VAL-TUI-011-errors.txt"
+        ]
+      },
+      "issues": "Precondition not satisfiable in assigned shared runtime: traceability data already populated before this run, and validator was not permitted to restart/reset shared services."
+    },
+    {
+      "id": "VAL-CROSS-025",
+      "title": "Traceability page handles empty state",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Navigate to /traceability/ before any local setup changes",
+          "expected": "Empty-state message appears and no JS errors",
+          "observed": "No JS errors, but page is already populated with existing traceability links and no empty-state message"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-nav-empty/VAL-TUI-011-traceability-state.png"
+        ],
+        "consoleErrors": "none",
+        "network": "Not captured (agent-browser network log returned no tracked requests in this run)"
+      },
+      "issues": "Blocked by shared preloaded data (non-empty traceability matrix) and no safe in-scope reset path without impacting other validators."
+    },
+    {
+      "id": "VAL-CROSS-060",
+      "title": "All sidebar pages load without error",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Navigate through sidebar pages: /, /problem/, /solution/, /work/, /knowledge/, /vibe/, /build/, /connect/, /domain/, /traceability/",
+          "expected": "All pages load and produce no JS errors",
+          "observed": "All pages loaded, but /build/ reported browser error: \"Unexpected token ':'\""
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-nav-empty/VAL-CROSS-060-dashboard.png",
+          "traceability/browser-nav-empty/VAL-CROSS-060-problem.png",
+          "traceability/browser-nav-empty/VAL-CROSS-060-solution.png",
+          "traceability/browser-nav-empty/VAL-CROSS-060-work.png",
+          "traceability/browser-nav-empty/VAL-CROSS-060-knowledge.png",
+          "traceability/browser-nav-empty/VAL-CROSS-060-vibe.png",
+          "traceability/browser-nav-empty/VAL-CROSS-060-build.png",
+          "traceability/browser-nav-empty/VAL-CROSS-060-build-error-context.png",
+          "traceability/browser-nav-empty/VAL-CROSS-060-connect.png",
+          "traceability/browser-nav-empty/VAL-CROSS-060-domain.png",
+          "traceability/browser-nav-empty/VAL-CROSS-060-traceability.png"
+        ],
+        "consoleErrors": "build page error: Unexpected token ':'",
+        "network": "Not captured (agent-browser network log returned no tracked requests in this run)",
+        "artifacts": [
+          "traceability/browser-nav-empty/VAL-CROSS-060-pages.txt",
+          "traceability/browser-nav-empty/VAL-CROSS-060-build-console.txt",
+          "traceability/browser-nav-empty/VAL-CROSS-060-build-errors.txt"
+        ]
+      },
+      "issues": "Console error observed on /build/ violates assertion requirement of zero JavaScript errors across sidebar pages."
+    },
+    {
+      "id": "VAL-CROSS-062",
+      "title": "New pages appear in sidebar navigation",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Inspect sidebar links from dashboard/traceability views",
+          "expected": "Domain and Traceability entries exist",
+          "observed": "Sidebar contains \"\ud83c\udf10 Domain\" and \"\ud83d\udcca Traceability\" links"
+        },
+        {
+          "action": "Click Domain and Traceability links",
+          "expected": "Both links navigate to correct routes",
+          "observed": "Domain link navigated to /domain/ and Traceability link navigated back to /traceability/"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "traceability/browser-nav-empty/VAL-CROSS-062-domain-nav.png",
+          "traceability/browser-nav-empty/VAL-CROSS-062-traceability-nav.png"
+        ],
+        "consoleErrors": "none",
+        "network": "Not captured (agent-browser network log returned no tracked requests in this run)"
+      },
+      "issues": null
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Assigned shared localhost instance already contained non-empty traceability data, which prevented direct execution of fresh-project empty-state checks.",
+      "resolved": false,
+      "resolution": "N/A (reset/restart was out of scope and disallowed for shared services)",
+      "affectedAssertions": [
+        "VAL-TUI-011",
+        "VAL-CROSS-025"
+      ]
+    },
+    {
+      "description": "`agent-browser get text body` output for /traceability includes large inline script content, which makes message-level inspection noisy.",
+      "resolved": true,
+      "resolution": "Used annotated screenshots plus focused summary from body text to confirm visible UI state.",
+      "affectedAssertions": [
+        "VAL-TUI-011",
+        "VAL-CROSS-025"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "description": "Fresh-project precondition for empty-state assertions was not available in the shared running service context (traceability already populated).",
+      "affectedAssertions": [
+        "VAL-TUI-011",
+        "VAL-CROSS-025"
+      ],
+      "quickFixAttempted": "Verified current traceability page state and console; did not reset/restart shared services per constraints."
+    }
+  ],
+  "summary": "Tested 5 assertions: 2 passed (VAL-TUI-001, VAL-CROSS-062), 1 failed (VAL-CROSS-060 due to /build/ console error), and 2 blocked by shared preloaded non-empty traceability state (VAL-TUI-011, VAL-CROSS-025)."
+}

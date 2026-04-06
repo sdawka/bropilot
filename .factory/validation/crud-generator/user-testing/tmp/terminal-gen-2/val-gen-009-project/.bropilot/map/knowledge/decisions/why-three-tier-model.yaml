@@ -1,0 +1,16 @@
+alternatives_considered:
+  - name: Two tiers (framework + user data)
+    reason_rejected: No room for recipe customization. Every project would follow the same pipeline.
+  - name: Flat configuration
+    reason_rejected: No authority hierarchy. Users could accidentally break structural invariants.
+consequences:
+  - "Clear separation of concerns: what changes vs what doesn't"
+  - Recipes can customize pipeline without breaking space guarantees
+  - Map data is safely isolated — users can experiment freely
+  - spaces.lock provides a machine-readable contract
+context: Need to separate concerns between immutable framework structure, configurable pipeline behavior, and user-generated project data.
+date: 2025-01-12
+decision: "Three tiers of authority: Spaces (immutable core, defined in code), Recipe (superuser config, YAML-based), Map (user data, filled by pipeline). Each tier has clear ownership and modification rules."
+source_step: step3
+status: accepted
+title: Why Three-Tier Authority Model

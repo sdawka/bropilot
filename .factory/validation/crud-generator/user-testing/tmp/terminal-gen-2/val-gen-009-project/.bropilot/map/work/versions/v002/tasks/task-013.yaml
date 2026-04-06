@@ -1,0 +1,13 @@
+context: 11
+definition_of_done:
+  - Functionality removed or deprecated
+  - Related tests cleaned up
+  - No broken references
+dependencies: []
+description: Spec removed at solution.spec_categories. Remove or deprecate the corresponding functionality.
+id: 13
+priority: low
+related_specs:
+  - solution.spec_categories
+status: pending
+title: Remove solution.spec_categories

@@ -98,7 +98,16 @@ const specNames = SPEC_CATEGORIES.map((cat) => ({
 
       {SPEC_CATEGORIES.map((cat) => (
         <div x-show={`activeTab === '${cat}'`} x-cloak>
-          <SpecTable title={formatSpecName(cat)} data={specs[cat] ?? null} />
+          {specs[cat] ? (
+            <SpecTable title={formatSpecName(cat)} data={specs[cat]} />
+          ) : (
+            <div class="spec-pending-state">
+              <div class="empty-state">
+                <div class="empty-state-icon">⏳</div>
+                <p>Spec expansion pending — run Act 2 Step 4 to generate <strong>{formatSpecName(cat)}</strong> specifications.</p>
+              </div>
+            </div>
+          )}
         </div>
       ))}
     </div>

@@ -1,0 +1,13 @@
+context: 2025-06-01T00:00:00Z
+definition_of_done:
+  - Functionality removed or deprecated
+  - Related tests cleaned up
+  - No broken references
+dependencies: []
+description: Spec removed at timestamp. Remove or deprecate the corresponding functionality.
+id: 17
+priority: low
+related_specs:
+  - timestamp
+status: pending
+title: Remove timestamp

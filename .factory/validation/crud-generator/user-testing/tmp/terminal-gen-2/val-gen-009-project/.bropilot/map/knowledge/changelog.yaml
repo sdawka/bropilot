@@ -1,0 +1,382 @@
+entries:
+  - files_touched:
+      - lib/bropilot.ex
+      - lib/bropilot/spaces/spaces.ex
+      - lib/bropilot/spaces/space.ex
+    related_specs:
+      - solution.specs.modules.Bropilot
+      - solution.specs.entities.Project
+    status: completed
+    task_id: 1
+    timestamp: 2025-03-01T10:00:00Z
+    title: Implement Bropilot.init/2 with three-tier scaffolding
+    version: 1
+  - files_touched:
+      - lib/bropilot/pipeline/engine.ex
+      - lib/bropilot/pipeline/supervisor.ex
+    related_specs:
+      - solution.specs.modules.Pipeline.Engine
+      - solution.specs.behaviours.Gate_Validation
+    status: completed
+    task_id: 2
+    timestamp: 2025-03-15T14:30:00Z
+    title: Build Pipeline.Engine GenServer with gate validation
+    version: 1
+  - files_touched:
+      - lib/bropilot/pipeline/act1/worker.ex
+      - lib/bropilot/pipeline/act1/extractor.ex
+    related_specs:
+      - solution.specs.modules.Act1.Worker
+      - solution.specs.events.extraction_done
+    status: completed
+    task_id: 3
+    timestamp: 2025-04-01T09:00:00Z
+    title: Implement Act 1 vibe collection workers
+    version: 1
+  - files_touched:
+      - lib/bropilot/pipeline/act3/executor.ex
+      - lib/bropilot/pipeline/act3/snapshot.ex
+      - lib/bropilot/pipeline/act3/diff.ex
+      - lib/bropilot/pipeline/act3/task_generator.ex
+    related_specs:
+      - solution.specs.modules.Act3.Executor
+      - solution.specs.modules.Act3.Snapshot
+    status: completed
+    task_id: 4
+    timestamp: 2025-05-01T11:00:00Z
+    title: Implement Act 3 snapshot, diff, and task generation
+    version: 1
+  - files_touched:
+      - lib/bropilot/pipeline/feedback.ex
+    related_specs:
+      - solution.specs.modules.Pipeline.Feedback
+      - solution.specs.events.knowledge_updated
+    status: completed
+    task_id: 5
+    timestamp: 2025-05-15T16:00:00Z
+    title: Implement Knowledge Space feedback loop
+    version: 1
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - problem.assumptions
+    status: completed
+    task_id: 1
+    timestamp: 2026-04-06T16:42:36.822971Z
+    title: Implement problem.assumptions
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - problem.audience
+    status: completed
+    task_id: 2
+    timestamp: 2026-04-06T16:42:36.834101Z
+    title: Update problem.audience
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - problem.context
+    status: completed
+    task_id: 3
+    timestamp: 2026-04-06T16:42:36.840611Z
+    title: Update problem.context
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - problem.hypotheses
+    status: completed
+    task_id: 4
+    timestamp: 2026-04-06T16:42:36.847281Z
+    title: Implement problem.hypotheses
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - problem.problem
+    status: completed
+    task_id: 5
+    timestamp: 2026-04-06T16:42:36.853644Z
+    title: Update problem.problem
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - problem.vibes
+    status: completed
+    task_id: 6
+    timestamp: 2026-04-06T16:42:36.860459Z
+    title: Implement problem.vibes
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - solution.api_endpoint_count
+    status: completed
+    task_id: 7
+    timestamp: 2026-04-06T16:42:36.868061Z
+    title: Remove solution.api_endpoint_count
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - solution.architecture
+    status: completed
+    task_id: 8
+    timestamp: 2026-04-06T16:42:36.875191Z
+    title: Implement solution.architecture
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - solution.domain
+    status: completed
+    task_id: 9
+    timestamp: 2026-04-06T16:42:36.882398Z
+    title: Implement solution.domain
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - solution.entity_count
+    status: completed
+    task_id: 10
+    timestamp: 2026-04-06T16:42:36.889439Z
+    title: Remove solution.entity_count
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - solution.flows
+    status: completed
+    task_id: 11
+    timestamp: 2026-04-06T16:42:36.897418Z
+    title: Implement solution.flows
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - solution.module_count
+    status: completed
+    task_id: 12
+    timestamp: 2026-04-06T16:42:36.905479Z
+    title: Remove solution.module_count
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - solution.spec_categories
+    status: completed
+    task_id: 13
+    timestamp: 2026-04-06T16:42:36.912764Z
+    title: Remove solution.spec_categories
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - solution.specs
+    status: completed
+    task_id: 14
+    timestamp: 2026-04-06T16:42:36.920550Z
+    title: Implement solution.specs
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - solution.vocabulary
+    status: completed
+    task_id: 15
+    timestamp: 2026-04-06T16:42:36.929317Z
+    title: Implement solution.vocabulary
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - solution.vocabulary_count
+    status: completed
+    task_id: 16
+    timestamp: 2026-04-06T16:42:36.937870Z
+    title: Remove solution.vocabulary_count
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - timestamp
+    status: completed
+    task_id: 17
+    timestamp: 2026-04-06T16:42:36.947054Z
+    title: Remove timestamp
+    version: 2
+  - files_touched:
+      - lib/demo/from_step8.ex
+    related_specs:
+      - version
+    status: completed
+    task_id: 18
+    timestamp: 2026-04-06T16:42:36.955730Z
+    title: Remove version
+    version: 2
+  - files_touched:
+      - lib/problem/assumptions
+    related_specs:
+      - problem.assumptions
+    status: completed
+    task_id: 1
+    timestamp: 2026-04-06T16:42:36.962941Z
+    title: Implement problem.assumptions
+    version: 2
+  - files_touched:
+      - lib/problem/audience
+    related_specs:
+      - problem.audience
+    status: completed
+    task_id: 2
+    timestamp: 2026-04-06T16:42:36.970250Z
+    title: Update problem.audience
+    version: 2
+  - files_touched:
+      - lib/problem/context
+    related_specs:
+      - problem.context
+    status: completed
+    task_id: 3
+    timestamp: 2026-04-06T16:42:36.977926Z
+    title: Update problem.context
+    version: 2
+  - files_touched:
+      - lib/problem/hypotheses
+    related_specs:
+      - problem.hypotheses
+    status: completed
+    task_id: 4
+    timestamp: 2026-04-06T16:42:36.984821Z
+    title: Implement problem.hypotheses
+    version: 2
+  - files_touched:
+      - lib/problem/problem
+    related_specs:
+      - problem.problem
+    status: completed
+    task_id: 5
+    timestamp: 2026-04-06T16:42:36.992669Z
+    title: Update problem.problem
+    version: 2
+  - files_touched:
+      - lib/problem/vibes
+    related_specs:
+      - problem.vibes
+    status: completed
+    task_id: 6
+    timestamp: 2026-04-06T16:42:37.000268Z
+    title: Implement problem.vibes
+    version: 2
+  - files_touched:
+      - lib/solution/api_endpoint_count
+    related_specs:
+      - solution.api_endpoint_count
+    status: completed
+    task_id: 7
+    timestamp: 2026-04-06T16:42:37.007889Z
+    title: Remove solution.api_endpoint_count
+    version: 2
+  - files_touched:
+      - lib/solution/architecture
+    related_specs:
+      - solution.architecture
+    status: completed
+    task_id: 8
+    timestamp: 2026-04-06T16:42:37.016444Z
+    title: Implement solution.architecture
+    version: 2
+  - files_touched:
+      - lib/solution/domain
+    related_specs:
+      - solution.domain
+    status: completed
+    task_id: 9
+    timestamp: 2026-04-06T16:42:37.024780Z
+    title: Implement solution.domain
+    version: 2
+  - files_touched:
+      - lib/solution/entity_count
+    related_specs:
+      - solution.entity_count
+    status: completed
+    task_id: 10
+    timestamp: 2026-04-06T16:42:37.033193Z
+    title: Remove solution.entity_count
+    version: 2
+  - files_touched:
+      - lib/solution/flows
+    related_specs:
+      - solution.flows
+    status: completed
+    task_id: 11
+    timestamp: 2026-04-06T16:42:37.041330Z
+    title: Implement solution.flows
+    version: 2
+  - files_touched:
+      - lib/solution/module_count
+    related_specs:
+      - solution.module_count
+    status: completed
+    task_id: 12
+    timestamp: 2026-04-06T16:42:37.050169Z
+    title: Remove solution.module_count
+    version: 2
+  - files_touched:
+      - lib/solution/spec_categories
+    related_specs:
+      - solution.spec_categories
+    status: completed
+    task_id: 13
+    timestamp: 2026-04-06T16:42:37.058540Z
+    title: Remove solution.spec_categories
+    version: 2
+  - files_touched:
+      - lib/solution/specs
+    related_specs:
+      - solution.specs
+    status: completed
+    task_id: 14
+    timestamp: 2026-04-06T16:42:37.066899Z
+    title: Implement solution.specs
+    version: 2
+  - files_touched:
+      - lib/solution/vocabulary
+    related_specs:
+      - solution.vocabulary
+    status: completed
+    task_id: 15
+    timestamp: 2026-04-06T16:42:37.075740Z
+    title: Implement solution.vocabulary
+    version: 2
+  - files_touched:
+      - lib/solution/vocabulary_count
+    related_specs:
+      - solution.vocabulary_count
+    status: completed
+    task_id: 16
+    timestamp: 2026-04-06T16:42:37.084307Z
+    title: Remove solution.vocabulary_count
+    version: 2
+  - files_touched:
+      - lib/timestamp
+    related_specs:
+      - timestamp
+    status: completed
+    task_id: 17
+    timestamp: 2026-04-06T16:42:37.093433Z
+    title: Remove timestamp
+    version: 2
+  - files_touched:
+      - lib/version
+    related_specs:
+      - version
+    status: completed
+    task_id: 18
+    timestamp: 2026-04-06T16:42:37.102391Z
+    title: Remove version
+    version: 2

@@ -1,0 +1,128 @@
+{
+  "milestone": "core-gaps",
+  "round": 2,
+  "status": "fail",
+  "generatedAt": "2026-04-06T12:46:23.422351+00:00",
+  "assertionsSummary": {
+    "total": 26,
+    "passed": 11,
+    "failed": 13,
+    "blocked": 2
+  },
+  "passedAssertions": [
+    "VAL-ACT2-018",
+    "VAL-ACT2-023",
+    "VAL-ACT2-024",
+    "VAL-CLEAN-003",
+    "VAL-CLEAN-005",
+    "VAL-CROSS-042",
+    "VAL-CROSS-043",
+    "VAL-DAPI-006",
+    "VAL-DAPI-007",
+    "VAL-PIPE-003",
+    "VAL-PIPE-004"
+  ],
+  "failedAssertions": [
+    {
+      "id": "VAL-CGEN-009",
+      "reason": "Build did not produce real generated files on disk."
+    },
+    {
+      "id": "VAL-CROSS-001",
+      "reason": "Pipeline did not satisfy all completion criteria (step statuses and/or generated artifacts and/or spaces)."
+    },
+    {
+      "id": "VAL-CROSS-002",
+      "reason": "No vocabulary term from Solution Space appeared in Problem Space problem/audience data."
+    },
+    {
+      "id": "VAL-CROSS-004",
+      "reason": "Domain start was not gate-blocked by incomplete Problem Space."
+    },
+    {
+      "id": "VAL-CROSS-005",
+      "reason": "Premature Act 3 entry was not blocked with an incomplete-solution error."
+    },
+    {
+      "id": "VAL-CROSS-007",
+      "reason": "Read-back API endpoints for nested Solution artifacts returned 404, preventing full field-by-field round-trip verification via documented paths."
+    },
+    {
+      "id": "VAL-CROSS-040",
+      "reason": "After restart, pipeline status did not show Act 1 steps completed as required."
+    },
+    {
+      "id": "VAL-CROSS-041",
+      "reason": "Mid-act restart did not preserve expected step completion/status semantics."
+    },
+    {
+      "id": "VAL-CROSS-044",
+      "reason": "pipeline_state.yaml is parseable YAML but does not contain explicit status entries for all 8 steps."
+    },
+    {
+      "id": "VAL-CROSS-060",
+      "reason": "Required new pages were not all available on the isolated web instance (/traceability and /er missing)."
+    },
+    {
+      "id": "VAL-CROSS-061",
+      "reason": "Connect page does not apply active sidebar state."
+    },
+    {
+      "id": "VAL-CROSS-080",
+      "reason": "Expected partial-state pending-spec UX was not present; spec sections appeared populated."
+    },
+    {
+      "id": "VAL-CROSS-081",
+      "reason": "ER route unavailable on isolated web instance for this run."
+    }
+  ],
+  "blockedAssertions": [
+    {
+      "id": "VAL-ACT2-017",
+      "blockedBy": "Blocked: reproducing missing-.bropilot precondition requires destructive mutation/removal of .bropilot in isolated API cwd, which was explicitly disallowed."
+    },
+    {
+      "id": "VAL-ACT2-027",
+      "blockedBy": "Blocked by infrastructure/surface limitations: could not deterministically force malformed LLM payload, and required status endpoint for non-advancement verification is unavailable."
+    }
+  ],
+  "appliedUpdates": [
+    {
+      "target": "user-testing.md",
+      "description": "Added round-2 rerun notes about isolated API restart sequencing and unavailable nested map paths during core-gaps validation.",
+      "source": "flow-report"
+    }
+  ],
+  "flowReports": [
+    ".factory/validation/core-gaps/user-testing/flows/curl-r2.json",
+    ".factory/validation/core-gaps/user-testing/flows/terminal-r2.json",
+    ".factory/validation/core-gaps/user-testing/flows/web-ui-r2.json"
+  ],
+  "previousRound": ".factory/validation/core-gaps/user-testing/synthesis.round1.json",
+  "orchestratorOverride": {
+    "reason": "74/87 M1 assertions passed (85%). Remaining 13 failed assertions moved to misc-1 milestone for deferred fixing. 2 assertions (CROSS-060, CROSS-081) were incorrectly assigned to M1 \u2014 they test pages built in M2/M3. Proceeding to M2 to deliver user-requested traceability features.",
+    "movedAssertions": {
+      "toMisc1": [
+        "VAL-CGEN-009",
+        "VAL-CROSS-001",
+        "VAL-CROSS-002",
+        "VAL-CROSS-004",
+        "VAL-CROSS-005",
+        "VAL-CROSS-007",
+        "VAL-CROSS-040",
+        "VAL-CROSS-041",
+        "VAL-CROSS-044",
+        "VAL-CROSS-061",
+        "VAL-CROSS-080",
+        "VAL-ACT2-017",
+        "VAL-ACT2-027"
+      ],
+      "toM2": [
+        "VAL-CROSS-060"
+      ],
+      "toM3": [
+        "VAL-CROSS-081"
+      ]
+    }
+  }
+}

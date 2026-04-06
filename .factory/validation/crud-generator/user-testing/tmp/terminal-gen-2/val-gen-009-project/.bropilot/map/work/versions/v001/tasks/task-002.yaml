@@ -1,0 +1,19 @@
+context:
+  related_module: Bropilot.Pipeline.Engine
+  space: solution
+definition_of_done:
+  - Engine starts with recipe loaded from Registry
+  - current_step/1 returns the active step
+  - advance/1 checks gate validation when crossing spaces
+  - mark_complete/2 tracks completed steps
+  - step_status/1 returns status map for all steps
+dependencies:
+  - 1
+description: Implement the pipeline execution engine that tracks step position, enforces space-gate validation, and manages step completion.
+id: 2
+priority: high
+related_specs:
+  - solution.specs.modules.Pipeline.Engine
+  - solution.specs.behaviours.Gate_Validation
+status: completed
+title: Build Pipeline.Engine GenServer with gate validation

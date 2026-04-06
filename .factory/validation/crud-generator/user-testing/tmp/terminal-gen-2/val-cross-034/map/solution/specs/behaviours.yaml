@@ -1,0 +1,5 @@
+behaviours:
+  - given: exists
+    name: Read a setting
+    then: returns
+    when: query

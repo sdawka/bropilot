@@ -1,0 +1,18 @@
+context:
+  related_module: Bropilot
+  space: problem + solution + work
+definition_of_done:
+  - Bropilot.init(path) creates .bropilot/ directory
+  - spaces.lock is written with all 5 space definitions
+  - Default webapp recipe is copied to .bropilot/recipe/
+  - Empty map directories are scaffolded for all spaces
+  - Tests pass for init with default and custom paths
+dependencies: 
+description: Create the project initialization function that sets up .bropilot/ with spaces.lock, recipe copy, and empty map directory structure.
+id: 1
+priority: high
+related_specs:
+  - solution.specs.modules.Bropilot
+  - solution.specs.entities.Project
+status: completed
+title: Implement Bropilot.init/2 with three-tier scaffolding

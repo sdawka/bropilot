@@ -1,0 +1,532 @@
+{
+  "groupId": "browser-er-core",
+  "testedAt": "2026-04-06T15:44:20Z",
+  "isolation": {
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "apiBaseUrl": "http://localhost:4000",
+    "webBaseUrl": "http://localhost:3200",
+    "browserSession": "er-core",
+    "evidenceDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/evidence/er-diagram/browser-er-core"
+  },
+  "toolsUsed": [
+    "agent-browser",
+    "curl",
+    "python3"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-ENAV-001",
+      "title": "Domain page accessible at /domain/ URL",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Validate VAL-ENAV-001",
+          "expected": "/domain/ loads with ER diagram content area",
+          "observed": "/domain/ returns 200 but shows Domain Modeling start UI (no ER diagram)"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-ENAV-001-domain-page.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /domain/ -> 200"
+      },
+      "issues": "ER content area missing on /domain/."
+    },
+    {
+      "id": "VAL-ENAV-002",
+      "title": "Sidebar includes Domain/ER Diagram navigation entry",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Validate VAL-ENAV-002",
+          "expected": "Sidebar has Domain/ER entry with icon and /domain/ href",
+          "observed": "Sidebar includes \ud83c\udf10 Domain (/domain/) and \ud83d\udcd0 ER Diagram (/er/)"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-ENAV-002-sidebar-entry.png"
+        ],
+        "consoleErrors": "none",
+        "network": "DOM link attrs include /domain/ and /er/"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ENAV-003",
+      "title": "Sidebar link navigates to domain page",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Validate VAL-ENAV-003",
+          "expected": "Clicking entry navigates to /domain/ and renders ER diagram with active state",
+          "observed": "Navigation to /domain/ and active class worked, but ER diagram did not render there"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-ENAV-003-domain-link-nav.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /domain/ -> 200"
+      },
+      "issues": "Active nav works but ER content is not on /domain/."
+    },
+    {
+      "id": "VAL-ENAV-004",
+      "title": "Domain page uses standard layout",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Validate VAL-ENAV-004",
+          "expected": "/domain/ uses same layout/sidebar conventions as existing pages",
+          "observed": "/domain/ and /solution/ share same shell and sidebar structure"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-ENAV-004-domain-layout.png",
+          "er-diagram/browser-er-core/VAL-ENAV-004-solution-layout.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /domain/ -> 200; GET /solution/ -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ENAV-005",
+      "title": "Existing pages unaffected by domain page addition",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Validate VAL-ENAV-005",
+          "expected": "All 8 existing pages load without errors",
+          "observed": "All 8 routes returned 200, but /build/ emitted console error Unexpected token ':'"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-ENAV-005-home.png",
+          "er-diagram/browser-er-core/VAL-ENAV-005-problemhome.png",
+          "er-diagram/browser-er-core/VAL-ENAV-005-solutionhome.png",
+          "er-diagram/browser-er-core/VAL-ENAV-005-workhome.png",
+          "er-diagram/browser-er-core/VAL-ENAV-005-knowledgehome.png",
+          "er-diagram/browser-er-core/VAL-ENAV-005-vibehome.png",
+          "er-diagram/browser-er-core/VAL-ENAV-005-buildhome.png",
+          "er-diagram/browser-er-core/VAL-ENAV-005-connecthome.png"
+        ],
+        "consoleErrors": "/build/: Unexpected token ':' (others checked: none)",
+        "network": "GET /, /problem/, /solution/, /work/, /knowledge/, /vibe/, /build/, /connect/ -> 200"
+      },
+      "issues": "Console regression on /build/ violates no-errors expectation."
+    },
+    {
+      "id": "VAL-ENAV-006",
+      "title": "Domain page responsive on mobile viewport",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Validate VAL-ENAV-006",
+          "expected": "At 375px, collapsed sidebar and accessible ER diagram on /domain/",
+          "observed": "Mobile shell adapts and toggle appears, but /domain/ has no ER diagram"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-ENAV-006-domain-mobile.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /domain/ -> 200"
+      },
+      "issues": "Responsive layout is present; required ER content is absent on /domain/."
+    },
+    {
+      "id": "VAL-ERD-001",
+      "title": "Diagram renders entities as labeled boxes",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Validate VAL-ERD-001",
+          "expected": "/domain/ renders demo 9 entities (Project..Artifact)",
+          "observed": "ER diagram appears on /er/ with 3 entities (User, Task, Workspace)"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-ERD-001-er-page.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/map/solution/domain -> 200 (entities=3)"
+      },
+      "issues": "Demo 9-entity precondition not present in current runtime."
+    },
+    {
+      "id": "VAL-ERD-002",
+      "title": "Entity boxes display typed attributes",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Validate VAL-ERD-002",
+          "expected": "Task shows id,title,description,context,definition_of_done,dependencies,priority,related_specs,status",
+          "observed": "Task rendered with description,due_date,id,priority,status,title"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-ERD-002-task-attributes-visible.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/map/solution/domain -> 200"
+      },
+      "issues": "Task attribute contract mismatch."
+    },
+    {
+      "id": "VAL-ERD-003",
+      "title": "Relationship lines connect correct entity pairs",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Validate VAL-ERD-003",
+          "expected": "Project\u2192Recipe, Recipe\u2192Step, Version\u2192Task links are rendered",
+          "observed": "Rendered links are User\u2194Task and User/Task\u2194Workspace"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-ERD-003-relationship-lines.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/map/solution/domain -> 200"
+      },
+      "issues": "Expected demo relationship pairs not present."
+    },
+    {
+      "id": "VAL-ERD-004",
+      "title": "Relationship lines show cardinality labels",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Validate VAL-ERD-004",
+          "expected": "Cardinality labels (1:1/1:N/N:1 or type labels) are readable",
+          "observed": "Line descriptions rendered; explicit cardinality text labels not observable"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-ERD-004-cardinality-labels.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/map/solution/domain -> 200"
+      },
+      "issues": "Explicit cardinality label requirement not met."
+    },
+    {
+      "id": "VAL-ERD-005",
+      "title": "All relationship types render distinctly",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Validate VAL-ERD-005",
+          "expected": "Distinct rendering for has_one/has_many/belongs_to/produces/feeds_back/validates_gate",
+          "observed": "Current dataset only contains has_many and belongs_to, including after mock step3 setup"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-ERD-005-relationship-types.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/start -> 200; POST /api/domain/extract -> 200; types observed: has_many, belongs_to"
+      },
+      "issues": "Missing relationship-type preconditions in runtime data."
+    },
+    {
+      "id": "VAL-ERD-006",
+      "title": "Diagram handles many_to_many relationships",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Validate VAL-ERD-006",
+          "expected": "If many_to_many absent, diagram still renders correctly without errors",
+          "observed": "No many_to_many found; diagram rendered cleanly"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-ERD-006-many-to-many-check.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/map/solution/domain -> 200 (no many_to_many)"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-EENT-001",
+      "title": "Click entity opens detail panel",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Validate VAL-EENT-001",
+          "expected": "Clicking entity opens panel; clicking another updates panel",
+          "observed": "User panel opened, then Task panel replaced content"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-EENT-001-user-panel.png",
+          "er-diagram/browser-er-core/VAL-EENT-001-task-panel.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/map/solution/domain -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-EENT-002",
+      "title": "Detail panel shows all attributes with types",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Validate VAL-EENT-002",
+          "expected": "Task panel lists 9 specified attributes",
+          "observed": "Task panel listed 6 attributes (description,due_date,id,priority,status,title)"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-EENT-002-task-attributes.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/map/solution/domain -> 200"
+      },
+      "issues": "Task attribute contract mismatch."
+    },
+    {
+      "id": "VAL-EENT-003",
+      "title": "Detail panel shows relationships",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Validate VAL-EENT-003",
+          "expected": "Recipe panel shows has_many \u2192 Step and belongs_to \u2190 Project",
+          "observed": "Recipe entity not present in current domain model"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-EENT-003-recipe-relationships-check.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/map/solution/domain -> 200 (entities: User, Task, Workspace)"
+      },
+      "issues": "Recipe/Project/Step precondition unavailable."
+    },
+    {
+      "id": "VAL-EENT-004",
+      "title": "Detail panel shows related constraints",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Validate VAL-EENT-004",
+          "expected": "Constraints section shows data or explicit empty state",
+          "observed": "Constraints rendered for Task/User with severity + enforcement"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-EENT-004-constraints-section.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/map/solution/specs -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-EENT-005",
+      "title": "Detail panel shows traceability links",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Validate VAL-EENT-005",
+          "expected": "Traceability section shows links when present, empty state otherwise",
+          "observed": "User showed implementation/test links; Task showed 'No code linked yet'"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-EENT-005-user-traceability.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/traceability -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-EENT-006",
+      "title": "Detail panel can be closed/dismissed",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Validate VAL-EENT-006",
+          "expected": "Panel can be closed and diagram remains usable",
+          "observed": "Close button dismissed panel and diagram view restored"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-EENT-006-panel-closed.png"
+        ],
+        "consoleErrors": "none",
+        "network": "UI interaction only"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-EENT-007",
+      "title": "Entity description shown in detail panel",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Validate VAL-EENT-007",
+          "expected": "Project panel shows specified Project description text",
+          "observed": "Project entity was not available to select"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-EENT-007-project-description-check.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/map/solution/domain -> 200 (Project missing)"
+      },
+      "issues": "Project-entity precondition unavailable."
+    },
+    {
+      "id": "VAL-CROSS-010",
+      "title": "ER diagram reflects extracted entities from Act 2",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Validate VAL-CROSS-010",
+          "expected": "After Act 2 step3 extraction, ER shows >=3 entities and count matches source data",
+          "observed": "After POST /api/domain/start + one extract, ER showed 3 entities matching /api/map/solution/domain data"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-CROSS-010-er-entities-from-act2.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/start -> 200; POST /api/domain/extract -> 200; GET /api/map/solution/domain -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-011",
+      "title": "ER diagram shows relationships with cardinality",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Validate VAL-CROSS-011",
+          "expected": "Each extracted relationship appears with cardinality label",
+          "observed": "Relationships rendered, but explicit cardinality label text (e.g., 1:N/M:N) not observed"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-CROSS-011-er-relationships-cardinality.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/map/solution/domain -> 200 (relationships=4)"
+      },
+      "issues": "Cardinality labels not clearly present as text markers."
+    },
+    {
+      "id": "VAL-CROSS-063",
+      "title": "Mobile sidebar toggle works",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Validate VAL-CROSS-063",
+          "expected": "Sidebar hidden by default on mobile, toggle shows/hides sidebar, mobile navigation works",
+          "observed": "Hidden-by-default confirmed (off-canvas transform), toggle opened sidebar, mobile navigation reached /connect/"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-CROSS-063-mobile-sidebar-closed.png",
+          "er-diagram/browser-er-core/VAL-CROSS-063-mobile-sidebar-open.png",
+          "er-diagram/browser-er-core/VAL-CROSS-063-mobile-nav-link-connect.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /er/ -> 200; GET /connect/ -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-081",
+      "title": "ER diagram with partial domain data",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Validate VAL-CROSS-081",
+          "expected": "After Step 3 only (no Step 4 extract), ER still renders",
+          "observed": "With step3_done state, /er/ rendered entities/relationships without console errors"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "er-diagram/browser-er-core/VAL-CROSS-081-partial-step3-er.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/start -> 200; POST /api/domain/extract -> 200 (step3_done,next=step4)"
+      },
+      "issues": null
+    }
+  ],
+  "frictions": [
+    {
+      "description": "agent-browser eval heredoc commands failed when chained with additional commands (SyntaxError: Unexpected identifier 'session').",
+      "resolved": true,
+      "resolution": "Executed eval and follow-up commands in separate invocations.",
+      "affectedAssertions": [
+        "VAL-EENT-001",
+        "VAL-EENT-002",
+        "VAL-EENT-005",
+        "VAL-CROSS-063"
+      ]
+    },
+    {
+      "description": "Mobile semantic/ref clicking on nav links intermittently timed out due off-canvas viewport/animation state.",
+      "resolved": true,
+      "resolution": "Validated mobile navigation by toggling sidebar and invoking existing link click via DOM, then confirming URL.",
+      "affectedAssertions": [
+        "VAL-CROSS-063"
+      ]
+    },
+    {
+      "description": "Contract path /api/map/solution/domain/entities (and /relationships) returned 404 on this API surface.",
+      "resolved": true,
+      "resolution": "Used available /api/map/solution/domain endpoint for entity/relationship source data.",
+      "affectedAssertions": [
+        "VAL-CROSS-010",
+        "VAL-CROSS-011"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "description": "Runtime data set lacks Project/Recipe/Step/demo graph and advanced relationship types needed for some assertions.",
+      "affectedAssertions": [
+        "VAL-ERD-005",
+        "VAL-EENT-003",
+        "VAL-EENT-007"
+      ],
+      "quickFixAttempted": "Performed non-destructive setup via POST /api/domain/start mode=mock + one POST /api/domain/extract; resulting entities stayed User/Task/Workspace and relationship types stayed has_many/belongs_to."
+    }
+  ],
+  "summary": "Tested 23 assigned assertions: 10 passed, 10 failed, 3 blocked. Primary issues were ER expectations tied to /domain and demo-specific data not present in current runtime, plus a console regression on /build and missing explicit cardinality text labels."
+}

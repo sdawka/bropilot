@@ -1,0 +1,153 @@
+terms:
+  - definition: "A major phase of the pipeline. Act 1: Vibe Collection, Act 2: Domain Modeling, Act 3: Build."
+    first_seen_step: step3
+    source_space: solution
+    term: Act
+  - definition: "A concrete output produced by a task: source files, tests, database interfaces, debug logs."
+    first_seen_step: step4
+    source_space: solution
+    term: Artifact
+  - definition: A path-based comparison between two snapshots that identifies added, modified, and removed specs.
+    first_seen_step: step3
+    source_space: solution
+    term: Diff
+  - definition: Entities, relationships, and flows that describe the app's problem and solution domains.
+    first_seen_step: step3
+    source_space: solution
+    term: Domain Model
+  - definition: The process of converting freeform LLM output into structured YAML data that populates map slots.
+    first_seen_step: step3
+    source_space: solution
+    term: Extraction
+  - definition: The mechanism by which completed tasks update the Knowledge Space, keeping specs aligned with reality.
+    first_seen_step: step4
+    source_space: solution
+    term: Feedback Loop
+  - definition: A validation checkpoint between spaces. All required slots must be filled before advancing.
+    first_seen_step: step3
+    source_space: solution
+    term: Gate
+  - definition: New spec added at problem.assumptions. Implement the corresponding functionality.
+    term: Implement problem.assumptions
+  - definition: New spec added at problem.hypotheses. Implement the corresponding functionality.
+    term: Implement problem.hypotheses
+  - definition: New spec added at problem.vibes. Implement the corresponding functionality.
+    term: Implement problem.vibes
+  - definition: New spec added at solution.architecture. Implement the corresponding functionality.
+    term: Implement solution.architecture
+  - definition: New spec added at solution.domain. Implement the corresponding functionality.
+    term: Implement solution.domain
+  - definition: New spec added at solution.flows. Implement the corresponding functionality.
+    term: Implement solution.flows
+  - definition: New spec added at solution.specs. Implement the corresponding functionality.
+    term: Implement solution.specs
+  - definition: New spec added at solution.vocabulary. Implement the corresponding functionality.
+    term: Implement solution.vocabulary
+  - definition: The user-level data layer. YAML files in .bropilot/map/ organized by space.
+    first_seen_step: step3
+    source_space: solution
+    term: Map
+  - definition: A coding agent process managed by the Pi Pool. Receives task prompts and produces code artifacts.
+    first_seen_step: step4
+    source_space: solution
+    term: Pi
+  - definition: The ordered sequence of acts and steps that transform vibes into specs into code.
+    first_seen_step: step3
+    source_space: solution
+    term: Pipeline
+  - definition: A superuser-level configuration defining pipeline steps, prompts, schemas, and validations.
+    first_seen_step: step3
+    source_space: solution
+    term: Recipe
+  - definition: Spec removed at solution.api_endpoint_count. Remove or deprecate the corresponding functionality.
+    term: Remove solution.api_endpoint_count
+  - definition: Spec removed at solution.entity_count. Remove or deprecate the corresponding functionality.
+    term: Remove solution.entity_count
+  - definition: Spec removed at solution.module_count. Remove or deprecate the corresponding functionality.
+    term: Remove solution.module_count
+  - definition: Spec removed at solution.spec_categories. Remove or deprecate the corresponding functionality.
+    term: Remove solution.spec_categories
+  - definition: Spec removed at solution.vocabulary_count. Remove or deprecate the corresponding functionality.
+    term: Remove solution.vocabulary_count
+  - definition: Spec removed at timestamp. Remove or deprecate the corresponding functionality.
+    term: Remove timestamp
+  - definition: Spec removed at version. Remove or deprecate the corresponding functionality.
+    term: Remove version
+  - definition: A named data location within a space. Can be a file (.yaml) or a directory.
+    first_seen_step: step3
+    source_space: solution
+    term: Slot
+  - definition: A frozen copy of the problem and solution spaces at a point in time. Creates a version.
+    first_seen_step: step3
+    source_space: solution
+    term: Snapshot
+  - definition: "One of 5 immutable thinking categories: Problem, Solution, Work, Measurement, Knowledge."
+    first_seen_step: step1
+    source_space: problem
+    term: Space
+  - definition: A detailed specification file in map/solution/specs/. Covers API, behaviours, constraints, entities, modules, events, externals, views, components, streams, infra.
+    first_seen_step: step4
+    source_space: solution
+    term: Spec
+  - definition: A single unit of work within an act. Each step maps to a primary space.
+    first_seen_step: step3
+    source_space: solution
+    term: Step
+  - definition: A work item generated from a diff change. Contains title, description, context, definition of done, priority, related specs.
+    first_seen_step: step7
+    source_space: work
+    term: Task
+  - definition: "The authority hierarchy: Spaces (immutable) > Recipe (superuser) > Map (user data)."
+    first_seen_step: step1
+    source_space: problem
+    term: Three-Tier Model
+  - definition: Spec modified at problem.audience. Update the implementation to match the new spec.
+    term: Update problem.audience
+  - definition: Spec modified at problem.context. Update the implementation to match the new spec.
+    term: Update problem.context
+  - definition: Spec modified at problem.problem. Update the implementation to match the new spec.
+    term: Update problem.problem
+  - definition: Vision of Lovable Output. A one-sentence description of what the finished product feels like.
+    first_seen_step: step2
+    source_space: problem
+    term: VOLO
+  - definition: Freeform, conversational input from the user about their app idea. Collected in Act 1.
+    first_seen_step: step1
+    source_space: problem
+    term: Vibe
+  - definition: "Defined in spec: solution.api_endpoint_count"
+    term: api_endpoint_count
+  - definition: "Defined in spec: solution.architecture"
+    term: architecture
+  - definition: "Defined in spec: problem.assumptions"
+    term: assumptions
+  - definition: "Defined in spec: problem.audience"
+    term: audience
+  - definition: "Defined in spec: problem.context"
+    term: context
+  - definition: "Defined in spec: solution.domain"
+    term: domain
+  - definition: "Defined in spec: solution.entity_count"
+    term: entity_count
+  - definition: "Defined in spec: solution.flows"
+    term: flows
+  - definition: "Defined in spec: problem.hypotheses"
+    term: hypotheses
+  - definition: "Defined in spec: solution.module_count"
+    term: module_count
+  - definition: "Defined in spec: problem.problem"
+    term: problem
+  - definition: "Defined in spec: solution.spec_categories"
+    term: spec_categories
+  - definition: "Defined in spec: solution.specs"
+    term: specs
+  - definition: "Defined in spec: timestamp"
+    term: timestamp
+  - definition: "Defined in spec: version"
+    term: version
+  - definition: "Defined in spec: problem.vibes"
+    term: vibes
+  - definition: "Defined in spec: solution.vocabulary"
+    term: vocabulary
+  - definition: "Defined in spec: solution.vocabulary_count"
+    term: vocabulary_count

@@ -1,0 +1,5 @@
+glossary_terms:
+  - definition: A specific URL path that accepts HTTP requests
+    term: API Endpoint
+  - definition: A when/given/then specification of system behaviour
+    term: Behaviour Spec

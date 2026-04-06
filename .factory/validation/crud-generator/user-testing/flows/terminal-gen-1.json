@@ -1,0 +1,223 @@
+{
+  "groupId": "terminal-gen-1",
+  "testedAt": "2026-04-06T16:42:18Z",
+  "isolation": {
+    "repo": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "boundary": "repository-local terminal commands only",
+    "sharedServicesModified": false
+  },
+  "toolsUsed": ["terminal", "mix test", "mix run", "npx tsc", "sqlite3", "rg"],
+  "assertions": [
+    {
+      "id": "VAL-GEN-001",
+      "title": "Generator produces valid TypeScript type definitions from entity specs",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot\" && mix test test/generator_test.exs:179 --seed 0",
+          "expected": "Generator outputs User and Task type definitions with required fields.",
+          "observed": "Targeted ExUnit assertion passed (1 test, 0 failures)."
+        },
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot\" && mix run --no-start -e '<Generator.generate_all from .bropilot/map to evidence dir>'",
+          "expected": "Generated .ts artifacts are written to evidence directory for inspection.",
+          "observed": "types.ts and routes.ts were generated under evidence/crud-generator/terminal-gen-1/generated/."
+        },
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot/packages/crud\" && npx tsc --noEmit --target ES2020 --module ESNext --moduleResolution Node --skipLibCheck true --lib ES2020,DOM .tmp-gen/types.ts .tmp-gen/routes.ts",
+          "expected": "Generated TypeScript passes type-checking with no emit.",
+          "observed": "Type-check completed successfully (tsc_noemit_ok)."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-gen-1/VAL-GEN-001-test.log",
+          "crud-generator/terminal-gen-1/GEN-generated-files.log",
+          "crud-generator/terminal-gen-1/VAL-GEN-types-snippet.log",
+          "crud-generator/terminal-gen-1/GEN-tsc-noemit.log"
+        ],
+        "snippet": "types.ts includes `export interface User` and `export interface Task` with expected fields; tsc_noemit_ok"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-GEN-002",
+      "title": "Generator maps column types to correct TypeScript types",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot\" && mix test test/generator_test.exs:203 --seed 0",
+          "expected": "Type mapping checks pass for uuid/varchar/text/timestamp/boolean/integer/enum and nullable columns.",
+          "observed": "Targeted ExUnit mapping assertion passed (1 test, 0 failures)."
+        },
+        {
+          "action": "Inspect generated types output in evidence/generated/types.ts",
+          "expected": "Concrete mapped fields appear as TypeScript primitives with nullability markers.",
+          "observed": "Examples present: id:string, title:string, description:string | null, dueDate:string | null, workspaceId:string."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-gen-1/VAL-GEN-002-test.log",
+          "crud-generator/terminal-gen-1/VAL-GEN-types-snippet.log"
+        ],
+        "snippet": "VAL-GEN-002 test passed; generated file shows expected primitive/nullability mapping patterns."
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-GEN-003",
+      "title": "Generator produces valid Hono route handlers from API specs",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot\" && mix test test/generator_test.exs:262 --seed 0",
+          "expected": "Generated output includes Hono handlers for GET/POST/PUT/DELETE task routes.",
+          "observed": "Targeted ExUnit assertion passed (1 test, 0 failures)."
+        },
+        {
+          "action": "Run: rg -n \"app\\.get\\('/api/tasks'|app\\.post\\('/api/tasks'|app\\.put\\('/api/tasks/:id'|app\\.delete\\('/api/tasks/:id'\" evidence/.../generated/routes.ts",
+          "expected": "Route file contains handlers matching API specs.",
+          "observed": "All required route handler declarations are present."
+        },
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot/packages/crud\" && npx tsc --noEmit ... .tmp-gen/routes.ts",
+          "expected": "Generated Hono route handlers type-check successfully.",
+          "observed": "Type-check completed successfully (tsc_noemit_ok)."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-gen-1/VAL-GEN-003-test.log",
+          "crud-generator/terminal-gen-1/VAL-GEN-routes-snippet.log",
+          "crud-generator/terminal-gen-1/GEN-tsc-noemit.log"
+        ],
+        "snippet": "routes.ts contains app.get/app.post/app.put/app.delete for /api/tasks(+/:id); tsc_noemit_ok"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-GEN-004",
+      "title": "Generator produces route handlers with correct HTTP methods",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot\" && mix test test/generator_test.exs:273 --seed 0",
+          "expected": "Method mapping is correct (GET→app.get, POST→app.post, PUT→app.put, DELETE→app.delete).",
+          "observed": "Targeted ExUnit method-mapping assertion passed (1 test, 0 failures)."
+        },
+        {
+          "action": "Run: rg -n \"app\\.get\\('/api/tasks'|app\\.post\\('/api/tasks'|app\\.put\\('/api/tasks/:id'|app\\.delete\\('/api/tasks/:id'\" evidence/.../generated/routes.ts",
+          "expected": "Generated route file shows one-to-one method-to-handler mapping.",
+          "observed": "Method declarations match expected handlers for each API path."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-gen-1/VAL-GEN-004-test.log",
+          "crud-generator/terminal-gen-1/VAL-GEN-routes-snippet.log"
+        ],
+        "snippet": "Method lines present: app.get('/api/tasks'), app.post('/api/tasks'), app.put('/api/tasks/:id'), app.delete('/api/tasks/:id')."
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-GEN-005",
+      "title": "Generator produces valid D1 migration SQL from entity columns",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot\" && mix test test/generator_test.exs:319 --seed 0",
+          "expected": "Generated migration includes expected CREATE TABLE statements.",
+          "observed": "Targeted ExUnit SQL generation assertion passed (1 test, 0 failures)."
+        },
+        {
+          "action": "Run: rg -n \"CREATE TABLE IF NOT EXISTS users|CREATE TABLE IF NOT EXISTS tasks|CREATE TABLE IF NOT EXISTS workspaces|NOT NULL|DEFAULT 'member'|DEFAULT 'todo'|DEFAULT 'medium'\" evidence/.../generated/migration.sql",
+          "expected": "SQL includes required tables, column constraints, and defaults.",
+          "observed": "All required table declarations and constraint/default lines are present."
+        },
+        {
+          "action": "Run: sqlite3 \":memory:\" < evidence/.../generated/migration.sql",
+          "expected": "Migration SQL parses successfully as SQLite-compatible SQL.",
+          "observed": "Parse completed successfully (sqlite3_parse_ok)."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-gen-1/VAL-GEN-005-test.log",
+          "crud-generator/terminal-gen-1/VAL-GEN-sql-snippet.log",
+          "crud-generator/terminal-gen-1/GEN-sqlite-parse.log"
+        ],
+        "snippet": "CREATE TABLE users/tasks/workspaces with NOT NULL + DEFAULTs present; sqlite3_parse_ok"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-032",
+      "title": "CRUD types match entity attribute schemas",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot\" && mix test test/m4_cross_flow_test.exs:259 --seed 0",
+          "expected": "Cross-flow assertion verifies each entity attribute appears in generated TS with correct mapped type.",
+          "observed": "Targeted cross-flow ExUnit assertion passed (1 test, 0 failures)."
+        },
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot\" && mix run --no-start -e '<compare entities.yaml attributes vs generated types.ts fields>'",
+          "expected": "Side-by-side comparison shows all entity attributes mapped to TS fields.",
+          "observed": "Comparison log shows all expected fields present (`=> true`) for User, Task, Workspace."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-gen-1/VAL-CROSS-032-test.log",
+          "crud-generator/terminal-gen-1/VAL-CROSS-032-comparison.log"
+        ],
+        "snippet": "User/Task/Workspace comparison entries all resolved true for expected TS fields and mapped types."
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-033",
+      "title": "CRUD migration SQL matches entity columns",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot\" && mix test test/m4_cross_flow_test.exs:318 --seed 0",
+          "expected": "Cross-flow assertion verifies generated SQL matches entity YAML columns and SQL type mapping.",
+          "observed": "Targeted cross-flow ExUnit assertion passed (1 test, 0 failures)."
+        },
+        {
+          "action": "Run: cd \"/Users/sdawka/Code/bropilot\" && mix run --no-start -e '<compare entities.yaml columns vs generated migration.sql>'",
+          "expected": "Side-by-side comparison shows all table columns present with correct SQL types and non-null constraints.",
+          "observed": "Comparison log confirms all table/column checks as present=true and not_null_ok=true where required."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "crud-generator/terminal-gen-1/VAL-CROSS-033-test.log",
+          "crud-generator/terminal-gen-1/VAL-CROSS-033-comparison.log"
+        ],
+        "snippet": "users/tasks/workspaces columns all present with expected SQL types and NOT NULL handling per entity specs."
+      },
+      "issues": null
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Initial `mix run` attempt tried to boot the full application and failed because port 4000 was already in use.",
+      "resolved": true,
+      "resolution": "Re-ran generator command with `mix run --no-start` to avoid starting shared services.",
+      "affectedAssertions": ["VAL-GEN-001", "VAL-GEN-003", "VAL-GEN-005"]
+    },
+    {
+      "description": "Initial `tsc --noEmit` run against routes.ts from mission evidence path could not resolve `hono` module types.",
+      "resolved": true,
+      "resolution": "Copied generated TS files into `packages/crud/.tmp-gen/` and reran `npx tsc --noEmit` there; compilation succeeded.",
+      "affectedAssertions": ["VAL-GEN-001", "VAL-GEN-003"]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 7 assertions (VAL-GEN-001..005, VAL-CROSS-032, VAL-CROSS-033) via terminal flow; all 7 passed with supporting command logs and generated artifact evidence."
+}

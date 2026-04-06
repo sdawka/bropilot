@@ -1,0 +1,28 @@
+context:
+  context: "Current state of AI coding: tools like GitHub Copilot, Cursor, Claude, and pi coding agents are excellent at writing code but poor at knowing WHAT to code. They operate without structured context about the problem domain, user needs, or system architecture."
+  gap: No tool bridges the gap between fuzzy idea and structured spec. Bropilot fills this gap with a guided pipeline that produces machine-readable specs for coding agents.
+  landscape:
+    - strength: Inline code completion
+      tool: GitHub Copilot
+      weakness: No project-level understanding
+    - strength: Codebase-aware editing
+      tool: Cursor
+      weakness: Still requires human to know what to build
+    - strength: Conversational problem-solving
+      tool: Claude / ChatGPT
+      weakness: Context lost between sessions, no structured output
+    - strength: Autonomous code generation
+      tool: Pi coding agents
+      weakness: Need precise specs to be effective, garbage-in-garbage-out
+definition_of_done:
+  - Implementation updated to match new spec
+  - Existing tests updated
+  - No regressions
+dependencies: []
+description: Spec modified at problem.context. Update the implementation to match the new spec.
+id: 3
+priority: medium
+related_specs:
+  - problem.context
+status: pending
+title: Update problem.context

@@ -1,0 +1,19 @@
+constraints:
+  - applies_to:
+      - Task
+    enforcement: db
+    name: Task requires title
+    rule: Every task must have a non-empty title
+    severity: hard
+  - applies_to:
+      - User
+    enforcement: db
+    name: Unique email per user
+    rule: No two users can share the same email address
+    severity: hard
+  - applies_to:
+      - Task
+    enforcement: app
+    name: Due date must be future
+    rule: Task due date must be in the future when set
+    severity: soft

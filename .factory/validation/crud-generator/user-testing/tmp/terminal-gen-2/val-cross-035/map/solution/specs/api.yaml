@@ -1,0 +1,7 @@
+api:
+  - description: List tasks
+    method: GET
+    path: /api/tasks
+  - description: Create task
+    method: POST
+    path: /api/tasks

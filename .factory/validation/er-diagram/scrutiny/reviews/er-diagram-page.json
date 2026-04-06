@@ -1,0 +1,38 @@
+{
+  "featureId": "er-diagram-page",
+  "reviewedAt": "2026-04-06T15:19:08Z",
+  "commitId": "aeca546",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "pass",
+  "codeReview": {
+    "summary": "The feature implementation in commit aeca546 meets the ER diagram requirements: page exists at /er/, Mermaid is added and used, entities/typed attributes and relationship cardinalities are rendered, empty/error states are handled, self-references are not filtered out, scaling support is present via a scrollable container, and navigation includes an ER Diagram entry.",
+    "issues": [
+      {
+        "file": "web/src/pages/er.astro",
+        "line": 161,
+        "severity": "non_blocking",
+        "description": "The page performs direct fetch logic instead of using a dedicated API helper function from web/src/lib/api.ts, which diverges from the documented frontend convention ('do NOT duplicate fetch logic'). This is a maintainability concern but does not block feature behavior."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The astro-frontend skill currently requires agent-browser verification, but this feature run completed successfully without invoking agent-browser and still reported followedProcedure=true. The skill likely needs clearer guidance on when visual-browser verification is mandatory vs optional.",
+      "evidence": ".factory/skills/astro-frontend/SKILL.md:22 and :48-56 require agent-browser; transcript skeleton for workerSessionId 0cbaa842-6df6-486b-bde4-1e6bd162f751 shows no agent-browser tool invocation; handoff.skillFeedback.suggestedChanges explicitly requests this clarification."
+    },
+    {
+      "area": "knowledge",
+      "observation": "Shared architecture knowledge is stale regarding ER diagram status.",
+      "evidence": ".factory/library/architecture.md:69 states 'ER diagram page remains pending', but commit aeca546 adds web/src/pages/er.astro and NavSidebar entry for /er/."
+    },
+    {
+      "area": "knowledge",
+      "observation": "The API response shape used by the ER page (`GET /api/map/solution/domain` returning nested entities/relationships payloads) is not concretely documented in shared library docs, leading workers to inspect handler/store internals before implementation.",
+      "evidence": "Transcript skeleton shows repeated exploration of parse_slot/read_directory and map store internals before concluding endpoint shape; .factory/library/architecture.md API section is high-level and does not document this payload format."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed feature er-diagram-page for commit aeca546 and found requirements satisfied with no blocking defects. One non-blocking maintainability issue was noted (duplicated fetch logic), plus shared-state observations about skill guidance and stale/missing architecture knowledge."
+}

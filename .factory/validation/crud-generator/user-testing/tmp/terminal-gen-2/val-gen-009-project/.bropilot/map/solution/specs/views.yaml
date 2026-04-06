@@ -1,0 +1,37 @@
+views:
+  - data_sources:
+      - Pipeline.Engine.step_status/1
+      - Spaces.validate_gate/2
+      - Act3.Snapshot.latest_version/1
+    description: "Overview of project status: pipeline progress, space fill rates, latest version summary."
+    name: Dashboard
+    path: /
+  - data_sources:
+      - Map.Store.read/3 for :problem space
+    description: "View and edit Problem Space data: audience, problem statement, context, assumptions, hypotheses, vibes."
+    name: Problem Space
+    path: /problem
+  - data_sources:
+      - Map.Store.read/3 for :solution space
+    description: "Browse Solution Space: vocabulary, domain model, flows, architecture, all 11 spec categories."
+    name: Solution Space
+    path: /solution
+  - data_sources:
+      - Act3.Snapshot.list_versions/1
+      - Act3.TaskGenerator.read_tasks/2
+    description: Version history, change plans, task lists with status tracking.
+    name: Work Space
+    path: /work
+  - data_sources:
+      - Pipeline.Feedback.glossary_path/1
+      - Pipeline.Feedback.changelog_path/1
+      - Pipeline.Feedback.xrefs_path/1
+    description: Glossary, architectural decisions, changelog, cross-references.
+    name: Knowledge Space
+    path: /knowledge
+  - data_sources:
+      - Act1.Worker.run_step1/1
+      - Act1.Worker.next_question/1
+    description: Conversational interface for Act 1 vibe collection. Step-by-step guided prompts.
+    name: Vibe Chat
+    path: /vibe

@@ -1,0 +1,67 @@
+{
+  "milestone": "crud-generator",
+  "round": 1,
+  "status": "fail",
+  "assertionsSummary": {
+    "total": 34,
+    "passed": 31,
+    "failed": 3,
+    "blocked": 0
+  },
+  "passedAssertions": [
+    "VAL-CROSS-085",
+    "VAL-CRUD-001",
+    "VAL-CRUD-002",
+    "VAL-CRUD-003",
+    "VAL-CRUD-004",
+    "VAL-CRUD-005",
+    "VAL-CRUD-006",
+    "VAL-CRUD-007",
+    "VAL-CRUD-008",
+    "VAL-CRUD-009",
+    "VAL-CRUD-010",
+    "VAL-GEN-001",
+    "VAL-GEN-002",
+    "VAL-GEN-003",
+    "VAL-GEN-004",
+    "VAL-GEN-005",
+    "VAL-CROSS-032",
+    "VAL-CROSS-033",
+    "VAL-GEN-006",
+    "VAL-GEN-007",
+    "VAL-GEN-008",
+    "VAL-GEN-010",
+    "VAL-CROSS-030",
+    "VAL-CROSS-034",
+    "VAL-TSCRUD-001",
+    "VAL-TSCRUD-002",
+    "VAL-TSCRUD-003",
+    "VAL-TSCRUD-004",
+    "VAL-TSCRUD-005",
+    "VAL-TSCRUD-006",
+    "VAL-TSCRUD-007"
+  ],
+  "failedAssertions": [
+    {
+      "id": "VAL-CROSS-031",
+      "reason": "Assertion failed: entity-category traceability entries did not include all required link types (implementation, type, migration, test) after the setup build call."
+    },
+    {
+      "id": "VAL-GEN-009",
+      "reason": "Observed Step 8 path uses Task.Agent + Codegen.Writer outputs and did not invoke Bropilot.Generator.generate_all/2 for CRUD artifact generation."
+    },
+    {
+      "id": "VAL-CROSS-035",
+      "reason": "Generator emitted FK-like columns in types/SQL but did not generate SQL REFERENCES/join table or nested relationship routes required by assertion."
+    }
+  ],
+  "blockedAssertions": [],
+  "appliedUpdates": [
+    {
+      "target": "user-testing.md",
+      "description": "Added CRUD-generator round 1 notes: use mix run --no-start for script checks, observed /api/build files_written=[] behavior, tsc invocation guidance, and transient extract-console 400 note.",
+      "source": "flow-report"
+    }
+  ],
+  "previousRound": null
+}

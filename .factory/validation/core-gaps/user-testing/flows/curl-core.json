@@ -1,0 +1,552 @@
+{
+  "groupId": "curl-core",
+  "testedAt": "2026-04-06T11:42:18Z",
+  "isolation": {
+    "surface": "curl API validation",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "apiBaseUrl": "http://localhost:4000",
+    "astroBaseUrl": "http://localhost:3200"
+  },
+  "toolsUsed": [
+    "curl"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-ACT2-019",
+      "title": "Error state \u2014 extract Step 4 before Step 3 done",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run domain flow in mock mode and call extract once state is complete",
+          "expected": "API rejects extraction in invalid state",
+          "observed": "Third POST /api/domain/extract returned 400 with \"cannot extract in state complete\""
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/start -> 200; POST /api/domain/extract (x3) -> 200,200,400",
+        "terminalSnapshots": [
+          "core-gaps/curl-core/02-domain-sequence.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CGEN-009",
+      "title": "Build endpoint triggers real file generation",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Call POST /api/build",
+          "expected": "200 with version/task summary and files generated on disk",
+          "observed": "Received 200 with summary (version 6), but output directory and referenced files were missing"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/build -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-core/03-cross-cgen-sequence.txt",
+          "core-gaps/curl-core/04-build-output-files.txt",
+          "core-gaps/curl-core/13-cgen-009-file-generation-check.txt",
+          "core-gaps/curl-core/05-knowledge-work-state.txt"
+        ]
+      },
+      "issues": "Build response reports artifacts, but no generated files exist under output/ and changelog entries are marked failed with missing file paths."
+    },
+    {
+      "id": "VAL-CROSS-001",
+      "title": "End-to-end pipeline completes all 8 steps",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Advance pipeline until completion and inspect status",
+          "expected": "All 8 steps completed",
+          "observed": "Pipeline reports pipeline_complete but step_statuses still show step8=in_progress and others pending"
+        },
+        {
+          "action": "Check spaces and generated files",
+          "expected": "All spaces filled and at least one generated file exists",
+          "observed": "Spaces are filled, but no output directory/files exist"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/pipeline/advance repeated -> pipeline_complete; GET /api/pipeline/status -> step8 in_progress",
+        "terminalSnapshots": [
+          "core-gaps/curl-core/14-cross-001-pipeline-advance-to-end.txt",
+          "core-gaps/curl-core/15-cross-001-spaces-and-output.txt"
+        ]
+      },
+      "issues": "Step completion tracking did not reach completed statuses and no generated output files were present."
+    },
+    {
+      "id": "VAL-CROSS-002",
+      "title": "Act 2 uses Act 1 outputs as input context",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Compare problem/audience content to solution vocabulary terms",
+          "expected": "Vocabulary terms trace back to Act 1 problem data",
+          "observed": "No vocabulary term matched problem/audience text"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/curl-core/10-cross-002-vocab-vs-problem.txt"
+        ],
+        "network": "GET /api/map/problem/problem, /api/map/problem/audience, /api/map/solution/vocabulary -> 200"
+      },
+      "issues": "Vocabulary terms (User, Task, Workspace, Assignee, Due Date) did not appear in Problem Space text."
+    },
+    {
+      "id": "VAL-CROSS-003",
+      "title": "Act 3 builds on Act 2 specs",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Inspect generated tasks in version data",
+          "expected": "Tasks reference spec paths/categories from solution specs",
+          "observed": "All v6 tasks include non-empty related_specs pointing to solution.* paths"
+        }
+      ],
+      "evidence": {
+        "network": "GET /api/versions/v6 -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-core/12-cross-003-task-spec-refs.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-004",
+      "title": "Pipeline gate blocks premature Act 2 entry",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Check whether Problem Space is unfilled",
+          "expected": "At least one required slot unfilled before attempting gate check",
+          "observed": "All problem slots already filled in shared service state"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/curl-core/01-space-state-pre.txt"
+        ],
+        "network": "GET /api/spaces/problem -> 200 (all filled=true)"
+      },
+      "issues": "Could not create a fresh/unfilled Problem Space scenario without destructive reset of shared project state."
+    },
+    {
+      "id": "VAL-CROSS-005",
+      "title": "Pipeline gate blocks premature Act 3 entry",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Attempt to validate premature Act 3 entry path",
+          "expected": "Rejection before Act 2 completion",
+          "observed": "Shared state already contains Solution Space artifacts; contract path /api/build/snapshot returns 404 while router uses /api/snapshot"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/curl-core/01-space-state-pre.txt",
+          "core-gaps/curl-core/17-cross-005-endpoint-path-check.txt"
+        ],
+        "network": "POST /api/build/snapshot -> 404; POST /api/snapshot -> 200"
+      },
+      "issues": "Premature-entry precondition could not be recreated safely in shared state; contract route also differs from implemented route."
+    },
+    {
+      "id": "VAL-CROSS-006",
+      "title": "Act 2 extraction writes valid YAML that solution page can read",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Read /api/map/solution/specs after Act 2 completion",
+          "expected": "All 11 spec categories present",
+          "observed": "11 expected category keys are present"
+        }
+      ],
+      "evidence": {
+        "network": "GET /api/map/solution/specs -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-core/11-cross-006-spec-keys.txt",
+          "core-gaps/curl-core/03-cross-cgen-sequence.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-007",
+      "title": "Act 2 domain data round-trips through API without data loss",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Compare Step 3 extracted payload to subsequent map reads",
+          "expected": "Field-by-field equivalence",
+          "observed": "architecture_components.depends_on changed from [] to null for two components"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/start -> 200; POST /api/domain/extract -> 200; GET /api/map/solution/{vocabulary,domain,flows,architecture} -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-core/09-cross-007-roundtrip.txt",
+          "core-gaps/curl-core/09b-cross-007-arch-diff.txt"
+        ]
+      },
+      "issues": "Round-trip mutation observed: empty arrays became null in architecture component depends_on fields."
+    },
+    {
+      "id": "VAL-CROSS-040",
+      "title": "Pipeline state persists through server restart (Act 1 \u2192 restart \u2192 Act 2)",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Plan restart persistence check",
+          "expected": "Stop/restart server and validate persisted state",
+          "observed": "Restart prohibited by assignment (shared services must not be stopped/restarted)"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/curl-core/00-baseline.txt"
+        ]
+      },
+      "issues": "Blocked by explicit mission constraint: do not stop/restart shared services."
+    },
+    {
+      "id": "VAL-CROSS-041",
+      "title": "Pipeline state persists mid-act (partial Act 2 \u2192 restart)",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Plan mid-act restart check",
+          "expected": "Restart and verify Step 3 completed / Step 4 pending",
+          "observed": "Restart prohibited by assignment"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/curl-core/00-baseline.txt"
+        ]
+      },
+      "issues": "Blocked by explicit mission constraint: do not stop/restart shared services."
+    },
+    {
+      "id": "VAL-CROSS-042",
+      "title": "Map data survives restart",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Plan pre/post restart map comparison",
+          "expected": "Compare map data before and after restart",
+          "observed": "Restart prohibited by assignment"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/curl-core/00-baseline.txt"
+        ]
+      },
+      "issues": "Blocked by explicit mission constraint: do not stop/restart shared services."
+    },
+    {
+      "id": "VAL-CROSS-043",
+      "title": "In-progress step resumes after crash recovery",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Plan crash/recovery simulation",
+          "expected": "Kill server mid-step and verify retryable state on restart",
+          "observed": "Crash/restart actions are prohibited on shared services"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/curl-core/00-baseline.txt"
+        ]
+      },
+      "issues": "Blocked by explicit mission constraint: cannot kill or restart shared server."
+    },
+    {
+      "id": "VAL-DAPI-001",
+      "title": "POST /api/domain/start returns Step 3 prompt",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Call POST /api/domain/start with mode=mock",
+          "expected": "200 with data.prompt and step=step3",
+          "observed": "Returned 200 with prompt text and step=step3"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/start -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-core/02-domain-sequence.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-DAPI-002",
+      "title": "POST /api/domain/start with mode=mock uses mock extraction",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Start with mode=mock and extract",
+          "expected": "Deterministic mock domain payload",
+          "observed": "Extract response returned stable mock domain structure"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/start {mode:mock} -> 200; POST /api/domain/extract -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-core/02-domain-sequence.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-DAPI-003",
+      "title": "POST /api/domain/extract runs Step 3 extraction",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Call first POST /api/domain/extract after start",
+          "expected": "status=step3_done with extracted domain data",
+          "observed": "Returned status=step3_done, next=step4, extracted domain data present"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/extract (first call) -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-core/02-domain-sequence.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-DAPI-004",
+      "title": "Step 3 extract auto-triggers Step 4 prompt",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Inspect first extract response",
+          "expected": "Response includes step4_prompt",
+          "observed": "step4_prompt returned alongside step3 extracted payload"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/extract (step3) -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-core/02-domain-sequence.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-DAPI-005",
+      "title": "Second POST /api/domain/extract runs Step 4 extraction",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Call second POST /api/domain/extract",
+          "expected": "status=complete and 11 spec categories returned",
+          "observed": "Returned status=complete with all 11 expected category keys (plus glossary_terms/decisions)"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/extract (second call) -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-core/02-domain-sequence.txt",
+          "core-gaps/curl-core/16-dapi-005-step4-keys.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-DAPI-006",
+      "title": "Domain start requires .bropilot directory",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Attempt to create missing-.bropilot scenario",
+          "expected": "POST /api/domain/start returns 400 missing .bropilot",
+          "observed": ".bropilot exists in shared project and cannot be safely removed"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/curl-core/00-baseline.txt"
+        ],
+        "network": "POST /api/init -> already_initialized"
+      },
+      "issues": "Missing-.bropilot precondition cannot be tested without destructive modification of shared project directory."
+    },
+    {
+      "id": "VAL-DAPI-007",
+      "title": "Domain extract without start returns 400",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Call POST /api/domain/extract before issuing a new start in this run",
+          "expected": "400 with domain worker not started",
+          "observed": "Received 400 \"cannot extract in state complete\" because a domain worker was already running in shared server state"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/extract -> 400",
+        "terminalSnapshots": [
+          "core-gaps/curl-core/02-domain-sequence.txt"
+        ]
+      },
+      "issues": "Precondition (no domain worker started) was not controllable on shared long-lived service; no stop endpoint and restart is prohibited."
+    },
+    {
+      "id": "VAL-DAPI-008",
+      "title": "Restarting domain session kills old worker",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Call POST /api/domain/start twice in sequence",
+          "expected": "Second start returns fresh step3 prompt and new session state",
+          "observed": "Both calls returned 200; extract after second start returned step3_done (fresh state)"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/start (x2) -> 200,200; POST /api/domain/extract -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-core/02-domain-sequence.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-PIPE-003",
+      "title": "Pipeline resumes from persisted position",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Plan restart-resume check",
+          "expected": "After restart, advance continues from persisted step",
+          "observed": "Restart prohibited by assignment"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/curl-core/07-pipeline-concurrency.txt"
+        ]
+      },
+      "issues": "Blocked by explicit mission constraint: do not stop/restart shared services."
+    },
+    {
+      "id": "VAL-PIPE-004",
+      "title": "Fresh project starts at step 0",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Plan fresh-project test requiring state file removal and restart",
+          "expected": "current_step_index=0 on fresh start",
+          "observed": "Cannot safely remove shared pipeline_state.yaml or restart shared service"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/curl-core/00-baseline.txt"
+        ]
+      },
+      "issues": "Fresh-start precondition requires destructive reset of shared state and restart, both out of bounds."
+    },
+    {
+      "id": "VAL-PIPE-007",
+      "title": "Concurrent access safety",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Issue two concurrent POST /api/pipeline/advance calls",
+          "expected": "State file remains valid and status consistent",
+          "observed": "Both responses succeeded; status remained consistent at step4 in progress; pipeline_state.yaml remained parseable YAML"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/pipeline/advance (concurrent) -> 200 + 200; GET /api/pipeline/status -> 200",
+        "terminalSnapshots": [
+          "core-gaps/curl-core/07-pipeline-concurrency.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-REG-002",
+      "title": "All 34 existing API endpoints respond after M1 changes",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run 34-request API sweep across existing route surface",
+          "expected": "Valid JSON and no HTTP 500 responses",
+          "observed": "All 34 requests returned JSON with HTTP 200; no 500 responses observed"
+        }
+      ],
+      "evidence": {
+        "network": "34 curl requests across /api/* returned 200 and JSON",
+        "terminalSnapshots": [
+          "core-gaps/curl-core/08-reg-002-endpoint-sweep.txt"
+        ]
+      },
+      "issues": null
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Shared API instance carried pre-existing worker/map state, preventing clean fresh-start scenarios for some assertions.",
+      "resolved": false,
+      "resolution": "Documented as blocked where preconditions required fresh state and could not be recreated safely.",
+      "affectedAssertions": [
+        "VAL-CROSS-004",
+        "VAL-CROSS-005",
+        "VAL-DAPI-007",
+        "VAL-PIPE-004"
+      ]
+    },
+    {
+      "description": "Validation contract references POST /api/build/snapshot, but current router exposes POST /api/snapshot.",
+      "resolved": true,
+      "resolution": "Tested both paths and recorded outcomes (404 for contract path, 200 for implemented path).",
+      "affectedAssertions": [
+        "VAL-CROSS-005"
+      ]
+    },
+    {
+      "description": "CURL surface cannot verify browser console errors for solution page rendering checks.",
+      "resolved": false,
+      "resolution": "Validated API data shape via curl and recorded limitation in evidence/report.",
+      "affectedAssertions": [
+        "VAL-CROSS-006"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "description": "Restart-based assertions could not be executed because mission explicitly forbids stopping/restarting shared services.",
+      "affectedAssertions": [
+        "VAL-CROSS-040",
+        "VAL-CROSS-041",
+        "VAL-CROSS-042",
+        "VAL-CROSS-043",
+        "VAL-PIPE-003",
+        "VAL-PIPE-004"
+      ],
+      "quickFixAttempted": "Reviewed for non-disruptive alternatives; no restart-free equivalent can validate persistence-across-restart semantics."
+    },
+    {
+      "description": "Missing-.bropilot and fresh-unstarted-worker scenarios were not safely reproducible on shared long-lived service state.",
+      "affectedAssertions": [
+        "VAL-DAPI-006",
+        "VAL-DAPI-007",
+        "VAL-CROSS-004",
+        "VAL-CROSS-005"
+      ],
+      "quickFixAttempted": "Checked current space/worker state via API and avoided destructive resets in shared environment."
+    }
+  ],
+  "summary": "Tested 25 assertions: 11 passed, 4 failed, 10 blocked, 0 skipped. Failures: VAL-CGEN-009, VAL-CROSS-001, VAL-CROSS-002, VAL-CROSS-007."
+}

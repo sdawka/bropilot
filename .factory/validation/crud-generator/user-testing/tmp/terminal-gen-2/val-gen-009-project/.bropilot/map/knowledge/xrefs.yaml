@@ -1,0 +1,151 @@
+xrefs:
+  - artifact_path: lib/bropilot/spaces/spaces.ex
+    spec_path: solution.specs.modules.Bropilot.Spaces
+    term: Space
+  - artifact_path: lib/bropilot/map/store.ex
+    spec_path: solution.specs.modules.Bropilot.Map.Store
+    term: Map
+  - artifact_path: lib/bropilot/pipeline/engine.ex
+    spec_path: solution.specs.modules.Bropilot.Pipeline.Engine
+    term: Pipeline
+  - artifact_path: lib/bropilot/recipe/registry.ex
+    spec_path: solution.specs.modules.Bropilot.Recipe.Registry
+    term: Recipe
+  - artifact_path: lib/bropilot/spaces/spaces.ex
+    spec_path: solution.specs.behaviours.Gate_Validation
+    term: Gate
+  - artifact_path: lib/bropilot/llm.ex
+    spec_path: solution.specs.behaviours.LLM_Extraction
+    term: Extraction
+  - artifact_path: lib/bropilot/pipeline/act3/snapshot.ex
+    spec_path: solution.specs.modules.Act3.Snapshot
+    term: Snapshot
+  - artifact_path: lib/bropilot/pipeline/act3/diff.ex
+    spec_path: solution.specs.modules.Act3.Diff
+    term: Diff
+  - artifact_path: lib/bropilot/pipeline/act3/task_generator.ex
+    spec_path: solution.specs.modules.Act3.TaskGenerator
+    term: Task
+  - artifact_path: lib/bropilot/pipeline/feedback.ex
+    spec_path: solution.specs.modules.Pipeline.Feedback
+    term: Feedback Loop
+  - artifact_path: lib/bropilot/pi/pool.ex
+    spec_path: solution.specs.modules.Pi.Pool
+    term: Pi
+  - artifact_path: lib/bropilot/pipeline/act1/worker.ex
+    spec_path: solution.specs.modules.Act1.Worker
+    term: Vibe
+  - artifact_path: lib/bropilot/yaml.ex
+    spec_path: solution.specs.modules.Bropilot.Yaml
+    term: YAML
+  - artifact_path: lib/bropilot/recipe/schema.ex
+    spec_path: solution.specs.modules.Recipe.Schema
+    term: Schema Validation
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: problem.assumptions
+    term: Implement problem.assumptions
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: problem.audience
+    term: Update problem.audience
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: problem.context
+    term: Update problem.context
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: problem.hypotheses
+    term: Implement problem.hypotheses
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: problem.problem
+    term: Update problem.problem
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: problem.vibes
+    term: Implement problem.vibes
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: solution.api_endpoint_count
+    term: Remove solution.api_endpoint_count
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: solution.architecture
+    term: Implement solution.architecture
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: solution.domain
+    term: Implement solution.domain
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: solution.entity_count
+    term: Remove solution.entity_count
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: solution.flows
+    term: Implement solution.flows
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: solution.module_count
+    term: Remove solution.module_count
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: solution.spec_categories
+    term: Remove solution.spec_categories
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: solution.specs
+    term: Implement solution.specs
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: solution.vocabulary
+    term: Implement solution.vocabulary
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: solution.vocabulary_count
+    term: Remove solution.vocabulary_count
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: timestamp
+    term: Remove timestamp
+  - artifact_path: lib/demo/from_step8.ex
+    spec_path: version
+    term: Remove version
+  - artifact_path: lib/problem/assumptions
+    spec_path: problem.assumptions
+    term: Implement problem.assumptions
+  - artifact_path: lib/problem/audience
+    spec_path: problem.audience
+    term: Update problem.audience
+  - artifact_path: lib/problem/context
+    spec_path: problem.context
+    term: Update problem.context
+  - artifact_path: lib/problem/hypotheses
+    spec_path: problem.hypotheses
+    term: Implement problem.hypotheses
+  - artifact_path: lib/problem/problem
+    spec_path: problem.problem
+    term: Update problem.problem
+  - artifact_path: lib/problem/vibes
+    spec_path: problem.vibes
+    term: Implement problem.vibes
+  - artifact_path: lib/solution/api_endpoint_count
+    spec_path: solution.api_endpoint_count
+    term: Remove solution.api_endpoint_count
+  - artifact_path: lib/solution/architecture
+    spec_path: solution.architecture
+    term: Implement solution.architecture
+  - artifact_path: lib/solution/domain
+    spec_path: solution.domain
+    term: Implement solution.domain
+  - artifact_path: lib/solution/entity_count
+    spec_path: solution.entity_count
+    term: Remove solution.entity_count
+  - artifact_path: lib/solution/flows
+    spec_path: solution.flows
+    term: Implement solution.flows
+  - artifact_path: lib/solution/module_count
+    spec_path: solution.module_count
+    term: Remove solution.module_count
+  - artifact_path: lib/solution/spec_categories
+    spec_path: solution.spec_categories
+    term: Remove solution.spec_categories
+  - artifact_path: lib/solution/specs
+    spec_path: solution.specs
+    term: Implement solution.specs
+  - artifact_path: lib/solution/vocabulary
+    spec_path: solution.vocabulary
+    term: Implement solution.vocabulary
+  - artifact_path: lib/solution/vocabulary_count
+    spec_path: solution.vocabulary_count
+    term: Remove solution.vocabulary_count
+  - artifact_path: lib/timestamp
+    spec_path: timestamp
+    term: Remove timestamp
+  - artifact_path: lib/version
+    spec_path: version
+    term: Remove version

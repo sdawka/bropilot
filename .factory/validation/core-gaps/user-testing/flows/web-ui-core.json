@@ -1,0 +1,515 @@
+{
+  "groupId": "web-ui-core",
+  "testedAt": "2026-04-06T11:53:55Z",
+  "isolation": {
+    "surface": "web UI",
+    "tool": "agent-browser",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "apiBaseUrl": "http://localhost:4000",
+    "astroBaseUrl": "http://localhost:3200",
+    "milestone": "core-gaps"
+  },
+  "toolsUsed": ["agent-browser", "curl"],
+  "assertions": [
+    {
+      "id": "VAL-ACT2-001",
+      "title": "Page exists and loads at /domain/ route",
+      "status": "pass",
+      "steps": [
+        {"action": "Open /domain/", "expected": "Page loads with Domain title", "observed": "Domain Modeling page loaded"},
+        {"action": "Inspect sidebar", "expected": "Domain nav item exists", "observed": "Sidebar includes \"🌐 Domain\" link"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-001-domain-initial.png"],
+        "consoleErrors": "none",
+        "network": "GET /domain/ -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-003",
+      "title": "Start button triggers UI transition to Step 3",
+      "status": "pass",
+      "steps": [
+        {"action": "Click Start Domain Modeling", "expected": "Transition from idle to Step 3", "observed": "UI moved to Step 3 with prompt and input"},
+        {"action": "Double-click Start", "expected": "No duplicate starts", "observed": "Only one /api/domain/start request recorded"}
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-core/VAL-ACT2-003-start-mock.png",
+          "core-gaps/web-ui-core/VAL-ACT2-003-step3-prompt.png",
+          "core-gaps/web-ui-core/VAL-ACT2-020-start-doubleclick-request-count.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/start -> 200 (single request under double-click)"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-004",
+      "title": "Step 3 prompt displays guiding questions",
+      "status": "pass",
+      "steps": [
+        {"action": "Start domain session", "expected": "Guiding questions shown", "observed": "Prompt includes numbered 3 guiding questions"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-004-step3-guiding-questions.png"],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/start -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-005",
+      "title": "User can submit domain description text",
+      "status": "pass",
+      "steps": [
+        {"action": "Type in textarea", "expected": "Submit enabled", "observed": "Submit button enabled when input non-empty"},
+        {"action": "Submit text", "expected": "Input accepted and async flow runs", "observed": "Submission accepted and flow progressed to extracted state"}
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-core/VAL-ACT2-005-input-populated.png",
+          "core-gaps/web-ui-core/VAL-ACT2-005-submitted-loading.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/input -> 200; POST /api/domain/extract -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-006",
+      "title": "Extracted domain model renders in UI cards",
+      "status": "pass",
+      "steps": [
+        {"action": "Run Step 3 extraction in mock mode", "expected": "Structured cards shown", "observed": "Vocabulary, Entities, Relationships, Flows, Architecture cards rendered"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-006-step3-results.png", "core-gaps/web-ui-core/VAL-ACT2-011-step3-data-cards.png"],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/extract (step3) -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-007",
+      "title": "Extracted vocabulary is displayed",
+      "status": "pass",
+      "steps": [
+        {"action": "Inspect Vocabulary card", "expected": "Terms with definition/aliases/category", "observed": "5 vocabulary entries displayed (e.g., User, Task, Workspace)"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-011-step3-data-cards.png"],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/extract (step3) -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-008",
+      "title": "Extracted entities are displayed",
+      "status": "pass",
+      "steps": [
+        {"action": "Inspect Entities card", "expected": "Entity details shown", "observed": "Entity list with names/descriptions/attributes rendered"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-011-step3-data-cards.png"],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/extract (step3) -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-009",
+      "title": "Extracted relationships are displayed",
+      "status": "pass",
+      "steps": [
+        {"action": "Inspect Relationships card", "expected": "source→target relationships shown", "observed": "Relationship entries rendered with type and description"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-011-step3-data-cards.png"],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/extract (step3) -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-010",
+      "title": "Extracted flows are displayed",
+      "status": "pass",
+      "steps": [
+        {"action": "Inspect Flows card", "expected": "User and system flows shown", "observed": "Both user_flows and system_flows sections rendered with steps/outcomes"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-011-step3-data-cards.png"],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/extract (step3) -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-011",
+      "title": "Extracted architecture components are displayed",
+      "status": "pass",
+      "steps": [
+        {"action": "Inspect Architecture card", "expected": "Components and dependencies shown", "observed": "Architecture components rendered with depends_on badges"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-011-step3-data-cards.png"],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/extract (step3) -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-012",
+      "title": "Transition from Step 3 to Step 4 is seamless",
+      "status": "pass",
+      "steps": [
+        {"action": "Complete Step 3", "expected": "Automatic transition or explicit CTA", "observed": "Clear \"Continue to Specs\" CTA shown immediately"},
+        {"action": "Click CTA", "expected": "Step 4 flow continues", "observed": "Step 4 generation completed and specs rendered"}
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-core/VAL-ACT2-012-step3-done-cta.png",
+          "core-gaps/web-ui-core/VAL-ACT2-015-spec-tabs-visible.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/extract (step3) -> 200 with step4_prompt; POST /api/domain/extract (step4) -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-013",
+      "title": "Step 4 shows all 11 spec categories",
+      "status": "pass",
+      "steps": [
+        {"action": "Open completed Step 4 view", "expected": "11 named categories visible", "observed": "Tabs shown: api, behaviours, constraints, entities, modules, events, externals, views, components, streams, infra"}
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-core/VAL-ACT2-015-spec-tabs-visible.png",
+          "core-gaps/web-ui-core/VAL-ACT2-013-step4-tabs.png",
+          "core-gaps/web-ui-core/VAL-ACT2-013-step4-complete-after-delay.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/extract (step4) -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-014",
+      "title": "Each spec category shows populated data",
+      "status": "pass",
+      "steps": [
+        {"action": "Inspect Step 4 content", "expected": "At least one category populated", "observed": "API tab includes multiple endpoint rows; other tabs also populated"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-014-tab-content-api.png"],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/extract (step4) -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-015",
+      "title": "Step 4 UI displays all 11 spec tabs with rendered content",
+      "status": "pass",
+      "steps": [
+        {"action": "Click all 11 spec tabs", "expected": "Each tab renders content panel", "observed": "All tabs clickable and rendered without JS errors"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-015-spec-tabs-visible.png", "core-gaps/web-ui-core/VAL-ACT2-014-tab-content-api.png"],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/extract (step4) -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-016",
+      "title": "Error state — server unreachable",
+      "status": "pass",
+      "steps": [
+        {"action": "Set browser offline and click Start", "expected": "Reachability warning banner", "observed": "Banner displayed: Could not reach Bropilot server. Failed to fetch"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-016-offline-error-banner.png"],
+        "consoleErrors": "none",
+        "network": "Offline simulation caused fetch failure for /api/domain/start"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-017",
+      "title": "Error state — UI displays error when .bropilot directory is missing",
+      "status": "blocked",
+      "steps": [
+        {"action": "Attempt to create missing-project precondition", "expected": "Trigger .bropilot missing error path", "observed": "Could not safely remove/rename shared .bropilot under shared running services"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-001-domain-initial.png"],
+        "consoleErrors": "none",
+        "network": "Precondition not safely achievable in shared isolation"
+      },
+      "issues": "Blocked by shared-service isolation: creating a missing .bropilot condition would require disruptive shared state mutation."
+    },
+    {
+      "id": "VAL-ACT2-018",
+      "title": "Error state — UI displays error when extracting before starting",
+      "status": "blocked",
+      "steps": [
+        {"action": "Attempt forced pre-start extraction via component method", "expected": "Domain worker not started error", "observed": "Shared backend had persistent domain worker from prior runs; unable to reach no-worker state without restarting shared service"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-018-extract-before-start-error.png", "core-gaps/web-ui-core/VAL-ACT2-027-error-banner-rate-limited.png"],
+        "consoleErrors": "none",
+        "network": "Could not isolate no-worker condition in shared session"
+      },
+      "issues": "Blocked by shared global DomainWorker lifecycle and non-disruptive rule (no shared service restart)."
+    },
+    {
+      "id": "VAL-ACT2-020",
+      "title": "Loading states during async operations",
+      "status": "pass",
+      "steps": [
+        {"action": "Submit Step 3 input with delayed extract", "expected": "Loading indicator + no double-submit", "observed": "Loading state shown; only one input/extract request pair sent"},
+        {"action": "Trigger Step 4 with delayed extract", "expected": "Loading indicator and single request", "observed": "Loading state shown; total extract requests = 2 (step3 + step4), no duplicate start"}
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-core/VAL-ACT2-020-step3-loading-delayed.png",
+          "core-gaps/web-ui-core/VAL-ACT2-020-step4-loading-delayed.png",
+          "core-gaps/web-ui-core/VAL-ACT2-020-start-doubleclick-request-count.png"
+        ],
+        "consoleErrors": "none",
+        "network": "Request counts observed in-browser: /api/domain/start=1, /api/domain/input=1, /api/domain/extract=2"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-021",
+      "title": "Chat-style UX matches vibe page pattern",
+      "status": "pass",
+      "steps": [
+        {"action": "Inspect chat DOM", "expected": "chat-message/chat-bot/chat-user style structure", "observed": "chat-message + role/bubble structure present; bot/user message styling rendered"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-021-chat-ux.png"],
+        "consoleErrors": "none",
+        "network": "UI-only structure check"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-023",
+      "title": "Navigation back to solution page shows extracted data",
+      "status": "fail",
+      "steps": [
+        {"action": "Complete Act 2 then open /solution/", "expected": "Domain model + spec tabs populated", "observed": "Spec tabs populated, but Domain Model cards (Vocabulary/Domain Entities/Flows) remained empty-state"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-023-solution-after-act2.png", "core-gaps/web-ui-core/VAL-REG-003-solution.png"],
+        "consoleErrors": "none",
+        "network": "GET /solution/ -> 200"
+      },
+      "issues": "Solution page did not surface Step 3 domain model content after Act 2 completion."
+    },
+    {
+      "id": "VAL-ACT2-024",
+      "title": "Mobile responsive layout",
+      "status": "fail",
+      "steps": [
+        {"action": "Set viewport to 375x812 and open /domain/", "expected": "No horizontal overflow", "observed": "document scrollWidth 908 > clientWidth 375 (horizontal overflow present)"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-024-mobile-domain.png"],
+        "consoleErrors": "none",
+        "network": "GET /domain/ -> 200"
+      },
+      "issues": "Mobile layout overflows horizontally at 375px width."
+    },
+    {
+      "id": "VAL-ACT2-025",
+      "title": "Multiple session restarts work correctly",
+      "status": "pass",
+      "steps": [
+        {"action": "Click Restart Session", "expected": "UI reset to idle", "observed": "Idle state with Start button restored"},
+        {"action": "Start again", "expected": "Fresh Step 3 prompt", "observed": "Fresh Step 3 prompt/input displayed"}
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-core/VAL-ACT2-025-after-restart-idle.png",
+          "core-gaps/web-ui-core/VAL-ACT2-025-fresh-step3-after-restart.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/start -> 200 after restart"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-026",
+      "title": "Empty input rejected",
+      "status": "pass",
+      "steps": [
+        {"action": "Observe empty textarea state", "expected": "Submit disabled when empty", "observed": "Submit button disabled until non-whitespace input entered"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-012-step3-ready.png"],
+        "consoleErrors": "none",
+        "network": "No submit request sent when input empty"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-027",
+      "title": "Malformed LLM output returns error without advancing state",
+      "status": "blocked",
+      "steps": [
+        {"action": "Attempt to induce extraction error", "expected": "Malformed-output specific error + verify state not advanced", "observed": "Observed rate_limited error path, but could not deterministically force malformed YAML nor call missing /api/domain/status endpoint referenced by contract"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-ACT2-027-error-banner-rate-limited.png"],
+        "consoleErrors": "none",
+        "network": "Error path observed: Extraction failed. :rate_limited"
+      },
+      "issues": "Blocked: malformed-output scenario not controllable in shared environment; status-verification endpoint from contract is unavailable."
+    },
+    {
+      "id": "VAL-CROSS-060",
+      "title": "All sidebar pages load without error",
+      "status": "fail",
+      "steps": [
+        {"action": "Check all listed routes", "expected": "All routes return 200 and render", "observed": "Existing pages and /domain/ returned 200; /traceability/ returned 404 (and /er/ also 404)"}
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-core/VAL-REG-003-dashboard.png",
+          "core-gaps/web-ui-core/VAL-REG-003-problem.png",
+          "core-gaps/web-ui-core/VAL-REG-003-solution.png",
+          "core-gaps/web-ui-core/VAL-REG-003-work.png",
+          "core-gaps/web-ui-core/VAL-REG-003-knowledge.png",
+          "core-gaps/web-ui-core/VAL-REG-003-vibe.png",
+          "core-gaps/web-ui-core/VAL-REG-003-build.png",
+          "core-gaps/web-ui-core/VAL-REG-003-connect.png",
+          "core-gaps/web-ui-core/VAL-CROSS-060-domain.png",
+          "core-gaps/web-ui-core/VAL-CROSS-060-traceability-404.png"
+        ],
+        "consoleErrors": "none",
+        "network": "Route status checks: /,/problem/,/solution/,/work/,/knowledge/,/vibe/,/build/,/connect/,/domain/ -> 200; /traceability/ -> 404; /er/ -> 404"
+      },
+      "issues": "Traceability route did not load (404)."
+    },
+    {
+      "id": "VAL-CROSS-061",
+      "title": "Sidebar highlights active page",
+      "status": "fail",
+      "steps": [
+        {"action": "Inspect `.sidebar-link.active` on each page", "expected": "Exactly one active link", "observed": "Most pages had one active link, but /connect/ rendered without sidebar (activeCount=0)"}
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-core/VAL-REG-003-dashboard.png",
+          "core-gaps/web-ui-core/VAL-REG-003-problem.png",
+          "core-gaps/web-ui-core/VAL-REG-003-solution.png",
+          "core-gaps/web-ui-core/VAL-REG-003-work.png",
+          "core-gaps/web-ui-core/VAL-REG-003-knowledge.png",
+          "core-gaps/web-ui-core/VAL-REG-003-vibe.png",
+          "core-gaps/web-ui-core/VAL-REG-003-build.png",
+          "core-gaps/web-ui-core/VAL-REG-003-connect.png",
+          "core-gaps/web-ui-core/VAL-CROSS-060-domain.png"
+        ],
+        "consoleErrors": "none",
+        "network": "DOM checks: activeCount=1 on dashboard/problem/solution/work/knowledge/vibe/build/domain, activeCount=0 on connect"
+      },
+      "issues": "Connect page lacks sidebar active state; contract expects one active link at a time."
+    },
+    {
+      "id": "VAL-CROSS-080",
+      "title": "Partial pipeline — Solution page shows available data only",
+      "status": "fail",
+      "steps": [
+        {"action": "Complete Step 3 only and open /solution/", "expected": "Step3 domain data visible and specs marked pending", "observed": "Domain model cards remained empty while spec tabs showed populated data; no pending-spec indication"}
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-core/VAL-CROSS-080-domain-step3-only.png",
+          "core-gaps/web-ui-core/VAL-CROSS-080-solution-after-step3-only.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /solution/ -> 200"
+      },
+      "issues": "Partial pipeline view did not present expected Step 3-only state."
+    },
+    {
+      "id": "VAL-CROSS-081",
+      "title": "ER diagram with partial domain data",
+      "status": "fail",
+      "steps": [
+        {"action": "Open /er/ after Step 3", "expected": "ER page renders extracted entities", "observed": "Route returned 404 Not Found"}
+      ],
+      "evidence": {
+        "screenshots": ["core-gaps/web-ui-core/VAL-CROSS-081-er-page-404.png"],
+        "consoleErrors": "none",
+        "network": "GET /er/ -> 404"
+      },
+      "issues": "ER diagram route unavailable."
+    },
+    {
+      "id": "VAL-REG-003",
+      "title": "All 8 existing pages render after M1 changes",
+      "status": "pass",
+      "steps": [
+        {"action": "Open /, /problem/, /solution/, /work/, /knowledge/, /vibe/, /build/, /connect/", "expected": "HTTP 200 + render", "observed": "All 8 routes returned HTTP 200 and rendered"},
+        {"action": "Inspect browser errors after navigation", "expected": "No JS errors", "observed": "No browser errors reported"}
+      ],
+      "evidence": {
+        "screenshots": [
+          "core-gaps/web-ui-core/VAL-REG-003-dashboard.png",
+          "core-gaps/web-ui-core/VAL-REG-003-problem.png",
+          "core-gaps/web-ui-core/VAL-REG-003-solution.png",
+          "core-gaps/web-ui-core/VAL-REG-003-work.png",
+          "core-gaps/web-ui-core/VAL-REG-003-knowledge.png",
+          "core-gaps/web-ui-core/VAL-REG-003-vibe.png",
+          "core-gaps/web-ui-core/VAL-REG-003-build.png",
+          "core-gaps/web-ui-core/VAL-REG-003-connect.png"
+        ],
+        "consoleErrors": "none",
+        "network": "Route status checks: all 8 existing pages -> 200"
+      },
+      "issues": null
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Domain page starts extraction mode from server default and did not expose a UI control for mock mode; default path initially hit rate limits.",
+      "resolved": true,
+      "resolution": "Used in-browser fetch patch to force POST /api/domain/start body {mode:\"mock\"} for deterministic Act 2 checks.",
+      "affectedAssertions": ["VAL-ACT2-005", "VAL-ACT2-006", "VAL-ACT2-007", "VAL-ACT2-008", "VAL-ACT2-009", "VAL-ACT2-010", "VAL-ACT2-011", "VAL-ACT2-012", "VAL-ACT2-013", "VAL-ACT2-014", "VAL-ACT2-015", "VAL-ACT2-020"]
+    },
+    {
+      "description": "Contract expectations for no-worker/missing-project error paths were hard to isolate under shared running services with global DomainWorker lifecycle.",
+      "resolved": false,
+      "resolution": "Marked impacted assertions blocked per isolation constraints.",
+      "affectedAssertions": ["VAL-ACT2-017", "VAL-ACT2-018"]
+    }
+  ],
+  "blockers": [
+    {
+      "description": "Could not safely create missing .bropilot precondition in shared environment without disrupting other validators.",
+      "affectedAssertions": ["VAL-ACT2-017"],
+      "quickFixAttempted": "Tried non-destructive UI/API paths only; skipped filesystem mutation of shared project root."
+    },
+    {
+      "description": "Could not reliably reach \"domain worker not started\" state because worker persists globally and no safe stop endpoint exists.",
+      "affectedAssertions": ["VAL-ACT2-018"],
+      "quickFixAttempted": "Attempted pre-start extraction trigger via Alpine method; backend worker remained present from shared flow history."
+    },
+    {
+      "description": "Malformed LLM-output scenario could not be deterministically induced, and contract-referenced GET /api/domain/status endpoint was unavailable for state confirmation.",
+      "affectedAssertions": ["VAL-ACT2-027"],
+      "quickFixAttempted": "Exercised extraction error path and confirmed UI error handling, but malformed-output-specific state check remained unavailable."
+    }
+  ],
+  "summary": "Tested 29 assertions: 20 passed, 6 failed, 3 blocked. Key failures: Solution page did not show Step 3 domain model data (VAL-ACT2-023), mobile overflow at 375px (VAL-ACT2-024), missing /traceability and /er routes caused cross-page failures (VAL-CROSS-060/081), connect page had no active sidebar state (VAL-CROSS-061), and partial-pipeline Solution behavior did not match expected pending-spec state (VAL-CROSS-080)."
+}

@@ -1,0 +1,28 @@
+streams:
+  - description: Real-time pipeline progress updates. Pushes step completion, gate results, and extraction progress.
+    events:
+      - step_started
+      - step_completed
+      - gate_passed
+      - gate_failed
+      - extraction_progress
+    name: Pipeline Status Stream
+    path: /ws/pipeline
+    protocol: WebSocket
+  - description: Real-time task status updates during Act 3 build cycles.
+    events:
+      - task_dispatched
+      - task_progress
+      - task_completed
+      - task_failed
+    name: Task Execution Stream
+    path: /ws/tasks
+    protocol: WebSocket
+  - description: Streaming LLM responses during vibe collection for a conversational feel.
+    events:
+      - prompt_ready
+      - llm_chunk
+      - extraction_complete
+    name: Vibe Chat Stream
+    path: /ws/vibe
+    protocol: WebSocket

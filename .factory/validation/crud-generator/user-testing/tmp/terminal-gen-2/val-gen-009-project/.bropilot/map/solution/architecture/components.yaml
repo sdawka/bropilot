@@ -1,0 +1,66 @@
+components:
+  - description: The heart of Bropilot. OTP application with GenServers for pipeline engine, act workers, task agents, and Pi pool management.
+    modules:
+      - Bropilot
+      - Bropilot.Application
+      - Bropilot.Spaces
+      - Bropilot.Map.Store
+      - Bropilot.Yaml
+    name: Elixir Core
+    runtime: BEAM VM
+  - description: GenServer that holds pipeline position, tracks step completion, and enforces space-gate validation.
+    modules:
+      - Bropilot.Pipeline.Engine
+      - Bropilot.Pipeline.Supervisor
+    name: Pipeline Engine
+    runtime: BEAM VM
+  - description: "GenServers for each act: Act1.Worker (vibe collection), Act2.Worker (domain modeling), Act3.Executor (build)."
+    modules:
+      - Bropilot.Pipeline.Act1.Worker
+      - Bropilot.Pipeline.Act1.Extractor
+      - Bropilot.Pipeline.Act2.Worker
+      - Bropilot.Pipeline.Act2.Extractor
+      - Bropilot.Pipeline.Act3.Executor
+      - Bropilot.Pipeline.Act3.Snapshot
+      - Bropilot.Pipeline.Act3.Diff
+      - Bropilot.Pipeline.Act3.TaskGenerator
+    name: Act Workers
+    runtime: BEAM VM
+  - description: Facade for LLM interactions. Routes to Anthropic, OpenAI, or mock provider. Handles YAML extraction with code fence stripping.
+    modules:
+      - Bropilot.LLM
+      - Bropilot.LLM.Client
+      - Bropilot.LLM.Anthropic
+      - Bropilot.LLM.OpenAI
+      - Bropilot.LLM.Mock
+    name: LLM Client
+    runtime: BEAM VM + HTTP (Req)
+  - description: DynamicSupervisor managing a pool of pi coding-agent processes. Checkout/checkin lifecycle for task execution.
+    modules:
+      - Bropilot.Pi.Pool
+      - Bropilot.Pi.Port
+      - Bropilot.Pi.Protocol
+    name: Pi Pool
+    runtime: BEAM VM
+  - description: "Developer-facing CLI via Mix tasks: init, vibe, plan, build, status, snapshot, tasks, recipe, web, demo."
+    modules:
+      - Mix.Tasks.Bro.Init
+      - Mix.Tasks.Bro.Vibe
+      - Mix.Tasks.Bro.Plan
+      - Mix.Tasks.Bro.Build
+      - Mix.Tasks.Bro.Status
+      - Mix.Tasks.Bro.Snapshot
+      - Mix.Tasks.Bro.Tasks
+      - Mix.Tasks.Bro.Recipe
+      - Mix.Tasks.Bro.Web
+      - Mix.Tasks.Bro.Demo
+    name: CLI / Mix Tasks
+    runtime: Mix
+  - description: Loads, validates, and caches recipe definitions. Includes schema validation for map data.
+    modules:
+      - Bropilot.Recipe.Registry
+      - Bropilot.Recipe.Schema
+      - Bropilot.Recipe.Installer
+      - Bropilot.Recipe.Publisher
+    name: Recipe System
+    runtime: BEAM VM

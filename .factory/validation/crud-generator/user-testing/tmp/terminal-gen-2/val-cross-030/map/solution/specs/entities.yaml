@@ -1,0 +1,70 @@
+entities:
+  - columns:
+      - name: id
+        nullable: false
+        type: uuid
+      - name: email
+        nullable: false
+        type: varchar(255)
+      - name: name
+        nullable: false
+        type: varchar(255)
+      - default: member
+        name: role
+        nullable: false
+        type: varchar(50)
+    domain_entity: User
+    indexes:
+      - columns:
+          - email
+        unique: true
+    name: users
+    table: users
+  - columns:
+      - name: id
+        nullable: false
+        type: uuid
+      - name: title
+        nullable: false
+        type: varchar(255)
+      - name: description
+        nullable: true
+        type: text
+      - default: todo
+        name: status
+        nullable: false
+        type: varchar(50)
+      - default: medium
+        name: priority
+        nullable: false
+        type: varchar(50)
+      - name: due_date
+        nullable: true
+        type: timestamp
+      - name: user_id
+        nullable: true
+        type: uuid
+      - name: workspace_id
+        nullable: false
+        type: uuid
+    domain_entity: Task
+    indexes:
+      - columns:
+          - workspace_id
+      - columns:
+          - user_id
+    name: tasks
+    table: tasks
+  - columns:
+      - name: id
+        nullable: false
+        type: uuid
+      - name: name
+        nullable: false
+        type: varchar(255)
+      - name: description
+        nullable: true
+        type: text
+    domain_entity: Workspace
+    name: workspaces
+    table: workspaces

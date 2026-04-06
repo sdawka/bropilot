@@ -1,0 +1,41 @@
+flows:
+  - name: Initialize Project
+    outcome: Ready-to-use .bropilot/ project structure
+    steps:
+      - Create .bropilot/ directory
+      - Write spaces.lock (immutable space definitions)
+      - Copy default recipe (webapp) to .bropilot/recipe/
+      - Scaffold empty map directories for all spaces
+    trigger: mix bro.init [path]
+  - name: Vibe Collection (Act 1)
+    outcome: Problem Space fully populated
+    steps:
+      - "Step 1: User answers 'Tell me about your app' freeform prompt"
+      - LLM extracts name, purpose, problem, context, glossary terms
+      - "Step 2: User answers 6 targeted questions about audience, use cases, design"
+      - LLM extracts audience, assumptions, hypotheses, vibes/basics
+    trigger: mix bro.vibe
+  - name: Domain Modeling (Act 2, Step 3)
+    outcome: Domain model established in Solution Space
+    steps:
+      - Read all Problem Space data from the map
+      - Build prompt with guiding questions from pipeline.yaml
+      - LLM generates vocabulary, entities, relationships, flows
+      - Write to map/solution/ (vocabulary, domain/, flows/, architecture/)
+    trigger: mix bro.plan (step 3)
+  - name: Spec Expansion (Act 2, Step 4)
+    outcome: Full specifications ready for implementation
+    steps:
+      - Read domain model from Solution Space
+      - LLM expands into 11 spec files
+      - Write specs to map/solution/specs/
+    trigger: mix bro.plan (step 4)
+  - name: Build Cycle (Act 3)
+    outcome: Code generated, knowledge updated, version complete
+    steps:
+      - "Step 5: Create version snapshot of problem + solution"
+      - "Step 6: Diff snapshot against previous version, generate changes"
+      - "Step 7: Generate tasks from changes with context and DoDs"
+      - "Step 8: Dispatch tasks to pi coding agents, collect artifacts"
+      - "Feedback: Update Knowledge Space (changelog, xrefs, glossary)"
+    trigger: mix bro.build

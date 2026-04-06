@@ -1,0 +1,37 @@
+dependencies:
+  - description: Mix tasks call Bropilot.init/2, Spaces, Map.Store
+    from: CLI / Mix Tasks
+    to: Elixir Core
+    type: calls
+  - description: Mix tasks start and advance the pipeline engine
+    from: CLI / Mix Tasks
+    to: Pipeline Engine
+    type: starts
+  - description: Engine delegates to act-specific workers
+    from: Pipeline Engine
+    to: Act Workers
+    type: orchestrates
+  - description: Workers use LLM.extract_yaml/2 for structured extraction
+    from: Act Workers
+    to: LLM Client
+    type: calls
+  - description: Workers write extracted data via Map.Store
+    from: Act Workers
+    to: Elixir Core
+    type: writes
+  - description: Act 3 dispatches codegen tasks to Pi agents
+    from: Act Workers
+    to: Pi Pool
+    type: dispatches
+  - description: Pi agents use LLM for code generation
+    from: Pi Pool
+    to: LLM Client
+    type: calls
+  - description: Engine loads recipe on init via Registry
+    from: Pipeline Engine
+    to: Recipe System
+    type: loads
+  - description: Recipe validation checks against immutable Spaces
+    from: Recipe System
+    to: Elixir Core
+    type: validates_against

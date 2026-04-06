@@ -1,0 +1,15 @@
+alternatives_considered:
+  - name: Anthropic-only
+    reason_rejected: Lock-in to single provider. Users may prefer GPT-4 or open models.
+  - name: LiteLLM proxy
+    reason_rejected: Additional infrastructure dependency. OpenRouter is simpler for end users.
+consequences:
+  - Users can switch LLM providers by changing an env var
+  - Mock provider enables testing without API keys
+  - Bropilot.LLM facade abstracts provider differences
+context: Need access to multiple LLM providers (Claude, GPT-4, open models) without hardcoding to a single API.
+date: 2025-02-01
+decision: Support direct Anthropic and OpenAI APIs as primary providers, with OpenRouter as a unified gateway for flexibility. Provider auto-detection based on environment variables.
+source_step: step4
+status: accepted
+title: Why OpenRouter

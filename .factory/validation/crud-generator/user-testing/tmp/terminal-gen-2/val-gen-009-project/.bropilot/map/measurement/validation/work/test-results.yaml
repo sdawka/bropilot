@@ -1,0 +1,53 @@
+coverage: N/A
+space: work
+summary:
+  excluded: 0
+  failed: 0
+  passed: 219
+  time_seconds: 2.4
+  total_tests: 219
+test_files:
+  - file: test/bropilot_test.exs
+    passed: 12
+    tests: 12
+  - file: test/init_test.exs
+    passed: 8
+    tests: 8
+  - file: test/pipeline_test.exs
+    passed: 18
+    tests: 18
+  - file: test/act1_test.exs
+    passed: 24
+    tests: 24
+  - file: test/act2_test.exs
+    passed: 22
+    tests: 22
+  - file: test/act3_test.exs
+    passed: 28
+    tests: 28
+  - file: test/feedback_test.exs
+    passed: 20
+    tests: 20
+  - file: test/llm_test.exs
+    passed: 15
+    tests: 15
+  - file: test/recipe_test.exs
+    passed: 14
+    tests: 14
+  - file: test/schema_test.exs
+    passed: 16
+    tests: 16
+  - file: test/task_test.exs
+    passed: 18
+    tests: 18
+  - file: test/executor_test.exs
+    passed: 12
+    tests: 12
+  - file: test/cli_helpers_test.exs
+    passed: 8
+    tests: 8
+  - file: test/recipe_installer_test.exs
+    passed: 4
+    tests: 4
+timestamp: 2025-06-01T00:00:00Z
+validation_type: test_suite

@@ -1,0 +1,29 @@
+infra:
+  - description: BEAM VM running the OTP application. Handles pipeline execution, LLM calls, and task dispatch.
+    hosting: Fly.io (production), local (development)
+    name: Elixir Runtime
+    requirements:
+      - Elixir ~> 1.19
+      - Erlang/OTP
+      - Mix build tool
+    type: Application Server
+  - description: Hosts the Astro-based web UI. Edge-deployed for global low latency.
+    hosting: Cloudflare
+    name: Cloudflare Pages
+    requirements:
+      - Node.js for build
+      - Astro framework
+    type: Static Site Hosting
+  - description: Unified API gateway for multiple LLM providers. Allows switching between Claude, GPT-4, and others without code changes.
+    hosting: SaaS
+    name: OpenRouter
+    requirements:
+      - API key
+      - HTTPS access
+    type: LLM Gateway
+  - description: All project data stored as YAML files in .bropilot/. No database required. Git-friendly.
+    hosting: Local + version control
+    name: File System
+    requirements:
+      - Read/write access to project directory
+    type: Data Storage

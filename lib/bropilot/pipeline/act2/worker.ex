@@ -208,6 +208,7 @@ defmodule Bropilot.Pipeline.Act2.Worker do
   defp do_extract(step, state) do
     case state.extraction_mode do
       :mock -> extract_mock(step)
+      :malformed -> extract_malformed(step)
       :llm -> extract_with_llm(step, state)
     end
   end
@@ -217,6 +218,12 @@ defmodule Bropilot.Pipeline.Act2.Worker do
   """
   def extract_mock(:step3), do: {:ok, Extractor.mock_domain_data()}
   def extract_mock(:step4), do: {:ok, Extractor.mock_specs_data()}
+
+  @doc """
+  Returns an error simulating malformed LLM output for deterministic testing.
+  The worker state must NOT advance when this is used.
+  """
+  def extract_malformed(_step), do: {:error, "malformed LLM output: expected valid YAML but got garbage data"}
 
   @doc """
   Sends the already-built prompt to the LLM via

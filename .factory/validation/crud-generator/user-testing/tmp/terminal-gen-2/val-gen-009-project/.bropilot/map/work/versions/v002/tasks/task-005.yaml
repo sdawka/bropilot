@@ -1,0 +1,21 @@
+context:
+  impact: Wasted cycles, misaligned features, technical debt from day one, and apps that solve the wrong problem
+  problem: Building apps requires translating fuzzy ideas into structured specs before coding. Current tools either skip the thinking (vibe coding) or require too much manual specification. There's no tool that guides you through problem definition, domain modeling, and spec generation, then hands it to coding agents.
+  symptoms:
+    - Developers jump straight to code without understanding the problem
+    - AI coding tools produce code that doesn't match the actual need
+    - Specs written manually become stale and disconnected from code
+    - No feedback loop between what was built and what was planned
+    - Context is lost between thinking and coding phases
+definition_of_done:
+  - Implementation updated to match new spec
+  - Existing tests updated
+  - No regressions
+dependencies: []
+description: Spec modified at problem.problem. Update the implementation to match the new spec.
+id: 5
+priority: medium
+related_specs:
+  - problem.problem
+status: pending
+title: Update problem.problem

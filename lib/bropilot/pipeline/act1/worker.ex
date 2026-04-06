@@ -216,12 +216,12 @@ defmodule Bropilot.Pipeline.Act1.Worker do
   def extract_mock(:step1, _state) do
     {:ok,
      %{
-       "name" => "TestApp",
-       "purpose" => "A test application for demonstration",
-       "problem" => "Testing is hard and time-consuming",
-       "context" => "Current testing tools are insufficient for modern workflows",
+       "name" => "TodoApp",
+       "purpose" => "A task management application for teams",
+       "problem" => "Users struggle to manage tasks and collaborate within shared workspaces",
+       "context" => "Current task management tools are insufficient for team collaboration",
        "glossary_terms" => [
-         %{"term" => "TestApp", "definition" => "The application being built"}
+         %{"term" => "TodoApp", "definition" => "The application being built"}
        ]
      }}
   end
@@ -229,13 +229,13 @@ defmodule Bropilot.Pipeline.Act1.Worker do
   def extract_mock(:step2, _state) do
     {:ok,
      %{
-       "audience" => "Developers who need better testing tools",
-       "use_cases" => ["Run unit tests quickly", "Generate test reports"],
-       "capabilities" => ["Test execution", "Report generation"],
+       "audience" => "Users who need task management and workspace collaboration tools",
+       "use_cases" => ["Create and assign tasks", "Organize work in workspaces", "Track task completion"],
+       "capabilities" => ["Task management", "Workspace collaboration", "User authentication"],
        "design" => "Clean and minimal interface",
-       "volo" => "Testing made effortless",
-       "hypotheses" => ["Developers want simpler testing workflows"],
-       "assumptions" => ["Users know basic testing concepts"],
+       "volo" => "Task management made effortless",
+       "hypotheses" => ["Users want simpler task management workflows"],
+       "assumptions" => ["Users know basic task management concepts"],
        "glossary_terms" => [
          %{"term" => "VOLO", "definition" => "Vision of Lovable Output"}
        ]

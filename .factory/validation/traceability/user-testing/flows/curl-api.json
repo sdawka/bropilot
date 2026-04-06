@@ -1,0 +1,431 @@
+{
+  "groupId": "curl-api",
+  "testedAt": "2026-04-06T14:00:18.004866+00:00",
+  "isolation": {
+    "apiBaseUrl": "http://localhost:4000",
+    "webBaseUrl": "http://localhost:3200",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "sharedServicesOnly": true,
+    "serviceControl": "forbidden"
+  },
+  "toolsUsed": [
+    "curl",
+    "ruby"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-TRACE-003",
+      "title": "All 11 spec categories are valid values for spec_category",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "PUT valid category entries for all 11 categories",
+          "expected": "200 for each",
+          "observed": "All 11 PUT requests returned 200"
+        },
+        {
+          "action": "PUT entry with bogus category",
+          "expected": "400/422",
+          "observed": "Returned 400 with invalid category message listing valid categories"
+        }
+      ],
+      "evidence": {
+        "network": "11x PUT /api/traceability/<valid>/<id> -> 200; PUT /api/traceability/bogus/<id> -> 400",
+        "artifacts": [
+          "traceability/curl-api/VAL-TRACE-003.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TRACE-004",
+      "title": "Link type enum is enforced",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "PUT link type implementation",
+          "expected": "200",
+          "observed": "Returned 200"
+        },
+        {
+          "action": "PUT link type deployment",
+          "expected": "400/422 and allowed-types error",
+          "observed": "Returned 422; error included allowed link types"
+        }
+      ],
+      "evidence": {
+        "network": "PUT valid type -> 200; PUT invalid type -> 422",
+        "artifacts": [
+          "traceability/curl-api/VAL-TRACE-004.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TRACE-006",
+      "title": "Traceability file is valid YAML after concurrent writes",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Issue 5 concurrent PUT requests",
+          "expected": "All return 200",
+          "observed": "All 5 concurrent PUT requests returned 200"
+        },
+        {
+          "action": "GET full matrix",
+          "expected": "All 5 new entries present",
+          "observed": "All 5 ValTrace006_* entries were present"
+        },
+        {
+          "action": "YAML lint traceability file",
+          "expected": "Valid YAML",
+          "observed": "Ruby YAML parser loaded file successfully"
+        }
+      ],
+      "evidence": {
+        "network": "5x concurrent PUT -> 200; GET /api/traceability -> 200",
+        "artifacts": [
+          "traceability/curl-api/VAL-TRACE-006.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TAPI-001",
+      "title": "GET /api/traceability returns full matrix",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "GET /api/traceability",
+          "expected": "200 with matrix entries",
+          "observed": "Returned 200 with 21+ entries across categories"
+        }
+      ],
+      "evidence": {
+        "network": "GET /api/traceability -> 200",
+        "artifacts": [
+          "traceability/curl-api/VAL-TAPI-001.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TAPI-002",
+      "title": "GET /api/traceability/:spec_category/:spec_id returns single entry",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "PUT entities/User",
+          "expected": "200",
+          "observed": "Returned 200"
+        },
+        {
+          "action": "GET entities/User",
+          "expected": "200 with same links",
+          "observed": "Returned 200 and links matched PUT payload"
+        },
+        {
+          "action": "GET entities/NonExistent",
+          "expected": "404",
+          "observed": "Returned 404"
+        }
+      ],
+      "evidence": {
+        "network": "PUT User -> 200; GET User -> 200; GET NonExistent -> 404",
+        "artifacts": [
+          "traceability/curl-api/VAL-TAPI-002.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TAPI-003",
+      "title": "PUT /api/traceability/:spec_category/:spec_id creates and updates",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "PUT create api/InitProject with one link",
+          "expected": "200/201",
+          "observed": "Returned 200; GET showed one link"
+        },
+        {
+          "action": "PUT replace api/InitProject with two links",
+          "expected": "Entry replaced with exactly two links",
+          "observed": "GET showed exactly two links, replacing prior one-link state"
+        }
+      ],
+      "evidence": {
+        "network": "PUT create -> 200; GET -> 200; PUT replace -> 200; GET -> 200",
+        "artifacts": [
+          "traceability/curl-api/VAL-TAPI-003.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TAPI-004",
+      "title": "PUT validates required fields",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "PUT without links field",
+          "expected": "422",
+          "observed": "Returned 422 (missing required field: links)"
+        },
+        {
+          "action": "PUT link missing file_path",
+          "expected": "422",
+          "observed": "Returned 422 (file_path required)"
+        },
+        {
+          "action": "PUT link missing type",
+          "expected": "422",
+          "observed": "Returned 422 (type required)"
+        }
+      ],
+      "evidence": {
+        "network": "All 3 invalid PUT requests returned 422 with descriptive error messages",
+        "artifacts": [
+          "traceability/curl-api/VAL-TAPI-004.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TAPI-005",
+      "title": "GET full matrix includes coverage summary",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "GET /api/traceability",
+          "expected": "coverage/summary object with counts",
+          "observed": "Returned coverage object with total counts and by_category counts"
+        }
+      ],
+      "evidence": {
+        "network": "GET /api/traceability -> 200",
+        "artifacts": [
+          "traceability/curl-api/VAL-TAPI-005.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TAPI-006",
+      "title": "Matrix response distinguishes link types",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "PUT api/ValTapi006 with implementation/test/type/migration links",
+          "expected": "Accepted",
+          "observed": "PUT succeeded"
+        },
+        {
+          "action": "GET /api/traceability",
+          "expected": "All link types preserved",
+          "observed": "Entry retained all 4 link types"
+        }
+      ],
+      "evidence": {
+        "network": "PUT ValTapi006 -> 200; GET matrix -> 200",
+        "artifacts": [
+          "traceability/curl-api/VAL-TAPI-006.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TAPI-007",
+      "title": "API respects project scoping",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Seed traceability entry via /api/traceability",
+          "expected": "Project A has data",
+          "observed": "Global matrix had data"
+        },
+        {
+          "action": "GET /api/projects/project-a/traceability",
+          "expected": "Project-scoped response",
+          "observed": "Returned 404 (not found)"
+        },
+        {
+          "action": "GET /api/projects/project-b/traceability",
+          "expected": "Separate empty project response",
+          "observed": "Returned 404 (not found)"
+        }
+      ],
+      "evidence": {
+        "network": "Scoped project endpoints returned 404",
+        "artifacts": [
+          "traceability/curl-api/VAL-TAPI-007.json"
+        ]
+      },
+      "issues": "Project-scoped traceability API route is not implemented in this surface."
+    },
+    {
+      "id": "VAL-TAUTO-007",
+      "title": "Auto-linkage does not overwrite manual links",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "PUT manual link for api/InitProject",
+          "expected": "Manual link stored",
+          "observed": "GET before build contained manual/keep_init_project.ex"
+        },
+        {
+          "action": "POST /api/build",
+          "expected": "Build completes",
+          "observed": "Returned 200"
+        },
+        {
+          "action": "GET api/InitProject after build",
+          "expected": "Manual link still present",
+          "observed": "Manual link persisted after build"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/build -> 200; GET before/after both include manual link",
+        "artifacts": [
+          "traceability/curl-api/VAL-TAUTO-007.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-020",
+      "title": "Step 8 codegen auto-records traceability links",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "POST /api/build",
+          "expected": "Step 8 run completes",
+          "observed": "Returned 200 with tasks_completed summary"
+        },
+        {
+          "action": "GET /api/traceability",
+          "expected": "Non-empty links with required fields",
+          "observed": "Matrix was non-empty and links included spec_category, spec_id, file_path, type"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/build -> 200; GET /api/traceability -> 200",
+        "artifacts": [
+          "traceability/curl-api/VAL-CROSS-020.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-023",
+      "title": "Re-running codegen updates traceability (no duplicates)",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Capture matrix before second build",
+          "expected": "Baseline count N",
+          "observed": "Captured baseline link count 27"
+        },
+        {
+          "action": "Run second POST /api/build",
+          "expected": "Build completes",
+          "observed": "Returned 200"
+        },
+        {
+          "action": "Capture matrix after second build",
+          "expected": "Count not doubled, no duplicate tuples",
+          "observed": "Link count remained 27; duplicate tuple count was 0"
+        }
+      ],
+      "evidence": {
+        "network": "GET/POST/GET sequence around second build",
+        "artifacts": [
+          "traceability/curl-api/VAL-CROSS-023.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-024",
+      "title": "Traceability links survive server restart",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Prepare pre-restart traceability snapshot",
+          "expected": "Ready for before/after comparison",
+          "observed": "Pre-restart GET captured"
+        },
+        {
+          "action": "Restart shared Bropilot service",
+          "expected": "Service restart and post-restart GET",
+          "observed": "Not executed due isolation rule forbidding start/stop of shared services"
+        }
+      ],
+      "evidence": {
+        "network": "GET /api/traceability pre-restart snapshot collected",
+        "artifacts": [
+          "traceability/curl-api/VAL-CROSS-024.json"
+        ]
+      },
+      "issues": "Blocked by assignment constraint: do not start/stop shared services in this run."
+    },
+    {
+      "id": "VAL-CROSS-083",
+      "title": "Re-running Act 2 after Act 3 updates Solution Space",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Re-run Act 2 via domain start/input/extract",
+          "expected": "Act 2 rerun completes and updates solution data",
+          "observed": "Step3 completed, but follow-up flow did not provide expected contract-readable outputs"
+        },
+        {
+          "action": "GET /api/map/solution/domain/entities",
+          "expected": "Updated entities payload",
+          "observed": "Returned 404 (not found)"
+        },
+        {
+          "action": "GET /api/status",
+          "expected": "Act 3 marked stale/re-run needed",
+          "observed": "Returned 404 (not found)"
+        }
+      ],
+      "evidence": {
+        "network": "Domain rerun calls plus contract-path GET checks",
+        "artifacts": [
+          "traceability/curl-api/VAL-CROSS-083.json"
+        ]
+      },
+      "issues": "Contract-specified endpoints for verification were unavailable on this API surface (/api/map/solution/domain/entities and /api/status)."
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Contract examples use project-scoped traceability routes (/api/projects/:path/traceability), but this API surface exposes /api/traceability without project path scoping.",
+      "resolved": false,
+      "resolution": "Recorded as VAL-TAPI-007 failure with endpoint evidence.",
+      "affectedAssertions": [
+        "VAL-TAPI-007"
+      ]
+    },
+    {
+      "description": "Contract verification paths for VAL-CROSS-083 (/api/map/solution/domain/entities and /api/status) were unavailable (404) on this API surface.",
+      "resolved": false,
+      "resolution": "Captured failing responses and included as assertion failure evidence.",
+      "affectedAssertions": [
+        "VAL-CROSS-083"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "description": "Could not execute restart persistence check because assignment isolation rules forbid starting/stopping shared services.",
+      "affectedAssertions": [
+        "VAL-CROSS-024"
+      ],
+      "quickFixAttempted": "Captured pre-restart traceability snapshot only; restart step intentionally not executed to preserve isolation boundary."
+    }
+  ],
+  "summary": "Tested 15 assertions: 12 passed, 2 failed, 1 blocked."
+}

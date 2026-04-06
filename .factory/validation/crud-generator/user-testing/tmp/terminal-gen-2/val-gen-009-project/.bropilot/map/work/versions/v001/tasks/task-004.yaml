@@ -1,0 +1,21 @@
+context:
+  related_module: Bropilot.Pipeline.Act3.Executor
+  space: work
+definition_of_done:
+  - Snapshot reads problem + solution recursively and writes versioned YAML
+  - Diff produces path-based change list (added, modified, removed)
+  - TaskGenerator creates one task per change with full context
+  - Tasks are written as individual YAML files in versions/v{NNN}/tasks/
+  - "Executor orchestrates full flow: snapshot -> diff -> tasks -> feedback"
+dependencies:
+  - 2
+  - 3
+description: "Build the Act 3 pipeline: version snapshots, change plan diffs, and task generation with context and definitions of done."
+id: 4
+priority: high
+related_specs:
+  - solution.specs.modules.Act3.Executor
+  - solution.specs.modules.Act3.Snapshot
+  - solution.specs.modules.Act3.Diff
+status: completed
+title: Implement Act 3 snapshot, diff, and task generation

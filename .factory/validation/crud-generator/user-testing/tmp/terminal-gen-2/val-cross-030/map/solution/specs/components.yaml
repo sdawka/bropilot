@@ -1,0 +1,28 @@
+components:
+  - description: Displays a filterable list of tasks
+    events:
+      - onTaskClick
+      - onFilterChange
+    name: TaskList
+    props:
+      filter: string
+      tasks: Task[]
+    state:
+      selected_filter: string
+  - description: Form for creating and editing tasks
+    events:
+      - onSubmit
+      - onCancel
+    name: TaskForm
+    props:
+      onSubmit: function
+      task: Task?
+    state:
+      form_data: map
+  - description: Shows workspace task statistics
+    events: []
+    name: TaskStats
+    props:
+      workspace_id: string
+    state:
+      stats: map

@@ -1,0 +1,77 @@
+entities:
+  - fields:
+      - description: Absolute path to project root
+        name: path
+        type: string
+      - description: Project name from map/project.yaml
+        name: name
+        type: string
+      - description: One-line purpose statement
+        name: purpose
+        type: string
+    name: Project
+    storage: File system (.bropilot/ directory)
+  - fields:
+      - description: Recipe identifier
+        name: name
+        type: string
+      - description: Semver version
+        name: version
+        type: string
+      - description: What this recipe does
+        name: description
+        type: text
+      - description: Pipeline act definitions
+        name: acts
+        type: list
+      - description: Flattened step list with space mappings
+        name: steps
+        type: list
+    name: Recipe
+    storage: .bropilot/recipe/ directory
+  - fields:
+      - description: Sequential version number
+        name: number
+        type: integer
+      - description: Frozen problem + solution data
+        name: snapshot
+        type: map
+      - description: Diff from previous version
+        name: changes
+        type: list
+      - description: Generated work tasks
+        name: tasks
+        type: list
+    name: Version
+    storage: .bropilot/map/work/versions/v{NNN}/
+  - fields:
+      - description: Sequential task ID
+        name: id
+        type: integer
+      - description: Human-readable title
+        name: title
+        type: string
+      - description: What needs to be done
+        name: description
+        type: text
+      - description: Relevant spec data from the change
+        name: context
+        type: map
+      - description: Acceptance criteria
+        name: definition_of_done
+        type: list
+      - name: priority
+        type: enum
+        values:
+          - high
+          - medium
+          - low
+      - name: status
+        type: enum
+        values:
+          - pending
+          - in_progress
+          - completed
+          - failed
+    name: Task
+    storage: versions/v{NNN}/tasks/task-{NNN}.yaml

@@ -1,0 +1,25 @@
+assumptions:
+  - confidence: high
+    id: A1
+    statement: Developers want structured thinking before coding but find it tedious to do manually
+    validation: User interviews with 15+ developers confirmed this pattern
+  - confidence: medium
+    id: A2
+    statement: LLMs can reliably extract structured data (YAML) from freeform conversational input
+    validation: Tested with Claude and GPT-4 — works well with clear prompts
+  - confidence: high
+    id: A3
+    statement: A 5-space model (Problem, Solution, Work, Measurement, Knowledge) covers all aspects of app building
+    validation: Mapped against 20+ real projects — no gaps found
+  - confidence: high
+    id: A4
+    statement: Immutable spaces prevent recipe drift and ensure consistency across projects
+    validation: Core architectural constraint validated by dogfooding
+  - confidence: medium
+    id: A5
+    statement: YAML is a sufficient interchange format for specs consumed by coding agents
+    validation: Coding agents parse YAML well; readability matters for humans too
+  - confidence: high
+    id: A6
+    statement: The feedback loop (Knowledge Space) is essential for maintaining spec-code alignment over time
+    validation: Without it, specs drift from reality within weeks

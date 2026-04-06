@@ -1,0 +1,61 @@
+terms:
+  - definition: "One of 5 immutable thinking categories: Problem, Solution, Work, Measurement, Knowledge. Defined in Bropilot core, never modified by recipes."
+    module: Bropilot.Spaces
+    term: Space
+  - definition: A superuser-level configuration that defines the pipeline steps, prompts, schemas, and validations. Lives in .bropilot/recipe/.
+    module: Bropilot.Recipe.Registry
+    term: Recipe
+  - definition: The user-level data layer. YAML files in .bropilot/map/ organized by space. Filled in by going through the pipeline.
+    module: Bropilot.Map.Store
+    term: Map
+  - definition: The ordered sequence of acts and steps that transform vibes into specs into code. Defined in recipe/pipeline.yaml.
+    module: Bropilot.Pipeline.Engine
+    term: Pipeline
+  - definition: "A major phase of the pipeline. Act 1: Vibe Collection, Act 2: Domain Modeling, Act 3: Build."
+    module: Bropilot.Pipeline.Engine
+    term: Act
+  - definition: A single unit of work within an act. Each step maps to a primary space and may contribute to cross-cutting spaces.
+    module: Bropilot.Pipeline.Engine
+    term: Step
+  - definition: Freeform, conversational input from the user about their app idea. Collected in Act 1 and extracted into structured data.
+    module: Bropilot.Pipeline.Act1.Worker
+    term: Vibe
+  - definition: Entities, relationships, and flows that describe the app's problem and solution domains. Generated in Act 2 Step 3.
+    module: Bropilot.Pipeline.Act2.Worker
+    term: Domain Model
+  - definition: A detailed specification file in map/solution/specs/. Covers API, behaviours, constraints, entities, modules, events, externals, views, components, streams, and infra.
+    module: Bropilot.Pipeline.Act2.Worker
+    term: Spec
+  - definition: A frozen copy of the problem and solution spaces at a point in time. Creates a version in map/work/versions/.
+    module: Bropilot.Pipeline.Act3.Snapshot
+    term: Snapshot
+  - definition: A path-based comparison between two snapshots that identifies added, modified, and removed specs.
+    module: Bropilot.Pipeline.Act3.Diff
+    term: Diff
+  - definition: A work item generated from a diff change. Contains title, description, context, definition of done, priority, and related specs.
+    module: Bropilot.Pipeline.Act3.TaskGenerator
+    term: Task
+  - definition: "A concrete output produced by a task: source files, tests, database interfaces, debug logs."
+    module: Bropilot.Task.Agent
+    term: Artifact
+  - definition: A validation checkpoint between spaces. All required slots must be filled before advancing to the next space.
+    module: Bropilot.Spaces
+    term: Gate
+  - definition: A named data location within a space. Can be a file (.yaml) or a directory containing multiple files. Defined in spaces.lock.
+    module: Bropilot.Spaces.Space
+    term: Slot
+  - definition: The process of converting freeform LLM output into structured YAML data that populates map slots.
+    module: Bropilot.Pipeline.Act1.Extractor
+    term: Extraction
+  - definition: A coding agent process managed by the Pi Pool. Receives task prompts and produces code artifacts.
+    module: Bropilot.Pi.Pool
+    term: Pi
+  - definition: The mechanism by which completed tasks update the Knowledge Space (changelog, xrefs, glossary), keeping specs aligned with reality.
+    module: Bropilot.Pipeline.Feedback
+    term: Feedback Loop
+  - definition: Vision of Lovable Output. A one-sentence description of what the finished product feels like to its user.
+    module: Bropilot.Pipeline.Act1.Worker
+    term: VOLO
+  - definition: "The authority hierarchy: Spaces (immutable core) > Recipe (superuser config) > Map (user data). Ensures structural consistency."
+    module: Bropilot
+    term: Three-Tier Model

@@ -211,14 +211,14 @@ defmodule Bropilot.PipelineTest do
     test "writes state file on advance", %{project_path: project_path} do
       {:ok, pid} = Engine.start_link(project_path: project_path)
 
-      # State file should not exist initially (fresh project)
-      refute File.exists?(state_file_path(project_path))
+      # State file should exist even on init (written on startup with all 8 step statuses)
+      assert File.exists?(state_file_path(project_path))
 
       # Advance step1 -> step2
       Engine.mark_complete(pid, "step1")
       {:ok, _step2} = Engine.advance(pid)
 
-      # State file should now exist
+      # State file should still exist
       assert File.exists?(state_file_path(project_path))
 
       # Read and verify contents

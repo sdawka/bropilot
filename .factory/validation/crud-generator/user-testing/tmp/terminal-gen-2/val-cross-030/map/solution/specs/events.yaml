@@ -1,0 +1,26 @@
+events:
+  - consumed_by:
+      - NotificationService
+    emitted_by: TaskService
+    name: task.created
+    payload:
+      created_by: uuid
+      task_id: uuid
+      workspace_id: uuid
+    trigger: New task is created
+  - consumed_by:
+      - MetricsService
+    emitted_by: TaskService
+    name: task.completed
+    payload:
+      completed_by: uuid
+      task_id: uuid
+    trigger: Task status changed to done
+  - consumed_by:
+      - NotificationService
+    emitted_by: TaskService
+    name: task.assigned
+    payload:
+      assignee_id: uuid
+      task_id: uuid
+    trigger: Task is assigned to a user

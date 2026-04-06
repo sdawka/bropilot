@@ -1,0 +1,24 @@
+context:
+  audience: Developers and technical founders who want to go from vague app idea to working code using structured AI-assisted workflows
+  segments:
+    - description: Building MVPs alone, need to move fast but want structured thinking before coding
+      name: Solo technical founders
+      pain_level: high
+    - description: Need shared understanding of what to build before splitting work across agents and humans
+      name: Small dev teams (2-5)
+      pain_level: high
+    - description: Already using Copilot or Cursor but frustrated by lack of direction — good at coding, bad at knowing WHAT to code
+      name: AI-curious developers
+      pain_level: medium
+definition_of_done:
+  - Implementation updated to match new spec
+  - Existing tests updated
+  - No regressions
+dependencies: []
+description: Spec modified at problem.audience. Update the implementation to match the new spec.
+id: 2
+priority: medium
+related_specs:
+  - problem.audience
+status: pending
+title: Update problem.audience

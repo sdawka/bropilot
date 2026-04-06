@@ -1,0 +1,83 @@
+api:
+  - description: Initialize a new Bropilot project
+    method: POST
+    module: Bropilot
+    path: /api/projects
+    request:
+      path: string
+      recipe: "string (optional, default: webapp)"
+    response:
+      bropilot_dir: string
+      project_path: string
+  - description: Get pipeline status for a project
+    method: GET
+    module: Bropilot.Pipeline.Engine
+    path: /api/projects/:path/status
+    response:
+      completed_steps: list
+      current_step: map
+      spaces: map
+  - description: Read all slots for a space
+    method: GET
+    module: Bropilot.Map.Store
+    path: /api/projects/:path/map/:space
+    response:
+      slots: map of slot_name -> data
+  - description: Read a specific map slot
+    method: GET
+    module: Bropilot.Map.Store
+    path: /api/projects/:path/map/:space/:slot
+    response:
+      data: map
+  - description: Start Act 1 Step 1 (basics prompt)
+    method: POST
+    module: Bropilot.Pipeline.Act1.Worker
+    path: /api/projects/:path/pipeline/step1
+    response:
+      prompt: string
+  - description: Submit freeform user input for Step 1
+    method: POST
+    module: Bropilot.Pipeline.Act1.Worker
+    path: /api/projects/:path/pipeline/step1/input
+    request:
+      text: string
+    response:
+      status: ok
+  - description: Run LLM extraction for Step 1
+    method: POST
+    module: Bropilot.Pipeline.Act1.Worker
+    path: /api/projects/:path/pipeline/step1/extract
+    response:
+      data: map (extracted structured data)
+  - description: Start Act 2 Step 3 (domain model)
+    method: POST
+    module: Bropilot.Pipeline.Act2.Worker
+    path: /api/projects/:path/pipeline/step3
+    response:
+      prompt: string
+  - description: Advance pipeline to next step (with gate validation)
+    method: POST
+    module: Bropilot.Pipeline.Engine
+    path: /api/projects/:path/pipeline/advance
+    response:
+      next_step: map
+  - description: Run full Act 3 build cycle (snapshot, diff, tasks, codegen)
+    method: POST
+    module: Bropilot.Pipeline.Act3.Executor
+    path: /api/projects/:path/build
+    response:
+      summary: map
+      tasks_count: integer
+      version: integer
+  - description: List all versions for a project
+    method: GET
+    module: Bropilot.Pipeline.Act3.Snapshot
+    path: /api/projects/:path/versions
+    response:
+      versions: list of version numbers
+  - description: List tasks for a specific version
+    method: GET
+    module: Bropilot.Pipeline.Act3.TaskGenerator
+    path: /api/projects/:path/versions/:version/tasks
+    response:
+      tasks: list of task maps

@@ -1,0 +1,75 @@
+entities:
+  - attributes:
+      - path
+      - name
+      - purpose
+      - recipe_name
+    description: A Bropilot project rooted at a directory with .bropilot/ inside. Has a recipe and a map.
+    name: Project
+  - attributes:
+      - name
+      - version
+      - description
+      - acts
+      - steps
+      - dir
+    description: "Defines the pipeline configuration: acts, steps, prompts, schemas, validations."
+    name: Recipe
+  - attributes:
+      - current_step_index
+      - completed_steps
+      - recipe
+    description: The execution engine that tracks progress through recipe steps and enforces gates.
+    name: Pipeline
+  - attributes:
+      - id
+      - name
+      - space
+      - space_slots
+      - knowledge_contributes
+      - measurement_contributes
+      - prompt
+    description: A unit of pipeline work. Maps to a primary space, has a prompt, and produces map data.
+    name: Step
+  - attributes:
+      - id
+      - name
+      - description
+      - governs
+      - required_slots
+      - cross_cutting?
+    description: An immutable thinking category with required slots and gate validation.
+    name: Space
+  - attributes:
+      - id
+      - name
+      - type
+      - required
+    description: A named data location within a space. File slots hold a single YAML file, directory slots hold multiple.
+    name: Slot
+  - attributes:
+      - number
+      - snapshot
+      - changes
+      - tasks
+    description: A snapshot of problem + solution spaces with associated changes and tasks.
+    name: Version
+  - attributes:
+      - id
+      - title
+      - description
+      - context
+      - definition_of_done
+      - dependencies
+      - priority
+      - related_specs
+      - status
+    description: A work item generated from a spec change. Dispatched to coding agents.
+    name: Task
+  - attributes:
+      - path
+      - type
+      - task_id
+      - version
+    description: "Output produced by a completed task: code files, tests, DB interfaces."
+    name: Artifact

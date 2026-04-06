@@ -1,0 +1,695 @@
+{
+  "groupId": "terminal-core",
+  "testedAt": "2026-04-06T11:31:45Z",
+  "isolation": {
+    "surface": "terminal",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "apiBaseUrl": "http://localhost:4000",
+    "astroBaseUrl": "http://localhost:3200"
+  },
+  "toolsUsed": [
+    "terminal",
+    "curl",
+    "mix test",
+    "npm",
+    "npx vitest"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-ACT2-002",
+      "title": "Page follows existing Astro page conventions",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Inspect domain page source",
+          "expected": "Layout import, prerender=false, Alpine x-data usage present",
+          "observed": "domain.astro includes Layout import, prerender directive, and x-data/Alpine data setup"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/static-clean-domain.txt"
+        ],
+        "commandOutput": "rg matches for prerender/layout/x-data in web/src/pages/domain.astro"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-022",
+      "title": "Data persists to solution space map files",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run full Act 2 flow via API (start -> extract step3 -> extract step4)",
+          "expected": "Solution map files written",
+          "observed": "Required solution/spec YAML files created and non-empty"
+        },
+        {
+          "action": "List/size required files",
+          "expected": "All required YAML files present with content",
+          "observed": "18 YAML files present; required files all >0 bytes"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/act2_solution_files.txt"
+        ],
+        "network": "POST /api/domain/start, POST /api/domain/extract (x2) returned ok:true"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CGEN-001",
+      "title": "Step 8 writes files to target directory",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run codegen tests for Task.Agent/Executor",
+          "expected": "Generated files written to disk",
+          "observed": "Tests verify actual files written under task output directories"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/codegen_test_trace.txt",
+          "core-gaps/terminal-core/codegen_assertions_excerpt.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CGEN-002",
+      "title": "Generated files contain valid code",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run mix compile",
+          "expected": "Compilation exits 0",
+          "observed": "mix compile exit code is 0"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/mix_compile_exit.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CGEN-003",
+      "title": "File paths match task specifications",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run codegen path assertions",
+          "expected": "Files written at expected relative paths",
+          "observed": "Tests verify expected file paths (e.g., lib/app/... and test/... paths) exist"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/codegen_test_trace.txt",
+          "core-gaps/terminal-core/codegen_assertions_excerpt.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CGEN-004",
+      "title": "Codegen respects directory structure",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run mkdir -p behavior test",
+          "expected": "Intermediate directories auto-created",
+          "observed": "Test 'creates intermediate directories (mkdir -p)' passed"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/codegen_assertions_excerpt.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CGEN-005",
+      "title": "Task.Agent execution_mode :llm triggers real codegen",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run Task.Agent :llm execution test",
+          "expected": "LLM-mode execute writes files",
+          "observed": "Task.Agent :llm test passed with files written to output dir"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/codegen_assertions_excerpt.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CGEN-006",
+      "title": "Codegen updates knowledge after completion",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run Feedback.update_knowledge test",
+          "expected": "Knowledge changelog updated with generated files",
+          "observed": "Feedback test passed; changelog entry contains files_touched"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/codegen_assertions_excerpt.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CGEN-007",
+      "title": "Codegen error does not leave partial files",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run failure-path codegen tests",
+          "expected": "Task status failed and no partial files",
+          "observed": "LLM failure/malformed-response tests passed with :failed status and no output dir"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/codegen_assertions_excerpt.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CGEN-008",
+      "title": "Multiple tasks write non-conflicting files",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run multi-task codegen test",
+          "expected": "Distinct task outputs without overwrite",
+          "observed": "Two-task test passed; separate task output files exist without cross-contamination"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/codegen_assertions_excerpt.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CGEN-010",
+      "title": "Codegen with no specs returns clear error",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run executor no-specs tests",
+          "expected": "Clear no-specs error, no generation",
+          "observed": "No-specs tests passed with error containing 'no specs'"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/codegen_assertions_excerpt.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CLEAN-001",
+      "title": "Legacy loader.ts removed",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Check loader.ts existence and loader imports",
+          "expected": "loader.ts missing and no loader imports",
+          "observed": "web/src/lib/loader.ts missing; no lib/loader imports found"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/static-clean-domain.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CLEAN-002",
+      "title": "No duplicate API logic between loader.ts and api.ts",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Search legacy loader helper symbols",
+          "expected": "No loadYaml/loadSpace/loadSpecs/loadProject in app code",
+          "observed": "No matches returned in web/src"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/static-clean-domain.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CLEAN-003",
+      "title": "All pages use api.ts for data fetching",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Audit page imports vs fetch usage",
+          "expected": "All data-fetching .astro pages import ../lib/api",
+          "observed": "connect.astro performs fetch() but does not import ../lib/api"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/static-clean-domain.txt",
+          "core-gaps/terminal-core/page_fetch_import_audit.txt"
+        ]
+      },
+      "issues": "connect.astro uses inline fetch without importing api.ts"
+    },
+    {
+      "id": "VAL-CLEAN-004",
+      "title": "No broken imports after cleanup",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run web build",
+          "expected": "Build succeeds without module-not-found errors",
+          "observed": "npm run build exited 0; no missing module errors"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/web_build.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CLEAN-005",
+      "title": "API deduplication \u2014 no inline fetch in page scripts",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Search inline fetch calls in Astro pages",
+          "expected": "Page scripts use shared API helpers instead of inline fetch duplication",
+          "observed": "Inline fetch remains in connect.astro"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/static-clean-domain.txt",
+          "core-gaps/terminal-core/page_fetch_import_audit.txt"
+        ]
+      },
+      "issues": "Inline fetch logic remains in web/src/pages/connect.astro"
+    },
+    {
+      "id": "VAL-CLEAN-006",
+      "title": "SPEC_CATEGORIES constant deduplicated",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Search SPEC_CATEGORIES definitions/usages",
+          "expected": "Single definition with imports",
+          "observed": "One definition in web/src/lib/api.ts; pages import and use it"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/static-clean-domain.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CLEAN-007",
+      "title": "Solution page uses new 11 spec categories",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Search solution.astro for old vs new category names",
+          "expected": "New categories referenced; old names absent",
+          "observed": "New category references present via SPEC_CATEGORIES; old names absent"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/static-clean-domain.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CLEAN-008",
+      "title": "Old spec category names fully removed from frontend",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Search web/src for old category identifiers",
+          "expected": "No old category name matches",
+          "observed": "No matches for api_contracts/data_model/error_handling/ui_ux/monitoring/integrations"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/static-clean-domain.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-044",
+      "title": "Pipeline persistence file is valid YAML",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Inspect and parse .bropilot/pipeline_state.yaml",
+          "expected": "Valid YAML with status entries for all 8 steps",
+          "observed": "File parses, but only keys are completed_steps/current_step_index; no per-step status entries"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/pipeline_state_file_inspection.txt"
+        ]
+      },
+      "issues": "pipeline_state.yaml lacks explicit status entries for all 8 steps"
+    },
+    {
+      "id": "VAL-DAPI-009",
+      "title": "Domain API endpoints are in api.ts client",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Search web/src/lib/api.ts for domain helpers",
+          "expected": "Domain start/extract client helpers present",
+          "observed": "startDomain() and extractDomain() exported with correct endpoints"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/static-clean-domain.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-DAPI-010",
+      "title": "Extract writes YAML to solution space map",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Execute full domain extraction flow",
+          "expected": "At least 18 solution YAML files created and valid",
+          "observed": "18 solution YAML files exist and parse successfully"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/act2_solution_files.txt",
+          "core-gaps/terminal-core/act2_yaml_parse.txt",
+          "core-gaps/terminal-core/domain_api_assertions_excerpt.txt"
+        ],
+        "network": "POST /api/domain/start -> 200; POST /api/domain/extract (step3/step4) -> 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-DAPI-011",
+      "title": "api.ts exports startDomain and extractDomain functions",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Search api.ts exports/endpoints",
+          "expected": "Typed async helpers for /api/domain/start and /api/domain/extract",
+          "observed": "Exported startDomain()/extractDomain() helpers call expected endpoints"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/static-clean-domain.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-PIPE-001",
+      "title": "Pipeline state written to YAML on step advance",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run pipeline persistence tests",
+          "expected": "State file written with current_step_index/completed_steps on advance",
+          "observed": "Test 'writes state file on advance' passed"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/pipeline_test_trace.txt",
+          "core-gaps/terminal-core/pipeline_assertions_excerpt.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-PIPE-002",
+      "title": "Pipeline state loaded on server restart",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run pipeline restart-resume test",
+          "expected": "Restarted engine resumes persisted step/completed state",
+          "observed": "Test 'loads state on init and resumes from persisted position' passed"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/pipeline_assertions_excerpt.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-PIPE-005",
+      "title": "Corrupted state file handled gracefully",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run corrupted-state test",
+          "expected": "Fallback to step0 and warning logged",
+          "observed": "Corrupted YAML test passed; warning logged and fallback behavior confirmed"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/pipeline_test_trace.txt",
+          "core-gaps/terminal-core/pipeline_assertions_excerpt.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-PIPE-006",
+      "title": "Completed steps are persisted correctly",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run completed-steps persistence test",
+          "expected": "completed_steps persisted and restored after restart",
+          "observed": "Test 'state persists completed steps correctly across multiple advances' passed"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/pipeline_assertions_excerpt.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-PIPE-008",
+      "title": "State file location follows .bropilot convention",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Verify pipeline state path",
+          "expected": "State file at .bropilot/pipeline_state.yaml",
+          "observed": "Path assertion test passed; file exists at .bropilot/pipeline_state.yaml"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/pipeline_assertions_excerpt.txt",
+          "core-gaps/terminal-core/pipeline_state_file_inspection.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-REG-001",
+      "title": "Existing ExUnit tests pass after M1 changes",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run full backend test suite",
+          "expected": "mix test exit 0 with >=292 passing tests",
+          "observed": "mix test passed with 346 tests, 0 failures"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/mix_test_full.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-VTEST-001",
+      "title": "Vitest is installed as a dev dependency",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Check package.json and vitest binary",
+          "expected": "vitest in devDependencies and npx vitest --version works",
+          "observed": "devDependencies.vitest=^4.1.2 and vitest/4.1.2 prints successfully"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/vitest_checks.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-VTEST-002",
+      "title": "Vitest config file exists",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Check for vitest config",
+          "expected": "vitest config file exists",
+          "observed": "web/vitest.config.ts exists"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/vtest_static.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-VTEST-003",
+      "title": "Test script in package.json",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Inspect package test script",
+          "expected": "test script runs vitest",
+          "observed": "scripts.test=vitest run"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/vitest_checks.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-VTEST-004",
+      "title": "At least 3 passing tests covering distinct modules",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run npm test in web/",
+          "expected": ">=3 test files pass",
+          "observed": "3 test files passed: api.test.ts, api-helpers.test.ts, connection.test.ts"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/vitest_checks.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-VTEST-005",
+      "title": "Test covers a web component or utility",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Audit test imports",
+          "expected": "Tests import real project modules",
+          "observed": "Tests import src/lib/api and src/lib/connection modules"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/vtest_static.txt",
+          "core-gaps/terminal-core/vitest_checks.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-VTEST-006",
+      "title": "Tests can import TypeScript modules",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run vitest TS-import tests",
+          "expected": "TypeScript imports resolve and execute",
+          "observed": "TypeScript test files importing project .ts modules pass successfully"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "core-gaps/terminal-core/vitest_checks.txt",
+          "core-gaps/terminal-core/vtest_static.txt"
+        ]
+      },
+      "issues": null
+    }
+  ],
+  "frictions": [
+    {
+      "description": "`mix run` attempted to start the app and conflicted with shared port 4000 while services were already running.",
+      "resolved": true,
+      "resolution": "Switched YAML-parse checks to `mix run --no-start`.",
+      "affectedAssertions": [
+        "VAL-DAPI-010",
+        "VAL-ACT2-022"
+      ]
+    },
+    {
+      "description": "Direct ad-hoc pipeline repro using `mix run --no-start` and `Bropilot.init/1` failed because required app processes (Recipe.Registry) are not started in no-start mode.",
+      "resolved": true,
+      "resolution": "Used existing passing pipeline persistence ExUnit tests plus direct pipeline_state file inspection for evidence.",
+      "affectedAssertions": [
+        "VAL-PIPE-001",
+        "VAL-PIPE-002",
+        "VAL-PIPE-005",
+        "VAL-PIPE-006",
+        "VAL-PIPE-008",
+        "VAL-CROSS-044"
+      ]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 35 assertions: 32 passed, 3 failed, 0 blocked, 0 skipped. Failures: VAL-CLEAN-003, VAL-CLEAN-005, VAL-CROSS-044."
+}

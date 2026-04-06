@@ -1,0 +1,90 @@
+events:
+  - consumers:
+      - CLI output
+    data:
+      project_path: string
+      recipe: string
+    name: project_initialized
+    trigger: Bropilot.init/2 succeeds
+  - consumers:
+      - Pipeline.Engine
+      - CLI status display
+    data:
+      space: atom
+      step_id: string
+    name: step_completed
+    trigger: Pipeline.Engine.mark_complete/2
+  - consumers:
+      - Pipeline.Engine
+    data:
+      from_space: atom
+      to_space: atom
+    name: gate_passed
+    trigger: Spaces.validate_gate/2 returns :ok during advance
+  - consumers:
+      - Pipeline.Engine
+      - CLI error display
+    data:
+      space: atom
+      unfilled_slots: list of atoms
+    name: gate_failed
+    trigger: Spaces.validate_gate/2 returns error during advance
+  - consumers:
+      - Map.Store (writes)
+      - CLI progress
+    data:
+      slot_count: integer
+      step: atom
+    name: extraction_done
+    trigger: Act1.Worker.extract/1 or Act2.Worker.extract/1 succeeds
+  - consumers:
+      - Act3.Diff
+      - CLI output
+    data:
+      spaces: list
+      version: integer
+    name: snapshot_created
+    trigger: Act3.Snapshot.create_snapshot/1 succeeds
+  - consumers:
+      - Act3.TaskGenerator
+      - CLI output
+    data:
+      added: integer
+      modified: integer
+      removed: integer
+      version: integer
+    name: changes_generated
+    trigger: Act3.Diff.generate_change_plan/2 succeeds
+  - consumers:
+      - Task.Supervisor
+      - CLI task display
+    data:
+      task_id: integer
+      title: string
+    name: task_dispatched
+    trigger: Task.Agent.start_link/2
+  - consumers:
+      - Task.Supervisor
+      - Pipeline.Feedback
+    data:
+      status: completed | failed
+      task_id: integer
+    name: task_completed
+    trigger: Task.Agent sends {:task_completed, task_id}
+  - consumers:
+      - Knowledge Space files
+    data:
+      changelog_entry: map
+      new_terms: integer
+      new_xrefs: integer
+    name: knowledge_updated
+    trigger: Pipeline.Feedback.update_knowledge/3 succeeds
+  - consumers:
+      - Knowledge Space
+      - CLI summary
+    data:
+      artifacts_produced: integer
+      tasks_completed: integer
+      version: integer
+    name: version_summarized
+    trigger: Pipeline.Feedback.summarize_version/2 succeeds
