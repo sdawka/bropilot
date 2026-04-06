@@ -40,6 +40,9 @@ defmodule Bropilot.Pipeline.Act3.Executor do
         :llm ->
           execute_tasks_with_llm(tasks, project_path, map_dir, version, opts)
 
+        :pi ->
+          execute_tasks_with_codegen(tasks, project_path, map_dir, version, :pi, opts)
+
         _ ->
           execute_tasks_simulated(tasks, map_dir, version, opts)
       end
@@ -71,6 +74,36 @@ defmodule Bropilot.Pipeline.Act3.Executor do
     Enum.each(tasks, fn task ->
       result = result_fn.(task)
       task_map = task_struct_to_map(task, version)
+      Feedback.update_knowledge(map_dir, task_map, result)
+    end)
+
+    {:ok, summary} = Feedback.summarize_version(map_dir, version)
+    {:ok, %{version: version, tasks: tasks, summary: summary}}
+  end
+
+  defp execute_tasks_with_codegen(tasks, project_path, map_dir, version, mode, opts) do
+    llm_opts = Keyword.get(opts, :llm_opts, [])
+
+    task_results =
+      Enum.map(tasks, fn task ->
+        task_map = task_struct_to_map(task, version)
+
+        {:ok, pid} =
+          Bropilot.Task.Agent.start_link(task_map,
+            execution_mode: mode,
+            llm_opts: llm_opts,
+            map_dir: map_dir,
+            project_path: project_path
+          )
+
+        result = Bropilot.Task.Agent.execute(pid)
+        GenServer.stop(pid)
+
+        {task, task_map, result}
+      end)
+
+    # Update knowledge for all tasks (successful and failed)
+    Enum.each(task_results, fn {_task, task_map, result} ->
       Feedback.update_knowledge(map_dir, task_map, result)
     end)
 

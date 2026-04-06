@@ -81,6 +81,80 @@ defmodule Bropilot.CodegenTest do
     "I'm sorry, I can't generate code right now. Please try again later."
   end
 
+  # -- Path traversal tests --
+
+  describe "Bropilot.Codegen.Writer.validate_path/2" do
+    test "accepts safe relative paths" do
+      assert :ok = Bropilot.Codegen.Writer.validate_path("lib/app/user.ex", "/tmp/output")
+    end
+
+    test "accepts nested safe paths" do
+      assert :ok = Bropilot.Codegen.Writer.validate_path("lib/app/deeply/nested/module.ex", "/tmp/output")
+    end
+
+    test "rejects path with ../ traversal" do
+      assert {:error, {:path_traversal, msg}} =
+               Bropilot.Codegen.Writer.validate_path("../../../etc/passwd", "/tmp/output")
+
+      assert String.contains?(msg, "resolves outside output directory")
+    end
+
+    test "rejects path with embedded ../ traversal" do
+      assert {:error, {:path_traversal, _}} =
+               Bropilot.Codegen.Writer.validate_path("lib/../../outside.ex", "/tmp/output")
+    end
+
+    test "rejects path that resolves to the output dir itself (not a subpath)" do
+      # Path.join("/tmp/output", ".") resolves to "/tmp/output" which is not under "/tmp/output/"
+      assert {:error, {:path_traversal, _}} =
+               Bropilot.Codegen.Writer.validate_path(".", "/tmp/output")
+    end
+  end
+
+  describe "Bropilot.Codegen.Writer.write_files/2 path traversal" do
+    test "rejects files with path traversal", %{tmp: tmp} do
+      output_dir = Path.join(tmp, "output")
+      files = [{"../../../etc/passwd", "malicious content"}]
+
+      assert {:error, {:path_traversal, msg}} =
+               Bropilot.Codegen.Writer.write_files(files, output_dir)
+
+      assert String.contains?(msg, "resolves outside output directory")
+      # No files should have been written
+      refute File.exists?(Path.join(output_dir, "../../../etc/passwd"))
+    end
+
+    test "rejects mixed files when one has path traversal", %{tmp: tmp} do
+      output_dir = Path.join(tmp, "output")
+
+      files = [
+        {"lib/safe.ex", "safe content"},
+        {"../../escape.ex", "malicious content"}
+      ]
+
+      assert {:error, {:path_traversal, _}} =
+               Bropilot.Codegen.Writer.write_files(files, output_dir)
+
+      # Neither file should have been written (validation happens before any writes)
+      refute File.dir?(output_dir)
+    end
+  end
+
+  describe "Bropilot.Codegen.Writer.parse_and_write/2 path traversal" do
+    test "rejects LLM response containing path traversal", %{tmp: tmp} do
+      output_dir = Path.join(tmp, "output")
+
+      response = """
+      ```file:../../../etc/passwd
+      root:x:0:0
+      ```
+      """
+
+      assert {:error, {:path_traversal, _}} =
+               Bropilot.Codegen.Writer.parse_and_write(response, output_dir)
+    end
+  end
+
   # -- CodegenWriter Tests --
 
   describe "Bropilot.Codegen.Writer.parse_files/1" do
@@ -469,6 +543,48 @@ defmodule Bropilot.CodegenTest do
       assert "lib/fallback.ex" in result.files_written
 
       GenServer.stop(pid)
+    end
+  end
+
+  # -- Executor with pi mode --
+
+  describe "Executor with execution_mode :pi" do
+    test "dispatches through Task.Agent and writes files (falls back to LLM when Pi pool unavailable)", %{
+      project_path: project_path,
+      map_dir: map_dir
+    } do
+      # Populate map with minimal data for snapshot+diff+tasks
+      Bropilot.Yaml.encode_to_file(
+        %{"name" => "developers", "pain" => "manual app building"},
+        Path.join([map_dir, "problem", "audience.yaml"])
+      )
+
+      Bropilot.Yaml.encode_to_file(
+        %{"endpoints" => [%{"path" => "/api/users", "method" => "GET"}]},
+        Path.join([map_dir, "solution", "specs", "api.yaml"])
+      )
+
+      response_fn = fn _messages, _opts ->
+        {:ok, "```file:lib/app/pi_users.ex\ndefmodule App.PiUsers do\n  def list, do: []\nend\n```"}
+      end
+
+      result =
+        Executor.run(project_path,
+          map_dir: map_dir,
+          execution_mode: :pi,
+          llm_opts: [provider: :mock, response_fn: response_fn]
+        )
+
+      assert {:ok, %{version: _, tasks: tasks, summary: _}} = result
+      assert length(tasks) > 0
+
+      # Verify files were written (pi falls back to llm since Pi.Pool isn't started)
+      output_base = Path.join(project_path, "output")
+      assert File.dir?(output_base)
+
+      # At least one task output directory should contain files
+      output_dirs = File.ls!(output_base)
+      assert length(output_dirs) > 0
     end
   end
 

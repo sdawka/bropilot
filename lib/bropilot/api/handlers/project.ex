@@ -123,9 +123,9 @@ defmodule Bropilot.Api.Handlers.Project do
 
   def get_slot(conn, space_str, slot_str) do
     with {:ok, space_atom} <- parse_space(space_str),
+         {:ok, slot_atom} <- parse_slot(slot_str),
          {:ok, bropilot_dir} <- ensure_project(bropilot_dir()) do
       map_dir = Path.join(bropilot_dir, "map")
-      slot_atom = String.to_atom(slot_str)
 
       case Store.read(map_dir, space_atom, slot_atom) do
         {:ok, data} ->
@@ -144,9 +144,9 @@ defmodule Bropilot.Api.Handlers.Project do
 
   def put_slot(conn, space_str, slot_str) do
     with {:ok, space_atom} <- parse_space(space_str),
+         {:ok, slot_atom} <- parse_slot(slot_str),
          {:ok, bropilot_dir} <- ensure_project(bropilot_dir()) do
       map_dir = Path.join(bropilot_dir, "map")
-      slot_atom = String.to_atom(slot_str)
       data = conn.body_params
 
       case Store.write(map_dir, space_atom, slot_atom, data) do
@@ -238,6 +238,22 @@ defmodule Bropilot.Api.Handlers.Project do
 
   defp parse_space(space_str) do
     {:error, "unknown space: #{space_str}"}
+  end
+
+  # Known slot IDs from Bropilot.Spaces definitions — bounded allowlist
+  @known_slot_ids ~w(
+    audience problem context assumptions hypotheses
+    vocabulary domain flows architecture specs
+    versions validation
+    glossary decisions changelog xrefs
+  )
+
+  defp parse_slot(slot_str) when slot_str in @known_slot_ids do
+    {:ok, String.to_existing_atom(slot_str)}
+  end
+
+  defp parse_slot(slot_str) do
+    {:error, "unknown slot: #{slot_str}"}
   end
 
   @engine_name Bropilot.Api.PipelineEngine

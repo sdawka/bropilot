@@ -9,6 +9,7 @@ import {
   createSnapshot,
   generatePlan,
   generateTasks,
+  ApiError,
 } from './api';
 
 // Mock connection module to control getConnection return values
@@ -191,15 +192,16 @@ describe('API error handling patterns', () => {
     expect(await getKnowledge()).toBeNull();
   });
 
-  it('returns null for all POST helpers when API returns 500', async () => {
+  it('throws ApiError for all POST helpers when API returns 500', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 500,
+      json: async () => ({ ok: false, error: 'server error' }),
     });
 
-    expect(await extractVibe()).toBeNull();
-    expect(await createSnapshot()).toBeNull();
-    expect(await generatePlan()).toBeNull();
-    expect(await generateTasks()).toBeNull();
+    await expect(extractVibe()).rejects.toThrow(ApiError);
+    await expect(createSnapshot()).rejects.toThrow(ApiError);
+    await expect(generatePlan()).rejects.toThrow(ApiError);
+    await expect(generateTasks()).rejects.toThrow(ApiError);
   });
 });

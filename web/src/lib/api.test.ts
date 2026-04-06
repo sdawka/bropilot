@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { fetchApi, pair, getProject, getSpaces, getPipelineStatus, startVibe, submitVibeInput, startBuild } from './api';
+import { fetchApi, pair, getProject, getSpaces, getPipelineStatus, startVibe, submitVibeInput, startBuild, ApiError } from './api';
 
 // Mock connection module to control getConnection return values
 vi.mock('./connection', () => ({
@@ -39,11 +39,11 @@ describe('fetchApi', () => {
     expect(callArgs[0]).toContain('/api/project');
   });
 
-  it('returns null when API responds with ok: false', async () => {
+  it('throws ApiError when API responds with ok: false', async () => {
     globalThis.fetch = mockFetchResponse({ ok: false, error: 'not found' });
 
-    const result = await fetchApi('/api/missing');
-    expect(result).toBeNull();
+    await expect(fetchApi('/api/missing')).rejects.toThrow(ApiError);
+    await expect(fetchApi('/api/missing')).rejects.toThrow('not found');
   });
 
   it('returns null when fetch throws (network error)', async () => {
@@ -53,14 +53,49 @@ describe('fetchApi', () => {
     expect(result).toBeNull();
   });
 
-  it('returns null when HTTP status is not ok', async () => {
+  it('throws ApiError when HTTP status is not ok', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 500,
+      json: async () => ({ ok: false, error: 'internal server error' }),
     });
 
-    const result = await fetchApi('/api/project');
-    expect(result).toBeNull();
+    await expect(fetchApi('/api/project')).rejects.toThrow(ApiError);
+    await expect(fetchApi('/api/project')).rejects.toThrow('internal server error');
+  });
+
+  it('ApiError includes server error message from response body', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 400,
+      json: async () => ({ ok: false, error: 'no .bropilot directory found' }),
+    });
+
+    try {
+      await fetchApi('/api/project');
+      expect.fail('should have thrown');
+    } catch (err) {
+      expect(err).toBeInstanceOf(ApiError);
+      expect((err as ApiError).status).toBe(400);
+      expect((err as ApiError).serverError).toBe('no .bropilot directory found');
+    }
+  });
+
+  it('throws ApiError with empty serverError when response is not JSON', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 502,
+      json: async () => { throw new Error('not JSON'); },
+    });
+
+    try {
+      await fetchApi('/api/project');
+      expect.fail('should have thrown');
+    } catch (err) {
+      expect(err).toBeInstanceOf(ApiError);
+      expect((err as ApiError).status).toBe(502);
+      expect((err as ApiError).serverError).toBe('');
+    }
   });
 
   it('includes Authorization header when connection has token', async () => {

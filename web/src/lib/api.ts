@@ -41,11 +41,33 @@ function getAuthHeaders(): Record<string, string> {
 interface ApiResponse<T = unknown> {
   ok: boolean;
   data: T;
+  error?: string;
 }
 
 /**
- * Low-level fetch wrapper. Throws on network errors but returns
- * `null` when the API is unreachable so callers can degrade gracefully.
+ * Custom error class for API errors that carries the HTTP status code
+ * and server-provided error message so the UI can display specific
+ * error messages (e.g., "missing .bropilot" or "domain worker not started").
+ */
+export class ApiError extends Error {
+  status: number;
+  serverError: string;
+
+  constructor(status: number, serverError: string) {
+    super(serverError || `Server responded ${status}`);
+    this.name = 'ApiError';
+    this.status = status;
+    this.serverError = serverError;
+  }
+}
+
+/**
+ * Low-level fetch wrapper.
+ *
+ * - On success (2xx with ok: true): returns `data` from the response.
+ * - On non-2xx responses: throws `ApiError` with the server's error body
+ *   so callers (especially UI components) can display specific error messages.
+ * - On network errors (API unreachable): returns `null` for graceful degradation.
  */
 export async function fetchApi<T = unknown>(
   path: string,
@@ -62,12 +84,25 @@ export async function fetchApi<T = unknown>(
       },
     });
     if (!res.ok) {
-      console.warn(`[api] ${res.status} from ${url}`);
-      return null;
+      // Try to parse the server error body for specific error messages
+      let serverError = '';
+      try {
+        const body = await res.json();
+        serverError = body?.error || '';
+      } catch {
+        /* response wasn't JSON — ignore */
+      }
+      console.warn(`[api] ${res.status} from ${url}${serverError ? `: ${serverError}` : ''}`);
+      throw new ApiError(res.status, serverError);
     }
     const json: ApiResponse<T> = await res.json();
-    return json.ok ? json.data : null;
+    if (!json.ok) {
+      throw new ApiError(400, json.error || 'Unknown error');
+    }
+    return json.data;
   } catch (err) {
+    // Re-throw ApiError so callers can handle specific server errors
+    if (err instanceof ApiError) throw err;
     console.warn(`[api] Failed to reach API at ${getBaseUrl()}: ${err}`);
     return null;
   }
@@ -261,6 +296,7 @@ export function getClientHeaders(fallbackUrl: string): Record<string, string> {
 
 /**
  * Client-side POST helper for Alpine.js components.
+ * Throws ApiError with server-provided error message on non-2xx responses.
  */
 export async function clientPost(fallbackUrl: string, path: string, body?: unknown): Promise<unknown> {
   const cfg = getClientApiConfig(fallbackUrl);
@@ -269,18 +305,33 @@ export async function clientPost(fallbackUrl: string, path: string, body?: unkno
     headers: getClientHeaders(fallbackUrl),
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
-  if (!res.ok) throw new Error(`Server responded ${res.status}`);
+  if (!res.ok) {
+    let serverError = '';
+    try {
+      const errBody = await res.json();
+      serverError = errBody?.error || '';
+    } catch { /* not JSON */ }
+    throw new ApiError(res.status, serverError);
+  }
   return res.json();
 }
 
 /**
  * Client-side GET helper for Alpine.js components.
+ * Throws ApiError with server-provided error message on non-2xx responses.
  */
 export async function clientGet(fallbackUrl: string, path: string): Promise<unknown> {
   const cfg = getClientApiConfig(fallbackUrl);
   const res = await fetch(`${cfg.url}${path}`, {
     headers: getClientHeaders(fallbackUrl),
   });
-  if (!res.ok) throw new Error(`Server responded ${res.status}`);
+  if (!res.ok) {
+    let serverError = '';
+    try {
+      const errBody = await res.json();
+      serverError = errBody?.error || '';
+    } catch { /* not JSON */ }
+    throw new ApiError(res.status, serverError);
+  }
   return res.json();
 }
