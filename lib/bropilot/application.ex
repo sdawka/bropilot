@@ -5,6 +5,10 @@ defmodule Bropilot.Application do
 
   @impl true
   def start(_type, _args) do
+    # Apply BROPILOT_BACKEND config (local|cloud) — sets storage and state backends.
+    # Raises ArgumentError for invalid values (e.g. "redis").
+    Bropilot.Config.apply!()
+
     children =
       [
         {Bropilot.Recipe.Registry, []},
