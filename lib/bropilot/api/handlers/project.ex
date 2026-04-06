@@ -162,31 +162,37 @@ defmodule Bropilot.Api.Handlers.Project do
   end
 
   def get_recipe(conn) do
-    recipe = Registry.get()
+    case ensure_recipe_loaded() do
+      :ok ->
+        recipe = Registry.get()
 
-    if recipe do
-      json(conn, 200, %{
-        ok: true,
-        data: %{
-          name: recipe.name,
-          version: recipe.version,
-          description: recipe.description,
-          steps:
-            Enum.map(recipe.steps, fn step ->
-              %{
-                id: step.id,
-                name: step.name,
-                space: step.space,
-                space_slots: step.space_slots,
-                knowledge_contributes: step.knowledge_contributes,
-                measurement_contributes: step.measurement_contributes
-              }
-            end),
-          acts: recipe.acts
-        }
-      })
-    else
-      json(conn, 404, %{ok: false, error: "no recipe loaded"})
+        if recipe do
+          json(conn, 200, %{
+            ok: true,
+            data: %{
+              name: recipe.name,
+              version: recipe.version,
+              description: recipe.description,
+              steps:
+                Enum.map(recipe.steps, fn step ->
+                  %{
+                    id: step.id,
+                    name: step.name,
+                    space: step.space,
+                    space_slots: step.space_slots,
+                    knowledge_contributes: step.knowledge_contributes,
+                    measurement_contributes: step.measurement_contributes
+                  }
+                end),
+              acts: recipe.acts
+            }
+          })
+        else
+          json(conn, 404, %{ok: false, error: "no recipe loaded"})
+        end
+
+      {:error, msg} ->
+        json(conn, 400, %{ok: false, error: msg})
     end
   end
 
@@ -291,6 +297,25 @@ defmodule Bropilot.Api.Handlers.Project do
 
       {:error, _} ->
         []
+    end
+  end
+
+  defp ensure_recipe_loaded do
+    case Registry.get() do
+      nil ->
+        with {:ok, bropilot_dir} <- ensure_project(bropilot_dir()),
+             {:ok, _recipe} <- Registry.load(Path.join(bropilot_dir, "recipe")) do
+          :ok
+        else
+          {:error, msg} when is_binary(msg) ->
+            {:error, msg}
+
+          {:error, reason} ->
+            {:error, "failed to load recipe: #{inspect(reason)}"}
+        end
+
+      _recipe ->
+        :ok
     end
   end
 end

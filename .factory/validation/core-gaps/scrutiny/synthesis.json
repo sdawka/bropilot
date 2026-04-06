@@ -1,7 +1,7 @@
 {
   "milestone": "core-gaps",
-  "round": 2,
-  "status": "fail",
+  "round": 3,
+  "status": "pass",
   "validatorsRun": {
     "test": {
       "passed": true,
@@ -21,55 +21,19 @@
   },
   "reviewsSummary": {
     "total": 1,
-    "passed": 0,
-    "failed": 1,
-    "failedFeatures": [
-      "fix-scrutiny-m1-security-and-wiring"
-    ]
+    "passed": 1,
+    "failed": 0,
+    "failedFeatures": []
   },
-  "blockingIssues": [
+  "blockingIssues": [],
+  "appliedUpdates": [
     {
-      "featureId": "fix-scrutiny-m1-security-and-wiring",
-      "severity": "blocking",
-      "description": "Codegen Writer still lacks path traversal containment checks; generated paths can escape the target output subtree."
-    },
-    {
-      "featureId": "fix-scrutiny-m1-security-and-wiring",
-      "severity": "blocking",
-      "description": "Act3 Executor still does not route execution_mode :pi through real codegen execution path (Task.Agent/Codegen.Writer)."
-    },
-    {
-      "featureId": "fix-scrutiny-m1-security-and-wiring",
-      "severity": "blocking",
-      "description": "Map slot handlers in project.ex still convert untrusted route params via String.to_atom/1 (atom exhaustion risk)."
-    },
-    {
-      "featureId": "fix-scrutiny-m1-security-and-wiring",
-      "severity": "blocking",
-      "description": "Frontend API helpers in web/src/lib/api.ts still do not surface non-2xx server error bodies to callers."
+      "target": "library",
+      "description": "Updated .factory/library/architecture.md Web UI section to reflect that the domain (Act 2) page now exists and only ER/traceability remain missing.",
+      "sourceFeature": "fix-scrutiny-m1-security-and-wiring"
     }
   ],
-  "appliedUpdates": [],
-  "suggestedGuidanceUpdates": [
-    {
-      "target": "AGENTS.md",
-      "suggestion": "Add an explicit atom-safety rule: never call String.to_atom/1 on externally controlled input (path/query/body); require allowlists or existing-atom/bounded mapping.",
-      "evidence": "Unsafe String.to_atom(slot_str) remains in lib/bropilot/api/handlers/project.ex map-slot handlers and was re-flagged as blocking in rerun review.",
-      "isSystemic": true
-    },
-    {
-      "target": "skills/scrutiny-validator + orchestrator mission flow",
-      "suggestion": "Gate scrutiny re-runs on completed fix features with transcript/handoff availability before dispatching reviewer runs.",
-      "evidence": "fix-scrutiny-m1-security-and-wiring had no workerSessionId/completedWorkerSessionId; reviewer had to inspect raw repo state without feature-scoped transcript.",
-      "isSystemic": true
-    },
-    {
-      "target": ".factory/library/architecture.md",
-      "suggestion": "Refresh stale factual claims about endpoint count and domain-page availability to match current codebase state.",
-      "evidence": "Reviewer observed architecture docs still claim 34 endpoints and missing domain page while router/domain page state differs.",
-      "isSystemic": false
-    }
-  ],
+  "suggestedGuidanceUpdates": [],
   "rejectedObservations": [],
-  "previousRound": ".factory/validation/core-gaps/scrutiny/synthesis.round1.json"
+  "previousRound": ".factory/validation/core-gaps/scrutiny/synthesis.round2.json"
 }
