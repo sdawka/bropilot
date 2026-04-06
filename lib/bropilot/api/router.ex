@@ -6,7 +6,7 @@ defmodule Bropilot.Api.Router do
 
   use Plug.Router
 
-  alias Bropilot.Api.Handlers.{Project, Pipeline, Vibe, Domain, Work, Knowledge, Pair}
+  alias Bropilot.Api.Handlers.{Project, Pipeline, Vibe, Domain, Work, Knowledge, Traceability, Pair}
 
   plug :match
   plug :dispatch
@@ -122,6 +122,19 @@ defmodule Bropilot.Api.Router do
   # Knowledge
   get "/api/knowledge" do
     Knowledge.get_knowledge(conn)
+  end
+
+  # Traceability
+  get "/api/traceability" do
+    Traceability.get_matrix(conn)
+  end
+
+  get "/api/traceability/:category/:spec_id" do
+    Traceability.get_entry(conn, category, spec_id)
+  end
+
+  put "/api/traceability/:category/:spec_id" do
+    Traceability.put_entry(conn, category, spec_id)
   end
 
   # Catch-all
