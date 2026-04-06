@@ -167,6 +167,18 @@ export async function extractVibe() {
   return postJson<Record<string, unknown>>('/api/vibe/extract');
 }
 
+export async function startDomain(mode?: 'mock' | 'llm') {
+  return postJson<Record<string, unknown>>('/api/domain/start', mode ? { mode } : undefined);
+}
+
+export async function submitDomainInput(text: string) {
+  return postJson<Record<string, unknown>>('/api/domain/input', { text });
+}
+
+export async function extractDomain() {
+  return postJson<Record<string, unknown>>('/api/domain/extract');
+}
+
 export async function createSnapshot() {
   return postJson<Record<string, unknown>>('/api/snapshot');
 }
