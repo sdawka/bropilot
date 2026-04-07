@@ -2,24 +2,19 @@
 export const prerender = false;
 
 import Layout from '../layouts/Layout.astro';
-import { SPEC_CATEGORIES, formatSpecName } from '../lib/api';
 
 const apiUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:4000';
-
-const specNames = SPEC_CATEGORIES.map((cat) => ({
-  id: cat,
-  label: formatSpecName(cat),
-}));
 ---
 
 <Layout title="Domain Modeling">
   <div class="page-header">
-    <h1>Domain Modeling</h1>
-    <p class="page-description">Act 2 — Define the big picture domain model and expand into detailed specs</p>
+    <h1>Domain — Solution Exploration</h1>
+    <p class="page-description">
+      Freeform conversation about the solution space: vocabulary, entities, flows, architecture, specs. Both Vibe and Domain views feed the same exploration session.
+    </p>
   </div>
 
-  <div class="section" x-data={`domainChat('${apiUrl}')`}>
-    <!-- Error banner -->
+  <div class="section" x-data={`exploreChat('${apiUrl}', 'solution')`}>
     <template x-if="error">
       <div class="card" style="background: var(--color-warning-bg, #332b00); border-color: var(--color-warning, #f5a623); margin-bottom: var(--space-4);">
         <div class="empty-state">
@@ -32,868 +27,255 @@ const specNames = SPEC_CATEGORIES.map((cat) => ({
       </div>
     </template>
 
-    <!-- Chat messages -->
-    <div class="domain-chat" id="domain-chat">
-      <!-- Idle state: Start button -->
-      <template x-if="phase === 'idle'">
-        <div class="card">
-          <div class="empty-state">
-            <div class="empty-state-icon">🌐</div>
-            <p>Start domain modeling to define your app's vocabulary, entities, relationships, flows, and architecture.</p>
-            <button class="btn btn-primary" x-on:click="start()" x-bind:disabled="loading">
-              <span x-show="!loading">Start Domain Modeling</span>
+    <template x-if="!started">
+      <div class="card">
+        <div class="empty-state">
+          <div class="empty-state-icon">🌐</div>
+          <p>Start an exploration session to capture solution-space context: vocabulary, entities, relationships, user &amp; system flows, architecture, and specs.</p>
+          <div style="display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap;">
+            <button class="btn btn-primary" x-on:click="start('mock')" x-bind:disabled="loading">
+              <span x-show="!loading">Start (Mock)</span>
               <span x-show="loading">Starting…</span>
+            </button>
+            <button class="btn btn-secondary" x-on:click="start('llm')" x-bind:disabled="loading">
+              Start (LLM)
             </button>
           </div>
         </div>
-      </template>
-
-      <!-- Chat history -->
-      <template x-for="(msg, i) in messages" x-bind:key="i">
-        <div class="chat-message" x-bind:class="msg.role === 'bot' ? 'chat-bot' : 'chat-user'">
-          <div class="chat-avatar">
-            <span x-text="msg.role === 'bot' ? '⬡' : '●'"></span>
-          </div>
-          <div class="chat-bubble">
-            <div class="chat-role" x-text="msg.role === 'bot' ? 'Bropilot' : 'You'"></div>
-            <div class="chat-text" x-html="msg.html ? msg.text : undefined" x-text="msg.html ? undefined : msg.text"></div>
-          </div>
-        </div>
-      </template>
-
-      <!-- Loading indicator -->
-      <template x-if="loading && phase !== 'idle'">
-        <div class="chat-message chat-bot">
-          <div class="chat-avatar"><span>⬡</span></div>
-          <div class="chat-bubble">
-            <div class="chat-role">Bropilot</div>
-            <div class="chat-text typing" x-text="loadingMessage"></div>
-          </div>
-        </div>
-      </template>
-    </div>
-
-    <!-- Input area for Step 3 -->
-    <template x-if="phase === 'step3' && !loading">
-      <div class="domain-input">
-        <form x-on:submit.prevent="submitInput()" class="domain-form">
-          <textarea
-            class="domain-textarea"
-            placeholder="Describe your domain… What does your application do? What are the main concepts?"
-            x-model="input"
-            x-bind:disabled="loading"
-            x-ref="domainInput"
-            rows="4"
-          ></textarea>
-          <button type="submit" class="btn btn-primary" x-bind:disabled="loading || !input.trim()">
-            Submit &amp; Extract
-          </button>
-        </form>
       </div>
     </template>
 
-    <!-- Domain model cards (Step 3 done) -->
-    <template x-if="step3Data && (phase === 'step3_done' || phase === 'step4' || phase === 'extracting4' || phase === 'complete')">
-      <div class="domain-results">
-        <h2 class="section-title">Domain Model</h2>
-        <div class="card-grid">
-          <!-- Vocabulary -->
-          <div class="card domain-card">
-            <div class="card-header">
-              <h3 class="card-title">📖 Vocabulary</h3>
-              <span class="badge badge-completed" x-text="(step3Data.vocabulary || []).length + ' terms'"></span>
-            </div>
-            <div class="card-body">
-              <template x-if="step3Data.vocabulary && step3Data.vocabulary.length > 0">
-                <div class="domain-list">
-                  <template x-for="(item, vi) in step3Data.vocabulary" x-bind:key="vi">
-                    <div class="domain-list-item">
-                      <strong x-text="item.term"></strong>
-                      <span class="domain-meta" x-text="item.category ? `[${item.category}]` : ''"></span>
-                      <p x-text="item.definition"></p>
-                      <template x-if="item.aliases && item.aliases.length">
-                        <div class="domain-aliases">
-                          <span class="domain-label">Aliases:</span>
-                          <template x-for="(alias, ai) in item.aliases" x-bind:key="ai">
-                            <span class="badge badge-pending" x-text="alias"></span>
-                          </template>
-                        </div>
-                      </template>
-                    </div>
-                  </template>
+    <template x-if="started">
+      <div>
+        <div class="vibe-chat" id="domain-chat">
+          <template x-if="messages.length === 0">
+            <div class="chat-message chat-bot">
+              <div class="chat-avatar"><span>⬡</span></div>
+              <div class="chat-bubble">
+                <div class="chat-role">Bropilot</div>
+                <div class="chat-text">
+                  Session started. Describe the solution: key concepts (vocabulary), main entities and how they relate, user flows, system flows, and architectural choices. Extract when you're ready.
                 </div>
-              </template>
-              <template x-if="!step3Data.vocabulary || step3Data.vocabulary.length === 0">
-                <div class="empty-state"><p>No vocabulary extracted</p></div>
-              </template>
-            </div>
-          </div>
-
-          <!-- Entities -->
-          <div class="card domain-card">
-            <div class="card-header">
-              <h3 class="card-title">📦 Entities</h3>
-              <span class="badge badge-completed" x-text="(step3Data.entities || []).length + ' entities'"></span>
-            </div>
-            <div class="card-body">
-              <template x-if="step3Data.entities && step3Data.entities.length > 0">
-                <div class="domain-list">
-                  <template x-for="(ent, ei) in step3Data.entities" x-bind:key="ei">
-                    <div class="domain-list-item">
-                      <strong x-text="ent.name"></strong>
-                      <p x-text="ent.description"></p>
-                      <template x-if="ent.attributes">
-                        <div class="domain-attrs">
-                          <span class="domain-label">Attributes:</span>
-                          <template x-for="(val, key) in ent.attributes" x-bind:key="key">
-                            <span class="badge badge-pending"><span x-text="key"></span>: <span x-text="val"></span></span>
-                          </template>
-                        </div>
-                      </template>
-                    </div>
-                  </template>
-                </div>
-              </template>
-              <template x-if="!step3Data.entities || step3Data.entities.length === 0">
-                <div class="empty-state"><p>No entities extracted</p></div>
-              </template>
-            </div>
-          </div>
-
-          <!-- Relationships -->
-          <div class="card domain-card">
-            <div class="card-header">
-              <h3 class="card-title">🔗 Relationships</h3>
-              <span class="badge badge-completed" x-text="(step3Data.relationships || []).length + ' relationships'"></span>
-            </div>
-            <div class="card-body">
-              <template x-if="step3Data.relationships && step3Data.relationships.length > 0">
-                <div class="domain-list">
-                  <template x-for="(rel, ri) in step3Data.relationships" x-bind:key="ri">
-                    <div class="domain-list-item">
-                      <strong>
-                        <span x-text="rel.source"></span>
-                        <span class="domain-arrow">→</span>
-                        <span x-text="rel.target"></span>
-                      </strong>
-                      <span class="badge badge-in-progress" x-text="rel.type"></span>
-                      <p x-text="rel.description"></p>
-                    </div>
-                  </template>
-                </div>
-              </template>
-              <template x-if="!step3Data.relationships || step3Data.relationships.length === 0">
-                <div class="empty-state"><p>No relationships extracted</p></div>
-              </template>
-            </div>
-          </div>
-
-          <!-- User Flows -->
-          <div class="card domain-card">
-            <div class="card-header">
-              <h3 class="card-title">🔄 Flows</h3>
-              <span class="badge badge-completed" x-text="((step3Data.user_flows || []).length + (step3Data.system_flows || []).length) + ' flows'"></span>
-            </div>
-            <div class="card-body">
-              <template x-if="(step3Data.user_flows && step3Data.user_flows.length > 0) || (step3Data.system_flows && step3Data.system_flows.length > 0)">
-                <div class="domain-list">
-                  <template x-if="step3Data.user_flows && step3Data.user_flows.length > 0">
-                    <div>
-                      <div class="domain-subheading">User Flows</div>
-                      <template x-for="(flow, fi) in step3Data.user_flows" x-bind:key="'uf-'+fi">
-                        <div class="domain-list-item">
-                          <strong x-text="flow.name"></strong>
-                          <span class="domain-meta" x-text="flow.actor ? `Actor: ${flow.actor}` : ''"></span>
-                          <p x-text="flow.trigger"></p>
-                          <template x-if="flow.steps && flow.steps.length">
-                            <ol class="domain-steps">
-                              <template x-for="(s, si) in flow.steps" x-bind:key="si">
-                                <li x-text="s"></li>
-                              </template>
-                            </ol>
-                          </template>
-                          <div class="domain-meta" x-text="flow.outcome ? `Outcome: ${flow.outcome}` : ''"></div>
-                        </div>
-                      </template>
-                    </div>
-                  </template>
-                  <template x-if="step3Data.system_flows && step3Data.system_flows.length > 0">
-                    <div>
-                      <div class="domain-subheading">System Flows</div>
-                      <template x-for="(flow, fi) in step3Data.system_flows" x-bind:key="'sf-'+fi">
-                        <div class="domain-list-item">
-                          <strong x-text="flow.name"></strong>
-                          <p x-text="flow.trigger"></p>
-                          <template x-if="flow.steps && flow.steps.length">
-                            <ol class="domain-steps">
-                              <template x-for="(s, si) in flow.steps" x-bind:key="si">
-                                <li x-text="s"></li>
-                              </template>
-                            </ol>
-                          </template>
-                          <div class="domain-meta" x-text="flow.outcome ? `Outcome: ${flow.outcome}` : ''"></div>
-                        </div>
-                      </template>
-                    </div>
-                  </template>
-                </div>
-              </template>
-              <template x-if="(!step3Data.user_flows || step3Data.user_flows.length === 0) && (!step3Data.system_flows || step3Data.system_flows.length === 0)">
-                <div class="empty-state"><p>No flows extracted</p></div>
-              </template>
-            </div>
-          </div>
-
-          <!-- Architecture -->
-          <div class="card domain-card">
-            <div class="card-header">
-              <h3 class="card-title">🏗️ Architecture</h3>
-              <span class="badge badge-completed" x-text="(step3Data.architecture_components || []).length + ' components'"></span>
-            </div>
-            <div class="card-body">
-              <template x-if="step3Data.architecture_components && step3Data.architecture_components.length > 0">
-                <div class="domain-list">
-                  <template x-for="(comp, ci) in step3Data.architecture_components" x-bind:key="ci">
-                    <div class="domain-list-item">
-                      <strong x-text="comp.component"></strong>
-                      <span class="badge badge-in-progress" x-text="comp.type"></span>
-                      <p x-text="comp.responsibility"></p>
-                      <template x-if="comp.depends_on && comp.depends_on.length">
-                        <div class="domain-aliases">
-                          <span class="domain-label">Depends on:</span>
-                          <template x-for="(dep, di) in comp.depends_on" x-bind:key="di">
-                            <span class="badge badge-pending" x-text="dep"></span>
-                          </template>
-                        </div>
-                      </template>
-                    </div>
-                  </template>
-                </div>
-              </template>
-              <template x-if="!step3Data.architecture_components || step3Data.architecture_components.length === 0">
-                <div class="empty-state"><p>No architecture components extracted</p></div>
-              </template>
-            </div>
-          </div>
-        </div>
-
-        <!-- Proceed to Step 4 CTA -->
-        <template x-if="phase === 'step3_done'">
-          <div class="domain-cta" style="margin-top: var(--space-6);">
-            <div class="card" style="background: var(--color-accent-bg); border-color: var(--color-accent);">
-              <div class="empty-state">
-                <div class="empty-state-icon">📋</div>
-                <p>Domain model extracted! Continue to generate detailed specifications across all 11 categories.</p>
-                <button class="btn btn-primary" x-on:click="proceedToStep4()" x-bind:disabled="loading">
-                  <span x-show="!loading">Continue to Specs</span>
-                  <span x-show="loading">Generating Specs…</span>
-                </button>
               </div>
             </div>
-          </div>
-        </template>
-      </div>
-    </template>
+          </template>
 
-    <!-- Step 4: Spec Tabs (complete) -->
-    <template x-if="step4Data && phase === 'complete'">
-      <div class="domain-specs" style="margin-top: var(--space-8);">
-        <h2 class="section-title">Specifications</h2>
+          <template x-for="(msg, i) in messages" x-bind:key="i">
+            <div class="chat-message" x-bind:class="msg.role === 'bot' ? 'chat-bot' : 'chat-user'">
+              <div class="chat-avatar">
+                <span x-text="msg.role === 'bot' ? '⬡' : '●'"></span>
+              </div>
+              <div class="chat-bubble">
+                <div class="chat-role" x-text="msg.role === 'bot' ? 'Bropilot' : 'You'"></div>
+                <div class="chat-text" x-text="msg.text"></div>
+              </div>
+            </div>
+          </template>
 
-        <div x-data="{ activeSpecTab: 'api' }">
-          <div class="tabs-nav">
-            {specNames.map((spec) => (
-              <button
-                class="tab-btn"
-                x-on:click={`activeSpecTab = '${spec.id}'`}
-                x-bind:class={`{ 'active': activeSpecTab === '${spec.id}' }`}
-              >
-                {spec.label}
-                <template x-if={`step4Data['${spec.id}'] && step4Data['${spec.id}'].length > 0`}>
-                  <span class="tab-dot">●</span>
-                </template>
+          <template x-if="loading">
+            <div class="chat-message chat-bot">
+              <div class="chat-avatar"><span>⬡</span></div>
+              <div class="chat-bubble">
+                <div class="chat-role">Bropilot</div>
+                <div class="chat-text typing">Working…</div>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <div class="vibe-input">
+          <form x-on:submit.prevent="send()" class="vibe-form">
+            <textarea
+              class="vibe-textarea"
+              placeholder="Describe entities, relationships, user flows, system flows, architecture…"
+              x-model="input"
+              x-bind:disabled="loading"
+              x-ref="vibeInput"
+              rows="5"
+            ></textarea>
+            <div class="vibe-actions">
+              <button type="submit" class="btn btn-primary" x-bind:disabled="loading || !input.trim()">
+                Send message
               </button>
-            ))}
-          </div>
+              <button type="button" class="btn btn-secondary" x-on:click="extract()" x-bind:disabled="loading">
+                Extract
+              </button>
+              <button type="button" class="btn btn-secondary" x-on:click="refreshReadiness()" x-bind:disabled="loading">
+                Refresh readiness
+              </button>
+            </div>
+          </form>
+        </div>
 
-          {SPEC_CATEGORIES.map((cat) => (
-            <div x-show={`activeSpecTab === '${cat}'`} x-cloak>
-              <div class="card spec-card">
-                <div class="card-header">
-                  <h3 class="card-title">{formatSpecName(cat)}</h3>
-                  <span class="badge badge-completed" x-text={`(step4Data['${cat}'] || []).length + ' items'`}></span>
-                </div>
-                <div class="card-body">
-                  <template x-if={`step4Data['${cat}'] && step4Data['${cat}'].length > 0`}>
-                    <div class="table-wrapper">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Details</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <template x-for={`(item, idx) in step4Data['${cat}']`} x-bind:key="idx">
-                            <tr>
-                              <td x-text="idx + 1"></td>
-                              <td>
-                                <strong x-text="item.name || item.path || item.route || item.component || ('Item ' + (idx + 1))"></strong>
-                              </td>
-                              <td>
-                                <span x-text="item.description || item.purpose || item.responsibility || item.rule || item.when || JSON.stringify(item).substring(0, 120)"></span>
-                              </td>
-                            </tr>
-                          </template>
-                        </tbody>
-                      </table>
-                    </div>
+        <template x-if="readiness">
+          <div class="readiness-grid">
+            <div class="card readiness-card readiness-focus">
+              <div class="card-header"><h3 class="card-title">Solution slots</h3></div>
+              <div class="card-body">
+                <div class="slot-group">
+                  <div class="slot-label slot-filled">Filled</div>
+                  <template x-if="(readiness.solution?.filled || []).length === 0">
+                    <span class="slot-empty-msg">none yet</span>
                   </template>
-                  <template x-if={`!step4Data['${cat}'] || step4Data['${cat}'].length === 0`}>
-                    <div class="empty-state">
-                      <div class="empty-state-icon">📝</div>
-                      <p>No {formatSpecName(cat).toLowerCase()} specs generated yet</p>
-                    </div>
+                  <template x-for="slot in (readiness.solution?.filled || [])" x-bind:key="'sf-'+slot">
+                    <span class="badge badge-completed" x-text="slot"></span>
+                  </template>
+                </div>
+                <div class="slot-group">
+                  <div class="slot-label slot-missing">Empty</div>
+                  <template x-if="(readiness.solution?.empty || []).length === 0">
+                    <span class="slot-empty-msg">all filled ✓</span>
+                  </template>
+                  <template x-for="slot in (readiness.solution?.empty || [])" x-bind:key="'se-'+slot">
+                    <span class="badge badge-pending" x-text="slot"></span>
                   </template>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-    </template>
 
-    <!-- Success banner when complete -->
-    <template x-if="phase === 'complete'">
-      <div class="card" style="margin-top: var(--space-6); background: var(--color-success-bg, #0a2e1a); border-color: var(--color-success, #22c55e);">
-        <div class="empty-state">
-          <div class="empty-state-icon">🎉</div>
-          <p>Domain modeling complete! All data has been saved to the Solution Space. <a href="/solution/">View Solution Space →</a></p>
-        </div>
-      </div>
-    </template>
-
-    <!-- Restart button (always visible when not idle) -->
-    <template x-if="phase !== 'idle'">
-      <div style="margin-top: var(--space-4); text-align: right;">
-        <button class="btn btn-secondary btn-sm" x-on:click="restart()" x-bind:disabled="loading">
-          ↻ Restart Session
-        </button>
-      </div>
-    </template>
-  </div>
-
-  <!-- ER Diagram Section -->
-  <div class="section" x-data="erSection()" x-on:keydown.escape.window="closePanel()">
-    <h2 class="section-title">ER Diagram</h2>
-
-    <!-- Loading -->
-    <template x-if="erLoading && !erError">
-      <div class="card">
-        <div class="empty-state">
-          <div class="empty-state-icon">⏳</div>
-          <p>Loading domain data…</p>
-        </div>
-      </div>
-    </template>
-
-    <!-- Error -->
-    <template x-if="erError">
-      <div class="card" style="background: var(--color-warning-bg, #332b00); border-color: var(--color-warning, #f5a623);">
-        <div class="empty-state">
-          <div class="empty-state-icon">⚠️</div>
-          <p><span x-text="erError"></span></p>
-        </div>
-      </div>
-    </template>
-
-    <!-- Empty state -->
-    <template x-if="!erLoading && !erError && erIsEmpty">
-      <div class="card">
-        <div class="empty-state">
-          <div class="empty-state-icon">📐</div>
-          <p>No domain model yet. Run Act 2 domain modeling above to extract entities and relationships.</p>
-        </div>
-      </div>
-    </template>
-
-    <!-- Diagram -->
-    <template x-if="!erLoading && !erError && !erIsEmpty">
-      <div class="er-layout">
-        <div class="er-wrapper">
-          <div class="er-toolbar">
-            <span class="er-count" x-text="erEntityCount + ' entities, ' + erRelationshipCount + ' relationships'"></span>
-            <div class="er-toolbar-actions">
-              <span class="er-hint" x-show="!selectedEntity">Click an entity to explore</span>
-              <button class="btn btn-sm" x-on:click="refreshER()">↻ Refresh</button>
-            </div>
-          </div>
-          <div class="er-container" id="er-diagram-container">
-            <div id="er-mermaid-output"></div>
-          </div>
-        </div>
-
-        <!-- Entity Explorer Panel -->
-        <template x-if="selectedEntity">
-          <div class="entity-panel-backdrop" x-on:click.self="closePanel()">
-            <div class="entity-panel" x-on:click.stop>
-              <div class="entity-panel-header">
-                <div class="entity-panel-title-row">
-                  <span class="entity-panel-icon">📦</span>
-                  <h2 class="entity-panel-name" x-text="selectedEntity.name"></h2>
+            <div class="card readiness-card">
+              <div class="card-header"><h3 class="card-title">Problem slots</h3></div>
+              <div class="card-body">
+                <div class="slot-group">
+                  <div class="slot-label slot-filled">Filled</div>
+                  <template x-if="(readiness.problem?.filled || []).length === 0">
+                    <span class="slot-empty-msg">none yet</span>
+                  </template>
+                  <template x-for="slot in (readiness.problem?.filled || [])" x-bind:key="'pf-'+slot">
+                    <span class="badge badge-completed" x-text="slot"></span>
+                  </template>
                 </div>
-                <button class="entity-panel-close" x-on:click="closePanel()" aria-label="Close panel">✕</button>
-              </div>
-
-              <template x-if="selectedEntity.description">
-                <div class="entity-panel-section">
-                  <p class="entity-description" x-text="selectedEntity.description"></p>
+                <div class="slot-group">
+                  <div class="slot-label slot-missing">Empty</div>
+                  <template x-if="(readiness.problem?.empty || []).length === 0">
+                    <span class="slot-empty-msg">all filled ✓</span>
+                  </template>
+                  <template x-for="slot in (readiness.problem?.empty || [])" x-bind:key="'pe-'+slot">
+                    <span class="badge badge-pending" x-text="slot"></span>
+                  </template>
                 </div>
-              </template>
-
-              <div class="entity-panel-section">
-                <h3 class="entity-section-title">Attributes</h3>
-                <template x-if="getEntityAttributes(selectedEntity).length === 0">
-                  <p class="entity-empty-note">No attributes defined</p>
-                </template>
-                <template x-if="getEntityAttributes(selectedEntity).length > 0">
-                  <div class="entity-attr-list">
-                    <template x-for="attr in getEntityAttributes(selectedEntity)" x-bind:key="attr.name">
-                      <div class="entity-attr-row">
-                        <span class="entity-attr-name" x-text="attr.name"></span>
-                        <span class="entity-attr-type" x-text="attr.type"></span>
-                      </div>
-                    </template>
-                  </div>
-                </template>
-              </div>
-
-              <div class="entity-panel-section">
-                <h3 class="entity-section-title">Relationships</h3>
-                <template x-if="getEntityRelationships(selectedEntity.name).length === 0">
-                  <p class="entity-empty-note">No relationships</p>
-                </template>
-                <template x-if="getEntityRelationships(selectedEntity.name).length > 0">
-                  <div class="entity-rel-list">
-                    <template x-for="(rel, idx) in getEntityRelationships(selectedEntity.name)" x-bind:key="idx">
-                      <div class="entity-rel-row" x-on:click="selectEntityByName(rel.target)">
-                        <span class="entity-rel-direction" x-text="rel.direction === 'outgoing' ? '→' : '←'"></span>
-                        <span class="entity-rel-type-badge" x-text="rel.type"></span>
-                        <span class="entity-rel-target" x-text="rel.target"></span>
-                      </div>
-                    </template>
-                  </div>
-                </template>
               </div>
             </div>
           </div>
         </template>
+
+        <div class="commit-area" x-show="started">
+          <button class="btn btn-primary" x-on:click="commit()" x-bind:disabled="loading">
+            Commit to Work
+          </button>
+          <template x-if="committed">
+            <span class="commit-status commit-ok" x-text="'Phase: ' + committed.phase"></span>
+          </template>
+          <template x-if="commitError">
+            <span class="commit-status commit-err" x-text="commitError"></span>
+          </template>
+        </div>
       </div>
     </template>
   </div>
 </Layout>
 
 <script>
-  import { clientPost, getClientApiConfig, SPEC_CATEGORIES, formatSpecName } from '../lib/api';
+  import { clientPost, clientGet } from '../lib/api';
 
-  const ER_API_URL = (import.meta as any).env?.PUBLIC_API_URL || 'http://localhost:4000';
-
-  // --- ER Diagram helpers (shared with er.astro) ---
-  function sanitizeName(name: string): string {
-    return name.replace(/[^a-zA-Z0-9_]/g, '_').replace(/^_+|_+$/g, '') || 'unnamed';
-  }
-  function sanitizeType(type: string): string {
-    let t = type.replace(/\(.*\)/, '');
-    t = t.replace(/[^a-zA-Z0-9_]/g, '_').replace(/^_+|_+$/g, '');
-    return t || 'string';
-  }
-  function normalizeAttributes(attrs?: Record<string, string> | Array<{ name: string; type: string }>): Array<{ name: string; type: string }> {
-    if (!attrs) return [];
-    if (Array.isArray(attrs)) return attrs.map((a) => ({ name: a.name || 'unknown', type: a.type || 'string' }));
-    return Object.entries(attrs).map(([key, val]) => ({ name: key, type: typeof val === 'string' ? val : 'string' }));
-  }
-  function cardinalityMarkers(type: string): { left: string; right: string } {
-    switch (type?.toLowerCase()) {
-      case 'has_one': return { left: '||', right: '||' };
-      case 'has_many': return { left: '||', right: 'o{' };
-      case 'belongs_to': return { left: '}o', right: '||' };
-      case 'many_to_many': return { left: '}o', right: 'o{' };
-      case 'produces': return { left: '||', right: 'o{' };
-      case 'feeds_back': return { left: '}o', right: '||' };
-      case 'validates_gate': return { left: '||', right: '||' };
-      default: return { left: '||', right: 'o{' };
-    }
-  }
-  function escapeLabel(text: string): string {
-    return text.replace(/"/g, "'").replace(/\n/g, ' ').substring(0, 60);
-  }
+  type Readiness = {
+    problem?: { filled?: string[]; empty?: string[] };
+    solution?: { filled?: string[]; empty?: string[] };
+  };
 
   document.addEventListener('alpine:init', () => {
-    // @ts-ignore - ER Section
-    window.Alpine.data('erSection', () => ({
-      erLoading: true,
-      erError: '',
-      erIsEmpty: false,
-      entities: [] as Array<any>,
-      relationships: [] as Array<any>,
-      erEntityCount: 0,
-      erRelationshipCount: 0,
-      selectedEntity: null as any,
-
-      async init() {
-        await this.loadERData();
-      },
-
-      async loadERData() {
-        this.erLoading = true;
-        this.erError = '';
-        this.erIsEmpty = false;
-        try {
-          const cfg = getClientApiConfig(ER_API_URL);
-          const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-          if (cfg.token) headers['Authorization'] = `Bearer ${cfg.token}`;
-
-          const domainRes = await fetch(`${cfg.url}/api/map/solution/domain`, { headers });
-          if (!domainRes.ok) {
-            if (domainRes.status === 404) { this.erIsEmpty = true; this.erLoading = false; return; }
-            throw new Error(`Server responded ${domainRes.status}`);
-          }
-          const json = await domainRes.json();
-          if (!json.ok) {
-            if (json.error?.includes('not found')) { this.erIsEmpty = true; this.erLoading = false; return; }
-            throw new Error(json.error || 'Unknown error');
-          }
-          const data = json.data || {};
-          const entitiesData = data.entities?.entities || data.entities || [];
-          const relationshipsData = data.relationships?.relationships || data.relationships || [];
-          this.entities = Array.isArray(entitiesData) ? entitiesData : [];
-          this.relationships = Array.isArray(relationshipsData) ? relationshipsData : [];
-          this.erEntityCount = this.entities.length;
-          this.erRelationshipCount = this.relationships.length;
-
-          if (this.entities.length === 0) { this.erIsEmpty = true; this.erLoading = false; return; }
-          this.erLoading = false;
-          await this.$nextTick();
-          await this.renderDiagram();
-        } catch (err: unknown) {
-          const error = err as Error;
-          if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
-            this.erError = 'Could not reach the API. Make sure the Bropilot server is running.';
-          } else {
-            this.erError = error.message || 'Failed to load domain data';
-          }
-          this.erLoading = false;
-        }
-      },
-
-      async refreshER() { this.selectedEntity = null; await this.loadERData(); },
-      selectEntityByName(name: string) {
-        const entity = this.entities.find((e: any) => e.name === name || sanitizeName(e.name) === sanitizeName(name));
-        if (entity) this.selectedEntity = entity;
-      },
-      closePanel() { this.selectedEntity = null; },
-      getEntityAttributes(entity: any): Array<{ name: string; type: string }> {
-        return normalizeAttributes(entity.attributes);
-      },
-      getEntityRelationships(entityName: string): Array<any> {
-        const results: Array<any> = [];
-        for (const rel of this.relationships) {
-          if (rel.source === entityName) results.push({ direction: 'outgoing', type: rel.type, target: rel.target });
-          if (rel.target === entityName && rel.source !== entityName) results.push({ direction: 'incoming', type: rel.type, target: rel.source });
-        }
-        return results;
-      },
-
-      buildMermaidDefinition(): string {
-        const lines: string[] = ['erDiagram'];
-        for (const entity of this.entities) {
-          const safeName = sanitizeName(entity.name);
-          const attrs = normalizeAttributes(entity.attributes);
-          if (attrs.length > 0) {
-            lines.push(`    ${safeName} {`);
-            for (const attr of attrs) lines.push(`        ${sanitizeType(attr.type)} ${sanitizeName(attr.name)}`);
-            lines.push('    }');
-          } else {
-            lines.push(`    ${safeName} {`);
-            lines.push('    }');
-          }
-        }
-        const entityNames = new Set(this.entities.map((e: any) => sanitizeName(e.name)));
-        for (const rel of this.relationships) {
-          const source = sanitizeName(rel.source);
-          const target = sanitizeName(rel.target);
-          if (!entityNames.has(source) || !entityNames.has(target)) continue;
-          const { left, right } = cardinalityMarkers(rel.type);
-          const label = rel.description ? `"${escapeLabel(rel.description)}"` : `"${rel.type}"`;
-          lines.push(`    ${source} ${left}--${right} ${target} : ${label}`);
-        }
-        return lines.join('\n');
-      },
-
-      async renderDiagram() {
-        const container = document.getElementById('er-mermaid-output');
-        if (!container) return;
-        const definition = this.buildMermaidDefinition();
-        try {
-          const { default: mermaid } = await import('mermaid');
-          mermaid.initialize({ startOnLoad: false, theme: 'base', themeVariables: { primaryColor: '#eef2ff', primaryBorderColor: '#6366f1', primaryTextColor: '#1a1a2e', lineColor: '#6366f1' }, er: { useMaxWidth: true, layoutDirection: 'TB' }, securityLevel: 'loose' });
-          const id = 'er-domain-' + Date.now();
-          const { svg } = await mermaid.render(id, definition);
-          container.innerHTML = svg;
-          this.attachEntityClickHandlers(container);
-        } catch (renderErr: unknown) {
-          const error = renderErr as Error;
-          container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>Failed to render diagram. ${error.message || 'Unknown rendering error'}</p></div>`;
-        }
-      },
-
-      attachEntityClickHandlers(container: HTMLElement) {
-        const self = this;
-        const entityMap = new Map<string, any>();
-        for (const entity of this.entities) { entityMap.set(sanitizeName(entity.name), entity); entityMap.set(entity.name, entity); }
-        const svgEl = container.querySelector('svg');
-        if (!svgEl) return;
-        const gElements = svgEl.querySelectorAll('g[id]');
-        for (const g of gElements) {
-          const gId = g.getAttribute('id') || '';
-          const entityMatch = gId.match(/-entity-([A-Za-z0-9_]+)-\d+$/);
-          if (entityMatch) {
-            const entity = entityMap.get(entityMatch[1]);
-            if (entity) { (g as SVGGElement).style.cursor = 'pointer'; g.addEventListener('click', (e: Event) => { e.stopPropagation(); self.selectedEntity = entity; }); }
-          }
-        }
-        const textElements = svgEl.querySelectorAll('text');
-        for (const text of textElements) {
-          const textContent = (text.textContent || '').trim();
-          const entity = entityMap.get(textContent);
-          if (entity) {
-            let parentG: Element | null = text.parentElement;
-            while (parentG && parentG !== svgEl) {
-              const rect = parentG.querySelector('rect');
-              if (rect && parentG.tagName === 'g') {
-                (parentG as SVGGElement).style.cursor = 'pointer';
-                if (!(parentG as HTMLElement).dataset.entityBound) {
-                  (parentG as HTMLElement).dataset.entityBound = 'true';
-                  parentG.addEventListener('click', (e: Event) => { e.stopPropagation(); self.selectedEntity = entity; });
-                }
-                break;
-              }
-              parentG = parentG.parentElement;
-            }
-          }
-        }
-      },
-    }));
-
     // @ts-ignore
-    window.Alpine.data('domainChat', (apiUrl: string) => ({
-      messages: [] as Array<{ role: string; text: string; html?: boolean }>,
+    window.Alpine.data('exploreChat', (apiUrl: string, _focus: string) => ({
+      messages: [] as Array<{ role: string; text: string }>,
       input: '',
       loading: false,
+      started: false,
       error: '',
-      phase: 'idle' as 'idle' | 'step3' | 'extracting3' | 'step3_done' | 'step4' | 'extracting4' | 'complete',
-      loadingMessage: 'Thinking…',
-      step3Data: null as Record<string, unknown> | null,
-      step4Data: null as Record<string, unknown> | null,
+      readiness: null as Readiness | null,
+      committed: null as { phase: string } | null,
+      commitError: '',
 
-      init() {
-        this.restoreSession();
-      },
-
-      /** Persist session state to localStorage for resilience. */
-      saveSession() {
-        try {
-          const state = {
-            phase: this.phase,
-            messages: this.messages,
-            step3Data: this.step3Data,
-            step4Data: this.step4Data,
-          };
-          localStorage.setItem('bropilot_domain_session', JSON.stringify(state));
-        } catch { /* ignore */ }
-      },
-
-      /** Restore session from localStorage if available. */
-      restoreSession() {
-        try {
-          const raw = localStorage.getItem('bropilot_domain_session');
-          if (raw) {
-            const state = JSON.parse(raw);
-            if (state && state.phase && state.phase !== 'idle') {
-              this.phase = state.phase;
-              this.messages = state.messages || [];
-              this.step3Data = state.step3Data || null;
-              this.step4Data = state.step4Data || null;
-            }
-          }
-        } catch { /* ignore */ }
-      },
-
-      /** Clear session from localStorage. */
-      clearSession() {
-        try {
-          localStorage.removeItem('bropilot_domain_session');
-        } catch { /* ignore */ }
-      },
-
-      async start() {
+      async start(mode: string) {
         this.loading = true;
         this.error = '';
-        this.loadingMessage = 'Starting domain modeling…';
         try {
-          const json = await clientPost(apiUrl, '/api/domain/start') as {
-            ok: boolean;
-            data?: { prompt?: string; step?: string };
-            error?: string;
-          };
-          if (json.ok && json.data) {
-            this.phase = 'step3';
-            if (json.data.prompt) {
-              this.messages.push({
-                role: 'bot',
-                text: json.data.prompt,
-              });
-            }
-            this.saveSession();
+          const json = await clientPost(apiUrl, '/api/explore/start', { mode }) as { ok: boolean };
+          if (json.ok) {
+            this.started = true;
+            await this.refreshReadiness();
           } else {
-            throw new Error(json.error || 'Unexpected response from server');
+            throw new Error('Unexpected response');
           }
         } catch (err: unknown) {
-          const msg = err instanceof Error ? err.message : String(err);
-          if (msg.includes('.bropilot')) {
-            this.error = msg;
-          } else if (msg.includes('Server responded')) {
-            this.error = `Could not start domain session. ${msg}`;
-          } else {
-            this.error = `Could not reach Bropilot server. ${msg}`;
-          }
+          this.error = `Could not start exploration. ${err instanceof Error ? err.message : String(err)}`;
         }
         this.loading = false;
-        this.scrollToBottom();
       },
 
-      async submitInput() {
+      async send() {
         const text = this.input.trim();
         if (!text) return;
-
         this.messages.push({ role: 'user', text });
         this.input = '';
         this.loading = true;
-        this.loadingMessage = 'Extracting domain model…';
         this.error = '';
         this.scrollToBottom();
-
         try {
-          // First submit the input
-          const inputJson = await clientPost(apiUrl, '/api/domain/input', { text }) as {
-            ok: boolean;
-            error?: string;
-          };
-
-          if (!inputJson.ok) {
-            throw new Error(inputJson.error || 'Failed to submit input');
-          }
-
-          // Then extract
-          const extractJson = await clientPost(apiUrl, '/api/domain/extract') as {
-            ok: boolean;
-            data?: {
-              extracted?: Record<string, unknown>;
-              status?: string;
-              next?: string;
-              step4_prompt?: string;
-              step4_error?: string;
-            };
-            error?: string;
-          };
-
-          if (extractJson.ok && extractJson.data) {
-            const data = extractJson.data;
-            this.step3Data = data.extracted || null;
-
-            if (data.status === 'step3_done') {
-              this.messages.push({
-                role: 'bot',
-                text: '✅ Domain model extracted successfully! Review the results below.',
-              });
-
-              // Check if step4 auto-started
-              if (data.step4_prompt) {
-                this.phase = 'step3_done';
-              } else if (data.step4_error) {
-                this.phase = 'step3_done';
-                this.error = `Step 4 auto-start failed: ${data.step4_error}`;
-              } else {
-                this.phase = 'step3_done';
-              }
-            } else {
-              this.phase = 'step3_done';
-            }
-            this.saveSession();
-          } else {
-            throw new Error(extractJson.error || 'Extraction failed');
+          const json = await clientPost(apiUrl, '/api/explore/message', { text }) as { ok: boolean; data?: { message_count?: number } };
+          if (json.ok) {
+            this.messages.push({ role: 'bot', text: `Message received (${json.data?.message_count ?? '?'} total). Extract when ready.` });
           }
         } catch (err: unknown) {
-          const msg = err instanceof Error ? err.message : String(err);
-          if (msg.includes('domain worker not started')) {
-            this.error = 'Domain worker not started. Please restart the session.';
-          } else {
-            this.error = `Extraction failed. ${msg}`;
-          }
+          this.error = `Failed to send message. ${err instanceof Error ? err.message : String(err)}`;
         }
         this.loading = false;
         this.scrollToBottom();
+        this.$nextTick(() => {
+          if (this.$refs.vibeInput) (this.$refs.vibeInput as HTMLTextAreaElement).focus();
+        });
       },
 
-      async proceedToStep4() {
+      async extract() {
         this.loading = true;
-        this.loadingMessage = 'Generating detailed specifications…';
         this.error = '';
-        this.phase = 'extracting4';
-        this.saveSession();
-
         try {
-          const json = await clientPost(apiUrl, '/api/domain/extract') as {
-            ok: boolean;
-            data?: {
-              extracted?: Record<string, unknown>;
-              status?: string;
-            };
-            error?: string;
-          };
-
-          if (json.ok && json.data) {
-            const data = json.data;
-            this.step4Data = data.extracted || null;
-            this.phase = 'complete';
-
-            this.messages.push({
-              role: 'bot',
-              text: '✅ All 11 specification categories have been generated! Review the tabs below.',
-            });
-
-            this.saveSession();
-          } else {
-            throw new Error(json.error || 'Step 4 extraction failed');
+          const json = await clientPost(apiUrl, '/api/explore/extract') as { ok: boolean; data?: { written_slots?: string[] } };
+          if (json.ok) {
+            const written = json.data?.written_slots || [];
+            this.messages.push({ role: 'bot', text: written.length ? `Extracted ${written.length} slot(s): ${written.join(', ')}` : 'Extraction completed — no new slots filled.' });
+            await this.refreshReadiness();
           }
         } catch (err: unknown) {
-          this.phase = 'step3_done';
-          this.error = `Specs generation failed. ${err instanceof Error ? err.message : String(err)}`;
+          this.error = `Failed to extract. ${err instanceof Error ? err.message : String(err)}`;
         }
         this.loading = false;
         this.scrollToBottom();
       },
 
-      restart() {
-        this.messages = [];
-        this.input = '';
+      async refreshReadiness() {
+        try {
+          const json = await clientGet(apiUrl, '/api/explore/readiness') as { ok: boolean; data?: Readiness };
+          if (json.ok && json.data) this.readiness = json.data;
+        } catch (err: unknown) {
+          // keep prior
+        }
+      },
+
+      async commit() {
+        this.loading = true;
+        this.commitError = '';
+        try {
+          const json = await clientPost(apiUrl, '/api/explore/commit') as { ok: boolean; error?: string; data?: { phase?: string } };
+          if (json.ok && json.data?.phase) {
+            this.committed = { phase: json.data.phase };
+          } else {
+            this.commitError = json.error || 'Commit failed';
+            await this.refreshReadiness();
+          }
+        } catch (err: unknown) {
+          this.commitError = `Commit failed. ${err instanceof Error ? err.message : String(err)}`;
+        }
         this.loading = false;
-        this.error = '';
-        this.phase = 'idle';
-        this.step3Data = null;
-        this.step4Data = null;
-        this.clearSession();
       },
 
       scrollToBottom() {
@@ -907,8 +289,8 @@ const specNames = SPEC_CATEGORIES.map((cat) => ({
 </script>
 
 <style>
-  .domain-chat {
-    max-height: 60vh;
+  .vibe-chat {
+    max-height: 50vh;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -916,37 +298,17 @@ const specNames = SPEC_CATEGORIES.map((cat) => ({
     padding: var(--space-4) 0;
   }
 
-  .chat-message {
-    display: flex;
-    gap: var(--space-3);
-    align-items: flex-start;
-  }
-
-  .chat-user {
-    flex-direction: row-reverse;
-  }
+  .chat-message { display: flex; gap: var(--space-3); align-items: flex-start; }
+  .chat-user { flex-direction: row-reverse; }
 
   .chat-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+    width: 36px; height: 36px; border-radius: 50%;
     background: var(--color-bg-tertiary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: var(--text-base);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: var(--text-base);
   }
-
-  .chat-bot .chat-avatar {
-    background: rgba(99, 102, 241, 0.15);
-    color: var(--color-accent);
-  }
-
-  .chat-user .chat-avatar {
-    background: rgba(34, 197, 94, 0.15);
-    color: var(--color-success, #22c55e);
-  }
+  .chat-bot .chat-avatar { background: rgba(99, 102, 241, 0.15); color: var(--color-accent); }
+  .chat-user .chat-avatar { background: rgba(34, 197, 94, 0.15); color: var(--color-success, #22c55e); }
 
   .chat-bubble {
     max-width: 70%;
@@ -955,327 +317,60 @@ const specNames = SPEC_CATEGORIES.map((cat) => ({
     border-radius: var(--radius-md);
     padding: var(--space-3) var(--space-4);
   }
-
-  .chat-user .chat-bubble {
-    background: rgba(99, 102, 241, 0.08);
-    border-color: rgba(99, 102, 241, 0.2);
-  }
+  .chat-user .chat-bubble { background: rgba(99, 102, 241, 0.08); border-color: rgba(99, 102, 241, 0.2); }
 
   .chat-role {
-    font-size: var(--text-xs);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-1);
+    font-size: var(--text-xs); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--color-text-muted); margin-bottom: var(--space-1);
   }
+  .chat-text { font-size: var(--text-sm); line-height: 1.6; color: var(--color-text-secondary); white-space: pre-wrap; }
+  .chat-text.typing { color: var(--color-text-muted); font-style: italic; }
 
-  .chat-text {
-    font-size: var(--text-sm);
-    line-height: 1.6;
-    color: var(--color-text-secondary);
-    white-space: pre-wrap;
-  }
-
-  .chat-text.typing {
-    color: var(--color-text-muted);
-    font-style: italic;
-  }
-
-  /* Domain input */
-  .domain-input {
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .domain-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .domain-textarea {
+  .vibe-input { padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
+  .vibe-form { display: flex; flex-direction: column; gap: var(--space-3); }
+  .vibe-textarea {
     width: 100%;
-    padding: var(--space-3) var(--space-4);
-    font-size: var(--text-sm);
-    font-family: var(--font-sans);
-    color: var(--color-text);
     background: var(--color-bg-secondary);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    outline: none;
-    transition: border-color 0.15s;
-    resize: vertical;
-    min-height: 80px;
-  }
-
-  .domain-textarea:focus {
-    border-color: var(--color-accent);
-  }
-
-  .domain-textarea::placeholder {
-    color: var(--color-text-muted);
-  }
-
-  .domain-form .btn {
-    align-self: flex-end;
-  }
-
-  /* Domain cards */
-  .domain-results {
-    margin-top: var(--space-6);
-  }
-
-  .domain-card .card-body {
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
-  .domain-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .domain-list-item {
-    padding: var(--space-3);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .domain-list-item:last-child {
-    border-bottom: none;
-  }
-
-  .domain-list-item strong {
-    font-size: var(--text-sm);
-    color: var(--color-text);
-  }
-
-  .domain-list-item p {
-    font-size: var(--text-xs);
-    color: var(--color-text-muted);
-    margin: var(--space-1) 0 0;
-  }
-
-  .domain-meta {
-    font-size: var(--text-xs);
-    color: var(--color-text-muted);
-    margin-left: var(--space-2);
-  }
-
-  .domain-arrow {
-    color: var(--color-accent);
-    margin: 0 var(--space-1);
-  }
-
-  .domain-label {
-    font-size: var(--text-xs);
-    font-weight: 600;
-    color: var(--color-text-muted);
-    margin-right: var(--space-2);
-  }
-
-  .domain-aliases {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-1);
-    align-items: center;
-    margin-top: var(--space-1);
-  }
-
-  .domain-attrs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-1);
-    align-items: center;
-    margin-top: var(--space-1);
-  }
-
-  .domain-subheading {
-    font-size: var(--text-xs);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-accent);
-    padding: var(--space-2) var(--space-3);
-    margin-top: var(--space-2);
-  }
-
-  .domain-steps {
-    margin: var(--space-1) 0 0 var(--space-4);
-    font-size: var(--text-xs);
-    color: var(--color-text-muted);
-  }
-
-  .domain-steps li {
-    margin-bottom: var(--space-1);
-  }
-
-  /* Spec cards */
-  .spec-card .card-body {
-    max-height: 500px;
-    overflow-y: auto;
-  }
-
-  /* Buttons */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-2) var(--space-4);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    border: 1px solid transparent;
     border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: all 0.15s ease;
-    white-space: nowrap;
+    padding: var(--space-3);
+    color: var(--color-text-primary);
+    font-family: var(--font-mono, monospace);
+    font-size: var(--text-sm);
+    resize: vertical;
   }
+  .vibe-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
 
-  .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  .readiness-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);
+    margin-top: var(--space-4);
   }
+  @media (max-width: 720px) { .readiness-grid { grid-template-columns: 1fr; } }
+  .readiness-focus { border-color: var(--color-accent); }
+  .slot-group { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin-bottom: var(--space-3); }
+  .slot-label { font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-right: var(--space-2); }
+  .slot-filled { color: var(--color-success, #22c55e); }
+  .slot-missing { color: var(--color-warning, #f5a623); }
+  .slot-empty-msg { font-size: var(--text-xs); color: var(--color-text-muted); font-style: italic; }
 
-  .btn-primary {
-    background: var(--color-accent);
-    color: white;
-    border-color: var(--color-accent);
+  .commit-area { margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--color-border); display: flex; gap: var(--space-3); align-items: center; flex-wrap: wrap; }
+  .commit-status { font-size: var(--text-sm); }
+  .commit-ok { color: var(--color-success, #22c55e); }
+  .commit-err { color: var(--color-warning, #f5a623); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm); font-weight: 600;
+    border: 1px solid transparent; border-radius: var(--radius-sm);
+    cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
   }
-
-  .btn-primary:hover:not(:disabled) {
-    filter: brightness(1.1);
-  }
-
-  .btn-secondary {
-    background: var(--color-bg-tertiary);
-    color: var(--color-text-secondary);
-    border-color: var(--color-border);
-  }
-
-  .btn-secondary:hover:not(:disabled) {
-    background: var(--color-bg-secondary);
-    color: var(--color-text);
-  }
-
-  .btn-sm {
-    font-size: var(--text-xs);
-    padding: var(--space-1) var(--space-3);
-  }
-
-  [x-cloak] {
-    display: none !important;
-  }
-
-  .tab-dot {
-    font-size: 0.5rem;
-    color: var(--color-success);
-    margin-left: var(--space-1);
-  }
-
-  /* ER Diagram styles */
-  .er-layout { position: relative; }
-  .er-wrapper { border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg-secondary); overflow: hidden; }
-  .er-toolbar { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border); background: var(--color-bg-tertiary); }
-  .er-toolbar-actions { display: flex; align-items: center; gap: var(--space-3); }
-  .er-hint { font-size: var(--text-xs); color: var(--color-text-muted); font-style: italic; }
-  .er-count { font-size: var(--text-sm); color: var(--color-text-secondary); font-weight: 500; }
-  .er-container { padding: var(--space-4); overflow: auto; max-height: 80vh; min-height: 300px; }
-  .er-container :global(svg) { max-width: 100%; height: auto; }
-  .er-container :global(.er.entityBox) { cursor: pointer; transition: stroke-width 0.15s, stroke 0.15s; }
-  .er-container :global(.er.entityBox:hover) { stroke-width: 3; stroke: #6366f1; }
-  .er-container :global(.er.entityLabel) { cursor: pointer; }
-
-  .entity-panel-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.3); z-index: 150; display: flex; justify-content: flex-end; }
-  .entity-panel { width: 420px; max-width: 90vw; height: 100vh; background: var(--color-bg); border-left: 1px solid var(--color-border); overflow-y: auto; box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15); animation: slideIn 0.2s ease-out; }
-  @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-  .entity-panel-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5) var(--space-5) var(--space-4); border-bottom: 1px solid var(--color-border); background: var(--color-bg-secondary); position: sticky; top: 0; z-index: 1; }
-  .entity-panel-title-row { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
-  .entity-panel-icon { font-size: 1.3rem; flex-shrink: 0; }
-  .entity-panel-name { font-size: var(--text-xl); font-weight: 700; color: var(--color-text); margin: 0; }
-  .entity-panel-close { background: none; border: none; font-size: var(--text-lg); color: var(--color-text-muted); cursor: pointer; padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); }
-  .entity-panel-close:hover { color: var(--color-text); background: var(--color-bg-tertiary); }
-  .entity-panel-section { padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--color-border); }
-  .entity-panel-section:last-child { border-bottom: none; }
-  .entity-description { font-size: var(--text-sm); color: var(--color-text-secondary); line-height: 1.6; margin: 0; }
-  .entity-section-title { font-size: var(--text-sm); font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 var(--space-3) 0; }
-  .entity-empty-note { font-size: var(--text-sm); color: var(--color-text-muted); font-style: italic; margin: 0; }
-  .entity-attr-list { display: flex; flex-direction: column; gap: var(--space-1); }
-  .entity-attr-row { display: flex; align-items: center; justify-content: space-between; padding: var(--space-2) var(--space-3); background: var(--color-bg-secondary); border-radius: var(--radius-sm); font-size: var(--text-sm); }
-  .entity-attr-name { font-weight: 500; color: var(--color-text); font-family: var(--font-mono); }
-  .entity-attr-type { font-size: var(--text-xs); color: var(--color-accent); background: var(--color-accent-bg, rgba(99, 102, 241, 0.1)); padding: 1px 8px; border-radius: 9999px; font-family: var(--font-mono); }
-  .entity-rel-list { display: flex; flex-direction: column; gap: var(--space-2); }
-  .entity-rel-row { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); background: var(--color-bg-secondary); border-radius: var(--radius-sm); font-size: var(--text-sm); cursor: pointer; transition: background 0.1s; }
-  .entity-rel-row:hover { background: var(--color-bg-tertiary); }
-  .entity-rel-direction { font-size: var(--text-base); color: var(--color-text-muted); flex-shrink: 0; }
-  .entity-rel-type-badge { font-size: var(--text-xs); font-weight: 600; padding: 1px 6px; border-radius: 9999px; background: #1e3a5f; color: #93c5fd; flex-shrink: 0; }
-  .entity-rel-target { font-weight: 600; color: var(--color-accent); }
-
-  .spec-pending-state { margin-bottom: var(--space-4); }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .chat-bubble {
-      max-width: 85%;
-    }
-
-    .domain-chat {
-      max-height: 50vh;
-    }
-
-    .card-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .domain-results,
-    .domain-specs {
-      overflow-x: hidden;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .chat-bubble {
-      max-width: 90%;
-    }
-
-    .domain-textarea {
-      min-height: 60px;
-    }
-
-    .domain-card .card-body {
-      max-height: 250px;
-    }
-
-    .tabs-nav {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      flex-wrap: nowrap;
-      gap: 0;
-    }
-
-    .tab-btn {
-      flex-shrink: 0;
-      font-size: var(--text-xs);
-      padding: var(--space-1) var(--space-2);
-      white-space: nowrap;
-    }
-
-    .domain-list-item {
-      padding: var(--space-2);
-    }
-
-    .domain-aliases,
-    .domain-attrs {
-      flex-wrap: wrap;
-    }
-
-    .table-wrapper {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .spec-card .card-body {
-      max-height: 300px;
-    }
-  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--color-accent); color: white; border-color: var(--color-accent); }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.1); }
+  .btn-secondary { background: transparent; color: var(--color-text-secondary); border-color: var(--color-border); }
+  .btn-secondary:hover:not(:disabled) { background: var(--color-bg-secondary); }
 </style>
+</content>
+</invoke>

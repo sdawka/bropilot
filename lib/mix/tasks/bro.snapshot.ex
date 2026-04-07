@@ -32,7 +32,7 @@ defmodule Mix.Tasks.Bro.Snapshot do
       has_yaml_files?(problem_dir) or has_yaml_files?(solution_dir)
 
     unless has_content do
-      Helpers.print_warning("No specs to snapshot. Run `mix bro.vibe` to collect project data first.")
+      Helpers.print_warning("No specs to snapshot. Run `mix bro.server` and drive exploration via the `/api/explore/*` endpoints first.")
       return_early()
     end
 

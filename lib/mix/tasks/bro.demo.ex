@@ -294,19 +294,19 @@ defmodule Mix.Tasks.Bro.Demo do
           "term" => "Vibe",
           "definition" =>
             "Freeform, conversational input from the user about their app idea. Collected in Act 1 and extracted into structured data.",
-          "module" => "Bropilot.Pipeline.Act1.Worker"
+          "module" => "Bropilot.Pipeline.Exploration.Worker"
         },
         %{
           "term" => "Domain Model",
           "definition" =>
             "Entities, relationships, and flows that describe the app's problem and solution domains. Generated in Act 2 Step 3.",
-          "module" => "Bropilot.Pipeline.Act2.Worker"
+          "module" => "Bropilot.Pipeline.Exploration.Worker"
         },
         %{
           "term" => "Spec",
           "definition" =>
             "A detailed specification file in map/solution/specs/. Covers API, behaviours, constraints, entities, modules, events, externals, views, components, streams, and infra.",
-          "module" => "Bropilot.Pipeline.Act2.Worker"
+          "module" => "Bropilot.Pipeline.Exploration.Worker"
         },
         %{
           "term" => "Snapshot",
@@ -348,7 +348,7 @@ defmodule Mix.Tasks.Bro.Demo do
           "term" => "Extraction",
           "definition" =>
             "The process of converting freeform LLM output into structured YAML data that populates map slots.",
-          "module" => "Bropilot.Pipeline.Act1.Extractor"
+          "module" => "Bropilot.Pipeline.Exploration.Worker"
         },
         %{
           "term" => "Pi",
@@ -366,7 +366,7 @@ defmodule Mix.Tasks.Bro.Demo do
           "term" => "VOLO",
           "definition" =>
             "Vision of Lovable Output. A one-sentence description of what the finished product feels like to its user.",
-          "module" => "Bropilot.Pipeline.Act1.Worker"
+          "module" => "Bropilot.Pipeline.Exploration.Worker"
         },
         %{
           "term" => "Three-Tier Model",
@@ -599,7 +599,7 @@ defmodule Mix.Tasks.Bro.Demo do
       "flows" => [
         %{
           "name" => "LLM Extraction",
-          "trigger" => "Act1.Worker.extract/1 or Act2.Worker.extract/1",
+          "trigger" => "Exploration.Worker.extract/1",
           "steps" => [
             "Build extraction prompt with system instructions for YAML output",
             "Send to configured LLM provider (Anthropic, OpenAI, or mock)",
@@ -609,8 +609,8 @@ defmodule Mix.Tasks.Bro.Demo do
           ],
           "modules" => [
             "Bropilot.LLM",
-            "Bropilot.Pipeline.Act1.Extractor",
-            "Bropilot.Pipeline.Act2.Extractor"
+            "Bropilot.Pipeline.Exploration.Worker",
+            "Bropilot.Pipeline.Exploration.Worker"
           ]
         },
         %{
@@ -691,12 +691,12 @@ defmodule Mix.Tasks.Bro.Demo do
         %{
           "name" => "Act Workers",
           "description" =>
-            "GenServers for each act: Act1.Worker (vibe collection), Act2.Worker (domain modeling), Act3.Executor (build).",
+            "GenServers: Exploration.Worker (unified exploration across problem & solution) and Act3.Executor (build).",
           "modules" => [
-            "Bropilot.Pipeline.Act1.Worker",
-            "Bropilot.Pipeline.Act1.Extractor",
-            "Bropilot.Pipeline.Act2.Worker",
-            "Bropilot.Pipeline.Act2.Extractor",
+            "Bropilot.Pipeline.Exploration.Worker",
+            "Bropilot.Pipeline.Exploration.Worker",
+            "Bropilot.Pipeline.Exploration.Worker",
+            "Bropilot.Pipeline.Exploration.Worker",
             "Bropilot.Pipeline.Act3.Executor",
             "Bropilot.Pipeline.Act3.Snapshot",
             "Bropilot.Pipeline.Act3.Diff",
@@ -734,7 +734,7 @@ defmodule Mix.Tasks.Bro.Demo do
             "Developer-facing CLI via Mix tasks: init, vibe, plan, build, status, snapshot, tasks, recipe, web, demo.",
           "modules" => [
             "Mix.Tasks.Bro.Init",
-            "Mix.Tasks.Bro.Vibe",
+            "Mix.Tasks.Bro.Server",
             "Mix.Tasks.Bro.Plan",
             "Mix.Tasks.Bro.Build",
             "Mix.Tasks.Bro.Status",
@@ -876,7 +876,7 @@ defmodule Mix.Tasks.Bro.Demo do
           "path" => "/api/projects/:path/pipeline/step1",
           "description" => "Start Act 1 Step 1 (basics prompt)",
           "response" => %{"prompt" => "string"},
-          "module" => "Bropilot.Pipeline.Act1.Worker"
+          "module" => "Bropilot.Pipeline.Exploration.Worker"
         },
         %{
           "method" => "POST",
@@ -884,21 +884,21 @@ defmodule Mix.Tasks.Bro.Demo do
           "description" => "Submit freeform user input for Step 1",
           "request" => %{"text" => "string"},
           "response" => %{"status" => "ok"},
-          "module" => "Bropilot.Pipeline.Act1.Worker"
+          "module" => "Bropilot.Pipeline.Exploration.Worker"
         },
         %{
           "method" => "POST",
           "path" => "/api/projects/:path/pipeline/step1/extract",
           "description" => "Run LLM extraction for Step 1",
           "response" => %{"data" => "map (extracted structured data)"},
-          "module" => "Bropilot.Pipeline.Act1.Worker"
+          "module" => "Bropilot.Pipeline.Exploration.Worker"
         },
         %{
           "method" => "POST",
           "path" => "/api/projects/:path/pipeline/step3",
           "description" => "Start Act 2 Step 3 (domain model)",
           "response" => %{"prompt" => "string"},
-          "module" => "Bropilot.Pipeline.Act2.Worker"
+          "module" => "Bropilot.Pipeline.Exploration.Worker"
         },
         %{
           "method" => "POST",
@@ -968,7 +968,7 @@ defmodule Mix.Tasks.Bro.Demo do
           "name" => "LLM Extraction",
           "description" =>
             "Convert freeform LLM output into structured YAML and write to map slots.",
-          "trigger" => "Act1.Worker.extract/1 or Act2.Worker.extract/1",
+          "trigger" => "Exploration.Worker.extract/1",
           "module" => "Bropilot.LLM.extract_yaml/2",
           "rules" => [
             "System prompt instructs YAML-only output",
@@ -1224,7 +1224,7 @@ defmodule Mix.Tasks.Bro.Demo do
           ]
         },
         %{
-          "name" => "Bropilot.Pipeline.Act1.Worker",
+          "name" => "Bropilot.Pipeline.Exploration.Worker",
           "path" => "lib/bropilot/pipeline/act1/worker.ex",
           "responsibility" =>
             "GenServer for Act 1 vibe collection: step1 basics, step2 gory detail",
@@ -1238,7 +1238,7 @@ defmodule Mix.Tasks.Bro.Demo do
           ]
         },
         %{
-          "name" => "Bropilot.Pipeline.Act2.Worker",
+          "name" => "Bropilot.Pipeline.Exploration.Worker",
           "path" => "lib/bropilot/pipeline/act2/worker.ex",
           "responsibility" =>
             "GenServer for Act 2 domain modeling: step3 big picture, step4 specs",
@@ -1365,7 +1365,7 @@ defmodule Mix.Tasks.Bro.Demo do
         },
         %{
           "name" => "extraction_done",
-          "trigger" => "Act1.Worker.extract/1 or Act2.Worker.extract/1 succeeds",
+          "trigger" => "Exploration.Worker.extract/1 succeeds",
           "data" => %{"step" => "atom", "slot_count" => "integer"},
           "consumers" => ["Map.Store (writes)", "CLI progress"]
         },
@@ -1548,8 +1548,8 @@ defmodule Mix.Tasks.Bro.Demo do
           "description" =>
             "Conversational interface for Act 1 vibe collection. Step-by-step guided prompts.",
           "data_sources" => [
-            "Act1.Worker.run_step1/1",
-            "Act1.Worker.next_question/1"
+            "Exploration.Worker.start/1",
+            "Exploration.Worker.message/2"
           ]
         }
       ]
@@ -1825,9 +1825,9 @@ defmodule Mix.Tasks.Bro.Demo do
         "id" => 3,
         "title" => "Implement Act 1 vibe collection workers",
         "description" =>
-          "Build the Act1.Worker GenServer and Extractor for collecting user vibes and extracting structured data into the Problem Space.",
+          "Build the Exploration.Worker GenServer and extractor for collecting user input and extracting structured data into the Problem and Solution Spaces.",
         "context" => %{
-          "related_module" => "Bropilot.Pipeline.Act1.Worker",
+          "related_module" => "Bropilot.Pipeline.Exploration.Worker",
           "space" => "problem"
         },
         "definition_of_done" => [
@@ -1840,7 +1840,7 @@ defmodule Mix.Tasks.Bro.Demo do
         "dependencies" => [1, 2],
         "priority" => "high",
         "related_specs" => [
-          "solution.specs.modules.Act1.Worker",
+          "solution.specs.modules.Exploration.Worker",
           "solution.specs.events.extraction_done"
         ],
         "status" => "completed"
@@ -2362,7 +2362,7 @@ defmodule Mix.Tasks.Bro.Demo do
             "status" => "completed",
             "version" => 1,
             "related_specs" => [
-              "solution.specs.modules.Act1.Worker",
+              "solution.specs.modules.Exploration.Worker",
               "solution.specs.events.extraction_done"
             ]
           },
@@ -2462,7 +2462,7 @@ defmodule Mix.Tasks.Bro.Demo do
           },
           %{
             "term" => "Vibe",
-            "spec_path" => "solution.specs.modules.Act1.Worker",
+            "spec_path" => "solution.specs.modules.Exploration.Worker",
             "artifact_path" => "lib/bropilot/pipeline/act1/worker.ex"
           },
           %{

@@ -26,11 +26,14 @@ defmodule Mix.Tasks.Bro.Server do
     GET  /api/recipe/schemas      All schemas
     GET  /api/pipeline/status     Pipeline step statuses
     POST /api/pipeline/advance    Advance to next step
-    POST /api/vibe/start          Start Act 1 (returns prompt)
-    POST /api/vibe/input          Submit user input
-    POST /api/vibe/extract        Run extraction
-    POST /api/domain/start        Start Act 2
-    POST /api/domain/extract      Run extraction
+    POST /api/explore/start       Start exploration worker
+    POST /api/explore/message     Submit a message
+    POST /api/explore/buffer      Append to additive buffer
+    POST /api/explore/extract     Trigger extraction across both spaces
+    GET  /api/explore/readiness   Slot fill status
+    GET  /api/explore/lenses      UI lens prompts
+    POST /api/explore/auto        Toggle auto-extract
+    POST /api/explore/commit      Commitment gate
     POST /api/snapshot            Create snapshot
     POST /api/plan                Generate change plan
     POST /api/tasks               Generate tasks
