@@ -104,10 +104,14 @@ defmodule Bropilot.Spaces do
   Measurement and Knowledge are cross-cutting and fed via secondary contributions.
   """
   def validate_recipe(recipe) do
+    lenses = Map.get(recipe, :exploration_lenses, [])
+
     cond do
-      Map.has_key?(recipe, :work_steps) and Map.has_key?(recipe, :exploration_lenses) ->
+      # New format: has non-empty exploration lenses
+      is_list(lenses) and lenses != [] ->
         validate_new_recipe(recipe)
 
+      # Old format fallback: validate against recipe.steps
       true ->
         primary_spaces =
           recipe.steps
