@@ -40,7 +40,7 @@ mix deps.get
 cd web && npm install && cd ..
 
 # Set an LLM provider key (at least one)
-export OPENROUTER_API_KEY=sk-or-v1-your-key-here
+export OPENROUTER_API_KEY=YOUR_API_KEY_HERE
 
 # Initialize a project and start building
 mkdir my-app && cd my-app
@@ -81,7 +81,7 @@ mix bro.server
 # +--------------------------------------------------+
 # |  Bropilot Server                                 |
 # |  Local:   http://localhost:4000                  |
-# |  Token:   falcon-3817                            |
+# |  Token:   <pairing-code>                          |
 # |  Remote:  https://abc.trycloudflare.com          |
 # +--------------------------------------------------+
 ```

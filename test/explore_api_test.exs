@@ -174,7 +174,15 @@ defmodule Bropilot.ExploreApiTest do
       {:ok, pid} = Bropilot.Pipeline.Engine.start_link(project_path: tmp)
       Process.register(pid, @engine_name)
 
-      on_exit(fn -> cleanup(tmp, cwd) end)
+      on_exit(fn ->
+        # Stop and unregister the engine so other test suites don't see a stale process
+        case Process.whereis(@engine_name) do
+          nil -> :ok
+          stale -> Process.exit(stale, :kill); :timer.sleep(10)
+        end
+
+        cleanup(tmp, cwd)
+      end)
       {:ok, project_dir: tmp, map_dir: Path.join([tmp, ".bropilot", "map"])}
     end
 

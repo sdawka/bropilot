@@ -138,11 +138,14 @@ defmodule Bropilot.Api.Handlers.Explore do
 
       _pid ->
         case Engine.commit(@engine_name) do
-          {:ok, _step} ->
-            json(conn, 200, %{ok: true, data: %{phase: "work"}})
+          {:ok, step} ->
+            step_data =
+              case step do
+                %{id: id, name: name, space: space} -> %{id: id, name: name, space: space}
+                _ -> nil
+              end
 
-          :ok ->
-            json(conn, 200, %{ok: true, data: %{phase: "work"}})
+            json(conn, 200, %{ok: true, data: %{phase: "work", first_step: step_data}})
 
           {:error, {:unfilled_slots, %{problem: p, solution: s}}} ->
             json(conn, 422, %{
