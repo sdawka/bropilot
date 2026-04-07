@@ -39,7 +39,7 @@ defmodule Bropilot.Api.Handlers.Explore do
             end
         end
 
-      case Worker.start_link(project_path: project_path, mode: mode, llm_opts: llm_opts) do
+      case GenServer.start(Worker, [project_path: project_path, mode: mode, llm_opts: llm_opts]) do
         {:ok, pid} ->
           Process.register(pid, @worker_name)
           json(conn, 200, %{ok: true, data: %{started: true}})
