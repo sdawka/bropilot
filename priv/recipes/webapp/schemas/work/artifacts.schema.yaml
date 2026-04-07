@@ -1,0 +1,27 @@
+name: artifacts
+description: "What codegen produces per task"
+types:
+  repo_files:
+    description: "Source code files in the project repo"
+    path_pattern: "src/{module}/{file}"
+  db_interface:
+    description: "Database migration and query layer"
+    path_pattern: "db/{entity}.{ext}"
+  unit_tests:
+    description: "Unit test files"
+    path_pattern: "tests/unit/{module}_test.{ext}"
+  api_tests:
+    description: "API integration tests"
+    path_pattern: "tests/api/{endpoint}_test.{ext}"
+  e2e_tests:
+    description: "End-to-end tests"
+    path_pattern: "tests/e2e/{flow}_test.{ext}"
+  db_mocks:
+    description: "Database mock/fixture data"
+    path_pattern: "tests/fixtures/{entity}.{ext}"
+  debug_logs:
+    description: "Logging instrumentation"
+    path_pattern: "src/{module}/logging.{ext}"
+  assertions:
+    description: "Runtime assertions and invariant checks"
+    path_pattern: "src/{module}/assertions.{ext}"

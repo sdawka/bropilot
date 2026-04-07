@@ -1,0 +1,135 @@
+name: domain
+description: "The app big picture -- interdependent things"
+categories:
+  vocabulary:
+    description: "What the main Things are called"
+    fields:
+      term:
+        type: string
+        required: true
+      definition:
+        type: text
+        required: true
+      aliases:
+        type: list
+        item_type: string
+      category:
+        type: enum
+        values: [entity, action, concept, role]
+
+  ux:
+    description: "User experience patterns and principles"
+    fields:
+      pattern:
+        type: string
+        required: true
+      description:
+        type: text
+        required: true
+      applies_to:
+        type: list
+        item_type: ref
+        ref_to: vocabulary
+
+  flows:
+    description: "User and system flows"
+    fields:
+      name:
+        type: string
+        required: true
+      actor:
+        type: ref
+        ref_to: vocabulary
+      trigger:
+        type: text
+        required: true
+      steps:
+        type: list
+        item_type: text
+        required: true
+      outcome:
+        type: text
+        required: true
+      touches:
+        type: list
+        item_type: ref
+        ref_to: vocabulary
+
+  features:
+    description: "Concrete feature specifications"
+    fields:
+      name:
+        type: string
+        required: true
+      description:
+        type: text
+        required: true
+      flows:
+        type: list
+        item_type: ref
+        ref_to: flows
+      priority:
+        type: enum
+        values: [must, should, could, wont]
+      capabilities:
+        type: list
+        item_type: ref
+        ref_to: vibes.capabilities
+
+  domain:
+    description: "Core domain model -- entities and relationships"
+    fields:
+      entity:
+        type: string
+        required: true
+      description:
+        type: text
+        required: true
+      attributes:
+        type: map
+      relationships:
+        type: list
+        item_type: map
+        item_fields:
+          target:
+            type: ref
+            ref_to: domain
+          type:
+            type: enum
+            values: [has_many, has_one, belongs_to, many_to_many]
+          description:
+            type: text
+
+  architecture:
+    description: "System architecture decisions"
+    fields:
+      component:
+        type: string
+        required: true
+      responsibility:
+        type: text
+        required: true
+      depends_on:
+        type: list
+        item_type: ref
+        ref_to: architecture
+      type:
+        type: enum
+        values: [frontend, backend, service, infra, external]
+
+  interface:
+    description: "Interface layer -- how users interact"
+    fields:
+      name:
+        type: string
+        required: true
+      type:
+        type: enum
+        values: [web, api, cli, webhook, ws]
+      description:
+        type: text
+        required: true
+      exposes:
+        type: list
+        item_type: ref
+        ref_to: features

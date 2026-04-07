@@ -1,0 +1,22 @@
+name: events
+description: "System events"
+artifact_type: event
+fields:
+  name:
+    type: string
+    required: true
+  trigger:
+    type: text
+    required: true
+  payload:
+    type: map
+  emitted_by:
+    type: ref
+    ref_to: specs.modules
+  consumed_by:
+    type: list
+    item_type: ref
+    ref_to: specs.modules
+  related_behaviour:
+    type: ref
+    ref_to: specs.behaviours

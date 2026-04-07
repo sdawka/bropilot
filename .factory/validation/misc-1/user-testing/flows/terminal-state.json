@@ -1,0 +1,49 @@
+{
+  "groupId": "terminal-state",
+  "testedAt": "2026-04-06T20:01:08Z",
+  "isolation": {
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "apiBaseUrl": "http://localhost:4000",
+    "evidenceDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/evidence/misc-1/terminal-state"
+  },
+  "toolsUsed": ["terminal", "ruby"],
+  "assertions": [
+    {
+      "id": "VAL-CROSS-044",
+      "title": "Pipeline persistence file is valid YAML",
+      "status": "pass",
+      "reason": "`.bropilot/pipeline_state.yaml` parsed successfully as YAML and `step_statuses` includes step1-step8.",
+      "steps": [
+        {
+          "action": "Print `.bropilot/pipeline_state.yaml`",
+          "expected": "State file exists and shows step status structure",
+          "observed": "File exists and includes `step_statuses` with keys `step1` through `step8`."
+        },
+        {
+          "action": "Parse YAML with linter/parser and verify step entries",
+          "expected": "YAML parses without error and all 8 steps have status entries",
+          "observed": "Ruby YAML parser loaded file successfully; all required step keys were present with non-null statuses."
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "misc-1/terminal-state/VAL-CROSS-044-command-evidence.txt"
+        ],
+        "validationResult": "misc-1/terminal-state/VAL-CROSS-044-validation-result.json",
+        "network": "not_applicable"
+      },
+      "issues": null
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Initial Python YAML validation attempt failed because `yaml` module was not installed in this environment.",
+      "resolved": true,
+      "resolution": "Retried using Ruby's built-in YAML parser (`YAML.safe_load`) and completed validation successfully.",
+      "affectedAssertions": ["VAL-CROSS-044"]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 1 assertion: 1 passed. Pipeline state file is valid YAML and includes status entries for all 8 steps."
+}

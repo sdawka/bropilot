@@ -6,7 +6,7 @@ defmodule Bropilot.Api.Router do
 
   use Plug.Router
 
-  alias Bropilot.Api.Handlers.{Project, Pipeline, Vibe, Domain, Work, Knowledge, Traceability, Pair}
+  alias Bropilot.Api.Handlers.{Project, Pipeline, Explore, Work, Knowledge, Traceability, Pair}
 
   plug :match
   plug :dispatch
@@ -80,34 +80,37 @@ defmodule Bropilot.Api.Router do
     Pipeline.advance(conn)
   end
 
-  # Act 1 - Vibe
-  post "/api/vibe/start" do
-    Vibe.start(conn)
+  # Exploration (replaces Act 1 Vibe + Act 2 Domain)
+  post "/api/explore/start" do
+    Explore.start(conn)
   end
 
-  post "/api/vibe/input" do
-    Vibe.input(conn)
+  post "/api/explore/message" do
+    Explore.message(conn)
   end
 
-  post "/api/vibe/extract" do
-    Vibe.extract(conn)
+  post "/api/explore/buffer" do
+    Explore.buffer(conn)
   end
 
-  # Act 2 - Domain
-  get "/api/domain/status" do
-    Domain.status(conn)
+  post "/api/explore/extract" do
+    Explore.extract(conn)
   end
 
-  post "/api/domain/start" do
-    Domain.start(conn)
+  get "/api/explore/readiness" do
+    Explore.readiness(conn)
   end
 
-  post "/api/domain/input" do
-    Domain.input(conn)
+  get "/api/explore/lenses" do
+    Explore.lenses(conn)
   end
 
-  post "/api/domain/extract" do
-    Domain.extract(conn)
+  post "/api/explore/auto" do
+    Explore.auto(conn)
+  end
+
+  post "/api/explore/commit" do
+    Explore.commit(conn)
   end
 
   # Act 3 - Work

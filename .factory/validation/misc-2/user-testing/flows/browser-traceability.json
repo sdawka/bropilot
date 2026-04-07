@@ -1,0 +1,366 @@
+{
+  "groupId": "browser-traceability",
+  "testedAt": "2026-04-06T20:45:10Z",
+  "isolation": {
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "apiBaseUrl": "http://localhost:4000",
+    "webBaseUrl": "http://localhost:3200",
+    "boundary": "localhost-only URLs, no product code modification"
+  },
+  "toolsUsed": [
+    "agent-browser",
+    "curl"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-CROSS-022",
+      "title": "Traceability UI displays spec-to-code matrix",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Open /traceability/ and verify matrix is rendered",
+          "expected": "Matrix/table visible with category rows",
+          "observed": "Linkage Matrix rendered with 11 category rows and coverage summary"
+        },
+        {
+          "action": "Expand a category and select a spec",
+          "expected": "Spec selection reveals linked file details",
+          "observed": "Behaviours > Auth opens detail table with linked artifact"
+        },
+        {
+          "action": "Inspect file link href",
+          "expected": "Navigable file/GitHub URL is present",
+          "observed": "href is https://github.com/sdawka/bropilot/blob/main/lib/bropilot/api/auth.ex"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-2/browser-traceability/VAL-CROSS-022-spec-to-code-detail.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/traceability via page load (UI populated); href inspection confirmed navigable GitHub URL"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-025",
+      "title": "Traceability page handles empty state",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Open /traceability/ and check initial state",
+          "expected": "Empty-state message before any codegen/links",
+          "observed": "Preloaded runtime already contains traceability data (33 total specs, 26 linked)"
+        },
+        {
+          "action": "Attempt non-disruptive setup for empty-state check",
+          "expected": "Safe path to isolate a fresh empty traceability dataset",
+          "observed": "No project-scoped safe reset path in assigned shared localhost runtime without impacting other validators"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-2/browser-traceability/VAL-CROSS-025-026-precondition-state.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/traceability shows existing entries and non-empty coverage"
+      },
+      "issues": "Blocked by unavailable precondition: fresh empty traceability state in shared runtime."
+    },
+    {
+      "id": "VAL-CROSS-026",
+      "title": "Traceability matrix loads with large spec set",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Inspect current matrix scale",
+          "expected": "50+ entities and 100+ generated files linked",
+          "observed": "Current dataset is 33 total specs / 26 linked; does not meet large-dataset precondition"
+        },
+        {
+          "action": "Attempt to increase dataset via build",
+          "expected": "Build populates significantly larger link set",
+          "observed": "POST /api/build returned 200 with files_written: [] and no coverage growth"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-2/browser-traceability/VAL-CROSS-025-026-precondition-state.png",
+          "misc-2/browser-traceability/VAL-CROSS-082-after-interrupt-attempt.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/build -> 200 with files_written=[]; coverage remained unchanged"
+      },
+      "issues": "Blocked by missing 50+ entity / 100+ file precondition in assigned environment."
+    },
+    {
+      "id": "VAL-CROSS-060",
+      "title": "All sidebar pages load without error",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Navigate each sidebar route",
+          "expected": "All listed pages render",
+          "observed": "Visited /, /problem/, /solution/, /work/, /knowledge/, /vibe/, /build/, /connect/, /domain/, /traceability/ successfully"
+        },
+        {
+          "action": "Check console errors per page",
+          "expected": "No JavaScript errors",
+          "observed": "agent-browser errors returned none for every page"
+        },
+        {
+          "action": "Verify HTTP status codes",
+          "expected": "HTTP 200 for all pages",
+          "observed": "curl checks returned 200 for all listed routes"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-2/browser-traceability/VAL-CROSS-060-dashboard.png",
+          "misc-2/browser-traceability/VAL-CROSS-060-problem.png",
+          "misc-2/browser-traceability/VAL-CROSS-060-solution.png",
+          "misc-2/browser-traceability/VAL-CROSS-060-work.png",
+          "misc-2/browser-traceability/VAL-CROSS-060-knowledge.png",
+          "misc-2/browser-traceability/VAL-CROSS-060-vibe.png",
+          "misc-2/browser-traceability/VAL-CROSS-060-build.png",
+          "misc-2/browser-traceability/VAL-CROSS-060-connect.png",
+          "misc-2/browser-traceability/VAL-CROSS-060-domain.png",
+          "misc-2/browser-traceability/VAL-CROSS-060-traceability.png"
+        ],
+        "consoleErrors": "none across all listed sidebar pages",
+        "network": "curl status checks: all listed routes returned HTTP 200"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-082",
+      "title": "Traceability page after partial codegen",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Record baseline traceability coverage",
+          "expected": "Baseline captured before interruption attempt",
+          "observed": "Baseline API coverage: total_specs=33, total_linked=26, total_unlinked=7"
+        },
+        {
+          "action": "Attempt partial-codegen interruption",
+          "expected": "Mid-run interruption leaves partial link set",
+          "observed": "POST /api/build completed immediately (version 26) with files_written=[]; no partial state surfaced"
+        },
+        {
+          "action": "Re-check traceability after attempt",
+          "expected": "Changed partial-only link state",
+          "observed": "Coverage and entry counts unchanged (33/26/7, entries=26)"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-2/browser-traceability/VAL-CROSS-082-after-interrupt-attempt.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/build -> 200 (files_written=[]), traceability counts unchanged before/after"
+      },
+      "issues": "Blocked by unavailable precondition: could not induce a partial-codegen state in shared runtime."
+    },
+    {
+      "id": "VAL-TUI-003",
+      "title": "Linked specs display green/positive indicator",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Open category spec list in traceability matrix",
+          "expected": "Linked specs show positive indicator",
+          "observed": "Spec entries render status-dot status-linked markers with title like 'Linked (1 links)'"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-2/browser-traceability/VAL-TUI-003-linked-indicator.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/traceability populated linked entries"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TUI-004",
+      "title": "Unlinked specs display warning indicator",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Inspect category with unlinked count > 0 (e.g., Constraints 1 linked / 2 unlinked)",
+          "expected": "Unlinked specs shown with warning indicator",
+          "observed": "Expanded spec list displayed only linked entry; DOM check found status-unlinked count = 0 in list"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-2/browser-traceability/VAL-TUI-004-unlinked-warning-missing.png"
+        ],
+        "consoleErrors": "none",
+        "network": "Matrix row shows unlinked counts, but no per-spec warning indicator rendered"
+      },
+      "issues": "Unlinked spec warning styling/indicator not observable in expanded spec list despite non-zero unlinked counts."
+    },
+    {
+      "id": "VAL-TUI-006",
+      "title": "Linked file paths are clickable GitHub URLs for GitHub repos",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Open Behaviours/Auth detail panel",
+          "expected": "file_path rendered as clickable GitHub link",
+          "observed": "File path rendered as link with href https://github.com/sdawka/bropilot/blob/main/lib/bropilot/api/auth.ex"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-2/browser-traceability/VAL-TUI-006-github-link.png"
+        ],
+        "consoleErrors": "none",
+        "network": "href inspected via UI element attribute; matches GitHub blob URL pattern"
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-TUI-007",
+      "title": "GitHub URL includes line range when present",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Open Api/ValTrace002RoundTrip detail (contains line_range [10,25] in API data)",
+          "expected": "GitHub href includes #L10-L25",
+          "observed": "File rendered as broken plain text with ⚠️ not found; no clickable href rendered, so no #L10-L25 suffix"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-2/browser-traceability/VAL-TUI-007-line-range-missing-link.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/traceability includes line_range for lib/val_trace_002_impl.ex, but UI does not render line-range GitHub link"
+      },
+      "issues": "Line-range deep-link behavior is not observable for line_range entry because rendered output is non-link broken-path text."
+    },
+    {
+      "id": "VAL-TUI-010",
+      "title": "Matrix updates after codegen without page reload",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Capture matrix/coverage before build",
+          "expected": "Baseline prior to codegen",
+          "observed": "Coverage was 33 total / 26 linked / 7 unlinked"
+        },
+        {
+          "action": "Trigger build and use in-page refresh",
+          "expected": "Newly generated links appear in same page session",
+          "observed": "POST /api/build returned 200 but files_written=[]; after pressing refresh, coverage remained 33/26/7"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-2/browser-traceability/VAL-TUI-010-before-build.png",
+          "misc-2/browser-traceability/VAL-TUI-010-after-refresh.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/build -> 200 (files_written=[]); no traceability delta to validate UI update behavior"
+      },
+      "issues": "Blocked by missing precondition: build run did not produce new traceability links."
+    },
+    {
+      "id": "VAL-TUI-011",
+      "title": "Empty state renders gracefully",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Open traceability page and check initial state",
+          "expected": "Empty-state message for zero-link fresh project",
+          "observed": "Runtime already has populated matrix (33 total specs, 26 linked)"
+        },
+        {
+          "action": "Attempt safe setup within shared runtime constraints",
+          "expected": "Non-disruptive way to reach empty project state",
+          "observed": "No safe project-isolated reset path available in assigned shared localhost run"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-2/browser-traceability/VAL-CROSS-025-026-precondition-state.png"
+        ],
+        "consoleErrors": "none",
+        "network": "GET /api/traceability confirms non-empty preloaded state"
+      },
+      "issues": "Blocked by unavailable fresh-empty precondition in shared environment."
+    },
+    {
+      "id": "VAL-TUI-012",
+      "title": "Broken link detection in UI",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Open spec containing missing file paths (Api/ValTrace002RoundTrip)",
+          "expected": "UI marks missing files with warning indicator",
+          "observed": "Rows show ⚠️ not found badges; DOM check found .broken-link and .file-not-found classes"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-2/browser-traceability/VAL-TUI-012-broken-link-indicator.png"
+        ],
+        "consoleErrors": "none",
+        "network": "Broken paths surfaced from traceability data and rendered with warning badges"
+      },
+      "issues": null
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Some spec entries are not exposed as interactive refs in agent-browser snapshots, requiring DOM click via eval for selection.",
+      "resolved": true,
+      "resolution": "Used eval-based element selection on .spec-list-panel .spec-entry and then re-validated via snapshot/screenshot.",
+      "affectedAssertions": [
+        "VAL-CROSS-022",
+        "VAL-TUI-006",
+        "VAL-TUI-007",
+        "VAL-TUI-012"
+      ]
+    },
+    {
+      "description": "The assigned runtime starts with preloaded traceability data, preventing deterministic empty-state checks.",
+      "resolved": false,
+      "resolution": "Captured blocker evidence and marked empty-state assertions blocked per isolation guidance.",
+      "affectedAssertions": [
+        "VAL-CROSS-025",
+        "VAL-TUI-011"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "description": "Fresh empty traceability precondition unavailable in shared localhost runtime and no safe reset path within isolation boundary.",
+      "affectedAssertions": [
+        "VAL-CROSS-025",
+        "VAL-TUI-011"
+      ],
+      "quickFixAttempted": "Validated current state via /traceability and /api/traceability; attempted non-disruptive options only."
+    },
+    {
+      "description": "Large dataset precondition (50+ entities / 100+ files) not present in assigned environment.",
+      "affectedAssertions": [
+        "VAL-CROSS-026"
+      ],
+      "quickFixAttempted": "Triggered build endpoint; response contained files_written=[] and no coverage increase."
+    },
+    {
+      "description": "Could not create a partial-codegen state; build endpoint completed immediately and produced no partial link delta.",
+      "affectedAssertions": [
+        "VAL-CROSS-082",
+        "VAL-TUI-010"
+      ],
+      "quickFixAttempted": "Ran build requests including a timeout-based interruption attempt; coverage remained unchanged before/after."
+    }
+  ],
+  "summary": "Tested 12 assigned assertions: 5 passed, 2 failed, 5 blocked. Passes: VAL-CROSS-022, VAL-CROSS-060, VAL-TUI-003, VAL-TUI-006, VAL-TUI-012. Fails: VAL-TUI-004, VAL-TUI-007. Blocked by preconditions/runtime constraints: VAL-CROSS-025, VAL-CROSS-026, VAL-CROSS-082, VAL-TUI-010, VAL-TUI-011."
+}

@@ -1,0 +1,31 @@
+name: decisions
+description: "ADR-style decision records"
+fields:
+  id:
+    type: string
+    required: true
+  title:
+    type: string
+    required: true
+  status:
+    type: enum
+    values: [proposed, accepted, deprecated, superseded]
+    required: true
+  context:
+    type: text
+    required: true
+    description: "What is the issue that we're seeing that motivates this decision?"
+  decision:
+    type: text
+    required: true
+    description: "What is the change that we're proposing and/or doing?"
+  consequences:
+    type: text
+    required: true
+    description: "What becomes easier or harder because of this change?"
+  related_specs:
+    type: list
+    item_type: string
+  step:
+    type: string
+    description: "Which pipeline step prompted this decision"

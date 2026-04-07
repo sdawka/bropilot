@@ -1,0 +1,247 @@
+{
+  "groupId": "curl-pipeline",
+  "testedAt": "2026-04-06T19:43:50Z",
+  "isolation": {
+    "surface": "curl API validation",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "apiBaseUrl": "http://localhost:4000",
+    "webBaseUrl": "http://localhost:3200",
+    "assignedAssertions": [
+      "VAL-CROSS-001",
+      "VAL-CROSS-002",
+      "VAL-CROSS-004",
+      "VAL-CROSS-005",
+      "VAL-CROSS-007",
+      "VAL-CROSS-040",
+      "VAL-CROSS-041"
+    ]
+  },
+  "toolsUsed": [
+    "curl"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-CROSS-001",
+      "title": "End-to-end pipeline completes all 8 steps",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Run build and advance pipeline repeatedly, then read /api/status",
+          "expected": "All 8 steps reported as completed",
+          "observed": "POST /api/build returned 200 with files_written, and /api/pipeline/advance returned pipeline_complete, but /api/status step_statuses remained step1..step7=pending and step8=in_progress"
+        },
+        {
+          "action": "Check all spaces and generated files",
+          "expected": "All spaces filled and at least one generated file exists",
+          "observed": "All five spaces showed filled slots=true and generated files existed under output/v19/"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/build -> 200; POST /api/pipeline/advance (x8) -> 200 pipeline_complete; GET /api/status -> 200; GET /api/spaces/{problem,solution,work,measurement,knowledge} -> 200",
+        "artifacts": [
+          "misc-1/curl-pipeline/VAL-CROSS-001-build.meta.txt",
+          "misc-1/curl-pipeline/VAL-CROSS-001-build.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-001-pipeline-advance-1.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-001-pipeline-advance-8.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-001-status-after.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-001-space-problem.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-001-space-solution.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-001-space-work.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-001-space-measurement.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-001-space-knowledge.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-001-generated-files-probe.txt"
+        ]
+      },
+      "issues": "Step completion criteria were not met even though build/files/spaces succeeded."
+    },
+    {
+      "id": "VAL-CROSS-002",
+      "title": "Act 2 uses Act 1 outputs as input context",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Run deterministic Act 1 + Act 2 flow with mode=mock",
+          "expected": "Step 3 extraction uses Problem Space context",
+          "observed": "Step 3 extraction succeeded with vocabulary including User, Task, Workspace"
+        },
+        {
+          "action": "Compare problem/audience text to solution vocabulary terms",
+          "expected": "At least one vocabulary term appears in Problem Space text",
+          "observed": "problem/audience text contained case-insensitive matches for User, Task, and Workspace"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/vibe/start -> 200; POST /api/vibe/input -> 200; POST /api/vibe/extract (x2) -> 200; POST /api/domain/start -> 200; POST /api/domain/extract -> 200; GET /api/map/problem/problem -> 200; GET /api/map/problem/audience -> 200; GET /api/map/solution/vocabulary -> 200",
+        "artifacts": [
+          "misc-1/curl-pipeline/VAL-CROSS-002-007-vibe-start.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-002-007-vibe-extract-step1.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-002-007-vibe-extract-step2.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-002-007-domain-extract-step3.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-002-problem-problem.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-002-problem-audience.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-002-solution-vocabulary.body.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-004",
+      "title": "Pipeline gate blocks premature Act 2 entry",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Temporarily remove problem/audience slot file, then call POST /api/domain/start",
+          "expected": "400/422 with unfilled Problem Space slot error",
+          "observed": "HTTP 400 with error: Problem Space incomplete — unfilled slots: audience. Complete Act 1 first."
+        },
+        {
+          "action": "Restore moved slot file",
+          "expected": "Environment returned to prior state",
+          "observed": "audience.yaml restored"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/start -> 400; GET /api/status -> 200; GET /api/spaces/problem -> 200",
+        "artifacts": [
+          "misc-1/curl-pipeline/VAL-CROSS-004.setup.txt",
+          "misc-1/curl-pipeline/VAL-CROSS-004-domain-start-incomplete-problem.meta.txt",
+          "misc-1/curl-pipeline/VAL-CROSS-004-domain-start-incomplete-problem.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-004-status-after.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-004-space-problem-after.body.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-005",
+      "title": "Pipeline gate blocks premature Act 3 entry",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Temporarily remove solution/vocabulary.yaml and call contract endpoint POST /api/build/snapshot",
+          "expected": "Rejection indicating incomplete Solution Space",
+          "observed": "HTTP 404 not found (contract endpoint not implemented on this API surface)"
+        },
+        {
+          "action": "Call implemented endpoint POST /api/snapshot under same incomplete Solution Space condition",
+          "expected": "Rejection indicating incomplete Solution Space",
+          "observed": "HTTP 422 with error: Solution Space incomplete — unfilled slots: vocabulary. Complete Act 2 first."
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/build/snapshot -> 404; POST /api/snapshot -> 422; GET /api/status -> 200",
+        "artifacts": [
+          "misc-1/curl-pipeline/VAL-CROSS-005.setup.txt",
+          "misc-1/curl-pipeline/VAL-CROSS-005-build-snapshot-contract-path.meta.txt",
+          "misc-1/curl-pipeline/VAL-CROSS-005-build-snapshot-contract-path.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-005-snapshot-impl-path.meta.txt",
+          "misc-1/curl-pipeline/VAL-CROSS-005-snapshot-impl-path.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-005-status-after.body.json"
+        ]
+      },
+      "issues": "Contract path /api/build/snapshot is missing (404) in current router; equivalent gate behavior exists on /api/snapshot."
+    },
+    {
+      "id": "VAL-CROSS-007",
+      "title": "Act 2 domain data round-trips through API without data loss",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Capture Step 3 extracted payload from POST /api/domain/extract",
+          "expected": "Structured domain data available for comparison",
+          "observed": "Step 3 returned vocabulary/entities/relationships/flows/architecture payload"
+        },
+        {
+          "action": "Read back solution map endpoints and compare fields",
+          "expected": "Field-by-field values match extracted payload",
+          "observed": "All compared collections matched exactly (vocabulary, entities, relationships, user/system flows, architecture components/dependencies)"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/domain/extract (step3) -> 200; GET /api/map/solution/vocabulary -> 200; GET /api/map/solution/domain/entities -> 200; GET /api/map/solution/domain/relationships -> 200; GET /api/map/solution/flows/user-flows -> 200; GET /api/map/solution/flows/system-flows -> 200; GET /api/map/solution/architecture/components -> 200; GET /api/map/solution/architecture/dependencies -> 200",
+        "artifacts": [
+          "misc-1/curl-pipeline/VAL-CROSS-002-007-domain-extract-step3.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-007-solution-domain-entities.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-007-solution-domain-relationships.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-007-solution-flows-user.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-007-solution-flows-system.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-007-solution-arch-components.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-007-solution-arch-dependencies.body.json",
+          "misc-1/curl-pipeline/VAL-CROSS-002-solution-vocabulary.body.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-040",
+      "title": "Pipeline state persists through server restart (Act 1 → restart → Act 2)",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Attempt restart-based persistence validation",
+          "expected": "Stop/start API and verify step1/step2 completed after restart",
+          "observed": "Not executed because validator isolation forbids restarting shared localhost services"
+        }
+      ],
+      "evidence": {
+        "network": "GET /api/status baseline snapshot collected",
+        "artifacts": [
+          "misc-1/curl-pipeline/VAL-CROSS-040.blocked.txt",
+          "misc-1/curl-pipeline/VAL-CROSS-040-041-status-snapshot.body.json"
+        ]
+      },
+      "issues": "Blocked by isolation rule: no stop/restart of shared infrastructure."
+    },
+    {
+      "id": "VAL-CROSS-041",
+      "title": "Pipeline state persists mid-act (partial Act 2 → restart)",
+      "status": "blocked",
+      "steps": [
+        {
+          "action": "Attempt mid-act restart persistence validation",
+          "expected": "Complete Step 3, restart, then verify Step 3 completed and Step 4 pending",
+          "observed": "Not executed because validator isolation forbids restarting shared localhost services"
+        }
+      ],
+      "evidence": {
+        "network": "GET /api/status baseline snapshot collected",
+        "artifacts": [
+          "misc-1/curl-pipeline/VAL-CROSS-041.blocked.txt",
+          "misc-1/curl-pipeline/VAL-CROSS-040-041-status-snapshot.body.json"
+        ]
+      },
+      "issues": "Blocked by isolation rule: no stop/restart of shared infrastructure."
+    }
+  ],
+  "frictions": [
+    {
+      "description": "No API reset endpoint exists for Problem/Solution slot preconditions, so gate assertions required temporary local file moves with immediate restoration.",
+      "resolved": true,
+      "resolution": "Temporarily moved target slot files to evidence backups, executed checks, then restored files.",
+      "affectedAssertions": [
+        "VAL-CROSS-004",
+        "VAL-CROSS-005"
+      ]
+    },
+    {
+      "description": "Validation contract references POST /api/build/snapshot, but current API exposes POST /api/snapshot.",
+      "resolved": false,
+      "resolution": "Recorded contract path 404 and tested equivalent behavior at implemented path.",
+      "affectedAssertions": [
+        "VAL-CROSS-005"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "description": "Restart-based assertions could not be executed because flow-validator isolation forbids stopping/restarting shared localhost services.",
+      "affectedAssertions": [
+        "VAL-CROSS-040",
+        "VAL-CROSS-041"
+      ],
+      "quickFixAttempted": "Captured baseline status evidence and evaluated non-restart assertions only; no safe non-disruptive substitute for restart semantics."
+    }
+  ],
+  "summary": "Tested 7 assertions: 3 passed, 2 failed, 2 blocked, 0 skipped. Fails: VAL-CROSS-001, VAL-CROSS-005."
+}

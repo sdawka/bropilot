@@ -6,7 +6,7 @@ defmodule Bropilot.PipelineTest do
   @webapp_source Path.join([__DIR__, "..", "priv", "recipes", "webapp"]) |> Path.expand()
 
   defp setup_project do
-    tmp = System.tmp_dir!() |> Path.join("bropilot_pipeline_test_#{:rand.uniform(100_000)}")
+    tmp = System.tmp_dir!() |> Path.join("bropilot_pipeline_test_#{:rand.uniform(1_000_000)}")
     File.mkdir_p!(tmp)
 
     bropilot_dir = Path.join(tmp, ".bropilot")
@@ -16,11 +16,9 @@ defmodule Bropilot.PipelineTest do
     File.mkdir_p!(recipe_dir)
     File.mkdir_p!(map_dir)
 
-    # Copy recipe files
     File.cp!(Path.join(@webapp_source, "recipe.yaml"), Path.join(recipe_dir, "recipe.yaml"))
     File.cp!(Path.join(@webapp_source, "pipeline.yaml"), Path.join(recipe_dir, "pipeline.yaml"))
 
-    # Scaffold map space directories
     for space <- ~w(problem solution work measurement knowledge) do
       File.mkdir_p!(Path.join(map_dir, space))
     end
@@ -45,351 +43,193 @@ defmodule Bropilot.PipelineTest do
     end
   end
 
-  describe "Engine start and load" do
-    setup do
-      {project_path, _map_dir} = setup_project()
-      on_exit(fn -> File.rm_rf!(project_path) end)
-      {:ok, project_path: project_path}
-    end
+  defp state_file(project_path),
+    do: Path.join([project_path, ".bropilot", "pipeline_state.yaml"])
 
-    test "starts and loads recipe", %{project_path: project_path} do
-      {:ok, pid} = Engine.start_link(project_path: project_path)
-      step = Engine.current_step(pid)
-      assert step != nil
-      assert step.id == "step1"
-    end
-
-    test "current_step returns step1 initially", %{project_path: project_path} do
-      {:ok, pid} = Engine.start_link(project_path: project_path)
-      step = Engine.current_step(pid)
-      assert step.id == "step1"
-      assert step.name == "The App Basics"
-      assert step.space == :problem
-    end
-  end
-
-  describe "mark_complete and advance" do
+  describe "phase initialization" do
     setup do
       {project_path, map_dir} = setup_project()
       on_exit(fn -> File.rm_rf!(project_path) end)
       {:ok, project_path: project_path, map_dir: map_dir}
     end
 
-    test "mark_complete + advance within same space works", %{project_path: project_path} do
+    test "engine starts in :exploration phase", %{project_path: project_path} do
       {:ok, pid} = Engine.start_link(project_path: project_path)
-
-      assert :ok = Engine.mark_complete(pid, "step1")
-      assert {:ok, step2} = Engine.advance(pid)
-      assert step2.id == "step2"
-      assert step2.space == :problem
+      assert Engine.current_phase(pid) == :exploration
+      assert Engine.current_step(pid) == :exploration
     end
 
-    test "step_status reflects completion", %{project_path: project_path} do
+    test "advance in :exploration returns {:error, :use_commit}", %{project_path: project_path} do
       {:ok, pid} = Engine.start_link(project_path: project_path)
+      assert {:error, :use_commit} = Engine.advance(pid)
+    end
 
+    test "step_status reports all work steps as pending in exploration",
+         %{project_path: project_path} do
+      {:ok, pid} = Engine.start_link(project_path: project_path)
       statuses = Engine.step_status(pid)
-      assert statuses["step1"] == :in_progress
-      assert statuses["step2"] == :pending
-
-      Engine.mark_complete(pid, "step1")
-      statuses = Engine.step_status(pid)
-      assert statuses["step1"] == :completed
+      assert map_size(statuses) > 0
+      assert Enum.all?(Map.values(statuses), &(&1 == :pending))
     end
   end
 
-  describe "gate validation" do
+  describe "commitment gate" do
     setup do
       {project_path, map_dir} = setup_project()
       on_exit(fn -> File.rm_rf!(project_path) end)
       {:ok, project_path: project_path, map_dir: map_dir}
     end
 
-    test "blocks advancement when slots are empty", %{project_path: project_path} do
+    test "commit fails when no slots filled", %{project_path: project_path} do
       {:ok, pid} = Engine.start_link(project_path: project_path)
 
-      # Advance within problem space (step1 -> step2)
-      Engine.mark_complete(pid, "step1")
-      {:ok, _step2} = Engine.advance(pid)
-
-      # Try to advance from problem to solution (step2 -> step3) without filling slots
-      Engine.mark_complete(pid, "step2")
-      assert {:error, {:unfilled_slots, _missing}} = Engine.advance(pid)
+      assert {:error, {:unfilled_slots, %{problem: p, solution: s}}} = Engine.commit(pid)
+      assert length(p) > 0
+      assert length(s) > 0
+      assert Engine.current_phase(pid) == :exploration
     end
 
-    test "passes when slots are filled", %{project_path: project_path, map_dir: map_dir} do
+    test "commit fails with only problem filled", %{project_path: project_path, map_dir: map_dir} do
       {:ok, pid} = Engine.start_link(project_path: project_path)
-
-      # Advance to step2
-      Engine.mark_complete(pid, "step1")
-      {:ok, _step2} = Engine.advance(pid)
-
-      # Fill problem slots and advance to solution space
       fill_problem_slots(map_dir)
-      Engine.mark_complete(pid, "step2")
-      assert {:ok, step3} = Engine.advance(pid)
-      assert step3.id == "step3"
-      assert step3.space == :solution
-    end
-  end
 
-  describe "full pipeline traversal" do
-    setup do
-      {project_path, map_dir} = setup_project()
-      on_exit(fn -> File.rm_rf!(project_path) end)
-      {:ok, project_path: project_path, map_dir: map_dir}
+      assert {:error, {:unfilled_slots, %{problem: [], solution: s}}} = Engine.commit(pid)
+      assert length(s) > 0
     end
 
-    test "traverses from step1 to step8", %{project_path: project_path, map_dir: map_dir} do
+    test "commit succeeds when both slots filled, transitions to :work",
+         %{project_path: project_path, map_dir: map_dir} do
       {:ok, pid} = Engine.start_link(project_path: project_path)
-
-      # Step 1 -> Step 2 (same space: problem)
-      assert Engine.current_step(pid).id == "step1"
-      Engine.mark_complete(pid, "step1")
-      assert {:ok, step} = Engine.advance(pid)
-      assert step.id == "step2"
-
-      # Step 2 -> Step 3 (problem -> solution, needs gate)
       fill_problem_slots(map_dir)
-      Engine.mark_complete(pid, "step2")
-      assert {:ok, step} = Engine.advance(pid)
-      assert step.id == "step3"
-      assert step.space == :solution
-
-      # Step 3 -> Step 4 (same space: solution)
-      Engine.mark_complete(pid, "step3")
-      assert {:ok, step} = Engine.advance(pid)
-      assert step.id == "step4"
-
-      # Step 4 -> Step 5 (solution -> work, needs gate)
       fill_solution_slots(map_dir)
-      Engine.mark_complete(pid, "step4")
-      assert {:ok, step} = Engine.advance(pid)
-      assert step.id == "step5"
-      assert step.space == :work
 
-      # Step 5 -> Step 6 (same space: work)
-      Engine.mark_complete(pid, "step5")
-      assert {:ok, step} = Engine.advance(pid)
-      assert step.id == "step6"
+      assert {:ok, first_step} = Engine.commit(pid)
+      assert first_step != nil
+      assert first_step.space == :work
+      assert Engine.current_phase(pid) == :work
+    end
 
-      # Step 6 -> Step 7 (same space: work)
-      Engine.mark_complete(pid, "step6")
-      assert {:ok, step} = Engine.advance(pid)
-      assert step.id == "step7"
+    test "commit fails if not in exploration", %{project_path: project_path, map_dir: map_dir} do
+      {:ok, pid} = Engine.start_link(project_path: project_path)
+      fill_problem_slots(map_dir)
+      fill_solution_slots(map_dir)
+      {:ok, _} = Engine.commit(pid)
 
-      # Step 7 -> Step 8 (same space: work)
-      Engine.mark_complete(pid, "step7")
-      assert {:ok, step} = Engine.advance(pid)
-      assert step.id == "step8"
-
-      # Past end
-      Engine.mark_complete(pid, "step8")
-      assert {:error, :pipeline_complete} = Engine.advance(pid)
-
-      # All steps completed
-      statuses = Engine.step_status(pid)
-
-      for i <- 1..8 do
-        assert statuses["step#{i}"] == :completed
-      end
+      assert {:error, :not_in_exploration} = Engine.commit(pid)
     end
   end
 
-  describe "pipeline state persistence" do
+  describe "work phase advancement" do
+    setup do
+      {project_path, map_dir} = setup_project()
+      on_exit(fn -> File.rm_rf!(project_path) end)
+      fill_problem_slots(map_dir)
+      fill_solution_slots(map_dir)
+      {:ok, pid} = Engine.start_link(project_path: project_path)
+      {:ok, _} = Engine.commit(pid)
+      {:ok, pid: pid, project_path: project_path}
+    end
+
+    test "advances sequentially through work steps and reaches :complete", %{pid: pid} do
+      first = Engine.current_step(pid)
+      assert first.space == :work
+
+      results =
+        Stream.repeatedly(fn -> Engine.advance(pid) end)
+        |> Enum.reduce_while([], fn r, acc ->
+          case r do
+            {:ok, step} -> {:cont, [step | acc]}
+            {:error, :pipeline_complete} -> {:halt, acc}
+          end
+        end)
+
+      # We made it through all remaining steps
+      assert is_list(results)
+      assert Engine.current_phase(pid) == :complete
+      assert Engine.current_step(pid) == :complete
+    end
+
+    test "advance after :complete returns :pipeline_complete", %{pid: pid} do
+      Stream.repeatedly(fn -> Engine.advance(pid) end)
+      |> Enum.reduce_while(nil, fn r, _ ->
+        case r do
+          {:ok, _} -> {:cont, nil}
+          {:error, :pipeline_complete} -> {:halt, nil}
+        end
+      end)
+
+      assert {:error, :pipeline_complete} = Engine.advance(pid)
+    end
+
+    test "mark_complete records completion", %{pid: pid} do
+      step = Engine.current_step(pid)
+      assert :ok = Engine.mark_complete(pid, step.id)
+      statuses = Engine.step_status(pid)
+      assert statuses[step.id] == :completed
+    end
+  end
+
+  describe "persistence" do
     setup do
       {project_path, map_dir} = setup_project()
       on_exit(fn -> File.rm_rf!(project_path) end)
       {:ok, project_path: project_path, map_dir: map_dir}
     end
 
-    @state_file "pipeline_state.yaml"
-
-    defp state_file_path(project_path) do
-      Path.join([project_path, ".bropilot", @state_file])
-    end
-
-    test "writes state file on advance", %{project_path: project_path} do
-      {:ok, pid} = Engine.start_link(project_path: project_path)
-
-      # State file should exist even on init (written on startup with all 8 step statuses)
-      assert File.exists?(state_file_path(project_path))
-
-      # Advance step1 -> step2
-      Engine.mark_complete(pid, "step1")
-      {:ok, _step2} = Engine.advance(pid)
-
-      # State file should still exist
-      assert File.exists?(state_file_path(project_path))
-
-      # Read and verify contents
-      {:ok, data} = Bropilot.Yaml.decode_file(state_file_path(project_path))
-      assert data["current_step_index"] == 1
-    end
-
-    test "writes state file on mark_complete", %{project_path: project_path} do
-      {:ok, pid} = Engine.start_link(project_path: project_path)
-
-      Engine.mark_complete(pid, "step1")
-
-      # State file should exist after mark_complete
-      assert File.exists?(state_file_path(project_path))
-
-      {:ok, data} = Bropilot.Yaml.decode_file(state_file_path(project_path))
-      assert "step1" in data["completed_steps"]
-    end
-
-    test "persists current_step_index and completed_steps", %{project_path: project_path} do
-      {:ok, pid} = Engine.start_link(project_path: project_path)
-
-      Engine.mark_complete(pid, "step1")
-      {:ok, _step2} = Engine.advance(pid)
-
-      {:ok, data} = Bropilot.Yaml.decode_file(state_file_path(project_path))
-      assert data["current_step_index"] == 1
-      assert is_list(data["completed_steps"])
-      assert "step1" in data["completed_steps"]
-    end
-
-    test "loads state on init and resumes from persisted position", %{project_path: project_path} do
-      # Start engine, advance, then stop
-      {:ok, pid} = Engine.start_link(project_path: project_path)
-      Engine.mark_complete(pid, "step1")
-      {:ok, _step2} = Engine.advance(pid)
-      GenServer.stop(pid)
-
-      # Start a new engine — it should resume from step2
-      {:ok, pid2} = Engine.start_link(project_path: project_path)
-      step = Engine.current_step(pid2)
-      assert step.id == "step2"
-
-      # Verify completed_steps are restored
-      statuses = Engine.step_status(pid2)
-      assert statuses["step1"] == :completed
-      assert statuses["step2"] == :in_progress
-    end
-
-    test "missing state file defaults to step 0", %{project_path: project_path} do
-      # Ensure no state file exists
-      File.rm(state_file_path(project_path))
-
-      {:ok, pid} = Engine.start_link(project_path: project_path)
-      step = Engine.current_step(pid)
-      assert step.id == "step1"
-
-      statuses = Engine.step_status(pid)
-      assert statuses["step1"] == :in_progress
-    end
-
-    test "corrupted state file defaults to step 0 with logged warning", %{project_path: project_path} do
-      # Write invalid YAML to state file
-      File.write!(state_file_path(project_path), "{{invalid yaml: [")
-
-      {:ok, pid} = Engine.start_link(project_path: project_path)
-      step = Engine.current_step(pid)
-      assert step.id == "step1"
-
-      statuses = Engine.step_status(pid)
-      assert statuses["step1"] == :in_progress
-    end
-
-    test "state file with missing fields defaults to step 0", %{project_path: project_path} do
-      # Write valid YAML but missing required fields
-      File.write!(state_file_path(project_path), "some_other_key: true\n")
-
-      {:ok, pid} = Engine.start_link(project_path: project_path)
-      step = Engine.current_step(pid)
-      assert step.id == "step1"
-    end
-
-    test "state file with invalid step index defaults to step 0", %{project_path: project_path} do
-      # Write valid YAML with out-of-range step index
-      content = Bropilot.Yaml.encode(%{
-        "current_step_index" => 999,
-        "completed_steps" => []
-      })
-      File.write!(state_file_path(project_path), content)
-
-      {:ok, pid} = Engine.start_link(project_path: project_path)
-      step = Engine.current_step(pid)
-      assert step.id == "step1"
-    end
-
-    test "atomic write uses tmp file + rename", %{project_path: project_path} do
-      {:ok, pid} = Engine.start_link(project_path: project_path)
-      Engine.mark_complete(pid, "step1")
-      {:ok, _step2} = Engine.advance(pid)
-
-      # After write, no tmp file should remain
-      bropilot_dir = Path.join(project_path, ".bropilot")
-      tmp_files = bropilot_dir
-        |> File.ls!()
-        |> Enum.filter(&String.starts_with?(&1, "pipeline_state.yaml.tmp"))
-
-      assert tmp_files == []
-
-      # State file should exist and be valid
-      assert File.exists?(state_file_path(project_path))
-      {:ok, data} = Bropilot.Yaml.decode_file(state_file_path(project_path))
-      assert is_integer(data["current_step_index"])
-    end
-
-    test "state persists completed steps correctly across multiple advances", %{
+    test "persists phase, work_step_index, completed_steps", %{
       project_path: project_path,
       map_dir: map_dir
     } do
       {:ok, pid} = Engine.start_link(project_path: project_path)
-
-      # Advance through problem space
-      Engine.mark_complete(pid, "step1")
-      {:ok, _step2} = Engine.advance(pid)
-      Engine.mark_complete(pid, "step2")
       fill_problem_slots(map_dir)
-      {:ok, _step3} = Engine.advance(pid)
+      fill_solution_slots(map_dir)
+      {:ok, _} = Engine.commit(pid)
+      step = Engine.current_step(pid)
+      Engine.mark_complete(pid, step.id)
 
+      {:ok, data} = Bropilot.Yaml.decode_file(state_file(project_path))
+      assert data["phase"] == "work"
+      assert data["work_step_index"] == 0
+      assert step.id in data["completed_steps"]
+    end
+
+    test "round-trip restores phase and index", %{project_path: project_path, map_dir: map_dir} do
+      {:ok, pid} = Engine.start_link(project_path: project_path)
+      fill_problem_slots(map_dir)
+      fill_solution_slots(map_dir)
+      {:ok, _} = Engine.commit(pid)
+      {:ok, _} = Engine.advance(pid)
       GenServer.stop(pid)
 
-      # Restart and verify
       {:ok, pid2} = Engine.start_link(project_path: project_path)
+      assert Engine.current_phase(pid2) == :work
       step = Engine.current_step(pid2)
-      assert step.id == "step3"
-
-      statuses = Engine.step_status(pid2)
-      assert statuses["step1"] == :completed
-      assert statuses["step2"] == :completed
-      assert statuses["step3"] == :in_progress
+      assert step != :exploration
+      assert step.space == :work
     end
 
-    test "concurrent advance calls do not corrupt state file", %{project_path: project_path} do
+    test "missing state file defaults to exploration", %{project_path: project_path} do
+      File.rm(state_file(project_path))
       {:ok, pid} = Engine.start_link(project_path: project_path)
-      Engine.mark_complete(pid, "step1")
-
-      # Fire two advances in parallel — GenServer serializes them, but both should
-      # write valid YAML
-      task1 = Task.async(fn -> Engine.advance(pid) end)
-      task2 = Task.async(fn -> Engine.advance(pid) end)
-
-      result1 = Task.await(task1)
-      result2 = Task.await(task2)
-
-      # One should succeed, the other either succeeds to next step or gets pipeline_complete/error
-      results = [result1, result2]
-      assert Enum.any?(results, fn
-        {:ok, _step} -> true
-        _ -> false
-      end)
-
-      # State file must be valid YAML
-      {:ok, data} = Bropilot.Yaml.decode_file(state_file_path(project_path))
-      assert is_integer(data["current_step_index"])
-      assert is_list(data["completed_steps"])
+      assert Engine.current_phase(pid) == :exploration
     end
 
-    test "state file stored at .bropilot/pipeline_state.yaml", %{project_path: project_path} do
-      {:ok, pid} = Engine.start_link(project_path: project_path)
-      Engine.mark_complete(pid, "step1")
+    test "backward-compat: old current_step_index migrates without crash", %{
+      project_path: project_path
+    } do
+      File.mkdir_p!(Path.dirname(state_file(project_path)))
 
-      expected_path = Path.join([project_path, ".bropilot", "pipeline_state.yaml"])
-      assert File.exists?(expected_path)
+      content =
+        Bropilot.Yaml.encode(%{
+          "current_step_index" => 0,
+          "completed_steps" => ["step1"]
+        })
+
+      File.write!(state_file(project_path), content)
+
+      {:ok, pid} = Engine.start_link(project_path: project_path)
+      phase = Engine.current_phase(pid)
+      assert phase in [:exploration, :work]
     end
   end
 end

@@ -1,0 +1,21 @@
+name: components
+description: "Reusable UI components"
+artifact_type: component
+fields:
+  name:
+    type: string
+    required: true
+  description:
+    type: text
+    required: true
+  props:
+    type: map
+  state:
+    type: map
+  events:
+    type: list
+    item_type: string
+  used_in:
+    type: list
+    item_type: ref
+    ref_to: specs.views

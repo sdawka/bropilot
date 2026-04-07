@@ -1,0 +1,32 @@
+name: entities
+description: "Data entity specifications (DB-level detail)"
+artifact_type: model
+fields:
+  name:
+    type: string
+    required: true
+  table:
+    type: string
+  domain_entity:
+    type: ref
+    ref_to: domain.domain
+    required: true
+  columns:
+    type: list
+    item_type: map
+    item_fields:
+      name:
+        type: string
+      type:
+        type: string
+      nullable:
+        type: boolean
+      default:
+        type: any
+  indexes:
+    type: list
+    item_type: map
+  constraints:
+    type: list
+    item_type: ref
+    ref_to: specs.constraints

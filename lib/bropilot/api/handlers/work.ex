@@ -8,17 +8,16 @@ defmodule Bropilot.Api.Handlers.Work do
   alias Bropilot.Pipeline.Act3.{Snapshot, Diff, TaskGenerator, Executor}
 
   def snapshot(conn) do
-    with {:ok, map_dir} <- get_map_dir(),
-         :ok <- validate_solution_space(map_dir),
+    with :ok <- ensure_work_phase(),
+         {:ok, map_dir} <- get_map_dir(),
          {:ok, version} <- Snapshot.create_snapshot(map_dir) do
       json(conn, 200, %{
         ok: true,
         data: %{version: version, version_id: Snapshot.format_version(version)}
       })
     else
-      {:error, {:unfilled_slots, slots}} ->
-        slot_names = Enum.map(slots, &to_string/1) |> Enum.join(", ")
-        json(conn, 422, %{ok: false, error: "Solution Space incomplete — unfilled slots: #{slot_names}. Complete Act 2 first."})
+      {:error, :not_in_work_phase} ->
+        json(conn, 422, %{ok: false, error: "not_in_work_phase — call POST /api/explore/commit first"})
 
       {:error, msg} ->
         json(conn, 400, %{ok: false, error: to_string(msg)})
@@ -76,8 +75,8 @@ defmodule Bropilot.Api.Handlers.Work do
   end
 
   def build(conn) do
-    with {:ok, map_dir} <- get_map_dir(),
-         :ok <- validate_solution_space(map_dir) do
+    with :ok <- ensure_work_phase(),
+         {:ok, map_dir} <- get_map_dir() do
       project_path = File.cwd!()
 
       # Determine execution mode from request body or default to :llm
@@ -107,9 +106,8 @@ defmodule Bropilot.Api.Handlers.Work do
           json(conn, 400, %{ok: false, error: to_string(reason)})
       end
     else
-      {:error, {:unfilled_slots, slots}} ->
-        slot_names = Enum.map(slots, &to_string/1) |> Enum.join(", ")
-        json(conn, 422, %{ok: false, error: "Solution Space incomplete — unfilled slots: #{slot_names}. Complete Act 2 first."})
+      {:error, :not_in_work_phase} ->
+        json(conn, 422, %{ok: false, error: "not_in_work_phase — call POST /api/explore/commit first"})
 
       {:error, msg} ->
         json(conn, 400, %{ok: false, error: to_string(msg)})
@@ -184,8 +182,19 @@ defmodule Bropilot.Api.Handlers.Work do
 
   # -- Private --
 
-  defp validate_solution_space(map_dir) do
-    Bropilot.Spaces.validate_gate(map_dir, :solution)
+  defp ensure_work_phase do
+    case Process.whereis(Bropilot.Api.PipelineEngine) do
+      nil ->
+        # No engine registered (e.g. tests). Allow the operation.
+        :ok
+
+      _pid ->
+        case Bropilot.Pipeline.Engine.current_phase(Bropilot.Api.PipelineEngine) do
+          :work -> :ok
+          :complete -> :ok
+          _ -> {:error, :not_in_work_phase}
+        end
+    end
   end
 
   defp get_map_dir do

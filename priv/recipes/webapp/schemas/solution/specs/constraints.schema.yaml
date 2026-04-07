@@ -1,0 +1,20 @@
+name: constraints
+description: "Business rules and constraints"
+artifact_type: rule
+fields:
+  name:
+    type: string
+    required: true
+  rule:
+    type: text
+    required: true
+  applies_to:
+    type: list
+    item_type: ref
+    ref_to: domain.domain
+  enforcement:
+    type: enum
+    values: [db, app, ui, api]
+  severity:
+    type: enum
+    values: [hard, soft, warning]

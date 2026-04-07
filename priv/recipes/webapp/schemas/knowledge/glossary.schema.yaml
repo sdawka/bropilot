@@ -1,0 +1,23 @@
+name: glossary
+description: "Living vocabulary -- evolves as understanding deepens"
+fields:
+  term:
+    type: string
+    required: true
+  definition:
+    type: text
+    required: true
+  source_space:
+    type: enum
+    values: [problem, solution, work, measurement]
+    description: "Which space introduced this term"
+  first_seen_step:
+    type: string
+    description: "Step ID where this term was first used"
+  aliases:
+    type: list
+    item_type: string
+  related_terms:
+    type: list
+    item_type: ref
+    ref_to: glossary

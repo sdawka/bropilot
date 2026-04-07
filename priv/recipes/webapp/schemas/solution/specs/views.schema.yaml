@@ -1,0 +1,23 @@
+name: views
+description: "UI view specifications"
+artifact_type: view
+fields:
+  name:
+    type: string
+    required: true
+  route:
+    type: string
+  description:
+    type: text
+    required: true
+  components:
+    type: list
+    item_type: ref
+    ref_to: specs.components
+  data_sources:
+    type: list
+    item_type: ref
+    ref_to: specs.api
+  flow:
+    type: ref
+    ref_to: domain.flows

@@ -184,8 +184,8 @@ defmodule Bropilot.Api.Handlers.Project do
               name: recipe.name,
               version: recipe.version,
               description: recipe.description,
-              steps:
-                Enum.map(recipe.steps, fn step ->
+              work_steps:
+                Enum.map(Map.get(recipe, :work_steps, []), fn step ->
                   %{
                     id: step.id,
                     name: step.name,
@@ -195,7 +195,9 @@ defmodule Bropilot.Api.Handlers.Project do
                     measurement_contributes: step.measurement_contributes
                   }
                 end),
-              acts: recipe.acts
+              exploration_lenses: Map.get(recipe, :exploration_lenses, []),
+              commit_gate: Map.get(recipe, :commit_gate, %{}),
+              phases: Map.get(recipe, :phases, [])
             }
           })
         else

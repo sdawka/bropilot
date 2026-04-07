@@ -1,0 +1,124 @@
+phases:
+  - id: exploration
+    name: "Explore Problem & Solution"
+    description: "Freeform conversation that fills both Problem and Solution slots concurrently."
+    lenses:
+      - id: basics
+        name: "The App Basics"
+        description: "Name and purpose"
+        prompt: prompts/step1-basics.md
+        targets:
+          problem:
+            - problem
+            - context
+        knowledge_contributes:
+          - glossary
+
+      - id: detail
+        name: "The Gory Detail"
+        description: "Messy descriptive gory detail"
+        prompt: prompts/step2-gory-detail.md
+        targets:
+          problem:
+            - audience
+            - assumptions
+            - hypotheses
+        knowledge_contributes:
+          - glossary
+        questions:
+          - "What do you wanna make?"
+          - "Who is it for, why are they using it?"
+          - "What does them using it look like? What does it do for them?"
+          - "Why do you think doing it this way works? What is the essence?"
+          - "What can we simplify and what can we double down on?"
+          - "What needs to be true for the magic to happen?"
+
+      - id: domain
+        name: "The Big Picture"
+        description: "Things that could change interdependently"
+        prompt: prompts/step3-big-picture.md
+        targets:
+          solution:
+            - vocabulary
+            - domain
+            - flows
+        knowledge_contributes:
+          - glossary
+          - decisions
+        measurement_contributes:
+          - validation.solution
+        guiding_questions:
+          - "What are the main Things in and about the working of the app called?"
+          - "Why do these Things matter? What do they look like (what is their form)?"
+          - "How do these Things relate to and affect each other?"
+
+      - id: specs
+        name: "The Gory Detail Specs"
+        description: "Specifications, each pointing to an artifact"
+        prompt: prompts/step4-specs.md
+        targets:
+          solution:
+            - architecture
+            - specs
+        knowledge_contributes:
+          - glossary
+          - decisions
+        measurement_contributes:
+          - validation.solution
+
+    commit_gate:
+      validates:
+        - problem
+        - solution
+      description: "User commits to build — both Problem and Solution must be sufficient."
+
+  - id: work
+    name: "Build"
+    description: "Snapshot, diff, tasks, codegen execution."
+    steps:
+      - id: snapshot
+        name: "Version Snapshot"
+        description: "A snapshot of specs creates an app version"
+        space: work
+        space_slots:
+          - versions
+        automated: true
+
+      - id: changes
+        name: "Change Plan"
+        description: "Latest spec generates changes needed and lists requirements"
+        space: work
+        space_slots:
+          - versions
+        prompt: prompts/step6-changes.md
+
+      - id: tasks
+        name: "Task Generation"
+        description: "Work tasks are created with context and DoDs"
+        space: work
+        space_slots:
+          - versions
+        prompt: prompts/step7-tasks.md
+
+      - id: codegen
+        name: "Codegen Execution"
+        description: "Tasks are done by codegen LLMs and orchestration agents"
+        space: work
+        space_slots:
+          - versions
+        knowledge_contributes:
+          - changelog
+          - xrefs
+          - glossary
+        measurement_contributes:
+          - validation.work
+        prompt: prompts/step8-codegen.md
+        artifact_types:
+          - repo_files
+          - db_interface
+          - unit_tests
+          - api_tests
+          - e2e_tests
+          - db_mocks
+          - debug_logs
+          - assertions

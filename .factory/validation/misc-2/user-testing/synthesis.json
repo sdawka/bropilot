@@ -1,0 +1,97 @@
+{
+  "milestone": "misc-2",
+  "round": 1,
+  "status": "fail",
+  "assertionsSummary": {
+    "total": 24,
+    "passed": 8,
+    "failed": 11,
+    "blocked": 5
+  },
+  "passedAssertions": [
+    "VAL-CROSS-022",
+    "VAL-CROSS-024",
+    "VAL-CROSS-060",
+    "VAL-TAPI-007",
+    "VAL-TAUTO-009",
+    "VAL-TUI-003",
+    "VAL-TUI-006",
+    "VAL-TUI-012"
+  ],
+  "failedAssertions": [
+    {
+      "id": "VAL-CROSS-021",
+      "reason": "Traceability links included many non-existent file paths (31 missing in this run)."
+    },
+    {
+      "id": "VAL-CROSS-083",
+      "reason": "Re-running Act 2 did not update Solution entities or stale Act 3 status semantics."
+    },
+    {
+      "id": "VAL-TAUTO-001",
+      "reason": "No new implementation links were recorded; project-scoped build path 404 and /api/build returned files_written=[]."
+    },
+    {
+      "id": "VAL-TAUTO-002",
+      "reason": "Auto-linked file_path values did not resolve on disk (31 missing)."
+    },
+    {
+      "id": "VAL-TAUTO-003",
+      "reason": "API links did not consistently map to existing route handler files/functions."
+    },
+    {
+      "id": "VAL-TAUTO-004",
+      "reason": "Entities entries lacked required type+migration+implementation link coverage."
+    },
+    {
+      "id": "VAL-TAUTO-005",
+      "reason": "Behaviours entries lacked test-type links alongside implementation links."
+    },
+    {
+      "id": "VAL-TAUTO-006",
+      "reason": "Components/views links referenced missing or inconsistent file targets."
+    },
+    {
+      "id": "VAL-TAUTO-008",
+      "reason": "Spec change + rebuild did not update/mark stale traceability links."
+    },
+    {
+      "id": "VAL-TUI-004",
+      "reason": "Unlinked-spec warning indicators were not observable in expanded lists despite non-zero unlinked counts."
+    },
+    {
+      "id": "VAL-TUI-007",
+      "reason": "UI did not render line-range GitHub anchors for entry with line_range metadata."
+    }
+  ],
+  "blockedAssertions": [
+    {
+      "id": "VAL-CROSS-025",
+      "blockedBy": "Shared runtime had preloaded non-empty traceability data and no safe isolated reset path."
+    },
+    {
+      "id": "VAL-CROSS-026",
+      "blockedBy": "Large-scale precondition unavailable (no 50+ entities / 100+ linked files dataset)."
+    },
+    {
+      "id": "VAL-CROSS-082",
+      "blockedBy": "Could not induce partial-codegen state; builds completed with files_written=[] and no traceability delta."
+    },
+    {
+      "id": "VAL-TUI-010",
+      "blockedBy": "Build produced no new links, so in-session matrix update behavior could not be exercised."
+    },
+    {
+      "id": "VAL-TUI-011",
+      "blockedBy": "Fresh empty traceability state unavailable in shared runtime without disruptive reset."
+    }
+  ],
+  "appliedUpdates": [
+    {
+      "target": "user-testing.md",
+      "description": "Added misc-2 round-1 validation notes (project-scoped traceability availability, build-path mismatch, stale file-path behavior, and blocking preconditions).",
+      "source": "flow-report"
+    }
+  ],
+  "previousRound": null
+}

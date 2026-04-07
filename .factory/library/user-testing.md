@@ -114,3 +114,20 @@ Avoid ports: 4000 (dev), 4321-4340 (occupied), 5000, 7000, 8108
 - In this runtime, `POST /api/build` returned success while reporting `files_written: []`, and traceability did not gain full per-entity CRUD link-type coverage (`implementation`, `type`, `migration`, `test`).
 - For ad-hoc TypeScript checks outside package roots, use a known local compiler path (for example `web/node_modules/.bin/tsc`) or run `npx tsc` from the package directory to avoid global shim mismatches.
 - During concurrent navigation validation, domain extract flow showed one transient console `400` resource message; page rendering across `/`, `/problem/`, and `/knowledge/` still remained responsive.
+
+## Validation Notes: misc-1 (round 1)
+
+- Restart-dependent assertions (for example `VAL-CROSS-040`, `VAL-CROSS-041`) should run on isolated API instances (e.g., 4001+) so validators can safely stop/restart services without impacting shared localhost runs.
+- Contract endpoint mismatch persists for snapshot gating: `POST /api/build/snapshot` returned `404`, while `POST /api/snapshot` enforced Solution-space gate checks (`422` when incomplete).
+- `GET /api/domain/status` is available on this surface and can be used to verify malformed-extraction non-advancement/retry behavior.
+- Solution nested read-back endpoints (`/api/map/solution/domain/*`, `/api/map/solution/flows/*`, `/api/map/solution/architecture/*`) returned `200` in this run and were usable for round-trip checks.
+- `/build/` still produced a browser console error (`Unexpected token ':'`) during sidebar traversal; keep explicit console checks in navigation assertions.
+
+## Validation Notes: misc-2 (round 1)
+
+- Project-scoped traceability API paths are available on this surface: `/api/projects/:path/traceability` and `/api/projects/:path/traceability/:category/:spec_id` worked for cross-project isolation checks.
+- `POST /api/projects/:path/build` still returned `404`; implemented build surface remained `POST /api/build` and frequently returned `files_written: []` with no traceability delta.
+- Traceability matrix currently includes many stale/non-existent `file_path` values; file-existence checks are required before treating links as valid evidence.
+- Traceability UI showed positive linked indicators and GitHub links for valid files, but unlinked-warning indicators were not observable in expanded lists and line-range anchors were not emitted when entries rendered as broken paths.
+- Empty-state / large-dataset / partial-codegen assertions remained precondition-blocked in shared runtime (preloaded non-empty data, no 50+ entity/100+ file dataset, and inability to induce partial build output).
+- Re-running Act 2 completed HTTP flows but did not update `/api/map/solution/domain/entities` or mark `/api/status` as stale/re-run-required; posting `/api/domain/input` during step4 caused a worker crash in one attempt.

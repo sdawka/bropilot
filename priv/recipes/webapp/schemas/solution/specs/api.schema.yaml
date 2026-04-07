@@ -1,0 +1,27 @@
+name: api
+description: "API endpoint specifications"
+artifact_type: endpoint
+fields:
+  path:
+    type: string
+    required: true
+  method:
+    type: enum
+    values: [GET, POST, PUT, PATCH, DELETE]
+    required: true
+  description:
+    type: text
+    required: true
+  request_body:
+    type: map
+  response:
+    type: map
+  auth:
+    type: enum
+    values: [none, token, session, api_key]
+  related_entity:
+    type: ref
+    ref_to: domain.domain
+  flow:
+    type: ref
+    ref_to: domain.flows

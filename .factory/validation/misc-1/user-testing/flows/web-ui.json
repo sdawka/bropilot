@@ -1,0 +1,182 @@
+{
+  "groupId": "web-ui",
+  "testedAt": "2026-04-06T19:58:30Z",
+  "isolation": {
+    "surface": "agent-browser web UI validation",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "apiBaseUrl": "http://localhost:4000",
+    "webBaseUrl": "http://localhost:3200",
+    "evidenceDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/evidence/misc-1/web-ui",
+    "assignedAssertions": [
+      "VAL-ACT2-017",
+      "VAL-ACT2-027",
+      "VAL-CROSS-061",
+      "VAL-CROSS-080"
+    ]
+  },
+  "toolsUsed": [
+    "agent-browser",
+    "curl"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-ACT2-017",
+      "title": "Error state — UI displays error when .bropilot directory is missing",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Temporarily rename repo .bropilot directory, open /domain/, click Start Domain Modeling",
+          "expected": "User-facing initialization error appears (not unhandled exception)",
+          "observed": "Error banner displayed: \"no .bropilot directory found — run `mix bro.init` first\""
+        },
+        {
+          "action": "Check browser console and restore .bropilot directory",
+          "expected": "No console exceptions and environment restored",
+          "observed": "No console errors emitted for this flow; .bropilot restored immediately after assertion"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-1/web-ui/VAL-ACT2-017-missing-bropilot-error.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/start -> 400 {\"error\":\"no .bropilot directory found — run `mix bro.init` first\"}",
+        "artifacts": [
+          "misc-1/web-ui/VAL-ACT2-017-api-response.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-ACT2-027",
+      "title": "Malformed LLM output returns error without advancing state",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Start domain worker with malformed mode and restore UI into step3 state",
+          "expected": "Extraction path uses malformed output mode",
+          "observed": "POST /api/domain/start with mode=malformed returned step3 prompt; /api/domain/status showed step=step3"
+        },
+        {
+          "action": "Submit step3 input from /domain/ UI",
+          "expected": "UI shows descriptive extraction error",
+          "observed": "Error banner displayed: \"Extraction failed. \\\"malformed LLM output: expected valid YAML but got garbage data\\\"\""
+        },
+        {
+          "action": "Verify worker state and retry",
+          "expected": "Worker remains pre-step3_done and user can retry",
+          "observed": "/api/domain/status remained step=step3 after first and second attempts; Submit & Extract stayed available for retry"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-1/web-ui/VAL-ACT2-027-malformed-error-after-submit.png",
+          "misc-1/web-ui/VAL-ACT2-027-retry-still-step3.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/start (mode=malformed) -> 200; POST /api/domain/input -> 200; POST /api/domain/extract -> 400 malformed output; GET /api/domain/status before/after/retry -> step3",
+        "artifacts": [
+          "misc-1/web-ui/VAL-ACT2-027-status-before.json",
+          "misc-1/web-ui/VAL-ACT2-027-status-after-first.json",
+          "misc-1/web-ui/VAL-ACT2-027-status-after-retry.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-061",
+      "title": "Sidebar highlights active page",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Navigate across all sidebar routes (/, /problem/, /solution/, /work/, /knowledge/, /vibe/, /domain/, /er/, /traceability/, /build/, /connect/) and inspect .sidebar-link.active",
+          "expected": "Exactly one active sidebar link on each page, matching current route",
+          "observed": "All 11 routes reported activeCount=1 and active href matched current route, including /connect/"
+        },
+        {
+          "action": "Capture screenshot on /connect/ showing active sidebar state",
+          "expected": "Connect link active on connect page",
+          "observed": "Screenshot shows Connect entry highlighted"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-1/web-ui/VAL-CROSS-061-sidebar-active-connect.png"
+        ],
+        "consoleErrors": "Unexpected token ':' (observed while traversing /build/ during sidebar flow)",
+        "network": "GET page navigations returned 200 across all 11 sidebar routes",
+        "artifacts": [
+          "misc-1/web-ui/VAL-CROSS-061-nav-active-checks.txt",
+          "misc-1/web-ui/VAL-CROSS-061-console-errors.txt"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-080",
+      "title": "Partial pipeline — Solution page shows available data only",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Prepare partial state: run Act2 step3 (mock) only, then ensure specs slot is empty",
+          "expected": "Domain model data present while Step4 specs remain pending",
+          "observed": "Step3 extract returned populated domain model; PUT /api/map/solution/specs set specs to {}"
+        },
+        {
+          "action": "Open /solution/ and inspect Domain Model + Specifications sections",
+          "expected": "Domain data visible; specs shown as pending (not errors)",
+          "observed": "Vocabulary/Domain Entities/Flows rendered with data; each spec tab displayed \"Spec expansion pending — run Act 2 Step 4...\""
+        },
+        {
+          "action": "Check browser console",
+          "expected": "No JS errors for this flow",
+          "observed": "No console errors"
+        }
+      ],
+      "evidence": {
+        "screenshots": [
+          "misc-1/web-ui/VAL-CROSS-080-partial-solution-pending-specs.png"
+        ],
+        "consoleErrors": "none",
+        "network": "POST /api/domain/start (mode=mock) -> 200; POST /api/domain/input -> 200; POST /api/domain/extract -> 200 step3_done; PUT /api/map/solution/specs -> 200; GET /solution/ -> 200",
+        "artifacts": [
+          "misc-1/web-ui/VAL-CROSS-080-start.json",
+          "misc-1/web-ui/VAL-CROSS-080-input.json",
+          "misc-1/web-ui/VAL-CROSS-080-extract-step3.json",
+          "misc-1/web-ui/VAL-CROSS-080-clear-specs.json"
+        ]
+      },
+      "issues": null
+    }
+  ],
+  "frictions": [
+    {
+      "description": "agent-browser network request log returned 'No requests captured' for some interactions, so API status evidence was collected with direct curl calls.",
+      "resolved": true,
+      "resolution": "Used curl for request/response status evidence while keeping UI assertions verified through screenshots and DOM text.",
+      "affectedAssertions": [
+        "VAL-ACT2-017",
+        "VAL-ACT2-027"
+      ]
+    },
+    {
+      "description": "Domain page UI does not expose a malformed mode toggle for extraction tests.",
+      "resolved": true,
+      "resolution": "Pre-started Act2 worker with mode=malformed via API and restored domain page to step3 using localStorage session state before UI submit.",
+      "affectedAssertions": [
+        "VAL-ACT2-027"
+      ]
+    },
+    {
+      "description": "A persistent console error ('Unexpected token :') appears after visiting /build/ during sidebar navigation checks.",
+      "resolved": false,
+      "resolution": "Recorded as non-blocking friction because active-link behavior still validated successfully.",
+      "affectedAssertions": [
+        "VAL-CROSS-061"
+      ]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 4 assertions: 4 passed, 0 failed, 0 blocked, 0 skipped."
+}

@@ -1,0 +1,74 @@
+{
+  "groupId": "terminal-generator",
+  "testedAt": "2026-04-06T20:08:03.450895Z",
+  "isolation": {
+    "milestone": "misc-1",
+    "surface": "terminal",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "apiBaseUrl": "http://localhost:4000",
+    "evidenceDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873/evidence/misc-1/terminal-generator",
+    "assignedAssertions": [
+      "VAL-GEN-009",
+      "VAL-CROSS-035"
+    ]
+  },
+  "toolsUsed": [
+    "terminal",
+    "mix"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-GEN-009",
+      "title": "Generator is invoked during codegen step 8",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Run deterministic Step 8 executor check via mix run --no-start val_gen_009.exs using demo Solution Space map",
+          "expected": "Generated output directory contains CRUD artifacts (types.ts, routes.ts, migration.sql, tests.test.ts)",
+          "observed": "Step 8 wrote output/*/lib/demo/from_step8.ex files, but required CRUD artifact checks were all false"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "misc-1/terminal-generator/VAL-GEN-009-command.txt"
+        ],
+        "artifacts": [
+          "misc-1/terminal-generator/VAL-GEN-009-summary.json"
+        ]
+      },
+      "issues": "Act3 Step 8 execution completed, but generator CRUD artifacts were not present in output (types.ts/routes.ts/migration.sql/tests.test.ts all missing)."
+    },
+    {
+      "id": "VAL-CROSS-035",
+      "title": "CRUD generator handles entity with multiple relationships",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Generate CRUD artifacts for an entity spec with belongs_to + belongs_to + many_to_many relationships",
+          "expected": "Migration includes foreign-key REFERENCES and/or join table, routes include nested resource endpoints, TS includes relationship fields",
+          "observed": "TS relationship fields and SQL REFERENCES were present, but join table generation and nested relationship routes were absent"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "misc-1/terminal-generator/VAL-CROSS-035-command.txt"
+        ],
+        "artifacts": [
+          "misc-1/terminal-generator/VAL-CROSS-035-summary.json",
+          "misc-1/terminal-generator/VAL-CROSS-035-types.ts",
+          "misc-1/terminal-generator/VAL-CROSS-035-routes.ts",
+          "misc-1/terminal-generator/VAL-CROSS-035-migration.sql",
+          "misc-1/terminal-generator/VAL-CROSS-035-tests.test.ts",
+          "misc-1/terminal-generator/VAL-CROSS-035-types-snippets.txt",
+          "misc-1/terminal-generator/VAL-CROSS-035-routes-snippets.txt",
+          "misc-1/terminal-generator/VAL-CROSS-035-migration-snippets.txt"
+        ]
+      },
+      "issues": "Generator output did not include join-table handling for many_to_many and did not emit nested resource routes for related entities."
+    }
+  ],
+  "frictions": [],
+  "blockers": [],
+  "summary": "Tested 2 assertions: 0 passed, 2 failed, 0 blocked, 0 skipped."
+}

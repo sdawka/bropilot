@@ -1,0 +1,22 @@
+name: streams
+description: "Data flow and streaming specifications"
+artifact_type: stream
+fields:
+  name:
+    type: string
+    required: true
+  source:
+    type: ref
+    ref_to: specs.modules
+  sink:
+    type: ref
+    ref_to: specs.modules
+  data_type:
+    type: string
+  protocol:
+    type: enum
+    values: [ws, sse, polling, queue, pubsub]
+  related_events:
+    type: list
+    item_type: ref
+    ref_to: specs.events

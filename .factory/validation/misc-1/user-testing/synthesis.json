@@ -1,0 +1,65 @@
+{
+  "milestone": "misc-1",
+  "round": 1,
+  "status": "fail",
+  "assertionsSummary": {
+    "total": 16,
+    "passed": 8,
+    "failed": 6,
+    "blocked": 2
+  },
+  "passedAssertions": [
+    "VAL-ACT2-017",
+    "VAL-ACT2-027",
+    "VAL-CROSS-002",
+    "VAL-CROSS-004",
+    "VAL-CROSS-007",
+    "VAL-CROSS-044",
+    "VAL-CROSS-061",
+    "VAL-CROSS-080"
+  ],
+  "failedAssertions": [
+    {
+      "id": "VAL-CGEN-009",
+      "reason": "POST /api/build returned success but produced no newly generated files in this run."
+    },
+    {
+      "id": "VAL-CROSS-001",
+      "reason": "Pipeline status did not mark all 8 steps completed even after build/pipeline completion path."
+    },
+    {
+      "id": "VAL-CROSS-005",
+      "reason": "Contract endpoint POST /api/build/snapshot returned 404 on this API surface (implemented behavior exists on POST /api/snapshot)."
+    },
+    {
+      "id": "VAL-CROSS-031",
+      "reason": "Traceability after build lacked required per-entity CRUD link-type coverage and showed no build-induced delta."
+    },
+    {
+      "id": "VAL-CROSS-035",
+      "reason": "Generator output lacked many_to_many join-table handling and nested relationship routes."
+    },
+    {
+      "id": "VAL-GEN-009",
+      "reason": "Step 8 execution did not output required CRUD generator artifacts (types.ts/routes.ts/migration.sql/tests.test.ts)."
+    }
+  ],
+  "blockedAssertions": [
+    {
+      "id": "VAL-CROSS-040",
+      "blockedBy": "Shared-runtime constraint: restart semantics could not be tested without stopping/restarting shared localhost services."
+    },
+    {
+      "id": "VAL-CROSS-041",
+      "blockedBy": "Shared-runtime constraint: mid-act restart persistence check could not be tested without stopping/restarting shared localhost services."
+    }
+  ],
+  "appliedUpdates": [
+    {
+      "target": "user-testing.md",
+      "description": "Added misc-1 validation notes covering restart-isolation strategy, snapshot endpoint mismatch, domain status availability, nested map read-back availability, and /build console error watchout.",
+      "source": "flow-report"
+    }
+  ],
+  "previousRound": null
+}

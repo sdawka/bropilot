@@ -1,0 +1,21 @@
+name: externals
+description: "External service integrations"
+artifact_type: integration
+fields:
+  name:
+    type: string
+    required: true
+  type:
+    type: enum
+    values: [api, sdk, database, file, webhook]
+  provider:
+    type: string
+  purpose:
+    type: text
+    required: true
+  auth_method:
+    type: string
+  used_by:
+    type: list
+    item_type: ref
+    ref_to: specs.modules

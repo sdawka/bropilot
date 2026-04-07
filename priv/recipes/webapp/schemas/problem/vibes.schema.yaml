@@ -1,0 +1,35 @@
+name: vibes
+description: "Structured extraction from vibe collection"
+fields:
+  audience:
+    type: text
+    description: "Who is this for and why are they using it?"
+    required: true
+  use_cases:
+    type: list
+    item_type: text
+    description: "What does them using it look like?"
+    required: true
+  capabilities:
+    type: list
+    item_type: text
+    description: "What it can do"
+    required: true
+  design:
+    type: text
+    description: "How it should look and feel"
+    required: false
+  volo:
+    type: text
+    description: "Vision of Lovable Output -- the essence"
+    required: true
+  hypotheses:
+    type: list
+    item_type: text
+    description: "What we think is true but haven't proven"
+    required: false
+  assumptions:
+    type: list
+    item_type: text
+    description: "What we're taking as given"
+    required: false

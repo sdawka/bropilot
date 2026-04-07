@@ -1,0 +1,23 @@
+name: modules
+description: "Code module specifications"
+artifact_type: module
+fields:
+  name:
+    type: string
+    required: true
+  path:
+    type: string
+    required: true
+  responsibility:
+    type: text
+    required: true
+  exports:
+    type: list
+    item_type: string
+  depends_on:
+    type: list
+    item_type: ref
+    ref_to: specs.modules
+  arch_component:
+    type: ref
+    ref_to: domain.architecture

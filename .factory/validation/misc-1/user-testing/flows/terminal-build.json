@@ -1,0 +1,171 @@
+{
+  "groupId": "terminal-build",
+  "testedAt": "2026-04-06T19:51:24Z",
+  "isolation": {
+    "surface": "terminal + curl validation",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "apiBaseUrl": "http://localhost:4000",
+    "assignedAssertions": [
+      "VAL-CGEN-009",
+      "VAL-GEN-009",
+      "VAL-CROSS-031",
+      "VAL-CROSS-035",
+      "VAL-CROSS-044"
+    ]
+  },
+  "toolsUsed": [
+    "terminal",
+    "curl",
+    "mix",
+    "python3"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-CGEN-009",
+      "title": "Build endpoint triggers real file generation",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Capture output file list before build and call POST /api/build",
+          "expected": "HTTP 200 with version info and non-empty files_written indicating generated files",
+          "observed": "HTTP 200 with version=20, but files_written_count=0"
+        },
+        {
+          "action": "Compare output file list before/after build",
+          "expected": "Newly generated files appear on disk",
+          "observed": "new_output_file_count=0 and no new files detected"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/build -> 200",
+        "artifacts": [
+          "misc-1/terminal-build/VAL-CGEN-009-build.txt",
+          "misc-1/terminal-build/VAL-CGEN-009-analysis.json",
+          "misc-1/terminal-build/VAL-CGEN-009-output-before.txt",
+          "misc-1/terminal-build/VAL-CGEN-009-output-after.txt",
+          "misc-1/terminal-build/VAL-CGEN-009-output-new.txt"
+        ]
+      },
+      "issues": "Build returned success but did not report or produce newly generated files during this validation run."
+    },
+    {
+      "id": "VAL-GEN-009",
+      "title": "Generator is invoked during codegen step 8",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Run mock Act3 Step 8 executor using demo Solution Space data (mix run --no-start val_gen_009.exs)",
+          "expected": "Generated output contains CRUD artifacts (types.ts, routes.ts, migration.sql, tests.test.ts)",
+          "observed": "Step 8 produced only output/*/lib/demo/from_step8.ex files; required CRUD artifacts all false"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "misc-1/terminal-build/VAL-GEN-009-command.txt"
+        ],
+        "artifacts": [
+          "misc-1/terminal-build/VAL-GEN-009-summary.json"
+        ]
+      },
+      "issues": "Step 8 execution did not emit CRUD generator artifact files in the validated run."
+    },
+    {
+      "id": "VAL-CROSS-031",
+      "title": "CRUD generation records traceability links",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "GET /api/traceability baseline, POST /api/build, then GET /api/traceability again",
+          "expected": "Entity traceability includes implementation, type, migration, and test links for each entity",
+          "observed": "No entities had all four required link types; build response also reported files_written_count=0"
+        }
+      ],
+      "evidence": {
+        "network": "GET /api/traceability -> 200; POST /api/build -> 200; GET /api/traceability -> 200",
+        "artifacts": [
+          "misc-1/terminal-build/VAL-CROSS-031-traceability-before.txt",
+          "misc-1/terminal-build/VAL-CROSS-031-build.txt",
+          "misc-1/terminal-build/VAL-CROSS-031-traceability-after.txt",
+          "misc-1/terminal-build/VAL-CROSS-031-analysis.json"
+        ]
+      },
+      "issues": "Traceability entries for entities were missing required CRUD link types (type/migration/test coverage incomplete)."
+    },
+    {
+      "id": "VAL-CROSS-035",
+      "title": "CRUD generator handles entity with multiple relationships",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Generate CRUD artifacts for an entity spec with belongs_to + many_to_many relationships",
+          "expected": "Migration includes foreign keys or join table; routes include nested resource endpoints; TS includes relationship fields",
+          "observed": "TS relationship fields were present and migration had REFERENCES, but has_join_table=false and has_nested_routes=false"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "misc-1/terminal-build/VAL-CROSS-035-command.txt"
+        ],
+        "artifacts": [
+          "misc-1/terminal-build/VAL-CROSS-035-summary.json",
+          "misc-1/terminal-build/VAL-CROSS-035-types.ts",
+          "misc-1/terminal-build/VAL-CROSS-035-routes.ts",
+          "misc-1/terminal-build/VAL-CROSS-035-migration.sql",
+          "misc-1/terminal-build/VAL-CROSS-035-tests.test.ts",
+          "misc-1/terminal-build/VAL-CROSS-035-types-snippets.txt",
+          "misc-1/terminal-build/VAL-CROSS-035-routes-snippets.txt",
+          "misc-1/terminal-build/VAL-CROSS-035-migration-snippets.txt"
+        ]
+      },
+      "issues": "Generator did not produce relationship-aware nested routes and did not create a join-table migration artifact for many-to-many metadata."
+    },
+    {
+      "id": "VAL-CROSS-044",
+      "title": "Pipeline persistence file is valid YAML",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Execute Step 1-3 flow calls (vibe/domain start/input/extract) and capture pipeline state file",
+          "expected": "Pipeline persistence file exists and is valid YAML",
+          "observed": "All flow calls returned HTTP 200; .bropilot/pipeline_state.yaml present and parse succeeded"
+        },
+        {
+          "action": "Parse .bropilot/pipeline_state.yaml with Bropilot.Yaml.decode/1",
+          "expected": "YAML parses and includes status entries for step1..step8",
+          "observed": "yaml_parse=ok and step_status_keys included all 8 steps"
+        }
+      ],
+      "evidence": {
+        "network": "POST /api/vibe/start,input,extract; POST /api/domain/start,extract; GET /api/status (all 200)",
+        "artifacts": [
+          "misc-1/terminal-build/VAL-CROSS-044-vibe-start.txt",
+          "misc-1/terminal-build/VAL-CROSS-044-vibe-input-step1.txt",
+          "misc-1/terminal-build/VAL-CROSS-044-vibe-extract-step1.txt",
+          "misc-1/terminal-build/VAL-CROSS-044-vibe-input-step2.txt",
+          "misc-1/terminal-build/VAL-CROSS-044-vibe-extract-step2.txt",
+          "misc-1/terminal-build/VAL-CROSS-044-domain-start.txt",
+          "misc-1/terminal-build/VAL-CROSS-044-domain-extract-step3.txt",
+          "misc-1/terminal-build/VAL-CROSS-044-status-after-step3.txt",
+          "misc-1/terminal-build/VAL-CROSS-044-pipeline_state.yaml",
+          "misc-1/terminal-build/VAL-CROSS-044-parse-command.txt",
+          "misc-1/terminal-build/VAL-CROSS-044-parse-summary.json",
+          "misc-1/terminal-build/VAL-CROSS-044-analysis.json"
+        ]
+      },
+      "issues": null
+    }
+  ],
+  "frictions": [
+    {
+      "description": "POST vibe/domain flow calls returned ok=true, but /api/status step_statuses remained step1..step7 pending and step8 in_progress in this shared runtime.",
+      "resolved": false,
+      "resolution": "Recorded behavior in evidence and validated VAL-CROSS-044 via direct YAML parse and step key presence checks.",
+      "affectedAssertions": [
+        "VAL-CROSS-044"
+      ]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 5 assertions: 1 passed (VAL-CROSS-044), 4 failed (VAL-CGEN-009, VAL-GEN-009, VAL-CROSS-031, VAL-CROSS-035), 0 blocked, 0 skipped."
+}

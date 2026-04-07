@@ -1,0 +1,25 @@
+name: behaviours
+description: "Behavioural specifications -- what the system does"
+artifact_type: behaviour
+fields:
+  name:
+    type: string
+    required: true
+  when:
+    type: text
+    required: true
+    description: "Trigger condition"
+  given:
+    type: text
+    description: "Precondition"
+  then:
+    type: text
+    required: true
+    description: "Expected outcome"
+  actors:
+    type: list
+    item_type: ref
+    ref_to: vocabulary
+  side_effects:
+    type: list
+    item_type: text

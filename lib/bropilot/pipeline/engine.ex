@@ -1,11 +1,14 @@
 defmodule Bropilot.Pipeline.Engine do
   @moduledoc """
-  Pipeline execution engine. Holds the current position in the recipe pipeline,
-  tracks step completion, and enforces space-gate validation when crossing
-  space boundaries.
+  Phase-based pipeline execution engine.
 
-  State is persisted to `.bropilot/pipeline_state.yaml` on every advance and
-  mark_complete call so the pipeline resumes after server restart.
+  Phases:
+    - :exploration  — free-form, fills Problem and Solution slots concurrently
+    - :work         — sequential work steps (snapshot, diff, tasks, codegen)
+    - :complete     — pipeline finished
+
+  The single commitment gate transitions :exploration -> :work and validates
+  that both Problem and Solution slots are filled.
   """
 
   use GenServer
@@ -19,30 +22,15 @@ defmodule Bropilot.Pipeline.Engine do
 
   # -- Public API --
 
-  def start_link(opts) do
-    GenServer.start_link(__MODULE__, opts)
-  end
+  def start_link(opts), do: GenServer.start_link(__MODULE__, opts)
+  def start(opts), do: GenServer.start(__MODULE__, opts)
 
-  @doc "Starts an unlinked engine (not tied to the caller's lifecycle)."
-  def start(opts) do
-    GenServer.start(__MODULE__, opts)
-  end
-
-  def current_step(pid) do
-    GenServer.call(pid, :current_step)
-  end
-
-  def advance(pid) do
-    GenServer.call(pid, :advance)
-  end
-
-  def step_status(pid) do
-    GenServer.call(pid, :step_status)
-  end
-
-  def mark_complete(pid, step_id) do
-    GenServer.call(pid, {:mark_complete, step_id})
-  end
+  def current_step(pid), do: GenServer.call(pid, :current_step)
+  def current_phase(pid), do: GenServer.call(pid, :current_phase)
+  def advance(pid), do: GenServer.call(pid, :advance)
+  def commit(pid), do: GenServer.call(pid, :commit)
+  def step_status(pid), do: GenServer.call(pid, :step_status)
+  def mark_complete(pid, step_id), do: GenServer.call(pid, {:mark_complete, step_id})
 
   # -- GenServer callbacks --
 
@@ -53,18 +41,17 @@ defmodule Bropilot.Pipeline.Engine do
 
     case Registry.load(recipe_dir) do
       {:ok, recipe} ->
-        {step_index, completed} = load_persisted_state(project_path, length(recipe.steps))
+        {phase, work_index, completed} = load_persisted_state(project_path, recipe)
 
         state = %{
           project_path: project_path,
           recipe: recipe,
-          current_step_index: step_index,
+          phase: phase,
+          work_step_index: work_index,
           completed_steps: completed
         }
 
-        # Ensure the YAML state file always contains all 8 step statuses
         persist_state(state)
-
         {:ok, state}
 
       {:error, reason} ->
@@ -73,52 +60,85 @@ defmodule Bropilot.Pipeline.Engine do
   end
 
   @impl true
+  def handle_call(:current_phase, _from, state), do: {:reply, state.phase, state}
+
+  @impl true
   def handle_call(:current_step, _from, state) do
-    step = Enum.at(state.recipe.steps, state.current_step_index)
-    {:reply, step, state}
+    reply =
+      case state.phase do
+        :exploration -> :exploration
+        :complete -> :complete
+        :work -> Enum.at(work_steps(state.recipe), state.work_step_index)
+      end
+
+    {:reply, reply, state}
   end
 
   @impl true
   def handle_call(:advance, _from, state) do
-    current_step = Enum.at(state.recipe.steps, state.current_step_index)
-    next_index = state.current_step_index + 1
-    next_step = Enum.at(state.recipe.steps, next_index)
+    case state.phase do
+      :exploration ->
+        {:reply, {:error, :use_commit}, state}
 
-    cond do
-      next_step == nil ->
+      :complete ->
         {:reply, {:error, :pipeline_complete}, state}
 
-      current_step.space != next_step.space ->
-        map_dir = Path.join([state.project_path, ".bropilot", "map"])
+      :work ->
+        steps = work_steps(state.recipe)
+        next_index = state.work_step_index + 1
 
-        case Spaces.validate_gate(map_dir, current_step.space) do
-          :ok ->
-            new_state = %{state | current_step_index: next_index}
+        cond do
+          next_index >= length(steps) ->
+            new_state = %{state | phase: :complete}
             persist_state(new_state)
-            {:reply, {:ok, next_step}, new_state}
+            {:reply, {:error, :pipeline_complete}, new_state}
 
-          {:error, _reason} = error ->
-            {:reply, error, state}
+          true ->
+            new_state = %{state | work_step_index: next_index}
+            persist_state(new_state)
+            {:reply, {:ok, Enum.at(steps, next_index)}, new_state}
         end
+    end
+  end
 
-      true ->
-        new_state = %{state | current_step_index: next_index}
-        persist_state(new_state)
-        {:reply, {:ok, next_step}, new_state}
+  @impl true
+  def handle_call(:commit, _from, state) do
+    if state.phase != :exploration do
+      {:reply, {:error, :not_in_exploration}, state}
+    else
+      map_dir = Path.join([state.project_path, ".bropilot", "map"])
+
+      case Spaces.validate_commitment_gate(map_dir) do
+        :ok ->
+          new_state = %{state | phase: :work, work_step_index: 0}
+          persist_state(new_state)
+          first = Enum.at(work_steps(state.recipe), 0)
+          {:reply, {:ok, first}, new_state}
+
+        {:error, _} = err ->
+          {:reply, err, state}
+      end
     end
   end
 
   @impl true
   def handle_call(:step_status, _from, state) do
+    steps = work_steps(state.recipe)
+
     statuses =
-      state.recipe.steps
+      steps
       |> Enum.with_index()
       |> Enum.map(fn {step, index} ->
         status =
           cond do
-            MapSet.member?(state.completed_steps, step.id) -> :completed
-            index == state.current_step_index -> :in_progress
-            true -> :pending
+            MapSet.member?(state.completed_steps, step.id) ->
+              :completed
+
+            state.phase == :work and index == state.work_step_index ->
+              :in_progress
+
+            true ->
+              :pending
           end
 
         {step.id, status}
@@ -135,25 +155,37 @@ defmodule Bropilot.Pipeline.Engine do
     {:reply, :ok, new_state}
   end
 
-  # -- Persistence helpers --
+  # -- Helpers --
+
+  defp work_steps(recipe) do
+    Map.get(recipe, :work_steps) || Enum.filter(recipe.steps, &(&1.space == :work))
+  end
+
+  defp exploration_step_count(recipe) do
+    case Map.get(recipe, :work_steps) do
+      nil -> Enum.count(recipe.steps, &(&1.space != :work))
+      _ -> 0
+    end
+  end
 
   defp state_file_path(project_path) do
     Path.join([project_path, ".bropilot", @state_filename])
   end
 
-  @doc false
   defp persist_state(state) do
     path = state_file_path(state.project_path)
     tmp_path = path <> ".tmp.#{:rand.uniform(1_000_000)}"
 
+    steps = work_steps(state.recipe)
+
     step_statuses =
-      state.recipe.steps
+      steps
       |> Enum.with_index()
       |> Enum.map(fn {step, index} ->
         status =
           cond do
             MapSet.member?(state.completed_steps, step.id) -> "completed"
-            index == state.current_step_index -> "in_progress"
+            state.phase == :work and index == state.work_step_index -> "in_progress"
             true -> "pending"
           end
 
@@ -162,14 +194,13 @@ defmodule Bropilot.Pipeline.Engine do
       |> Map.new()
 
     data = %{
-      "current_step_index" => state.current_step_index,
+      "phase" => Atom.to_string(state.phase),
+      "work_step_index" => state.work_step_index,
       "completed_steps" => MapSet.to_list(state.completed_steps) |> Enum.sort(),
       "step_statuses" => step_statuses
     }
 
     content = Bropilot.Yaml.encode(data)
-
-    # Atomic write: write to tmp file, then rename
     File.mkdir_p!(Path.dirname(path))
 
     case File.write(tmp_path, content) do
@@ -178,67 +209,84 @@ defmodule Bropilot.Pipeline.Engine do
 
       {:error, reason} ->
         Logger.warning("Failed to persist pipeline state: #{inspect(reason)}")
-        # Clean up tmp file if it exists
         File.rm(tmp_path)
     end
   end
 
-  defp load_persisted_state(project_path, max_steps) do
+  defp load_persisted_state(project_path, recipe) do
     path = state_file_path(project_path)
 
     case File.exists?(path) do
       false ->
-        {0, MapSet.new()}
+        {:exploration, 0, MapSet.new()}
 
       true ->
         case Bropilot.Yaml.decode_file(path) do
           {:ok, data} when is_map(data) ->
-            parse_persisted_data(data, max_steps)
+            parse_persisted_data(data, recipe)
 
-          {:ok, _} ->
-            Logger.warning(
-              "Pipeline state file at #{path} has unexpected format, defaulting to step 0"
-            )
-
-            {0, MapSet.new()}
-
-          {:error, reason} ->
-            Logger.warning(
-              "Failed to read pipeline state from #{path}: #{inspect(reason)}, defaulting to step 0"
-            )
-
-            {0, MapSet.new()}
+          _ ->
+            Logger.warning("Pipeline state file at #{path} unreadable, defaulting to exploration")
+            {:exploration, 0, MapSet.new()}
         end
     end
   end
 
-  defp parse_persisted_data(data, max_steps) do
-    step_index = Map.get(data, "current_step_index")
-    completed = Map.get(data, "completed_steps")
+  defp parse_persisted_data(data, recipe) do
+    steps = work_steps(recipe)
+    max_work = length(steps)
+
+    completed =
+      (Map.get(data, "completed_steps") || [])
+      |> Enum.filter(&is_binary/1)
+      |> MapSet.new()
 
     cond do
-      not is_integer(step_index) ->
-        Logger.warning("Pipeline state has invalid current_step_index, defaulting to step 0")
-        {0, MapSet.new()}
+      Map.has_key?(data, "phase") ->
+        phase =
+          case Map.get(data, "phase") do
+            "exploration" -> :exploration
+            "work" -> :work
+            "complete" -> :complete
+            _ -> :exploration
+          end
 
-      step_index < 0 or step_index >= max_steps ->
-        Logger.warning(
-          "Pipeline state has out-of-range step index #{step_index}, defaulting to step 0"
-        )
+        work_index = Map.get(data, "work_step_index", 0)
 
-        {0, MapSet.new()}
+        work_index =
+          if is_integer(work_index) and work_index >= 0 and
+               (max_work == 0 or work_index < max_work),
+             do: work_index,
+             else: 0
 
-      not is_list(completed) and not is_nil(completed) ->
-        Logger.warning("Pipeline state has invalid completed_steps, defaulting to step 0")
-        {0, MapSet.new()}
+        {phase, work_index, completed}
+
+      Map.has_key?(data, "current_step_index") ->
+        # Backward-compat: migrate old format
+        old_index = Map.get(data, "current_step_index")
+        explore_count = exploration_step_count(recipe)
+
+        cond do
+          not is_integer(old_index) ->
+            Logger.warning("Old pipeline state has invalid index, defaulting to exploration")
+            {:exploration, 0, completed}
+
+          old_index < explore_count ->
+            {:exploration, 0, completed}
+
+          true ->
+            work_index = old_index - explore_count
+
+            if max_work > 0 and work_index < max_work do
+              {:work, work_index, completed}
+            else
+              Logger.warning("Old pipeline state ambiguous, defaulting to exploration")
+              {:exploration, 0, completed}
+            end
+        end
 
       true ->
-        completed_set =
-          (completed || [])
-          |> Enum.filter(&is_binary/1)
-          |> MapSet.new()
-
-        {step_index, completed_set}
+        {:exploration, 0, completed}
     end
   end
 end

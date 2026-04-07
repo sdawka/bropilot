@@ -1,0 +1,33 @@
+name: validation
+description: "How we verify things across all spaces"
+categories:
+  problem:
+    description: "Validating Problem Space assumptions"
+    methods:
+      - user_interviews
+      - surveys
+      - market_research
+      - competitor_analysis
+  solution:
+    description: "Verifying Solution Space specs"
+    methods:
+      - consistency_checks
+      - peer_review
+      - prototype_testing
+      - schema_validation
+  work:
+    description: "Testing Work Space artifacts"
+    methods:
+      - unit_tests
+      - api_tests
+      - e2e_tests
+      - coverage_reports
+      - lint_checks
+  live:
+    description: "Measuring shipped work"
+    methods:
+      - analytics
+      - ab_tests
+      - error_tracking
+      - user_feedback
+      - performance_monitoring

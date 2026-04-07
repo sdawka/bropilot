@@ -1,0 +1,295 @@
+{
+  "groupId": "terminal-traceability",
+  "testedAt": "2026-04-06T20:37:26.641933+00:00",
+  "isolation": {
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "apiBaseUrl": "http://localhost:4000",
+    "webBaseUrl": "http://localhost:3200"
+  },
+  "toolsUsed": [
+    "terminal",
+    "curl",
+    "python3"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-CROSS-021",
+      "title": "Traceability links match actual generated files",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "POST /api/build then GET /api/traceability and verify each link file_path with test -f equivalent",
+          "expected": "All traceability file paths exist on disk",
+          "observed": "31 of 33 unique file paths were missing (missing_file_paths_count=31)"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "misc-2/terminal-traceability/03-build_global.http.txt",
+          "misc-2/terminal-traceability/05-analysis-after-build1.txt",
+          "misc-2/terminal-traceability/05-analysis-after-build1.json"
+        ],
+        "commands": [
+          "curl -sS -i -X POST http://localhost:4000/api/build",
+          "curl -sS http://localhost:4000/api/traceability",
+          "python3 check traceability file_path existence against /Users/sdawka/Code/bropilot"
+        ],
+        "outputSnippets": [
+          "files_written: []",
+          "missing_file_paths_count=31"
+        ]
+      },
+      "issues": "Traceability matrix contains many links to non-existent files (e.g., trace/*.ex, lib/concurrent_*.ex, stale/old_component.tsx)."
+    },
+    {
+      "id": "VAL-TAUTO-001",
+      "title": "Step 8 codegen records implementation links",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Invoke build via contract path and fallback implemented path",
+          "expected": "Build endpoint succeeds and records implementation links for generated files",
+          "observed": "Contract path POST /api/projects/:path/build returned 404; fallback POST /api/build returned 200 but files_written remained [] and traceability did not change on rerun"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "misc-2/terminal-traceability/03-build_project.http.txt",
+          "misc-2/terminal-traceability/03-build_global.http.txt",
+          "misc-2/terminal-traceability/06-spec-change-rerun-log.txt",
+          "misc-2/terminal-traceability/06-build-run2-after-spec-change.json"
+        ],
+        "commands": [
+          "curl -sS -i -X POST http://localhost:4000/api/projects/%2FUsers%2Fsdawka%2FCode%2Fbropilot/build",
+          "curl -sS -i -X POST http://localhost:4000/api/build"
+        ],
+        "outputSnippets": [
+          "HTTP/1.1 404 Not Found (project-scoped build path)",
+          "HTTP/1.1 200 OK with files_written: []",
+          "traceability_changed=false after spec change + rebuild"
+        ]
+      },
+      "issues": "No evidence that Step 8 run recorded new implementation links for generated artifacts in this run."
+    },
+    {
+      "id": "VAL-TAUTO-002",
+      "title": "Auto-linked file_path values point to existing files",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Iterate all traceability link file_path values after build and check filesystem existence",
+          "expected": "Zero missing file_path values",
+          "observed": "31 missing file paths out of 33 unique paths"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "misc-2/terminal-traceability/05-analysis-after-build1.txt",
+          "misc-2/terminal-traceability/05-analysis-after-build1.json"
+        ],
+        "commands": [
+          "curl -sS http://localhost:4000/api/traceability",
+          "python3 existence-check script (repo root + file_path)"
+        ],
+        "outputSnippets": [
+          "missing_file_paths_count=31"
+        ]
+      },
+      "issues": "Many auto-linked paths do not resolve to files under repo root."
+    },
+    {
+      "id": "VAL-TAUTO-003",
+      "title": "API spec links point to route handler functions",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Inspect api-category links and validate route/controller-like paths plus function_name presence in target files",
+          "expected": "API links map to handler files and function_name matches function in file",
+          "observed": "13 api path violations and 3 function_name violations (all due missing files)"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "misc-2/terminal-traceability/05-analysis-after-build1.json"
+        ],
+        "commands": [
+          "curl -sS http://localhost:4000/api/traceability",
+          "python3 regex checks for def/function names in linked files"
+        ],
+        "outputSnippets": [
+          "api_path_violations=13",
+          "api_function_name_violations=3"
+        ]
+      },
+      "issues": "API trace links mostly point to non-handler or missing files, so handler/function mapping is not satisfied."
+    },
+    {
+      "id": "VAL-TAUTO-004",
+      "title": "Entity spec links include type, migration, and implementation",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Check each entities traceability entry for required link-type trio",
+          "expected": "At least one entities entry contains type+migration+implementation",
+          "observed": "0/7 entity entries had all required link types"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "misc-2/terminal-traceability/05-analysis-after-build1.txt",
+          "misc-2/terminal-traceability/05-analysis-after-build1.json"
+        ],
+        "commands": [
+          "curl -sS http://localhost:4000/api/traceability",
+          "python3 per-entry link-type coverage analysis for entities"
+        ],
+        "outputSnippets": [
+          "entities_with_required_type_migration_implementation=0/7"
+        ]
+      },
+      "issues": "Entity traceability coverage lacks required type and migration links."
+    },
+    {
+      "id": "VAL-TAUTO-005",
+      "title": "Behaviour spec links include test links",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Check behaviours entries for both implementation and test link types",
+          "expected": "At least one behaviours entry has implementation+test",
+          "observed": "0/2 behaviours entries had both types"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "misc-2/terminal-traceability/05-analysis-after-build1.txt",
+          "misc-2/terminal-traceability/05-analysis-after-build1.json"
+        ],
+        "commands": [
+          "curl -sS http://localhost:4000/api/traceability",
+          "python3 link-type coverage analysis for behaviours"
+        ],
+        "outputSnippets": [
+          "behaviours_with_impl_and_test=0/2"
+        ]
+      },
+      "issues": "Behaviour traceability entries include implementation only; test links were absent."
+    },
+    {
+      "id": "VAL-TAUTO-006",
+      "title": "Component and view specs link to correct file types",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Inspect components/views links for framework-consistent path/type and file existence",
+          "expected": "Components link to component files and views link to page/view files with valid paths",
+          "observed": "Components include missing trace/components.ex and stale/old_component.tsx; views include missing trace/views.ex"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "misc-2/terminal-traceability/05-analysis-after-build1.json"
+        ],
+        "commands": [
+          "curl -sS http://localhost:4000/api/traceability",
+          "python3 extension/path checks for components and views categories"
+        ],
+        "outputSnippets": [
+          "component link exists=false for trace/components.ex",
+          "view link exists=false for trace/views.ex"
+        ]
+      },
+      "issues": "Component/view links are not consistently valid project file targets."
+    },
+    {
+      "id": "VAL-TAUTO-008",
+      "title": "Re-running codegen updates stale links",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Temporarily modify api spec path (/api/tasks -> /api/tasks-renamed), run build again, compare traceability",
+          "expected": "Traceability updates file_path/function_name for changed spec and stale links are replaced/marked",
+          "observed": "Second build returned 200 with files_written []; traceability_changed=false"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "misc-2/terminal-traceability/06-api-spec-before.yaml",
+          "misc-2/terminal-traceability/06-api-spec-modified.yaml",
+          "misc-2/terminal-traceability/06-spec-change-rerun-log.txt",
+          "misc-2/terminal-traceability/06-build-run2-after-spec-change.json",
+          "misc-2/terminal-traceability/06-traceability-after-build2.json"
+        ],
+        "commands": [
+          "edit .bropilot/map/solution/specs/api.yaml (temporary change)",
+          "curl -sS -X POST http://localhost:4000/api/build",
+          "curl -sS http://localhost:4000/api/traceability",
+          "compare traceability payload before vs after",
+          "restore original api.yaml"
+        ],
+        "outputSnippets": [
+          "traceability_changed=false",
+          "spec_restore=restored_original_api.yaml"
+        ]
+      },
+      "issues": "Rebuild did not update stale links after spec change."
+    },
+    {
+      "id": "VAL-TAUTO-009",
+      "title": "Codegen for all 11 spec categories produces links",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Verify project has all 11 spec category files, run build, inspect traceability matrix category coverage",
+          "expected": "Every category has at least one entry with at least one link",
+          "observed": "All 11 categories present in specs and all 11 categories reported linked entries in matrix"
+        }
+      ],
+      "evidence": {
+        "terminalSnapshots": [
+          "misc-2/terminal-traceability/01-spec-files.txt",
+          "misc-2/terminal-traceability/03-build_global.http.txt",
+          "misc-2/terminal-traceability/05-analysis-after-build1.txt",
+          "misc-2/terminal-traceability/04-traceability_global_after_build1_json.json"
+        ],
+        "commands": [
+          "ls/check .bropilot/map/solution/specs/*.yaml",
+          "curl -sS -i -X POST http://localhost:4000/api/build",
+          "curl -sS http://localhost:4000/api/traceability"
+        ],
+        "outputSnippets": [
+          "spec_files=api.yaml,...,views.yaml (11 files)",
+          "categories_without_links="
+        ]
+      },
+      "issues": null
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Direct CLI build commands (`mix bro.build` and `mix run --no-start -e 'Mix.Task.run(\"bro.build\")'`) failed in this shared runtime because port 4000 is already in use.",
+      "resolved": true,
+      "resolution": "Used running API service and invoked POST /api/build for build-step validation instead of starting a second local app instance.",
+      "affectedAssertions": [
+        "VAL-TAUTO-001",
+        "VAL-TAUTO-008",
+        "VAL-TAUTO-009",
+        "VAL-CROSS-021"
+      ]
+    },
+    {
+      "description": "Contract build path mismatch: `POST /api/projects/:path/build` returned 404 while implemented build surface is `POST /api/build`.",
+      "resolved": true,
+      "resolution": "Captured 404 evidence for contract path and executed build checks through `POST /api/build`.",
+      "affectedAssertions": [
+        "VAL-TAUTO-001",
+        "VAL-TAUTO-008",
+        "VAL-TAUTO-009",
+        "VAL-CROSS-021"
+      ]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 9 assertions: 1 passed (VAL-TAUTO-009), 8 failed (VAL-CROSS-021 and VAL-TAUTO-001/002/003/004/005/006/008). Primary failures were non-existent traceability file paths, missing required link-type coverage, and no traceability updates after rerun build."
+}

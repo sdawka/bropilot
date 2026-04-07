@@ -1,0 +1,186 @@
+{
+  "groupId": "curl-api",
+  "testedAt": "2026-04-06T20:53:15.929116+00:00",
+  "isolation": {
+    "milestone": "misc-2",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "apiBaseUrl": "http://localhost:4000",
+    "webBaseUrl": "http://localhost:3200",
+    "scope": "localhost + repository only"
+  },
+  "toolsUsed": [
+    "curl",
+    "lsof"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-TAPI-007",
+      "title": "API respects project scoping",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Initialize isolated project A and B directories with .bropilot data",
+          "expected": "Both projects available for scoped traceability testing",
+          "observed": "Project initialization succeeded via no-start init calls"
+        },
+        {
+          "action": "GET /api/projects/m2curlprojA/traceability and /api/projects/m2curlprojB/traceability (before write)",
+          "expected": "Both return empty entries",
+          "observed": "Both returned HTTP 200 with entries: []"
+        },
+        {
+          "action": "PUT /api/projects/m2curlprojA/traceability/api/InitProject with one link",
+          "expected": "Project A stores the entry",
+          "observed": "HTTP 200 with spec_category=api, spec_id=InitProject"
+        },
+        {
+          "action": "GET scoped traceability for both projects after write",
+          "expected": "Project A has the new entry; Project B remains empty",
+          "observed": "Project A entries count=1, Project B entries count=0"
+        }
+      ],
+      "evidence": {
+        "endpointMismatch": "none (contract path /api/projects/:path/traceability matched implemented route)",
+        "http": [
+          "GET /api/projects/m2curlprojA/traceability -> 200",
+          "GET /api/projects/m2curlprojB/traceability -> 200",
+          "PUT /api/projects/m2curlprojA/traceability/api/InitProject -> 200",
+          "GET /api/projects/m2curlprojA/traceability -> 200 (entries=1)",
+          "GET /api/projects/m2curlprojB/traceability -> 200 (entries=0)"
+        ],
+        "files": [
+          "misc-2/curl-api/val-tapi-007-init-projectA.txt",
+          "misc-2/curl-api/val-tapi-007-init-projectB.txt",
+          "misc-2/curl-api/val-tapi-007-get-projectA-before.txt",
+          "misc-2/curl-api/val-tapi-007-get-projectB-before.txt",
+          "misc-2/curl-api/val-tapi-007-put-projectA.txt",
+          "misc-2/curl-api/val-tapi-007-get-projectA-after.txt",
+          "misc-2/curl-api/val-tapi-007-get-projectB-after.txt",
+          "misc-2/curl-api/val-tapi-007-compare.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-024",
+      "title": "Traceability links survive server restart",
+      "status": "pass",
+      "steps": [
+        {
+          "action": "Capture traceability payload before restart",
+          "expected": "Baseline payload captured",
+          "observed": "HTTP 200 with 26 entries"
+        },
+        {
+          "action": "Restart API server on localhost:4000",
+          "expected": "Server restarts and becomes healthy",
+          "observed": "Old listener stopped; new beam process started and /api/health returned 200"
+        },
+        {
+          "action": "Capture traceability payload after restart and compare",
+          "expected": "Payload content/count unchanged",
+          "observed": "before==after true; entry count 26 both times"
+        }
+      ],
+      "evidence": {
+        "endpointMismatch": "none (contract path /api/traceability matched implemented route)",
+        "http": [
+          "GET /api/traceability (before) -> 200",
+          "GET /api/health (after restart) -> 200",
+          "GET /api/traceability (after) -> 200"
+        ],
+        "files": [
+          "misc-2/curl-api/val-cross-024-listener-before.txt",
+          "misc-2/curl-api/val-cross-024-traceability-before-restart.txt",
+          "misc-2/curl-api/val-cross-024-restart-server-log.txt",
+          "misc-2/curl-api/val-cross-024-health-after-restart.txt",
+          "misc-2/curl-api/val-cross-024-traceability-after-restart.txt",
+          "misc-2/curl-api/val-cross-024-before-after-compare.json"
+        ]
+      },
+      "issues": null
+    },
+    {
+      "id": "VAL-CROSS-083",
+      "title": "Re-running Act 2 after Act 3 updates Solution Space",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "POST /api/init then capture baseline status/entities/versions",
+          "expected": "Baseline captured before rerun",
+          "observed": "HTTP 200 for init, status, entities, versions"
+        },
+        {
+          "action": "Re-run Act 2 via /api/domain/start (mock), /api/domain/input, /api/domain/extract (step3 + step4)",
+          "expected": "Updated domain input should update solution data",
+          "observed": "Domain flow calls returned HTTP 200 through completion"
+        },
+        {
+          "action": "Capture status/entities/versions after rerun",
+          "expected": "Solution entities updated, Act 3 marked stale/re-run needed, prior versions preserved",
+          "observed": "Entities unchanged, /api/status unchanged (step8 still in_progress with steps1-7 pending), versions preserved (26 before/after)"
+        }
+      ],
+      "evidence": {
+        "endpointMismatch": "none on pathing: contract path GET /api/map/solution/domain/entities exists and returned 200; behavior mismatch is in stale/status semantics and solution update effect",
+        "http": [
+          "POST /api/init -> 200",
+          "GET /api/map/solution/domain/entities (before) -> 200",
+          "POST /api/domain/start -> 200",
+          "POST /api/domain/input -> 200",
+          "POST /api/domain/extract (step3) -> 200",
+          "POST /api/domain/extract (step4) -> 200",
+          "GET /api/map/solution/domain/entities (after) -> 200 (unchanged)",
+          "GET /api/status (before/after) -> 200 (unchanged)",
+          "GET /api/versions (before/after) -> 200 (preserved)"
+        ],
+        "files": [
+          "misc-2/curl-api/val-cross-083b-init.txt",
+          "misc-2/curl-api/val-cross-083b-status-before.txt",
+          "misc-2/curl-api/val-cross-083b-entities-before.txt",
+          "misc-2/curl-api/val-cross-083b-versions-before.txt",
+          "misc-2/curl-api/val-cross-083b-domain-start.txt",
+          "misc-2/curl-api/val-cross-083b-domain-input-step3.txt",
+          "misc-2/curl-api/val-cross-083b-domain-extract-step3.txt",
+          "misc-2/curl-api/val-cross-083b-domain-extract-step4.txt",
+          "misc-2/curl-api/val-cross-083b-entities-after.txt",
+          "misc-2/curl-api/val-cross-083b-status-after.txt",
+          "misc-2/curl-api/val-cross-083b-versions-after.txt",
+          "misc-2/curl-api/val-cross-083b-compare.json",
+          "misc-2/curl-api/val-cross-083-domain-input-step4.txt",
+          "misc-2/curl-api/server-log-tail-after-083.txt"
+        ]
+      },
+      "issues": "Contract outcome not met: rerunning Act 2 did not change solution entities and /api/status did not indicate Act 3 stale/re-run required. Additional runtime issue observed in first attempt: POST /api/domain/input during step4 crashed Act2 worker (500 FunctionClauseError)."
+    }
+  ],
+  "frictions": [
+    {
+      "description": "`mix bro.init <path>` failed while shared API was running because app startup attempted to bind port 4000 (`:eaddrinuse`).",
+      "resolved": true,
+      "resolution": "Initialized scoped test projects using `mix run --no-start -e 'Bropilot.init(...)'` instead.",
+      "affectedAssertions": [
+        "VAL-TAPI-007"
+      ]
+    },
+    {
+      "description": "Submitting `/api/domain/input` during step4 caused a 500 and terminated the Act2 worker (FunctionClauseError), which is not documented in curl guidance.",
+      "resolved": true,
+      "resolution": "Adjusted flow to call `/api/domain/extract` directly for step4 after step3 completion.",
+      "affectedAssertions": [
+        "VAL-CROSS-083"
+      ]
+    },
+    {
+      "description": "Immediately after restart, one call to `/api/map/solution/domain/entities` returned HTTP 500 due `String.to_existing_atom(\"solution\")` error before succeeding on subsequent run.",
+      "resolved": true,
+      "resolution": "Retried after `/api/init`; endpoint then returned 200 consistently in the validated run.",
+      "affectedAssertions": [
+        "VAL-CROSS-083"
+      ]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 3 assertions via curl: 2 passed (VAL-TAPI-007, VAL-CROSS-024), 1 failed (VAL-CROSS-083). API was restarted for VAL-CROSS-024 and ended healthy on localhost:4000."
+}

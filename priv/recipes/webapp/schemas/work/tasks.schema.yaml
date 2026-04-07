@@ -1,0 +1,34 @@
+name: tasks
+description: "Work task specifications"
+fields:
+  id:
+    type: string
+    required: true
+  title:
+    type: string
+    required: true
+  description:
+    type: text
+    required: true
+  context:
+    type: text
+    description: "Relevant specs and domain knowledge for this task"
+    required: true
+  definition_of_done:
+    type: list
+    item_type: text
+    required: true
+  dependencies:
+    type: list
+    item_type: ref
+    ref_to: tasks
+  priority:
+    type: enum
+    values: [critical, high, medium, low]
+  related_specs:
+    type: list
+    item_type: string
+    description: "Paths to related spec entries"
+  status:
+    type: enum
+    values: [pending, in_progress, completed, failed]

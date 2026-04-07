@@ -1,0 +1,6 @@
+name: webapp
+version: "0.1.0"
+description: >
+  Default recipe for building web applications.
+  Walks through vibe collection, domain modeling,
+  spec generation, and codegen.

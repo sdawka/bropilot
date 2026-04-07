@@ -1,0 +1,62 @@
+rules:
+  - from: specs.api.related_entity
+    must_exist_in: domain.domain
+  - from: specs.api.flow
+    must_exist_in: domain.flows
+  - from: specs.views.components
+    must_exist_in: specs.components
+  - from: specs.views.data_sources
+    must_exist_in: specs.api
+  - from: specs.views.flow
+    must_exist_in: domain.flows
+  - from: specs.events.emitted_by
+    must_exist_in: specs.modules
+  - from: specs.events.consumed_by
+    must_exist_in: specs.modules
+  - from: specs.events.related_behaviour
+    must_exist_in: specs.behaviours
+  - from: specs.modules.depends_on
+    must_exist_in: specs.modules
+  - from: specs.modules.arch_component
+    must_exist_in: domain.architecture
+  - from: specs.entities.domain_entity
+    must_exist_in: domain.domain
+  - from: specs.entities.constraints
+    must_exist_in: specs.constraints
+  - from: specs.streams.source
+    must_exist_in: specs.modules
+  - from: specs.streams.sink
+    must_exist_in: specs.modules
+  - from: specs.streams.related_events
+    must_exist_in: specs.events
+  - from: specs.externals.used_by
+    must_exist_in: specs.modules
+  - from: specs.infra.serves
+    must_exist_in: domain.architecture
+  - from: domain.flows.touches
+    must_exist_in: domain.vocabulary
+  - from: domain.features.flows
+    must_exist_in: domain.flows
+  - from: domain.ux.applies_to
+    must_exist_in: domain.vocabulary
+  - from: domain.interface.exposes
+    must_exist_in: domain.features
+  - from: domain.architecture.depends_on
+    must_exist_in: domain.architecture
+
+step_gates:
+  step2_to_step3:
+    requires:
+      - problem.audience
+      - problem.problem
+      - problem.context
+  step3_to_step4:
+    requires:
+      - solution.vocabulary (min 3 entries)
+      - solution.domain (min 1 entry)
+      - solution.flows (min 1 entry)
+  step4_to_step5:
+    requires:
+      - solution.specs.api (min 1 entry)
+      - solution.specs.entities (min 1 entry)
+      - solution.specs.views (min 1 entry)

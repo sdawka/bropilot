@@ -1,0 +1,94 @@
+{
+  "groupId": "curl-build-trace",
+  "testedAt": "2026-04-06T20:04:43Z",
+  "isolation": {
+    "surface": "curl + terminal validation",
+    "repoRoot": "/Users/sdawka/Code/bropilot",
+    "missionDir": "/Users/sdawka/.factory/missions/d8fa6f8d-4b8d-4089-827f-d5cd03a2e873",
+    "apiBaseUrl": "http://localhost:4000",
+    "assignedAssertions": [
+      "VAL-CGEN-009",
+      "VAL-CROSS-031"
+    ]
+  },
+  "toolsUsed": [
+    "curl",
+    "terminal",
+    "python3"
+  ],
+  "assertions": [
+    {
+      "id": "VAL-CGEN-009",
+      "title": "Build endpoint triggers real file generation",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Capture deterministic baseline (GET /api/status, output file list), then call POST /api/build",
+          "expected": "Build returns 200 with version/task results and reports/generated files on disk",
+          "observed": "POST /api/build returned 200 with version=22 and summary/tasks_count, but files_written_count=0"
+        },
+        {
+          "action": "Compare output file list before and after build",
+          "expected": "At least one newly generated file appears after build",
+          "observed": "new_output_file_count=0; output tree unchanged (only pre-existing output/v19 files)"
+        }
+      ],
+      "evidence": {
+        "network": "GET /api/status -> 200; POST /api/build -> 200",
+        "artifacts": [
+          "misc-1/curl-build-trace/VAL-CGEN-009-status-before.meta.txt",
+          "misc-1/curl-build-trace/VAL-CGEN-009-status-before.body.json",
+          "misc-1/curl-build-trace/VAL-CGEN-009-build.meta.txt",
+          "misc-1/curl-build-trace/VAL-CGEN-009-build.body.json",
+          "misc-1/curl-build-trace/VAL-CGEN-009-output-before.txt",
+          "misc-1/curl-build-trace/VAL-CGEN-009-output-after.txt",
+          "misc-1/curl-build-trace/VAL-CGEN-009-output-new.txt",
+          "misc-1/curl-build-trace/VAL-CGEN-009-analysis.json"
+        ]
+      },
+      "issues": "Build response included version/task fields but did not report or produce newly generated files during this run."
+    },
+    {
+      "id": "VAL-CROSS-031",
+      "title": "CRUD generation records traceability links",
+      "status": "fail",
+      "steps": [
+        {
+          "action": "Capture GET /api/traceability baseline, run POST /api/build, then GET /api/traceability again",
+          "expected": "Entity specs have CRUD artifact links with all required types (implementation, type, migration, test)",
+          "observed": "Traceability returned 200 before/after, but 0 entities had all required types; entity type coverage was implementation=7, type=0, migration=0, test=1"
+        },
+        {
+          "action": "Diff traceability entries before/after build",
+          "expected": "Build introduces or updates CRUD traceability links",
+          "observed": "No added/removed/changed entries (26 before, 26 after)"
+        }
+      ],
+      "evidence": {
+        "network": "GET /api/traceability -> 200; POST /api/build -> 200; GET /api/traceability -> 200",
+        "artifacts": [
+          "misc-1/curl-build-trace/VAL-CROSS-031-traceability-before.meta.txt",
+          "misc-1/curl-build-trace/VAL-CROSS-031-traceability-before.body.json",
+          "misc-1/curl-build-trace/VAL-CROSS-031-traceability-after.meta.txt",
+          "misc-1/curl-build-trace/VAL-CROSS-031-traceability-after.body.json",
+          "misc-1/curl-build-trace/VAL-CROSS-031-analysis.json",
+          "misc-1/curl-build-trace/VAL-CROSS-031-traceability-delta.json"
+        ]
+      },
+      "issues": "Traceability link typing/coverage for entity CRUD artifacts is incomplete and unchanged by build; required per-entity 4-type coverage is not met."
+    }
+  ],
+  "frictions": [
+    {
+      "description": "Shared runtime had pre-existing output and traceability data, so deterministic validation required explicit before/after snapshots and diffs.",
+      "resolved": true,
+      "resolution": "Used baseline/post-build file and traceability comparisons to isolate build-run effects.",
+      "affectedAssertions": [
+        "VAL-CGEN-009",
+        "VAL-CROSS-031"
+      ]
+    }
+  ],
+  "blockers": [],
+  "summary": "Tested 2 assertions: 0 passed, 2 failed (VAL-CGEN-009, VAL-CROSS-031), 0 blocked, 0 skipped."
+}

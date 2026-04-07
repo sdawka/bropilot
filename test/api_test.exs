@@ -220,46 +220,6 @@ defmodule Bropilot.ApiTest do
     end
   end
 
-  # ── Vibe (Act 1) ────────────────────────────────────────────
-
-  describe "POST /api/vibe/start" do
-    setup do
-      tmp = System.tmp_dir!() |> Path.join("bropilot_api_vibe_test_#{:rand.uniform(100_000)}")
-      File.mkdir_p!(tmp)
-
-      original_cwd = File.cwd!()
-      File.cd!(tmp)
-
-      {:ok, _bropilot_dir} = Bropilot.init(tmp)
-
-      on_exit(fn ->
-        # Clean up registered worker
-        case Process.whereis(Bropilot.Api.VibeWorker) do
-          nil -> :ok
-          pid -> GenServer.stop(pid, :normal)
-        end
-
-        File.cd!(original_cwd)
-        File.rm_rf!(tmp)
-      end)
-
-      {:ok, project_dir: tmp}
-    end
-
-    test "starts vibe worker and returns step1 prompt" do
-      conn =
-        conn(:post, "/api/vibe/start")
-        |> put_req_header("content-type", "application/json")
-        |> call()
-
-      assert conn.status == 200
-      body = json_body(conn)
-      assert body["ok"] == true
-      assert is_binary(body["data"]["prompt"])
-      assert body["data"]["step"] == "step1"
-    end
-  end
-
   # ── 404 ──────────────────────────────────────────────────────
 
   describe "unknown routes" do
