@@ -1,0 +1,66 @@
+---
+export interface Props {
+  title: string;
+  data: Record<string, unknown> | null;
+}
+
+const { title, data } = Astro.props;
+
+function flattenEntries(obj: Record<string, unknown>): Array<{ key: string; value: string }> {
+  const entries: Array<{ key: string; value: string }> = [];
+  for (const [key, value] of Object.entries(obj)) {
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      entries.push({ key, value: String(value) });
+    } else if (Array.isArray(value)) {
+      entries.push({ key, value: value.join(', ') });
+    } else if (value && typeof value === 'object') {
+      entries.push({ key, value: JSON.stringify(value, null, 2) });
+    } else {
+      entries.push({ key, value: '—' });
+    }
+  }
+  return entries;
+}
+
+const entries = data ? flattenEntries(data) : [];
+---
+
+<div class="spec-section">
+  <h4 class="spec-title">{title}</h4>
+  {entries.length > 0 ? (
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {entries.map((entry) => (
+            <tr>
+              <td><code>{entry.key}</code></td>
+              <td>{entry.value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  ) : (
+    <div class="empty-state">
+      <p>No spec data available</p>
+    </div>
+  )}
+</div>
+
+<style>
+  .spec-section {
+    margin-bottom: var(--space-6);
+  }
+
+  .spec-title {
+    font-size: var(--text-base);
+    font-weight: 600;
+    margin-bottom: var(--space-3);
+  }
+</style>

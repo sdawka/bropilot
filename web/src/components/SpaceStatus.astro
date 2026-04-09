@@ -1,0 +1,72 @@
+---
+export interface Slot {
+  name: string;
+  filled: boolean;
+}
+
+export interface Props {
+  title: string;
+  slots: Slot[];
+}
+
+const { title, slots } = Astro.props;
+
+const filledCount = slots.filter((s) => s.filled).length;
+const totalCount = slots.length;
+const percentage = totalCount > 0 ? Math.round((filledCount / totalCount) * 100) : 0;
+---
+
+<div class="card space-status">
+  <div class="card-header">
+    <h3 class="card-title">{title}</h3>
+    <span class="status-summary">
+      {filledCount}/{totalCount}
+      <span class="status-pct">({percentage}%)</span>
+    </span>
+  </div>
+  <div class="card-body">
+    <div class="progress-bar">
+      <div class="progress-fill" style={`width: ${percentage}%`}></div>
+    </div>
+    <ul class="slot-list">
+      {slots.map((slot) => (
+        <li class="status-row">
+          <span class:list={['status-dot', slot.filled ? 'filled' : 'empty']} />
+          <span>{slot.name}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>
+
+<style>
+  .status-summary {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+
+  .status-pct {
+    color: var(--color-text-muted);
+    font-weight: 400;
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: var(--color-bg-tertiary);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: var(--space-4);
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--color-accent);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+
+  .slot-list {
+    list-style: none;
+  }
+</style>

@@ -1,0 +1,209 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import YamlCard from '../components/YamlCard.astro';
+import TaskBadge from '../components/TaskBadge.astro';
+import { getVersions, getSpaceData } from '../lib/api';
+
+// Fetch work data from API
+const versionsData = await getVersions();
+const data = await getSpaceData('work');
+const apiDown = versionsData === null && data === null;
+
+const versions = versionsData ?? (data as Record<string, unknown>)?.versions ?? null;
+const tasks = (data as Record<string, unknown>)?.tasks ?? null;
+const artifacts = (data as Record<string, unknown>)?.artifacts ?? null;
+const changePlan = (data as Record<string, unknown>)?.change_plan ?? null;
+
+// Extract task list if available
+interface TaskItem {
+  name: string;
+  status: string;
+  description?: string;
+}
+
+const taskList: TaskItem[] = (() => {
+  if (!tasks) return [];
+  const items = Array.isArray(tasks) ? tasks : ((tasks as Record<string, unknown>).tasks ?? (tasks as Record<string, unknown>).items);
+  if (Array.isArray(items)) {
+    return items.map((t: Record<string, unknown>) => ({
+      name: String(t.name ?? t.title ?? 'Unnamed'),
+      status: String(t.status ?? 'pending'),
+      description: t.description ? String(t.description) : undefined,
+    }));
+  }
+  return [];
+})();
+
+// Extract version list
+interface VersionItem {
+  version: string;
+  summary?: string;
+  date?: string;
+}
+
+const versionList: VersionItem[] = (() => {
+  if (!versions) return [];
+  const items = Array.isArray(versions) ? versions : ((versions as Record<string, unknown>).versions ?? (versions as Record<string, unknown>).items);
+  if (Array.isArray(items)) {
+    return items.map((v: Record<string, unknown>) => ({
+      version: String(v.version ?? v.name ?? v.id ?? 'Unknown'),
+      summary: v.summary ? String(v.summary) : undefined,
+      date: v.date ? String(v.date) : undefined,
+    }));
+  }
+  return [];
+})();
+
+// Extract artifact list
+interface ArtifactItem {
+  name: string;
+  type?: string;
+  path?: string;
+}
+
+const artifactList: ArtifactItem[] = (() => {
+  if (!artifacts) return [];
+  const items = Array.isArray(artifacts) ? artifacts : ((artifacts as Record<string, unknown>).artifacts ?? (artifacts as Record<string, unknown>).items);
+  if (Array.isArray(items)) {
+    return items.map((a: Record<string, unknown>) => ({
+      name: String(a.name ?? a.title ?? 'Unnamed'),
+      type: a.type ? String(a.type) : undefined,
+      path: a.path ? String(a.path) : undefined,
+    }));
+  }
+  return [];
+})();
+---
+
+<Layout title="Work Space">
+  {apiDown && (
+    <div class="card" style="background: var(--color-warning-bg, #332b00); border-color: var(--color-warning, #f5a623); margin-bottom: var(--space-6);">
+      <div class="empty-state">
+        <div class="empty-state-icon">⚠️</div>
+        <p>
+          <strong>Connect to Bropilot server</strong><br />
+          Could not reach the API. Make sure the Bropilot Elixir backend is running.
+        </p>
+      </div>
+    </div>
+  )}
+
+  <div class="page-header">
+    <h1>Work Space</h1>
+    <p class="page-description">Versions, tasks, change plans, and artifacts</p>
+  </div>
+
+  <!-- Versions -->
+  <div class="section">
+    <h2 class="section-title">Versions</h2>
+    {versionList.length > 0 ? (
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Version</th>
+              <th>Summary</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {versionList.map((v) => (
+              <tr>
+                <td><code>{v.version}</code></td>
+                <td>{v.summary ?? '—'}</td>
+                <td>{v.date ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="card">
+        <div class="empty-state">
+          <div class="empty-state-icon">📦</div>
+          <p>No versions defined yet.</p>
+        </div>
+      </div>
+    )}
+  </div>
+
+  <!-- Change Plan -->
+  <div class="section">
+    <h2 class="section-title">Change Plan</h2>
+    <YamlCard
+      title="Current Change Plan"
+      data={changePlan as Record<string, unknown> | null}
+      emptyMessage="No change plan defined yet."
+    />
+  </div>
+
+  <!-- Tasks -->
+  <div class="section">
+    <h2 class="section-title">Tasks</h2>
+    {taskList.length > 0 ? (
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Status</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {taskList.map((task) => (
+              <tr>
+                <td><strong>{task.name}</strong></td>
+                <td><TaskBadge status={task.status} /></td>
+                <td>{task.description ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="card">
+        <div class="empty-state">
+          <div class="empty-state-icon">✅</div>
+          <p>No tasks defined yet.</p>
+        </div>
+      </div>
+    )}
+  </div>
+
+  <!-- Artifacts -->
+  <div class="section">
+    <h2 class="section-title">Artifacts</h2>
+    {artifactList.length > 0 ? (
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Path</th>
+            </tr>
+          </thead>
+          <tbody>
+            {artifactList.map((a) => (
+              <tr>
+                <td>{a.name}</td>
+                <td>{a.type ?? '—'}</td>
+                <td>{a.path ? <code>{a.path}</code> : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="card">
+        <div class="empty-state">
+          <div class="empty-state-icon">📄</div>
+          <p>No artifacts yet. They will appear here as work progresses.</p>
+        </div>
+      </div>
+    )}
+  </div>
+</Layout>

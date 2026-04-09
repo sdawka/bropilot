@@ -1,0 +1,11 @@
+name = "bropilot"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-04-05"
+
+# --- Future: Workers routes for live API ---
+# [[routes]]
+# pattern = "/api/*"
+# zone_name = "example.com"
+#
+# [vars]
+# ENVIRONMENT = "production"

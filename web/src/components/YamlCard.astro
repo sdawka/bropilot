@@ -1,0 +1,123 @@
+---
+export interface Props {
+  title: string;
+  subtitle?: string;
+  data: Record<string, unknown> | null;
+  emptyMessage?: string;
+}
+
+const { title, subtitle, data, emptyMessage = 'No data available' } = Astro.props;
+
+function renderValue(value: unknown, depth = 0): string {
+  if (value === null || value === undefined) return '<em class="muted">—</em>';
+  if (typeof value === 'string') return escapeHtml(value);
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (Array.isArray(value)) {
+    if (value.length === 0) return '<em class="muted">empty</em>';
+    return '<ul class="yaml-list">' + value.map((item) => `<li>${renderValue(item, depth + 1)}</li>`).join('') + '</ul>';
+  }
+  if (typeof value === 'object') {
+    const entries = Object.entries(value as Record<string, unknown>);
+    if (entries.length === 0) return '<em class="muted">empty</em>';
+    return '<dl class="yaml-dl">' + entries.map(([k, v]) =>
+      `<dt>${escapeHtml(k)}</dt><dd>${renderValue(v, depth + 1)}</dd>`
+    ).join('') + '</dl>';
+  }
+  return String(value);
+}
+
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+---
+
+<div class="card yaml-card">
+  <div class="card-header">
+    <div>
+      <h3 class="card-title">{title}</h3>
+      {subtitle && <p class="card-subtitle">{subtitle}</p>}
+    </div>
+  </div>
+  <div class="card-body">
+    {data ? (
+      <div class="yaml-content">
+        {Object.entries(data).map(([key, value]) => (
+          <div class="yaml-field">
+            <span class="yaml-key">{key}</span>
+            <div class="yaml-value" set:html={renderValue(value)} />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="empty-state">
+        <p>{emptyMessage}</p>
+      </div>
+    )}
+  </div>
+</div>
+
+<style>
+  .yaml-card {
+    overflow: hidden;
+  }
+
+  .yaml-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .yaml-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .yaml-key {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-accent);
+  }
+
+  .yaml-value {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+
+  .yaml-value :global(.muted) {
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  .yaml-value :global(.yaml-list) {
+    list-style: disc;
+    padding-left: var(--space-5);
+    margin: var(--space-1) 0;
+  }
+
+  .yaml-value :global(.yaml-list li) {
+    padding: var(--space-1) 0;
+    border-bottom: none;
+  }
+
+  .yaml-value :global(.yaml-dl) {
+    margin: var(--space-1) 0;
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--color-border);
+  }
+
+  .yaml-value :global(.yaml-dl dt) {
+    font-weight: 600;
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin-top: var(--space-2);
+  }
+
+  .yaml-value :global(.yaml-dl dd) {
+    margin-left: 0;
+    color: var(--color-text-secondary);
+  }
+</style>

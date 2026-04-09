@@ -1,0 +1,135 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import SpaceStatus from '../components/SpaceStatus.astro';
+import YamlCard from '../components/YamlCard.astro';
+import { getProject, getSpaces, getKnowledge } from '../lib/api';
+
+// Fetch data from API
+const project = await getProject();
+const spaces = await getSpaces();
+const knowledge = await getKnowledge();
+
+// API unavailable flag
+const apiDown = project === null && spaces === null;
+
+// Extract nested data from API response
+const audience = (spaces as Record<string, unknown>)?.audience ?? null;
+const problem = (spaces as Record<string, unknown>)?.problem ?? null;
+const changelog = (knowledge as Record<string, unknown>)?.changelog ?? null;
+
+// Determine space fill status from API spaces response
+function slotsFromKeys(
+  source: Record<string, unknown> | null,
+  checks: Array<{ name: string; key: string }>,
+) {
+  return checks.map(({ name, key }) => ({
+    name,
+    filled: source ? key in source && source[key] !== null : false,
+  }));
+}
+
+const problemSlots = slotsFromKeys(spaces as Record<string, unknown> | null, [
+  { name: 'Audience', key: 'audience' },
+  { name: 'Problem', key: 'problem' },
+  { name: 'Context', key: 'context' },
+  { name: 'Assumptions', key: 'assumptions' },
+  { name: 'Hypotheses', key: 'hypotheses' },
+  { name: 'Vibes', key: 'vibes' },
+]);
+
+const solutionSlots = slotsFromKeys(spaces as Record<string, unknown> | null, [
+  { name: 'Vocabulary', key: 'vocabulary' },
+  { name: 'Domain Entities', key: 'domain_entities' },
+  { name: 'Flows', key: 'flows' },
+  { name: 'Specs', key: 'specs' },
+]);
+
+const workSlots = slotsFromKeys(spaces as Record<string, unknown> | null, [
+  { name: 'Versions', key: 'versions' },
+  { name: 'Tasks', key: 'tasks' },
+  { name: 'Artifacts', key: 'artifacts' },
+]);
+
+const knowledgeSlots = slotsFromKeys(spaces as Record<string, unknown> | null, [
+  { name: 'Glossary', key: 'glossary' },
+  { name: 'Decisions', key: 'decisions' },
+  { name: 'Changelog', key: 'changelog' },
+  { name: 'Cross References', key: 'xrefs' },
+]);
+
+// Recent changelog entries (last 5)
+const recentChanges: Array<Record<string, unknown>> = (() => {
+  if (!changelog) return [];
+  const items = Array.isArray(changelog) ? changelog : [];
+  return items.slice(0, 5);
+})();
+---
+
+<Layout title="Dashboard">
+  {apiDown && (
+    <div class="card" style="background: var(--color-warning-bg, #332b00); border-color: var(--color-warning, #f5a623); margin-bottom: var(--space-6);">
+      <div class="empty-state">
+        <div class="empty-state-icon">⚠️</div>
+        <p>
+          <strong>Connect to Bropilot server</strong><br />
+          Could not reach the API. Make sure the Bropilot Elixir backend is running.
+        </p>
+      </div>
+    </div>
+  )}
+
+  <div class="page-header">
+    <h1>Dashboard</h1>
+    <p class="page-description">
+      {project
+        ? `Project overview for ${(project as Record<string, unknown>).name ?? 'Bropilot'}`
+        : 'Welcome to Bropilot — your product development copilot'}
+    </p>
+  </div>
+
+  <!-- Project Summary -->
+  {(audience || problem) && (
+    <div class="section">
+      <h2 class="section-title">Project Summary</h2>
+      <div class="card-grid">
+        {problem && <YamlCard title="Problem" data={problem as Record<string, unknown>} />}
+        {audience && <YamlCard title="Audience" data={audience as Record<string, unknown>} />}
+      </div>
+    </div>
+  )}
+
+  <!-- Space Fill Status -->
+  <div class="section">
+    <h2 class="section-title">Spaces</h2>
+    <div class="card-grid">
+      <SpaceStatus title="Problem Space" slots={problemSlots} />
+      <SpaceStatus title="Solution Space" slots={solutionSlots} />
+      <SpaceStatus title="Work Space" slots={workSlots} />
+      <SpaceStatus title="Knowledge" slots={knowledgeSlots} />
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="section">
+    <h2 class="section-title">Recent Activity</h2>
+    {recentChanges.length > 0 ? (
+      <div class="timeline">
+        {recentChanges.map((entry) => (
+          <div class="timeline-item">
+            <div class="timeline-date">{String(entry.date ?? '')}</div>
+            <div class="timeline-content">{String(entry.description ?? entry.summary ?? '')}</div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="card">
+        <div class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <p>No activity yet. Start populating your project to see updates here.</p>
+        </div>
+      </div>
+    )}
+  </div>
+</Layout>

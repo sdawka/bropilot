@@ -1,0 +1,68 @@
+---
+/**
+ * Small connection status indicator for the nav sidebar.
+ * Uses Alpine.js to read localStorage on the client.
+ */
+import '../styles/connect.css';
+---
+
+<a
+  href="/connect/"
+  class="connection-status"
+  x-data="connectionStatus()"
+  x-init="init()"
+  x-bind:title="tooltip"
+>
+  <span
+    class="connection-status-dot"
+    x-bind:class="connected ? 'connected' : 'disconnected'"
+  ></span>
+  <span class="connection-status-label" x-text="label"></span>
+</a>
+
+<script>
+  document.addEventListener('alpine:init', () => {
+    // @ts-ignore
+    window.Alpine.data('connectionStatus', () => ({
+      connected: false,
+      label: 'Disconnected',
+      tooltip: 'Click to connect',
+
+      init() {
+        this.refresh();
+        // Re-check when storage changes (e.g. another tab connects)
+        window.addEventListener('storage', () => this.refresh());
+      },
+
+      refresh() {
+        const h = window.location.hostname;
+        const isLocal = h === 'localhost' || h === '127.0.0.1' || h === '::1';
+
+        if (isLocal) {
+          this.connected = true;
+          this.label = 'Local';
+          this.tooltip = 'Connected to localhost';
+          return;
+        }
+
+        try {
+          const raw = localStorage.getItem('bropilot_connection');
+          if (raw) {
+            const conn = JSON.parse(raw);
+            this.connected = true;
+            this.label = conn.projectName || 'Connected';
+            this.tooltip = conn.serverUrl || 'Connected';
+          } else {
+            this.connected = false;
+            this.label = 'Disconnected';
+            this.tooltip = 'Click to connect';
+          }
+        } catch {
+          this.connected = false;
+          this.label = 'Disconnected';
+          this.tooltip = 'Click to connect';
+        }
+      },
+    }));
+  });
+</script>

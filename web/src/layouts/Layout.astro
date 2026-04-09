@@ -1,0 +1,48 @@
+---
+import NavSidebar from '../components/NavSidebar.astro';
+import '../styles/global.css';
+
+export interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Bropilot - Product Development Copilot" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title} | Bropilot</title>
+  </head>
+  <body>
+    <div class="app-layout">
+      <NavSidebar />
+      <main class="main-content">
+        <slot />
+      </main>
+    </div>
+    <script>
+      // Connection guard: redirect to /connect if not connected and not on localhost
+      (function () {
+        const h = window.location.hostname;
+        const isLocal = h === 'localhost' || h === '127.0.0.1' || h === '::1';
+        if (isLocal) return; // localhost bypasses auth
+
+        try {
+          const raw = localStorage.getItem('bropilot_connection');
+          if (raw) {
+            const conn = JSON.parse(raw);
+            if (conn && conn.token) return; // connected
+          }
+        } catch { /* ignore */ }
+
+        // Not connected — redirect to /connect
+        window.location.href = '/connect/';
+      })();
+    </script>
+  </body>
+</html>

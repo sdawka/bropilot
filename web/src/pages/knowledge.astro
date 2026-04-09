@@ -1,0 +1,226 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import YamlCard from '../components/YamlCard.astro';
+import { getKnowledge } from '../lib/api';
+
+// Load knowledge from API
+const data = await getKnowledge();
+const apiDown = data === null;
+
+const glossary = (data as Record<string, unknown>)?.glossary ?? null;
+const decisions = (data as Record<string, unknown>)?.decisions ?? null;
+const changelog = (data as Record<string, unknown>)?.changelog ?? null;
+const xrefs = (data as Record<string, unknown>)?.xrefs ?? null;
+
+// Prepare glossary terms for search
+interface GlossaryTerm {
+  term: string;
+  definition: string;
+}
+
+const glossaryTerms: GlossaryTerm[] = (() => {
+  if (!glossary) return [];
+  // Handle glossary as object (term -> definition) or array
+  if (Array.isArray(glossary)) {
+    return (glossary as Array<Record<string, unknown>>).map((g) => ({
+      term: String(g.term ?? g.name ?? ''),
+      definition: String(g.definition ?? g.description ?? ''),
+    }));
+  }
+  const items = (glossary as Record<string, unknown>).terms ?? (glossary as Record<string, unknown>).items ?? glossary;
+  if (typeof items === 'object' && !Array.isArray(items)) {
+    return Object.entries(items as Record<string, unknown>).map(([term, def]) => ({
+      term,
+      definition: typeof def === 'string' ? def : JSON.stringify(def),
+    }));
+  }
+  return [];
+})();
+
+// Prepare decision log
+interface DecisionEntry {
+  title: string;
+  date?: string;
+  status?: string;
+  context?: string;
+  decision?: string;
+}
+
+const decisionList: DecisionEntry[] = (() => {
+  if (!decisions) return [];
+  const items = Array.isArray(decisions) ? decisions : ((decisions as Record<string, unknown>).decisions ?? (decisions as Record<string, unknown>).items);
+  if (Array.isArray(items)) {
+    return (items as Array<Record<string, unknown>>).map((d) => ({
+      title: String(d.title ?? d.name ?? 'Untitled'),
+      date: d.date ? String(d.date) : undefined,
+      status: d.status ? String(d.status) : undefined,
+      context: d.context ? String(d.context) : undefined,
+      decision: d.decision ? String(d.decision) : undefined,
+    }));
+  }
+  return [];
+})();
+
+// Prepare changelog
+interface ChangelogEntry {
+  date: string;
+  description: string;
+}
+
+const changelogEntries: ChangelogEntry[] = (() => {
+  if (!changelog) return [];
+  const items = Array.isArray(changelog) ? changelog : ((changelog as Record<string, unknown>).entries ?? (changelog as Record<string, unknown>).items);
+  if (Array.isArray(items)) {
+    return (items as Array<Record<string, unknown>>).map((c) => ({
+      date: String(c.date ?? ''),
+      description: String(c.description ?? c.summary ?? c.change ?? ''),
+    }));
+  }
+  return [];
+})();
+---
+
+<Layout title="Knowledge">
+  {apiDown && (
+    <div class="card" style="background: var(--color-warning-bg, #332b00); border-color: var(--color-warning, #f5a623); margin-bottom: var(--space-6);">
+      <div class="empty-state">
+        <div class="empty-state-icon">⚠️</div>
+        <p>
+          <strong>Connect to Bropilot server</strong><br />
+          Could not reach the API. Make sure the Bropilot Elixir backend is running.
+        </p>
+      </div>
+    </div>
+  )}
+
+  <div class="page-header">
+    <h1>Knowledge</h1>
+    <p class="page-description">Glossary, decisions, changelog, and cross-references</p>
+  </div>
+
+  <!-- Glossary with search -->
+  <div class="section">
+    <h2 class="section-title">Glossary</h2>
+    {glossaryTerms.length > 0 ? (
+      <div x-data="{ search: '' }">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search terms..."
+          x-model="search"
+        />
+        <div class="glossary-list" style="margin-top: var(--space-4)">
+          {glossaryTerms.map((term) => (
+            <div
+              class="glossary-item"
+              x-show={`!search || '${term.term.toLowerCase()}'.includes(search.toLowerCase()) || '${term.definition.toLowerCase().replace(/'/g, "\\'")}'.includes(search.toLowerCase())`}
+            >
+              <dt class="glossary-term">{term.term}</dt>
+              <dd class="glossary-def">{term.definition}</dd>
+            </div>
+          ))}
+        </div>
+      </div>
+    ) : (
+      <div class="card">
+        <div class="empty-state">
+          <div class="empty-state-icon">📚</div>
+          <p>No glossary terms yet.</p>
+        </div>
+      </div>
+    )}
+  </div>
+
+  <!-- Decision Log -->
+  <div class="section">
+    <h2 class="section-title">Decision Log</h2>
+    {decisionList.length > 0 ? (
+      <div class="decision-list">
+        {decisionList.map((d) => (
+          <div class="card" style="margin-bottom: var(--space-4)">
+            <div class="card-header">
+              <h3 class="card-title">{d.title}</h3>
+              {d.date && <span class="card-subtitle">{d.date}</span>}
+            </div>
+            <div class="card-body">
+              {d.context && <p><strong>Context:</strong> {d.context}</p>}
+              {d.decision && <p><strong>Decision:</strong> {d.decision}</p>}
+              {d.status && <p><strong>Status:</strong> {d.status}</p>}
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="card">
+        <div class="empty-state">
+          <div class="empty-state-icon">⚖️</div>
+          <p>No decisions recorded yet.</p>
+        </div>
+      </div>
+    )}
+  </div>
+
+  <!-- Changelog Timeline -->
+  <div class="section">
+    <h2 class="section-title">Changelog</h2>
+    {changelogEntries.length > 0 ? (
+      <div class="timeline">
+        {changelogEntries.map((entry) => (
+          <div class="timeline-item">
+            <div class="timeline-date">{entry.date}</div>
+            <div class="timeline-content">{entry.description}</div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="card">
+        <div class="empty-state">
+          <div class="empty-state-icon">📝</div>
+          <p>No changelog entries yet.</p>
+        </div>
+      </div>
+    )}
+  </div>
+
+  <!-- Cross References -->
+  <div class="section">
+    <h2 class="section-title">Cross References</h2>
+    <YamlCard
+      title="Cross-Reference Explorer"
+      data={xrefs as Record<string, unknown> | null}
+      emptyMessage="No cross-references yet."
+    />
+  </div>
+</Layout>
+
+<style>
+  .glossary-list {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .glossary-item {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .glossary-item:last-child {
+    border-bottom: none;
+  }
+
+  .glossary-term {
+    font-weight: 600;
+    font-size: var(--text-sm);
+    color: var(--color-accent);
+    margin-bottom: var(--space-1);
+  }
+
+  .glossary-def {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    margin-left: 0;
+  }
+</style>

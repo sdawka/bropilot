@@ -1,0 +1,20 @@
+---
+export interface Props {
+  status: string;
+}
+
+const { status } = Astro.props;
+
+const statusMap: Record<string, { label: string; className: string }> = {
+  pending: { label: 'Pending', className: 'badge-pending' },
+  in_progress: { label: 'In Progress', className: 'badge-in-progress' },
+  completed: { label: 'Completed', className: 'badge-completed' },
+  failed: { label: 'Failed', className: 'badge-failed' },
+};
+
+const resolved = statusMap[status] ?? { label: status, className: 'badge-pending' };
+---
+
+<span class:list={['badge', resolved.className]}>
+  {resolved.label}
+</span>

@@ -1,0 +1,91 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import YamlCard from '../components/YamlCard.astro';
+import { getSpaceData } from '../lib/api';
+
+// Load problem space data from API
+const data = await getSpaceData('problem');
+const apiDown = data === null;
+
+const audience = (data as Record<string, unknown>)?.audience ?? null;
+const problem = (data as Record<string, unknown>)?.problem ?? null;
+const context = (data as Record<string, unknown>)?.context ?? null;
+const assumptions = (data as Record<string, unknown>)?.assumptions ?? null;
+const hypotheses = (data as Record<string, unknown>)?.hypotheses ?? null;
+const vibes = (data as Record<string, unknown>)?.vibes ?? null;
+---
+
+<Layout title="Problem Space">
+  {apiDown && (
+    <div class="card" style="background: var(--color-warning-bg, #332b00); border-color: var(--color-warning, #f5a623); margin-bottom: var(--space-6);">
+      <div class="empty-state">
+        <div class="empty-state-icon">⚠️</div>
+        <p>
+          <strong>Connect to Bropilot server</strong><br />
+          Could not reach the API. Make sure the Bropilot Elixir backend is running.
+        </p>
+      </div>
+    </div>
+  )}
+
+  <div class="page-header">
+    <h1>Problem Space</h1>
+    <p class="page-description">Understanding the problem, audience, and context</p>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Core Problem</h2>
+    <div class="card-grid">
+      <YamlCard
+        title="Audience"
+        subtitle="Who are we building for?"
+        data={audience as Record<string, unknown> | null}
+        emptyMessage="Define your target audience in the problem space"
+      />
+      <YamlCard
+        title="Problem"
+        subtitle="What problem are we solving?"
+        data={problem as Record<string, unknown> | null}
+        emptyMessage="Define the core problem in the problem space"
+      />
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Context & Research</h2>
+    <div class="card-grid">
+      <YamlCard
+        title="Context"
+        subtitle="Market and environment"
+        data={context as Record<string, unknown> | null}
+        emptyMessage="Add context to the problem space"
+      />
+      <YamlCard
+        title="Assumptions"
+        subtitle="What we believe to be true"
+        data={assumptions as Record<string, unknown> | null}
+        emptyMessage="Document assumptions in the problem space"
+      />
+      <YamlCard
+        title="Hypotheses"
+        subtitle="What we're testing"
+        data={hypotheses as Record<string, unknown> | null}
+        emptyMessage="Add hypotheses to the problem space"
+      />
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Vibes</h2>
+    <div class="card-grid">
+      <YamlCard
+        title="Basics"
+        subtitle="Product feel and direction"
+        data={vibes as Record<string, unknown> | null}
+        emptyMessage="Set the vibes in the problem space"
+      />
+    </div>
+  </div>
+</Layout>
