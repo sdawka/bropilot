@@ -1,0 +1,453 @@
+{
+  "nodes": [
+    {
+      "id": "name-bropilot",
+      "kind": "name",
+      "title": "Bropilot",
+      "description": "A conversational app architect that helps you specify your software before writing a single line of code. Think through your app, together.",
+      "sourceRefs": []
+    },
+    {
+      "id": "purpose-docs-as-code",
+      "kind": "purpose",
+      "title": "Living Documentation as Code",
+      "description": "Transform scattered notes, forgotten decisions, and static specs into a versioned knowledge graph that IS the source of truth. Every node traces back to user intent - no orphan decisions, no documentation rot.",
+      "sourceRefs": []
+    },
+    {
+      "id": "cap-graph-building",
+      "kind": "capability",
+      "title": "Real-time Graph Building",
+      "description": "As users describe their app idea in natural language, the system extracts structure and builds a knowledge graph in real-time. The graph visualizes with automatic layout as concepts emerge.",
+      "sourceRefs": []
+    },
+    {
+      "id": "cap-traceability",
+      "kind": "capability",
+      "title": "Full Traceability",
+      "description": "Every node in the graph stores the exact quote from the user's conversation that led to its creation. Decisions link back to user intent through sourceRefs.",
+      "sourceRefs": []
+    },
+    {
+      "id": "cap-progressive-refinement",
+      "kind": "capability",
+      "title": "Progressive Refinement",
+      "description": "Start with the big picture (name, purpose), drill down into problem space (personas, flows), then solution space (entities, modules). The graph grows incrementally as understanding deepens.",
+      "sourceRefs": []
+    },
+    {
+      "id": "cap-versioning",
+      "kind": "capability",
+      "title": "Graph Versioning",
+      "description": "Save named snapshots of the graph state at any point. Restore previous versions, diff changes between snapshots, and track how the spec evolved over time.",
+      "sourceRefs": []
+    },
+    {
+      "id": "cap-export",
+      "kind": "capability",
+      "title": "Markdown Export",
+      "description": "Export the entire knowledge graph as structured markdown documentation, organized by space (basics, problem, solution, crosscutting) with relationships and source references.",
+      "sourceRefs": []
+    },
+    {
+      "id": "persona-solo-dev",
+      "kind": "persona",
+      "title": "Solo Developer",
+      "description": "A developer working alone who needs to think through an app idea before building. Values having a structured way to capture decisions and rationale without heavyweight process.",
+      "sourceRefs": []
+    },
+    {
+      "id": "persona-team-lead",
+      "kind": "persona",
+      "title": "Small Team Lead",
+      "description": "Someone leading a small team who needs to communicate app architecture and decisions. Uses the graph as a shared understanding artifact that the whole team can reference.",
+      "sourceRefs": []
+    },
+    {
+      "id": "uc-spec-new-app",
+      "kind": "usecase",
+      "title": "Spec Out a New App",
+      "description": "User has a fresh app idea and wants to think it through systematically. They describe the idea conversationally, and Bropilot helps extract structure, surface assumptions, and fill gaps.",
+      "sourceRefs": []
+    },
+    {
+      "id": "uc-refine-idea",
+      "kind": "usecase",
+      "title": "Refine Existing Idea",
+      "description": "User has a partially formed app concept and wants to sharpen it. Load an existing graph, continue the conversation, and evolve the spec with new insights.",
+      "sourceRefs": []
+    },
+    {
+      "id": "uc-generate-docs",
+      "kind": "usecase",
+      "title": "Generate Documentation",
+      "description": "User wants to export their graph as markdown documentation for sharing with stakeholders, onboarding new team members, or archiving decisions.",
+      "sourceRefs": []
+    },
+    {
+      "id": "flow-main",
+      "kind": "flow",
+      "title": "Conversation to Graph",
+      "description": "1. User opens Bropilot and sees chat pane + empty graph. 2. User describes app idea in chat. 3. Explorer agent responds, asks clarifying questions, calls graph tools. 4. Graph updates live with new nodes/edges. 5. User clicks nodes to inspect, continues conversation. 6. User saves snapshot or exports when ready.",
+      "sourceRefs": []
+    },
+    {
+      "id": "flow-inspect",
+      "kind": "flow",
+      "title": "Node Inspection",
+      "description": "1. User clicks a node in the graph canvas. 2. NodeInspector panel slides in showing title, description, kind. 3. Decision Trail section shows sourceRefs (the user quotes that created this node). 4. References section shows connected nodes with edge types. 5. User can click connected nodes to navigate the graph.",
+      "sourceRefs": []
+    },
+    {
+      "id": "flow-snapshot",
+      "kind": "flow",
+      "title": "Snapshot Management",
+      "description": "1. User enters snapshot name in toolbar. 2. Clicks Save to persist current graph state. 3. Later, clicks Restore dropdown to see saved snapshots. 4. Selects a snapshot to restore graph to that state. 5. Can diff current state against any snapshot.",
+      "sourceRefs": []
+    },
+    {
+      "id": "screen-main",
+      "kind": "screen",
+      "title": "Main Layout",
+      "description": "Two-column layout: left side is chat pane (400px default, resizable), right side is graph canvas with NodeInspector overlay. Header shows Bropilot branding and tagline.",
+      "sourceRefs": []
+    },
+    {
+      "id": "constraint-offline",
+      "kind": "constraint",
+      "title": "Offline-First Design",
+      "description": "The architecture targets Cloudflare Workers with Durable Objects. SQLite storage is local to each DO, enabling edge deployment. Must work without persistent connections to central databases.",
+      "sourceRefs": []
+    },
+    {
+      "id": "constraint-realtime",
+      "kind": "constraint",
+      "title": "Real-time Updates",
+      "description": "Graph must update live as the agent works. Uses SSE streaming from the Flue agent runtime to push text deltas and tool call results to the client.",
+      "sourceRefs": []
+    },
+    {
+      "id": "constraint-flue-pinned",
+      "kind": "constraint",
+      "title": "Flue Version Pinned",
+      "description": "Flue 0.11.1 is pinned because it ships breaking changes frequently. Must use 'flue docs' command for API reference, not external docs or LLM memory.",
+      "sourceRefs": []
+    },
+    {
+      "id": "assumption-technical-users",
+      "kind": "assumption",
+      "title": "Technical Users",
+      "description": "Users have a technical background and understand software concepts like entities, modules, APIs. The node kinds and system prompt assume familiarity with software architecture terminology.",
+      "sourceRefs": []
+    },
+    {
+      "id": "assumption-english-only",
+      "kind": "assumption",
+      "title": "English Only",
+      "description": "The system prompt, UI labels, and documentation are all in English. No internationalization is currently planned.",
+      "sourceRefs": []
+    },
+    {
+      "id": "assumption-single-user",
+      "kind": "assumption",
+      "title": "Single User Per Session",
+      "description": "Each session has one user conversing with the agent. No multi-user collaboration on the same graph in real-time (snapshots can be shared offline).",
+      "sourceRefs": []
+    },
+    {
+      "id": "req-source-refs",
+      "kind": "requirement",
+      "title": "Every Node Has Source Reference",
+      "description": "Agent must always include sourceExcerpt with the exact user words when adding a node. This is enforced by the add_node tool requiring the sourceExcerpt parameter.",
+      "sourceRefs": []
+    },
+    {
+      "id": "req-four-spaces",
+      "kind": "requirement",
+      "title": "Four-Space Organization",
+      "description": "Nodes must belong to one of four spaces: basics (name, purpose, capability), problem (persona, usecase, flow, etc.), solution (entity, module, component, etc.), crosscutting (repository, tests, external, etc.).",
+      "sourceRefs": []
+    },
+    {
+      "id": "entity-node",
+      "kind": "entity",
+      "title": "Node",
+      "description": "A vertex in the knowledge graph. Has id (UUID), kind (from NODE_KINDS enum), title, description, sourceRefs array, createdAt, updatedAt timestamps. Stored in SQLite nodes table.",
+      "sourceRefs": []
+    },
+    {
+      "id": "entity-edge",
+      "kind": "entity",
+      "title": "Edge",
+      "description": "A directed relationship between two nodes. Has id (UUID), srcId, dstId, type (from EDGE_TYPES enum), optional label. Stored in SQLite edges table with foreign keys to nodes.",
+      "sourceRefs": []
+    },
+    {
+      "id": "entity-graph",
+      "kind": "entity",
+      "title": "Graph",
+      "description": "The complete knowledge graph state: { nodes: Node[], edges: Edge[] }. Returned by get_graph tool, used for rendering and export.",
+      "sourceRefs": []
+    },
+    {
+      "id": "entity-snapshot",
+      "kind": "entity",
+      "title": "Snapshot",
+      "description": "A named point-in-time capture of the graph. Has id, name (unique), createdAt, graphJson (serialized Graph). Enables versioning and rollback.",
+      "sourceRefs": []
+    },
+    {
+      "id": "entity-message",
+      "kind": "entity",
+      "title": "Message",
+      "description": "A chat message with role (user/assistant), content string, and optional toolCalls array. Stored in client-side appState.messages.",
+      "sourceRefs": []
+    },
+    {
+      "id": "entity-source-ref",
+      "kind": "entity",
+      "title": "SourceRef",
+      "description": "A traceability link from a node to user input. Has turnId (conversation turn identifier) and excerpt (exact user quote). Enables decision trail feature.",
+      "sourceRefs": []
+    },
+    {
+      "id": "module-genome",
+      "kind": "module",
+      "title": "Genome Store",
+      "description": "The graph persistence layer in src/genome/. Contains types.ts (Node, Edge, NodeKind definitions), store.ts (SQLite CRUD operations), tools.ts (agent tool definitions), prompt.ts (system prompt).",
+      "sourceRefs": []
+    },
+    {
+      "id": "module-agent",
+      "kind": "module",
+      "title": "Explorer Agent",
+      "description": "The conversational agent in src/agents/explorer.ts. Uses Flue createAgent with OpenRouter Claude Sonnet model. Has graphTools for manipulating the knowledge graph.",
+      "sourceRefs": []
+    },
+    {
+      "id": "module-ui",
+      "kind": "module",
+      "title": "Svelte UI",
+      "description": "The frontend in web/src/. Svelte 5 SPA with runes reactivity. Main components: App.svelte (layout), ChatPane, GraphCanvas, NodeInspector, GraphNode.",
+      "sourceRefs": []
+    },
+    {
+      "id": "comp-chat-pane",
+      "kind": "component",
+      "title": "ChatPane",
+      "description": "The conversation interface. Shows message history with user/assistant bubbles. Input textarea at bottom for composing messages. Displays tool call badges on assistant messages.",
+      "sourceRefs": []
+    },
+    {
+      "id": "comp-graph-canvas",
+      "kind": "component",
+      "title": "GraphCanvas",
+      "description": "The graph visualization. Uses @xyflow/svelte with dagre layout. Toolbar has space filters, search, snapshot controls, export button. Nodes are custom GraphNode components.",
+      "sourceRefs": []
+    },
+    {
+      "id": "comp-node-inspector",
+      "kind": "component",
+      "title": "NodeInspector",
+      "description": "Side panel showing selected node details. Displays kind badge, title, description, Decision Trail (sourceRefs), incoming/outgoing references with edge types, timestamps.",
+      "sourceRefs": []
+    },
+    {
+      "id": "comp-graph-node",
+      "kind": "component",
+      "title": "GraphNode",
+      "description": "Custom node renderer for xyflow. Shows kind label and title. Color-coded by space (basics=gold, problem=red, solution=cyan, crosscutting=purple). Expandable on click.",
+      "sourceRefs": []
+    },
+    {
+      "id": "interface-flue-agent",
+      "kind": "interface",
+      "title": "Flue Agent API",
+      "description": "The contract between frontend and backend. POST /agents/explorer/{sessionId} with { prompt: string }. Returns SSE stream with events: text_delta (content chunks), tool_start, tool_call (with result).",
+      "sourceRefs": []
+    },
+    {
+      "id": "interface-graph-tools",
+      "kind": "interface",
+      "title": "Graph Tools Interface",
+      "description": "The tools exposed to the agent: get_graph, add_node (kind, title, description, sourceExcerpt), update_node, delete_node, add_edge (srcId, dstId, type, label), delete_edge, create_snapshot, list_snapshots, restore_snapshot, diff_snapshot, export_markdown.",
+      "sourceRefs": []
+    },
+    {
+      "id": "api-sse-stream",
+      "kind": "api",
+      "title": "SSE Streaming Endpoint",
+      "description": "POST /agents/explorer/{sessionId} returns Server-Sent Events stream. Events have type field: text_delta (incremental text), tool_start (tool invocation beginning), tool_call (tool completed with result).",
+      "sourceRefs": []
+    },
+    {
+      "id": "event-node-added",
+      "kind": "event",
+      "title": "Node Added",
+      "description": "Triggered when agent calls add_node tool. The tool_call event contains the new node as result. Client debounces and fetches full graph to update visualization.",
+      "sourceRefs": []
+    },
+    {
+      "id": "event-graph-updated",
+      "kind": "event",
+      "title": "Graph Updated",
+      "description": "After any graph mutation (add_node, update_node, delete_node, add_edge, delete_edge), client calls debouncedFetchGraph to sync full state. Triggers re-render of GraphCanvas.",
+      "sourceRefs": []
+    },
+    {
+      "id": "event-snapshot-saved",
+      "kind": "event",
+      "title": "Snapshot Saved",
+      "description": "When user saves a snapshot via toolbar. create_snapshot tool persists graph state. Client adds snapshot to appState.snapshots for dropdown.",
+      "sourceRefs": []
+    },
+    {
+      "id": "state-streaming",
+      "kind": "state",
+      "title": "Streaming State",
+      "description": "streamState in api.svelte.ts tracks SSE stream status: isStreaming (boolean), text (accumulated response), toolCalls (array of tool invocations). Controls UI disabled states.",
+      "sourceRefs": []
+    },
+    {
+      "id": "state-app",
+      "kind": "state",
+      "title": "App State",
+      "description": "appState in stores.svelte.ts: graph (current nodes/edges), messages (chat history), selectedNodeId, expandedNodeIds, visibleSpaces, focusedNodeId, searchQuery, matchingNodeIds, snapshots, showExportModal, exportContent.",
+      "sourceRefs": []
+    },
+    {
+      "id": "behaviour-system-prompt",
+      "kind": "behaviour",
+      "title": "Agent System Prompt",
+      "description": "SYSTEM_PROMPT in prompt.ts defines agent personality: technical writer + architect + PM + QA engineer. Works through spaces in order (basics -> problem -> solution). Always quotes user words. Surfaces implicit assumptions as explicit nodes.",
+      "sourceRefs": []
+    },
+    {
+      "id": "behaviour-debounce",
+      "kind": "behaviour",
+      "title": "Graph Fetch Debouncing",
+      "description": "debouncedFetchGraph waits 300ms after last mutation before fetching full graph. Prevents excessive re-renders during rapid tool calls. Uses setTimeout with clearTimeout pattern.",
+      "sourceRefs": []
+    },
+    {
+      "id": "logic-dagre-layout",
+      "kind": "logic",
+      "title": "Dagre Auto-Layout",
+      "description": "buildLayout in GraphCanvas uses @dagrejs/dagre for hierarchical graph layout. Configured with rankdir='LR' (left-to-right), nodesep=60, ranksep=120. Node dimensions vary by expanded state.",
+      "sourceRefs": []
+    },
+    {
+      "id": "logic-space-filter",
+      "kind": "logic",
+      "title": "Space Filtering",
+      "description": "Nodes are filtered by visibleSpaces before layout. Toggle buttons in toolbar control which spaces appear. KIND_TO_SPACE mapping determines each node's space based on its kind.",
+      "sourceRefs": []
+    },
+    {
+      "id": "repo-sqlite",
+      "kind": "repository",
+      "title": "SQLite via Cloudflare DO",
+      "description": "Graph data persists in SQLite accessed via getCloudflareContext().storage.sql. Tables: nodes (id, kind, title, description, source_refs, timestamps), edges (id, src_id, dst_id, type, label), snapshots (id, name, created_at, graph_json).",
+      "sourceRefs": []
+    },
+    {
+      "id": "external-openrouter",
+      "kind": "external",
+      "title": "OpenRouter API",
+      "description": "LLM provider for the explorer agent. Default model: openrouter/anthropic/claude-sonnet-4-6. Requires OPENROUTER_API_KEY environment variable. Accessed through Flue's model layer.",
+      "sourceRefs": []
+    },
+    {
+      "id": "external-flue",
+      "kind": "external",
+      "title": "Flue Runtime",
+      "description": "Agent framework from @flue/runtime. Provides createAgent, defineTool, SSE streaming, Cloudflare context. Version 0.11.1 pinned. Handles agent lifecycle and tool execution.",
+      "sourceRefs": []
+    },
+    {
+      "id": "external-xyflow",
+      "kind": "external",
+      "title": "xyflow/svelte",
+      "description": "Graph visualization library. Provides SvelteFlow component, Background, Controls, MiniMap. Supports custom node types, edge styling, zoom/pan controls.",
+      "sourceRefs": []
+    },
+    {
+      "id": "design-dark-theme",
+      "kind": "design",
+      "title": "Dark Theme",
+      "description": "GitHub-inspired dark color scheme. CSS variables: --bg (#0d1117), --bg2 (#161b22), --border (#30363d), --text (#c9d1d9), --accent (#58a6ff). Space colors: basics=gold, problem=red, solution=cyan, crosscutting=purple.",
+      "sourceRefs": []
+    },
+    {
+      "id": "design-minimal-ui",
+      "kind": "design",
+      "title": "Minimal UI",
+      "description": "Focus on content over chrome. No sidebar menus, just chat + graph. Toolbar is contextual (space filters, search, snapshot controls). Inspector slides in only when node selected.",
+      "sourceRefs": []
+    }
+  ],
+  "edges": [
+    { "id": "e1", "srcId": "name-bropilot", "dstId": "purpose-docs-as-code", "type": "has" },
+    { "id": "e2", "srcId": "name-bropilot", "dstId": "cap-graph-building", "type": "has" },
+    { "id": "e3", "srcId": "name-bropilot", "dstId": "cap-traceability", "type": "has" },
+    { "id": "e4", "srcId": "name-bropilot", "dstId": "cap-progressive-refinement", "type": "has" },
+    { "id": "e5", "srcId": "name-bropilot", "dstId": "cap-versioning", "type": "has" },
+    { "id": "e6", "srcId": "name-bropilot", "dstId": "cap-export", "type": "has" },
+    { "id": "e7", "srcId": "persona-solo-dev", "dstId": "uc-spec-new-app", "type": "has" },
+    { "id": "e8", "srcId": "persona-solo-dev", "dstId": "uc-refine-idea", "type": "has" },
+    { "id": "e9", "srcId": "persona-team-lead", "dstId": "uc-generate-docs", "type": "has" },
+    { "id": "e10", "srcId": "persona-team-lead", "dstId": "persona-solo-dev", "type": "extends" },
+    { "id": "e11", "srcId": "uc-spec-new-app", "dstId": "flow-main", "type": "contains" },
+    { "id": "e12", "srcId": "uc-refine-idea", "dstId": "flow-inspect", "type": "contains" },
+    { "id": "e13", "srcId": "uc-generate-docs", "dstId": "cap-export", "type": "uses" },
+    { "id": "e14", "srcId": "flow-main", "dstId": "screen-main", "type": "uses" },
+    { "id": "e15", "srcId": "flow-inspect", "dstId": "comp-node-inspector", "type": "uses" },
+    { "id": "e16", "srcId": "flow-snapshot", "dstId": "cap-versioning", "type": "implements" },
+    { "id": "e17", "srcId": "cap-traceability", "dstId": "entity-source-ref", "type": "uses" },
+    { "id": "e18", "srcId": "cap-versioning", "dstId": "entity-snapshot", "type": "uses" },
+    { "id": "e19", "srcId": "constraint-offline", "dstId": "repo-sqlite", "type": "triggers" },
+    { "id": "e20", "srcId": "constraint-realtime", "dstId": "api-sse-stream", "type": "triggers" },
+    { "id": "e21", "srcId": "constraint-flue-pinned", "dstId": "external-flue", "type": "references" },
+    { "id": "e22", "srcId": "req-source-refs", "dstId": "interface-graph-tools", "type": "implements" },
+    { "id": "e23", "srcId": "req-four-spaces", "dstId": "entity-node", "type": "references" },
+    { "id": "e24", "srcId": "entity-graph", "dstId": "entity-node", "type": "contains" },
+    { "id": "e25", "srcId": "entity-graph", "dstId": "entity-edge", "type": "contains" },
+    { "id": "e26", "srcId": "entity-node", "dstId": "entity-source-ref", "type": "contains" },
+    { "id": "e27", "srcId": "entity-edge", "dstId": "entity-node", "type": "references" },
+    { "id": "e28", "srcId": "entity-snapshot", "dstId": "entity-graph", "type": "contains" },
+    { "id": "e29", "srcId": "module-genome", "dstId": "entity-node", "type": "has" },
+    { "id": "e30", "srcId": "module-genome", "dstId": "entity-edge", "type": "has" },
+    { "id": "e31", "srcId": "module-genome", "dstId": "entity-snapshot", "type": "has" },
+    { "id": "e32", "srcId": "module-genome", "dstId": "repo-sqlite", "type": "uses" },
+    { "id": "e33", "srcId": "module-agent", "dstId": "interface-graph-tools", "type": "uses" },
+    { "id": "e34", "srcId": "module-agent", "dstId": "behaviour-system-prompt", "type": "has" },
+    { "id": "e35", "srcId": "module-agent", "dstId": "external-flue", "type": "depends_on" },
+    { "id": "e36", "srcId": "module-agent", "dstId": "external-openrouter", "type": "depends_on" },
+    { "id": "e37", "srcId": "module-ui", "dstId": "comp-chat-pane", "type": "contains" },
+    { "id": "e38", "srcId": "module-ui", "dstId": "comp-graph-canvas", "type": "contains" },
+    { "id": "e39", "srcId": "module-ui", "dstId": "comp-node-inspector", "type": "contains" },
+    { "id": "e40", "srcId": "module-ui", "dstId": "comp-graph-node", "type": "contains" },
+    { "id": "e41", "srcId": "module-ui", "dstId": "state-app", "type": "has" },
+    { "id": "e42", "srcId": "module-ui", "dstId": "state-streaming", "type": "has" },
+    { "id": "e43", "srcId": "comp-chat-pane", "dstId": "interface-flue-agent", "type": "uses" },
+    { "id": "e44", "srcId": "comp-chat-pane", "dstId": "entity-message", "type": "uses" },
+    { "id": "e45", "srcId": "comp-graph-canvas", "dstId": "external-xyflow", "type": "uses" },
+    { "id": "e46", "srcId": "comp-graph-canvas", "dstId": "logic-dagre-layout", "type": "uses" },
+    { "id": "e47", "srcId": "comp-graph-canvas", "dstId": "logic-space-filter", "type": "uses" },
+    { "id": "e48", "srcId": "comp-node-inspector", "dstId": "entity-source-ref", "type": "uses" },
+    { "id": "e49", "srcId": "interface-flue-agent", "dstId": "api-sse-stream", "type": "implements" },
+    { "id": "e50", "srcId": "interface-graph-tools", "dstId": "module-genome", "type": "uses" },
+    { "id": "e51", "srcId": "event-node-added", "dstId": "event-graph-updated", "type": "triggers" },
+    { "id": "e52", "srcId": "event-graph-updated", "dstId": "behaviour-debounce", "type": "triggers" },
+    { "id": "e53", "srcId": "behaviour-debounce", "dstId": "comp-graph-canvas", "type": "triggers" },
+    { "id": "e54", "srcId": "screen-main", "dstId": "comp-chat-pane", "type": "contains" },
+    { "id": "e55", "srcId": "screen-main", "dstId": "comp-graph-canvas", "type": "contains" },
+    { "id": "e56", "srcId": "screen-main", "dstId": "comp-node-inspector", "type": "contains" },
+    { "id": "e57", "srcId": "design-dark-theme", "dstId": "module-ui", "type": "references" },
+    { "id": "e58", "srcId": "design-minimal-ui", "dstId": "screen-main", "type": "references" },
+    { "id": "e59", "srcId": "assumption-technical-users", "dstId": "persona-solo-dev", "type": "references" },
+    { "id": "e60", "srcId": "assumption-english-only", "dstId": "module-ui", "type": "references" },
+    { "id": "e61", "srcId": "assumption-single-user", "dstId": "flow-main", "type": "references" },
+    { "id": "e62", "srcId": "flow-snapshot", "dstId": "event-snapshot-saved", "type": "triggers" }
+  ]
+}
