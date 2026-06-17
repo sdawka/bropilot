@@ -38,6 +38,13 @@ function db() {
 }
 
 /**
+ * @deprecated No longer needed - store always uses Cloudflare context
+ */
+export async function initStore(): Promise<void> {
+  initSchema();
+}
+
+/**
  * Validate a UUID format
  */
 function isValidUUID(id: string): boolean {
@@ -525,7 +532,7 @@ export function deleteNode(id: string, sourceTurn?: string): boolean {
     // Delete connected edges first
     db().exec('DELETE FROM edges WHERE src_id = ? OR dst_id = ?', id, id);
     const result = db().exec('DELETE FROM nodes WHERE id = ?', id);
-    if (result.rowsWritten > 0) {
+    if ((result.rowsWritten ?? 0) > 0) {
       recordChange('delete_node', id, before, null, sourceTurn ?? null);
       return true;
     }
@@ -588,7 +595,7 @@ export function deleteEdge(id: string, sourceTurn?: string): boolean {
     }
 
     const result = db().exec('DELETE FROM edges WHERE id = ?', id);
-    if (result.rowsWritten > 0) {
+    if ((result.rowsWritten ?? 0) > 0) {
       recordChange('delete_edge', id, before, null, sourceTurn ?? null);
       return true;
     }

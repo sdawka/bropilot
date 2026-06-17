@@ -115,7 +115,7 @@ export interface LoadBootstrapResult {
 
 /**
  * Load the Bropilot bootstrap graph (self-spec demo).
- * This is a direct API call that bypasses the agent for simplicity.
+ * Loads directly from the static JSON file for instant demo without requiring API.
  */
 export async function loadBootstrap(): Promise<LoadBootstrapResult> {
   const requestKey = 'load-bootstrap';
@@ -126,22 +126,25 @@ export async function loadBootstrap(): Promise<LoadBootstrapResult> {
   }
 
   try {
-    checkNetworkOrFail();
     inFlightRequests.add(requestKey);
 
-    const res = await fetchWithRetry('/api/load-bootstrap', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    });
+    // Load the bootstrap JSON directly from the static file
+    const res = await fetch('/bropilot-bootstrap.json');
 
     if (!res.ok) {
-      const error = await res.text();
-      const friendlyError = friendlyErrorMessage(new Error(error || `HTTP ${res.status}`));
+      const friendlyError = `Failed to load demo data (HTTP ${res.status})`;
       showError('Failed to load bootstrap', friendlyError);
       return { success: false, error: friendlyError };
     }
 
-    return await res.json() as LoadBootstrapResult;
+    const data = await res.json() as { nodes: Graph['nodes']; edges: Graph['edges'] };
+
+    return {
+      success: true,
+      nodeCount: data.nodes.length,
+      edgeCount: data.edges.length,
+      graph: data,
+    };
   } catch (err) {
     const friendlyError = friendlyErrorMessage(err);
     showError('Failed to load bootstrap', friendlyError);
@@ -196,7 +199,7 @@ export async function saveSnapshot(name: string): Promise<Snapshot | null> {
     const res = await fetchWithTimeout(`/agents/explorer/${SESSION_ID}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: `save_snapshot "${name}"` }),
+      body: JSON.stringify({ message: `save_snapshot "${name}"` }),
     });
 
     if (!res.ok) {
@@ -263,7 +266,7 @@ export async function loadSnapshot(snapshotId: string): Promise<Graph | null> {
     const res = await fetchWithTimeout(`/agents/explorer/${SESSION_ID}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: `load_snapshot "${snapshotId}"` }),
+      body: JSON.stringify({ message: `load_snapshot "${snapshotId}"` }),
     });
 
     if (!res.ok) {
@@ -327,7 +330,7 @@ export async function listSnapshots(): Promise<Snapshot[]> {
     const res = await fetchWithTimeout(`/agents/explorer/${SESSION_ID}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: 'list_snapshots' }),
+      body: JSON.stringify({ message: 'list_snapshots' }),
     });
 
     if (!res.ok) {
@@ -392,7 +395,7 @@ export async function exportMarkdown(): Promise<string> {
     const res = await fetchWithTimeout(`/agents/explorer/${SESSION_ID}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: 'export_markdown' }),
+      body: JSON.stringify({ message: 'export_markdown' }),
     });
 
     if (!res.ok) {
@@ -452,7 +455,7 @@ export async function fetchCompleteness(): Promise<CompletenessScore | null> {
     const res = await fetch(`/agents/explorer/${SESSION_ID}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: 'get_completeness' }),
+      body: JSON.stringify({ message: 'get_completeness' }),
     });
 
     if (!res.ok) return null;
@@ -508,7 +511,7 @@ export async function validateGraph(): Promise<ValidationResult | null> {
     const res = await fetch(`/agents/explorer/${SESSION_ID}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: 'validate_graph' }),
+      body: JSON.stringify({ message: 'validate_graph' }),
     });
 
     if (!res.ok) return null;
@@ -683,7 +686,7 @@ export async function sendMessage(
     const res = await fetch(`/agents/explorer/${SESSION_ID}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: content }),
+      body: JSON.stringify({ message: content }),
       signal,
     });
 
@@ -852,7 +855,7 @@ export async function fetchGraph(): Promise<Graph> {
     const res = await fetch(`/agents/explorer/${SESSION_ID}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: 'get_graph' }),
+      body: JSON.stringify({ message: 'get_graph' }),
     });
 
     if (!res.ok) {
@@ -928,7 +931,7 @@ export async function undoChange(): Promise<UndoRedoResult> {
     const res = await fetchWithTimeout(`/agents/explorer/${SESSION_ID}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: 'undo' }),
+      body: JSON.stringify({ message: 'undo' }),
     });
 
     if (!res.ok) {
@@ -996,7 +999,7 @@ export async function redoChange(): Promise<UndoRedoResult> {
     const res = await fetchWithTimeout(`/agents/explorer/${SESSION_ID}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: 'redo' }),
+      body: JSON.stringify({ message: 'redo' }),
     });
 
     if (!res.ok) {
@@ -1062,7 +1065,7 @@ export async function fetchChangeHistory(limit: number = 50): Promise<Change[]> 
     const res = await fetchWithTimeout(`/agents/explorer/${SESSION_ID}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: `get_change_history { limit: ${limit} }` }),
+      body: JSON.stringify({ message: `get_change_history { limit: ${limit} }` }),
     });
 
     if (!res.ok) {

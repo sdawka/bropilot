@@ -558,9 +558,9 @@
         nodesDraggable={true}
         nodesConnectable={false}
         colorMode="dark"
-        onnodeclick={(e) => selectNode(e.detail?.node?.id ?? null)}
+        onnodeclick={(e) => selectNode(e?.detail?.node?.id ?? null)}
         onpaneclick={() => selectNode(null)}
-        oninit={(e) => { flowInstance = e.detail; }}
+        oninit={(e) => { flowInstance = e?.detail ?? e; }}
       >
         <Background color="#30363d" gap={20} />
         <Controls />
