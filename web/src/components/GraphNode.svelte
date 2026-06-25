@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Handle, Position } from '@xyflow/svelte';
   import type { NodeKind, Space } from '../lib/types.js';
   import { KIND_TO_SPACE, SPACE_COLORS } from '../lib/types.js';
   import { appState, toggleExpanded, selectNode } from '../lib/stores.svelte.js';
@@ -78,6 +79,10 @@
       {/if}
     </div>
   {/if}
+
+  <!-- Handles for edge connections -->
+  <Handle type="target" position={Position.Left} />
+  <Handle type="source" position={Position.Right} />
 </div>
 
 <style>

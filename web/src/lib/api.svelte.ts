@@ -113,23 +113,35 @@ export interface LoadBootstrapResult {
   error?: string;
 }
 
+/** Available demo graphs */
+export const DEMO_GRAPHS = [
+  { id: 'bropilot', name: 'Bropilot', file: '/bropilot-bootstrap.json', description: 'Bropilot self-spec (55 nodes)' },
+] as const;
+
+export type DemoGraphId = typeof DEMO_GRAPHS[number]['id'];
+
 /**
- * Load the Bropilot bootstrap graph (self-spec demo).
- * Loads directly from the static JSON file for instant demo without requiring API.
+ * Load a demo graph from static JSON file.
+ * @param graphId - ID of the demo graph to load (default: 'bropilot')
  */
-export async function loadBootstrap(): Promise<LoadBootstrapResult> {
-  const requestKey = 'load-bootstrap';
+export async function loadBootstrap(graphId: DemoGraphId = 'bropilot'): Promise<LoadBootstrapResult> {
+  const requestKey = `load-bootstrap-${graphId}`;
 
   // Prevent double submission
   if (isRequestInFlight(requestKey)) {
     return { success: false, error: 'Request already in progress' };
   }
 
+  const graphConfig = DEMO_GRAPHS.find(g => g.id === graphId);
+  if (!graphConfig) {
+    return { success: false, error: `Unknown graph: ${graphId}` };
+  }
+
   try {
     inFlightRequests.add(requestKey);
 
-    // Load the bootstrap JSON directly from the static file
-    const res = await fetch('/bropilot-bootstrap.json');
+    // Load the graph JSON directly from the static file
+    const res = await fetch(graphConfig.file);
 
     if (!res.ok) {
       const friendlyError = `Failed to load demo data (HTTP ${res.status})`;

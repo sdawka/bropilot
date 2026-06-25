@@ -4,7 +4,7 @@
   import '@xyflow/svelte/dist/style.css';
   import { appState, selectNode, focusNode, toggleSpace, toggleExpanded, setSearchQuery, setSnapshots, addSnapshot, setExportModal, toggleLegend, getNodeKindCounts, getConnectedNodes, getSiblingNodes, setFocusedPanel, setCompleteness, setChangeHistory, setIsUndoing, setIsRedoing, setValidationResult, getNodesWithIssues } from '../lib/stores.svelte.js';
   import { KIND_TO_SPACE, SPACE_COLORS, type Space, type Snapshot } from '../lib/types.js';
-  import { saveSnapshot, loadSnapshot, listSnapshots, exportMarkdown, fetchCompleteness, undoChange, redoChange, fetchChangeHistory, fetchGraph, loadBootstrap, setOnHistoryUpdateCallback, validateGraph, streamState } from '../lib/api.svelte.js';
+  import { saveSnapshot, loadSnapshot, listSnapshots, exportMarkdown, fetchCompleteness, undoChange, redoChange, fetchChangeHistory, fetchGraph, loadBootstrap, DEMO_GRAPHS, type DemoGraphId, setOnHistoryUpdateCallback, validateGraph, streamState } from '../lib/api.svelte.js';
   import { setGraph } from '../lib/stores.svelte.js';
   import GraphNode from './GraphNode.svelte';
   import CompletenessPanel from './CompletenessPanel.svelte';
@@ -30,6 +30,7 @@
     id: string;
     source: string;
     target: string;
+    type?: string;
     label?: string;
     animated?: boolean;
     style?: string;
@@ -53,7 +54,14 @@
   const isGraphEmpty = $derived(appState.graph.nodes.length === 0);
 
   // Load demo handler
-  async function handleLoadDemo() {
+  let selectedDemoGraph = $state<DemoGraphId>('bropilot');
+  let showDemoDropdown = $state(false);
+
+  async function handleLoadDemo(graphId?: DemoGraphId) {
+    if (graphId) {
+      selectedDemoGraph = graphId;
+    }
+    showDemoDropdown = false;
     // If graph has content, show confirmation dialog
     if (!isGraphEmpty) {
       showDemoConfirmDialog = true;
@@ -68,7 +76,7 @@
     showDemoConfirmDialog = false;
 
     try {
-      const result = await loadBootstrap();
+      const result = await loadBootstrap(selectedDemoGraph);
       if (result.success && result.graph) {
         setGraph(result.graph);
         // Fit view after a short delay to allow layout to update
@@ -83,6 +91,7 @@
 
   function cancelDemoConfirm() {
     showDemoConfirmDialog = false;
+    showDemoDropdown = false;
   }
 
   // Undo/Redo handlers
@@ -235,25 +244,99 @@
       return { nodes: [], edges: [] };
     }
 
-    const g = new dagre.graphlib.Graph();
-    g.setDefaultEdgeLabel(() => ({}));
-    g.setGraph({ rankdir: 'LR', nodesep: 60, ranksep: 120 });
+    // Group nodes by space, then by kind within each space
+    const SPACE_ORDER: Space[] = ['basics', 'problem', 'solution', 'crosscutting'];
 
+    // Define kind order within each space for logical grouping
+    const KIND_ORDER: Record<Space, string[]> = {
+      basics: ['name', 'purpose', 'capability'],
+      problem: ['persona', 'usecase', 'flow', 'screen', 'requirement', 'constraint', 'assumption'],
+      solution: ['entity', 'relationship', 'module', 'component', 'interface', 'api', 'event', 'state', 'behaviour', 'logic'],
+      crosscutting: ['repository', 'tests', 'observability', 'external', 'design'],
+    };
+
+    // Build nested structure: space -> kind -> nodes
+    const nodesBySpaceAndKind = new Map<Space, Map<string, typeof filteredNodes>>();
+    for (const space of SPACE_ORDER) {
+      nodesBySpaceAndKind.set(space, new Map());
+    }
     for (const n of filteredNodes) {
-      const isExpanded = expandedIds.has(n.id);
-      const width = isExpanded ? 280 : 180;
-      const height = isExpanded ? 140 : 60;
-      g.setNode(n.id, { width, height });
+      const space = KIND_TO_SPACE[n.kind];
+      const kindMap = nodesBySpaceAndKind.get(space)!;
+      if (!kindMap.has(n.kind)) {
+        kindMap.set(n.kind, []);
+      }
+      kindMap.get(n.kind)!.push(n);
     }
 
-    for (const e of filteredEdges) {
-      g.setEdge(e.srcId, e.dstId);
+    // Sort nodes within each kind group by title
+    for (const [_, kindMap] of nodesBySpaceAndKind) {
+      for (const [_, kindNodes] of kindMap) {
+        kindNodes.sort((a, b) => a.title.localeCompare(b.title));
+      }
     }
 
-    dagre.layout(g);
+    // Layout constants
+    const NODE_WIDTH = 190;
+    const NODE_HEIGHT = 65;
+    const NODE_GAP_X = 30;
+    const NODE_GAP_Y = 15;
+    const KIND_GROUP_GAP = 35;
+    const SPACE_GAP = 80;
+    const MAX_NODES_PER_COLUMN = 8; // Wrap to new sub-column after this many nodes in a kind group
+    const positions = new Map<string, { x: number; y: number }>();
+
+    let xOffset = 50;
+    for (const space of SPACE_ORDER) {
+      const kindMap = nodesBySpaceAndKind.get(space)!;
+      if (kindMap.size === 0) continue;
+
+      // Get kinds in defined order, then any extras
+      const orderedKinds = KIND_ORDER[space].filter(k => kindMap.has(k));
+      const extraKinds = [...kindMap.keys()].filter(k => !orderedKinds.includes(k));
+      const allKinds = [...orderedKinds, ...extraKinds];
+
+      // Calculate how many sub-columns this space needs
+      let maxSubCols = 1;
+      for (const kind of allKinds) {
+        const kindNodes = kindMap.get(kind)!;
+        const subCols = Math.ceil(kindNodes.length / MAX_NODES_PER_COLUMN);
+        maxSubCols = Math.max(maxSubCols, subCols);
+      }
+
+      let yOffset = 50;
+
+      for (const kind of allKinds) {
+        const kindNodes = kindMap.get(kind)!;
+        const numSubCols = Math.ceil(kindNodes.length / MAX_NODES_PER_COLUMN);
+        const nodesPerCol = Math.ceil(kindNodes.length / numSubCols);
+
+        // Layout nodes in a grid within this kind group
+        let kindMaxY = yOffset;
+        for (let i = 0; i < kindNodes.length; i++) {
+          const n = kindNodes[i];
+          const col = Math.floor(i / nodesPerCol);
+          const row = i % nodesPerCol;
+
+          const isExpanded = expandedIds.has(n.id);
+          const height = isExpanded ? 140 : NODE_HEIGHT;
+
+          const x = xOffset + col * (NODE_WIDTH + NODE_GAP_X) + NODE_WIDTH / 2;
+          const y = yOffset + row * (height + NODE_GAP_Y) + height / 2;
+
+          positions.set(n.id, { x, y });
+          kindMaxY = Math.max(kindMaxY, y + height / 2);
+        }
+
+        yOffset = kindMaxY + KIND_GROUP_GAP;
+      }
+
+      // Move to next space
+      xOffset += maxSubCols * (NODE_WIDTH + NODE_GAP_X) + SPACE_GAP;
+    }
 
     const flowNodes: FlowNode[] = filteredNodes.map(n => {
-      const pos = g.node(n.id);
+      const pos = positions.get(n.id) ?? { x: 0, y: 0 };
       const isExpanded = expandedIds.has(n.id);
       const width = isExpanded ? 280 : 180;
       const height = isExpanded ? 140 : 60;
@@ -264,7 +347,7 @@
       return {
         id: n.id,
         type: 'custom',
-        position: { x: (pos?.x ?? 0) - width / 2, y: (pos?.y ?? 0) - height / 2 },
+        position: { x: pos.x - width / 2, y: pos.y - height / 2 },
         data: { ...n, isHighlighted, isDimmed, hasError, hasWarning },
       };
     });
@@ -276,16 +359,30 @@
         id: e.id,
         source: e.srcId,
         target: e.dstId,
+        type: 'default',
         label: e.type,
         animated: appState.selectedNodeId === e.srcId || appState.selectedNodeId === e.dstId,
-        style: `stroke: ${SPACE_COLORS[KIND_TO_SPACE[srcKind]]}`,
+        style: `stroke: ${SPACE_COLORS[KIND_TO_SPACE[srcKind]]}; stroke-width: 2px;`,
       };
     });
 
+    console.log('Layout edges:', flowEdges.length, flowEdges.slice(0, 3));
     return { nodes: flowNodes, edges: flowEdges };
   }
 
+  // Use $state for xyflow - it needs mutable arrays
+  let xyNodes = $state<FlowNode[]>([]);
+  let xyEdges = $state<FlowEdge[]>([]);
+
+  // Keep a derived for other uses that need the raw layout
   const layout = $derived(buildLayout());
+
+  // Sync layout changes to xyflow state
+  $effect(() => {
+    const newLayout = buildLayout();
+    xyNodes = newLayout.nodes;
+    xyEdges = newLayout.edges;
+  });
 
   let flowInstance: { fitView: () => void; setCenter: (x: number, y: number, opts?: { zoom?: number }) => void } | null = null;
   let canvasEl: HTMLDivElement;
@@ -551,8 +648,8 @@
   <div class="canvas">
     {#if layout.nodes.length > 0}
       <SvelteFlow
-        nodes={layout.nodes}
-        edges={layout.edges}
+        nodes={xyNodes}
+        edges={xyEdges}
         {nodeTypes}
         fitView
         nodesDraggable={true}
@@ -592,19 +689,23 @@
 
           <div class="welcome-option">
             <div class="option-label">See an example</div>
-            <p class="option-hint">Load Bropilot's own self-spec (52 nodes, 58 edges)</p>
-            <button
-              class="demo-btn"
-              onclick={handleLoadDemo}
-              disabled={isLoadingDemo}
-            >
-              {#if isLoadingDemo}
-                <LoadingSpinner size="sm" inline />
-                <span>Loading...</span>
-              {:else}
-                Load Demo Graph
-              {/if}
-            </button>
+            <p class="option-hint">Load a demo graph to explore</p>
+            <div class="demo-buttons">
+              {#each DEMO_GRAPHS as graph}
+                <button
+                  class="demo-btn"
+                  onclick={() => handleLoadDemo(graph.id)}
+                  disabled={isLoadingDemo}
+                >
+                  {#if isLoadingDemo && selectedDemoGraph === graph.id}
+                    <LoadingSpinner size="sm" inline />
+                    <span>Loading...</span>
+                  {:else}
+                    {graph.name}
+                  {/if}
+                </button>
+              {/each}
+            </div>
           </div>
         </div>
       </div>
@@ -973,25 +1074,34 @@
     padding: 0 12px;
   }
 
+  .demo-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
   .demo-btn {
-    padding: 10px 24px;
+    padding: 10px 20px;
     font-size: 13px;
     font-weight: 500;
-    background: var(--accent);
-    color: #fff;
-    border: none;
+    background: var(--bg3);
+    color: var(--text);
+    border: 1px solid var(--border);
     border-radius: 6px;
     cursor: pointer;
-    transition: background 0.15s, transform 0.1s;
+    transition: background 0.15s, transform 0.1s, border-color 0.15s;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-width: 160px;
+    min-width: 140px;
   }
 
   .demo-btn:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--accent) 85%, white);
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
     transform: translateY(-1px);
   }
 

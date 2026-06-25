@@ -3,6 +3,11 @@
   "name": "bropilot",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "web/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
   "migrations": [
     {
       "tag": "v1",

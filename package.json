@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "flue dev --target cloudflare",
     "dev:web": "npm --prefix web run dev",
+    "dev:mock": "BROPILOT_MOCK=1 concurrently -n api,web -c blue,green \"npm run dev\" \"npm run dev:web\"",
     "build": "flue build --target cloudflare",
     "build:web": "npm --prefix web run build",
     "deploy": "flue build --target cloudflare && wrangler deploy",
@@ -25,6 +26,8 @@
     "@flue/cli": "0.11.1",
     "@types/better-sqlite3": "^7.6.13",
     "better-sqlite3": "^12.11.1",
+    "concurrently": "^10.0.3",
+    "playwright": "^1.61.0",
     "typescript": "6.0.3",
     "vitest": "^3.2.4",
     "wrangler": "4.22.0"
