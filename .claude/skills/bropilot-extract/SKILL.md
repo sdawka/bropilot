@@ -33,15 +33,18 @@ BASICS (singular where noted)
 PROBLEM
   persona     — User types/roles
   usecase     — What users accomplish
-  flow        — Step-by-step journeys
-  screen      — UI views/pages
   constraint  — Hard limitations
   assumption  — Things assumed true
   requirement — Must-have functionality
+  goal        — Value delivered, above and beyond
+  hypothesis  — Unvalidated belief about value
 
 SOLUTION
   entity       — Domain objects/models
   relationship — How entities connect
+  term         — Ubiquitous-language definition
+  flow         — Step-by-step journeys
+  screen       — UI views/pages
   module       — Logical groupings
   component    — Reusable UI pieces
   interface    — Contracts/types
@@ -58,6 +61,8 @@ CROSSCUTTING
   external      — Third-party services
   design        — Visual/UX decisions
 ```
+
+Note: `flow` and `screen` live in the **solution** space (they describe how the domain is realised in UI), not problem — don't group them with persona/usecase/constraint.
 
 ### Edge Types
 
@@ -89,25 +94,28 @@ references  — Points to without ownership
 
 | Source | Node |
 |--------|------|
-| Routes/pages directory | `screen` |
 | Auth roles, user types in code | `persona` |
 | README "Usage" or user stories | `usecase` |
-| Multi-step flows in comments/docs | `flow` |
 | `.env.example` required vars | `constraint` |
 | README caveats, limitations | `constraint` |
 | Comments with ASSUME/ASSUMPTION | `assumption` |
+| README "success looks like", OKRs, metrics | `goal` |
+| Comments/docs with "we believe"/HYPOTHESIS | `hypothesis` |
 
 ### 3. Solution Space
 
 | Source | Node |
 |--------|------|
 | TypeScript interfaces | `entity` |
-| `src/components/*.tsx` | `component` |
+| `src/components/*.tsx`, `*.vue`, `*.astro` | `component` |
 | API route handlers | `api` |
 | State stores, contexts | `state` |
 | Event emitters, handlers | `event` |
 | Utility functions with business logic | `behaviour` |
 | Algorithm implementations | `logic` |
+| Routes/pages directory | `screen` |
+| Multi-step flows in comments/docs | `flow` |
+| Glossary, domain docs, JSDoc on shared types | `term` |
 
 ### 4. Crosscutting
 
@@ -138,11 +146,32 @@ references  — Points to without ownership
   "kind": "entity",
   "title": "User",
   "description": "A registered user with email, name, and role.",
+  "props": { "attributes": ["email", "name", "role"] },
   "sourceRefs": [
     { "turnId": "extract", "excerpt": "src/lib/types.ts:15" }
   ]
 }
 ```
+
+### props (kind-specific fields)
+
+Several kinds carry extra fields beyond title/description, stored in `node.props`. Populate them when the source gives a confident answer — omit rather than guess:
+
+| Kind | Prop(s) | Derive from |
+|------|---------|-------------|
+| `persona` | `role` | Role/context description |
+| `requirement` | `priority` (must/should/could/wont) | Language cues ("critical", "nice to have") |
+| `usecase` | `situation` | The triggering context |
+| `constraint` | `invariant` | What must always remain true |
+| `goal` | `metric` | Stated success metric |
+| `hypothesis` | `belief`, `validation` | "We believe…" / "We will know…" framing |
+| `term` | `aka` | Synonyms |
+| `entity` | `attributes` | Field list from the type/schema definition |
+| `relationship` | `cardinality` | one-to-one / one-to-many / many-to-many |
+| `flow` | `steps` | Ordered step list |
+| `module`, `component`, `logic` | `path`, `repo` | File path and repo/source link |
+| `api` | `method`, `route`, `repo` | HTTP method, route pattern, source link |
+| `repository`, `external` | `url` | Repo or docs URL |
 
 ### ID Convention
 

@@ -28,20 +28,38 @@ If no graph is provided, prompt user to paste or specify file path.
 
 | Kind | Generated |
 |------|-----------|
-| `screen` | Route/page component |
-| `component` | Reusable component file |
+| `screen` | Astro page/route |
+| `component` | Vue single-file component |
 | `entity` | TypeScript interface |
-| `api` | API client function |
-| `state` | Store/context |
+| `api` | Cloudflare Workers route + typed client wrapper |
+| `state` | Vue `reactive()` store |
 | `flow` | Validates navigation exists |
 | `constraint` | Architecture decisions |
 | `requirement` | Must be implemented |
+| `goal` | Documented target — surfaced in README/comments, not code |
+| `hypothesis` | Documented assumption — surfaced in README/comments, not code |
+| `term` | Glossary comment near the closest related type/component |
 
 ### Edge Types
 
 ```
 has, uses, triggers, implements, depends_on, extends, contains, references
 ```
+
+### props (kind-specific fields)
+
+Read `node.props` before falling back to inference from description — it holds the concrete detail generation needs:
+
+| Kind | Prop(s) | Use for |
+|------|---------|---------|
+| `module`, `component`, `logic` | `path`, `repo` | File location and traceability link — prefer over guessed paths |
+| `api` | `method`, `route`, `repo` | HTTP method + route for both the Workers handler and client wrapper |
+| `entity` | `attributes` | Interface fields — use directly instead of inferring from description |
+| `relationship` | `cardinality` | Whether a reference is a single field or an array |
+| `flow` | `steps` | Ordered checklist to validate navigation against |
+| `requirement` | `priority` | Order implementation and flag `wont`-priority items as out of scope |
+| `constraint` | `invariant` | Assertion or comment to embed near the affected code |
+| `term` | `aka` | Include as a comment alias near the closest related type |
 
 ---
 
@@ -51,54 +69,55 @@ has, uses, triggers, implements, depends_on, extends, contains, references
 
 ```
 src/
-├── routes/              # screen nodes
-│   ├── index.tsx
-│   └── {screen-title}.tsx
-├── components/          # component nodes
-│   └── {ComponentTitle}.tsx
+├── pages/                # screen nodes (Astro file-based routing)
+│   ├── index.astro
+│   ├── {screen-title}.astro
+│   └── api/               # api nodes (Cloudflare Workers routes)
+│       └── {route}.ts
+├── components/           # component nodes (Vue SFCs)
+│   └── {ComponentTitle}.vue
+├── layouts/
+│   └── Layout.astro
 ├── lib/
-│   ├── types.ts         # entity nodes
-│   ├── api.ts           # api nodes
-│   └── store.ts         # state nodes
-├── App.tsx              # Router setup
-└── main.tsx             # Entry point
+│   ├── types.ts          # entity nodes
+│   ├── api.ts            # api nodes — typed client wrappers
+│   └── store.ts          # state nodes — Vue reactive() singleton
+└── styles/
+    └── global.css
 ```
 
-### 2. Screens → Routes
+### 2. Screens → Astro Pages
 
 For each `screen` node:
 
-```typescript
-// src/routes/{kebab-title}.tsx
+```astro
+---
+// src/pages/{kebab-title}.astro
 // [screen:{node-id}] {node.title}
 // {node.description}
-
-export function ScreenName() {
-  return (
-    // Structure inferred from description and edges
-  );
-}
+import Layout from '../layouts/Layout.astro';
+---
+<Layout>
+  <!-- Structure inferred from description and edges -->
+</Layout>
 ```
 
 Route path: `/{kebab-case(screen.title)}`
 
-### 3. Components
+### 3. Components → Vue SFCs
 
 For each `component` node:
 
-```typescript
-// src/components/{PascalTitle}.tsx
-// [component:{node-id}] {node.title}
+```vue
+<!-- src/components/{PascalTitle}.vue -->
+<!-- [component:{node-id}] {node.title} -->
+<script setup lang="ts">
+// Props inferred from description and incoming edges
+</script>
 
-interface {ComponentName}Props {
-  // Inferred from description and incoming edges
-}
-
-export function ComponentName({ ...props }: {ComponentName}Props) {
-  return (
-    // Implementation from description
-  );
-}
+<template>
+  <!-- Implementation from description -->
+</template>
 ```
 
 ### 4. Entities → Types
@@ -110,44 +129,54 @@ For each `entity` node:
 // [entity:{node-id}] {node.title}
 export interface EntityName {
   id: string;
-  // Fields inferred from description
+  // Fields from node.props.attributes if present, else inferred from description
   // Relationships from edges become references
 }
 ```
 
-### 5. APIs → Client Functions
+### 5. APIs → Cloudflare Workers Route + Client Wrapper
 
-For each `api` node:
+For each `api` node, generate both the server route and a typed client wrapper. Prefer `node.props.method`/`node.props.route` over guessing from title/description.
+
+```typescript
+// src/pages/api/{route}.ts
+// [api:{node-id}] {node.title}
+import type { APIRoute } from 'astro';
+
+export const {method}: APIRoute = async ({ request, locals }) => {
+  // locals.runtime.env exposes Cloudflare bindings (D1, KV, etc.)
+  return new Response(JSON.stringify({ /* ... */ }));
+};
+```
 
 ```typescript
 // src/lib/api.ts
 // [api:{node-id}] {node.title}
 export async function apiName(params: ApiParams): Promise<ApiResponse> {
-  const response = await fetch('/api/endpoint', {
-    method: 'POST', // inferred from title/description
+  const response = await fetch(/* node.props.route ?? */ '/api/endpoint', {
+    method: /* node.props.method ?? */ 'POST',
     body: JSON.stringify(params),
   });
   return response.json();
 }
 ```
 
-### 6. State → Stores
+### 6. State → Vue Reactive Store
 
 For each `state` node:
 
 ```typescript
 // src/lib/store.ts
 // [state:{node-id}] {node.title}
-import { create } from 'zustand';
+import { reactive } from 'vue';
 
-interface StateNameStore {
+export const stateName = reactive({
   // Fields from description
-  // Actions inferred
-}
+});
 
-export const useStateName = create<StateNameStore>((set) => ({
-  // Initial state and actions
-}));
+export function mutateStateName(/* ... */) {
+  // Actions inferred from description/edges
+}
 ```
 
 ---
@@ -176,21 +205,22 @@ Unless `constraint` or `design` nodes specify otherwise:
 
 | Concern | Default |
 |---------|---------|
-| Framework | React 18 + TypeScript |
-| Build | Vite |
-| Styling | Tailwind CSS |
-| Routing | React Router v6 |
-| State | Zustand |
-| API | fetch with typed wrappers |
+| Framework | Astro 6 + Vue 3 islands |
+| Build | Astro's Vite-based build |
+| Styling | Tailwind CSS v4 |
+| Routing | Astro file-based routing (`src/pages/`) |
+| State | Vue `reactive()` singleton store |
+| API | Cloudflare Workers routes (`src/pages/api/*.ts`) + typed fetch wrappers |
+| Deployment | Cloudflare Workers |
 
 ### Override via Constraints
 
 If graph contains:
 ```json
-{ "kind": "constraint", "title": "Vue.js", "description": "Must use Vue 3..." }
+{ "kind": "constraint", "title": "React", "description": "Must use React 18..." }
 ```
 
-Then generate Vue components instead.
+Then generate React components instead of Vue/Astro.
 
 ---
 
@@ -198,16 +228,15 @@ Then generate Vue components instead.
 
 ### `contains` → Render child
 
-```typescript
+```astro
+---
 // screen "Dashboard" contains component "Sidebar"
-function Dashboard() {
-  return (
-    <div>
-      <Sidebar />  {/* from contains edge */}
-      ...
-    </div>
-  );
-}
+import Sidebar from '../components/Sidebar.vue';
+---
+<div>
+  <Sidebar client:load />  <!-- from contains edge -->
+  ...
+</div>
 ```
 
 ### `uses` → Import
@@ -215,8 +244,11 @@ function Dashboard() {
 ```typescript
 // component "UserCard" uses entity "User"
 import type { User } from '../lib/types';
-
-function UserCard({ user }: { user: User }) { ... }
+```
+```vue
+<script setup lang="ts">
+defineProps<{ user: User }>();
+</script>
 ```
 
 ### `implements` → Satisfies requirement
@@ -225,11 +257,15 @@ Track which `requirement` nodes are implemented. Warn if any are missing.
 
 ### `triggers` → Event handler
 
-```typescript
-// component "SubmitButton" triggers event "form-submitted"
-function SubmitButton({ onSubmit }: { onSubmit: () => void }) {
-  return <button onClick={onSubmit}>Submit</button>;
-}
+```vue
+<!-- component "SubmitButton" triggers event "form-submitted" -->
+<script setup lang="ts">
+const emit = defineEmits<{ submit: [] }>();
+</script>
+
+<template>
+  <button @click="emit('submit')">Submit</button>
+</template>
 ```
 
 ---
@@ -321,66 +357,55 @@ export interface Metric {
 }
 ```
 
-**src/components/MetricCard.tsx**
-```typescript
-// [component:component-metric-card] MetricCard
-// Displays a single metric with label, value, and trend indicator
-
+**src/components/MetricCard.vue**
+```vue
+<!-- [component:component-metric-card] MetricCard -->
+<!-- Displays a single metric with label, value, and trend indicator -->
+<script setup lang="ts">
 import type { Metric } from '../lib/types';
 
-interface MetricCardProps {
-  metric: Metric;
-}
+const { metric } = defineProps<{ metric: Metric }>();
+const trend = metric.currentValue >= metric.previousValue ? 'up' : 'down';
+const change = Math.abs(metric.currentValue - metric.previousValue);
+</script>
 
-export function MetricCard({ metric }: MetricCardProps) {
-  const trend = metric.currentValue >= metric.previousValue ? 'up' : 'down';
-  const change = Math.abs(metric.currentValue - metric.previousValue);
-  
-  return (
-    <div className="rounded-lg border p-4">
-      <span className="text-sm text-gray-500">{metric.name}</span>
-      <div className="mt-1 flex items-baseline gap-2">
-        <span className="text-2xl font-semibold">
-          {metric.currentValue}{metric.unit}
-        </span>
-        <span className={trend === 'up' ? 'text-green-600' : 'text-red-600'}>
-          {trend === 'up' ? '↑' : '↓'} {change}{metric.unit}
-        </span>
-      </div>
+<template>
+  <div class="rounded-lg border p-4">
+    <span class="text-sm text-gray-500">{{ metric.name }}</span>
+    <div class="mt-1 flex items-baseline gap-2">
+      <span class="text-2xl font-semibold">{{ metric.currentValue }}{{ metric.unit }}</span>
+      <span :class="trend === 'up' ? 'text-green-600' : 'text-red-600'">
+        {{ trend === 'up' ? '↑' : '↓' }} {{ change }}{{ metric.unit }}
+      </span>
     </div>
-  );
-}
+  </div>
+</template>
 ```
 
-**src/routes/dashboard.tsx**
-```typescript
+**src/pages/dashboard.astro**
+```astro
+---
 // [screen:screen-dashboard] Dashboard
 // Main view with metrics grid and sidebar navigation
-
-import { MetricCard } from '../components/MetricCard';
-
-export function Dashboard() {
-  // TODO: fetch metrics from API
-  const metrics = [];
-  
-  return (
-    <div className="flex h-screen">
-      {/* Sidebar navigation */}
-      <aside className="w-64 border-r">
-        {/* TODO: navigation links */}
-      </aside>
-      
-      {/* Metrics grid */}
-      <main className="flex-1 p-6">
-        <div className="grid grid-cols-3 gap-4">
-          {metrics.map(metric => (
-            <MetricCard key={metric.id} metric={metric} />
-          ))}
-        </div>
-      </main>
-    </div>
-  );
-}
+import Layout from '../layouts/Layout.astro';
+import MetricCard from '../components/MetricCard.vue';
+// TODO: fetch metrics from API
+const metrics = [];
+---
+<Layout>
+  <div class="flex h-screen">
+    <aside class="w-64 border-r">
+      <!-- TODO: navigation links -->
+    </aside>
+    <main class="flex-1 p-6">
+      <div class="grid grid-cols-3 gap-4">
+        {metrics.map((metric) => (
+          <MetricCard client:load metric={metric} />
+        ))}
+      </div>
+    </main>
+  </div>
+</Layout>
 ```
 
 ---
