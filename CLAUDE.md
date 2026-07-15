@@ -15,7 +15,7 @@ All commands run from `web/`:
 ```bash
 cd web
 npm install
-npm run dev        # dev server → http://localhost:4321
+npm run dev        # dev server → http://localhost:4433
 npm run build      # static build → web/dist/
 npm run preview    # serve the build
 npm run check       # astro check (type-check .astro/.vue/.ts)
@@ -44,7 +44,8 @@ Don't collapse these — a part spans multiple spaces (e.g. Implementation = `so
 - **Display:** both structured per-part panels *and* the force graph — not one or the other.
 - **Single island** was chosen over Astro multi-page routing specifically so the editor and graph share live state. Adding real Astro pages would fragment the store.
 - **Graph rendering:** SVG (not canvas), d3-force for layout only, manual interaction. This was intentional for stylability and hit-testing.
-- **Schema extensions:** `goal`, `hypothesis`, and `term` kinds were added beyond the stock Bropilot schema to satisfy the three-part brief. The eight stock edge types are unchanged.
+- **Schema extensions:** `goal`, `hypothesis`, and `term` kinds were added beyond the stock Bropilot schema to satisfy the three-part brief.
+- **Edge ontology:** 17 edge types in 5 categories (structural / dependency / behavioural / intentional / verification), deliberated by an agent team from ArchiMate/C4, RDF-OWL, and SysML/KAOS traditions. The original 8 stock types keep their names and stay valid (round-trip with `/bropilot-extract` & `/bropilot-generate`); the 9 richer types (`exposes`, `describes`, `emits`, `motivates`, `serves`, `satisfies`, `constrains`, `verifies`, `monitors`) are advisory upgrades. Kind→type suggestions are ordering hints only — **nothing is ever validated or blocked**. `references` is the explicit last resort. Boundary rules: `satisfies` targets problem-space statements, `implements` targets solution-space specs; `has` = conceptual possession, `contains` = code-artifact nesting; `emits` = event-out, `triggers` = event-in.
 
 ## Verifying UI changes
 

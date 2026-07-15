@@ -44,8 +44,8 @@ function select(id: string | null) {
 
     <!-- top-left: title -->
     <div class="pointer-events-none absolute left-5 top-5">
-      <h1 class="text-2xl font-bold tracking-tight">Knowledge graph</h1>
-      <p class="mt-0.5 text-xs text-ink-400">
+      <h1 class="display text-3xl">Knowledge graph</h1>
+      <p class="mt-1 font-mono text-[0.66rem] uppercase tracking-[0.12em] text-ink-400">
         {{ visibleNodes.length }} nodes · {{ visibleEdges.length }} edges · drag to move · scroll to zoom
       </p>
     </div>
@@ -53,22 +53,22 @@ function select(id: string | null) {
     <!-- top-right: controls -->
     <div class="absolute right-5 top-5 flex gap-2">
       <button class="btn glass" @click="graphRef?.fit()" title="Fit to view">⤢ Fit</button>
-      <button class="btn glass" @click="graphRef?.reheat()" title="Re-run layout">↻ Relayout</button>
+      <button class="btn glass" @click="graphRef?.relayout()" title="Forget saved positions and re-run layout">↻ Relayout</button>
     </div>
 
     <!-- bottom-left: legend / filters -->
-    <div class="absolute bottom-5 left-5 flex flex-wrap gap-1.5 rounded-xl glass px-2.5 py-2">
+    <div class="absolute bottom-5 left-5 flex flex-wrap gap-1.5 border hairline bg-ink-900 px-2.5 py-2">
       <button
         v-for="sp in Object.values(SPACES)"
         :key="sp.id"
-        class="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium transition"
+        class="flex items-center gap-1.5 px-2 py-1 font-mono text-[0.64rem] font-semibold uppercase tracking-[0.12em] transition"
         :style="{
           color: active[sp.id] ? sp.hue : 'var(--color-ink-400)',
           background: active[sp.id] ? sp.glow : 'transparent',
         }"
         @click="toggle(sp.id)"
       >
-        <span class="h-2.5 w-2.5 rounded-full" :style="{ background: active[sp.id] ? sp.hue : 'var(--color-ink-600)' }" />
+        <span class="h-2 w-2" :style="{ background: active[sp.id] ? sp.hue : 'var(--color-ink-600)' }" />
         {{ sp.label }}
       </button>
     </div>

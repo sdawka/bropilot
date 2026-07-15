@@ -208,24 +208,100 @@ export function kindsForPart(part: Part): KindDef[] {
 }
 
 // ── Edge types ──────────────────────────────────────────────────────────────
+// A 17-type ontology in five categories, deliberated from three modelling
+// traditions (ArchiMate/C4, RDF/OWL pragmatics, SysML/KAOS goal modelling).
+// The 8 stock Bropilot types keep their names and stay valid everywhere —
+// richer types are advisory upgrades, never migrations. Kind hints are
+// ordering suggestions only; nothing is ever blocked.
+
+export type EdgeCategory = 'structural' | 'dependency' | 'behavioural' | 'intentional' | 'verification';
+
+export const EDGE_CATEGORIES: { id: EdgeCategory; label: string; description: string }[] = [
+  { id: 'structural', label: 'Structural', description: 'What things are made of and how they realise or expose specs.' },
+  { id: 'dependency', label: 'Dependency & reference', description: 'What things rely on or point to.' },
+  { id: 'behavioural', label: 'Behavioural', description: 'What happens at runtime: causal succession and event production.' },
+  { id: 'intentional', label: 'Intentional', description: 'Why things exist: motivation, value delivered, needs met, limits imposed.' },
+  { id: 'verification', label: 'Verification', description: 'How we know it works: test evidence and live monitoring.' },
+];
+
 export interface EdgeTypeDef {
   type: string;
   label: string;
   hint: string;
+  category: EdgeCategory;
+  /** part of the original Bropilot 8 — round-trips with /bropilot-extract & /bropilot-generate */
+  stock?: boolean;
 }
 
 export const EDGE_TYPES: EdgeTypeDef[] = [
-  { type: 'has', label: 'has', hint: 'Parent contains child' },
-  { type: 'uses', label: 'uses', hint: 'Runtime dependency' },
-  { type: 'triggers', label: 'triggers', hint: 'Causes an action' },
-  { type: 'implements', label: 'implements', hint: 'Realises a spec' },
-  { type: 'depends_on', label: 'depends on', hint: 'Build / logical dependency' },
-  { type: 'extends', label: 'extends', hint: 'Specialises / inherits' },
-  { type: 'contains', label: 'contains', hint: 'Structural containment' },
-  { type: 'references', label: 'references', hint: 'Points to without ownership' },
+  // structural
+  { type: 'contains', label: 'contains', category: 'structural', stock: true, hint: 'Structural nesting of implementation artifacts — the child is a building block whose lifecycle the parent owns.' },
+  { type: 'has', label: 'has', category: 'structural', stock: true, hint: 'Conceptual possession in the problem/domain space — the target is an attribute or aspect, not a building block. For code artifacts use contains.' },
+  { type: 'extends', label: 'extends', category: 'structural', stock: true, hint: 'Specialisation or inheritance — the source is a more specific kind of the target.' },
+  { type: 'implements', label: 'implements', category: 'structural', stock: true, hint: 'Realises a solution-space spec (interface, behaviour, capability, screen, flow, design). For problem-space statements use satisfies.' },
+  { type: 'exposes', label: 'exposes', category: 'structural', hint: 'Makes the target reachable at its boundary for others to consume. Distinct from implements, which fulfils the contract itself.' },
+  // dependency & reference
+  { type: 'uses', label: 'uses', category: 'dependency', stock: true, hint: 'Runtime dependency — the source calls or consumes the target while the system runs. For build-time coupling use depends_on.' },
+  { type: 'depends_on', label: 'depends on', category: 'dependency', stock: true, hint: 'Build-time or logical prerequisite — the source relies on the target existing or holding true, without calling it at runtime.' },
+  { type: 'describes', label: 'describes', category: 'dependency', hint: 'Defines or documents the target — terms and design decisions annotating what they explain, without owning it.' },
+  { type: 'references', label: 'references', category: 'dependency', stock: true, hint: 'Weak link of last resort — mentions the target with no structural, causal, or intentional commitment. Prefer a richer type when one fits.' },
+  // behavioural
+  { type: 'triggers', label: 'triggers', category: 'behavioural', stock: true, hint: 'Causal succession — the source causes the target to start or occur. For producing an event, use emits.' },
+  { type: 'emits', label: 'emits', category: 'behavioural', hint: 'Event production — the source produces the target event as an output signal. The mirror of triggers: emits is event-out, triggers is event-in.' },
+  // intentional
+  { type: 'motivates', label: 'motivates', category: 'intentional', hint: 'Is the reason the target exists — points down the why-chain (purpose motivates goal, persona motivates usecase). The canonical intent direction.' },
+  { type: 'serves', label: 'serves', category: 'intentional', hint: 'Delivers value to a beneficiary — who or what this exists for (capability serves persona). For intent-to-intent links use motivates.' },
+  { type: 'satisfies', label: 'satisfies', category: 'intentional', hint: 'Meets a problem-space statement — requirement, constraint, or use case. For solution-space specs use implements.' },
+  { type: 'constrains', label: 'constrains', category: 'intentional', hint: 'Imposes a limit or invariant the target must respect — the home for constraint-to-module and requirement-to-design edges.' },
+  // verification
+  { type: 'verifies', label: 'verifies', category: 'verification', hint: 'Provides pass/fail proof that the target holds or works — the primary outgoing edge for test suites, including hypothesis validation.' },
+  { type: 'monitors', label: 'monitors', category: 'verification', hint: 'Watches the target at runtime — metrics, logs, alerts; point it at a goal to track that goal’s success metric.' },
 ];
 
 export const EDGE_TYPE_SET = new Set(EDGE_TYPES.map((e) => e.type));
+
+export const EDGE_TYPE_LABELS: Record<string, string> = Object.fromEntries(
+  EDGE_TYPES.map((e) => [e.type, e.label]),
+);
+
+export function edgeTypesByCategory(): { category: (typeof EDGE_CATEGORIES)[number]; types: EdgeTypeDef[] }[] {
+  return EDGE_CATEGORIES.map((c) => ({ category: c, types: EDGE_TYPES.filter((t) => t.category === c.id) }));
+}
+
+/**
+ * Likely edge types per source kind — pure ordering hints for the editor.
+ * Nothing is validated or blocked; kinds not listed fall back to all types.
+ */
+export const SUGGESTED_EDGE_TYPES: Partial<Record<string, string[]>> = {
+  name: ['references', 'describes'],
+  purpose: ['motivates', 'references'],
+  capability: ['satisfies', 'serves', 'uses', 'depends_on'],
+  persona: ['motivates', 'has', 'triggers'],
+  requirement: ['constrains', 'depends_on', 'references'],
+  usecase: ['triggers', 'motivates', 'uses'],
+  constraint: ['constrains', 'references'],
+  goal: ['motivates', 'depends_on', 'references'],
+  hypothesis: ['motivates', 'depends_on', 'references'],
+  assumption: ['constrains', 'references'],
+  term: ['describes', 'extends', 'references'],
+  entity: ['has', 'extends', 'references'],
+  relationship: ['references', 'describes'],
+  behaviour: ['emits', 'triggers', 'uses'],
+  event: ['triggers', 'references'],
+  state: ['has', 'triggers', 'references'],
+  flow: ['contains', 'triggers', 'satisfies', 'uses'],
+  screen: ['uses', 'triggers', 'serves'],
+  module: ['contains', 'exposes', 'implements', 'depends_on'],
+  component: ['implements', 'uses', 'emits', 'contains'],
+  interface: ['extends', 'references'],
+  api: ['implements', 'uses', 'emits'],
+  logic: ['implements', 'uses', 'depends_on'],
+  repository: ['contains', 'references'],
+  external: ['references', 'triggers'],
+  tests: ['verifies', 'references'],
+  observability: ['monitors', 'references'],
+  design: ['describes', 'constrains', 'references'],
+};
 
 // ── Node / edge / graph types ───────────────────────────────────────────────
 export interface SourceRef {

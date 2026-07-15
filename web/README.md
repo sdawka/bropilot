@@ -22,7 +22,7 @@ A fancy form **and** display for a system's knowledge graph, built with **Astro 
 ```bash
 cd web
 npm install
-npm run dev      # http://localhost:4321
+npm run dev      # http://localhost:4433
 npm run build    # static output in dist/
 npm run preview
 ```

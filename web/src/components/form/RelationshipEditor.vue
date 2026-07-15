@@ -1,14 +1,34 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { EDGE_TYPES, KIND_MAP, nodeHue, type GraphNode } from '../../lib/schema';
-import { state, edgesOf, addEdge, removeEdge, getNode } from '../../lib/store';
+import { ref, computed, watch } from 'vue';
+import { EDGE_TYPES, SUGGESTED_EDGE_TYPES, edgeTypesByCategory, KIND_MAP, nodeHue, type GraphNode } from '../../lib/schema';
+import { state, edgesOf, addEdge, removeEdge, updateEdge, getNode } from '../../lib/store';
 
 const props = defineProps<{ node: GraphNode }>();
 
-const newType = ref('uses');
-const newTarget = ref('');
+// ── suggested-first type ordering (hints only — everything stays allowed) ──
+const suggested = computed(() => SUGGESTED_EDGE_TYPES[props.node.kind] ?? []);
+const suggestedDefs = computed(() =>
+  suggested.value.map((s) => EDGE_TYPES.find((t) => t.type === s)!).filter(Boolean),
+);
+const grouped = edgeTypesByCategory();
+
+const newType = ref(suggested.value[0] ?? 'uses');
+watch(
+  () => props.node.kind,
+  () => {
+    newType.value = suggested.value[0] ?? 'uses';
+  },
+);
 
 const links = computed(() => edgesOf(props.node.id));
+
+// ── inline label editing ──
+const editingId = ref<string | null>(null);
+
+// ── target combobox ──
+const query = ref('');
+const hi = ref(0);
+const focused = ref(false);
 
 const targets = computed(() =>
   state.graph.nodes
@@ -16,6 +36,39 @@ const targets = computed(() =>
     .slice()
     .sort((a, b) => a.title.localeCompare(b.title)),
 );
+
+const results = computed(() => {
+  const q = query.value.trim().toLowerCase();
+  if (!q) return targets.value.slice(0, 20);
+  return targets.value.filter((n) => n.title.toLowerCase().includes(q)).slice(0, 20);
+});
+
+function pick(id: string) {
+  addEdge(props.node.id, id, newType.value);
+  query.value = '';
+  hi.value = 0;
+}
+
+function onKey(ev: KeyboardEvent) {
+  if (ev.key === 'ArrowDown') {
+    ev.preventDefault();
+    hi.value = Math.min(hi.value + 1, results.value.length - 1);
+  } else if (ev.key === 'ArrowUp') {
+    ev.preventDefault();
+    hi.value = Math.max(hi.value - 1, 0);
+  } else if (ev.key === 'Enter') {
+    ev.preventDefault();
+    const target = results.value[hi.value];
+    if (target) pick(target.id);
+  } else if (ev.key === 'Escape') {
+    query.value = '';
+    (ev.target as HTMLElement).blur();
+  }
+}
+
+watch(results, () => {
+  if (hi.value >= results.value.length) hi.value = Math.max(0, results.value.length - 1);
+});
 
 function label(id: string) {
   const n = getNode(id);
@@ -29,15 +82,6 @@ function icon(id: string) {
   const n = getNode(id);
   return n ? KIND_MAP[n.kind]?.icon : '•';
 }
-
-function add() {
-  if (!newTarget.value) return;
-  addEdge(props.node.id, newTarget.value, newType.value);
-  newTarget.value = '';
-}
-function typeLabel(t: string) {
-  return EDGE_TYPES.find((e) => e.type === t)?.label ?? t;
-}
 </script>
 
 <template>
@@ -47,22 +91,72 @@ function typeLabel(t: string) {
       <li
         v-for="e in links.outgoing"
         :key="e.id"
-        class="group flex items-center gap-2 rounded-lg bg-white/[0.03] px-2.5 py-1.5 text-xs"
+        class="border hairline bg-ink-950"
+        :style="{ borderLeftWidth: '3px', borderLeftColor: dot(e.dstId) }"
       >
-        <span class="shrink-0 rounded bg-white/5 px-1.5 py-0.5 font-mono text-[0.66rem] text-accent">{{ typeLabel(e.type) }} →</span>
-        <span class="h-1.5 w-1.5 shrink-0 rounded-full" :style="{ background: dot(e.dstId) }" />
-        <span class="truncate text-ink-200">{{ icon(e.dstId) }} {{ label(e.dstId) }}</span>
-        <button class="btn-ghost btn ml-auto shrink-0 !px-1.5 !py-0.5 opacity-0 group-hover:opacity-100" @click="removeEdge(e.id)" title="Remove">✕</button>
+        <div class="group flex items-center gap-2 px-2.5 py-1.5 text-xs">
+          <select
+            :value="e.type"
+            class="shrink-0 cursor-pointer appearance-none border-0 bg-white/5 px-1.5 py-0.5 font-mono text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-accent outline-none"
+            title="Change relationship type"
+            @change="updateEdge(e.id, { type: ($event.target as HTMLSelectElement).value })"
+          >
+            <optgroup v-for="g in grouped" :key="g.category.id" :label="g.category.label">
+              <option v-for="t in g.types" :key="t.type" :value="t.type" :title="t.hint">{{ t.label }} →</option>
+            </optgroup>
+          </select>
+          <span class="truncate text-ink-200">{{ icon(e.dstId) }} {{ label(e.dstId) }}</span>
+          <span v-if="e.label && editingId !== e.id" class="truncate text-[0.66rem] italic text-ink-400">“{{ e.label }}”</span>
+          <span class="ml-auto flex shrink-0 opacity-0 group-hover:opacity-100">
+            <button class="btn-ghost btn !px-1.5 !py-0.5" title="Edit label" @click="editingId = editingId === e.id ? null : e.id">✎</button>
+            <button class="btn-ghost btn !px-1.5 !py-0.5" title="Remove" @click="removeEdge(e.id)">✕</button>
+          </span>
+        </div>
+        <div v-if="editingId === e.id" class="px-2.5 pb-2">
+          <input
+            :value="e.label ?? ''"
+            class="field !py-1 text-xs"
+            placeholder="Optional label…"
+            @input="updateEdge(e.id, { label: ($event.target as HTMLInputElement).value || undefined })"
+            @keydown.enter="editingId = null"
+            @keydown.escape="editingId = null"
+          />
+        </div>
       </li>
       <li
         v-for="e in links.incoming"
         :key="e.id"
-        class="group flex items-center gap-2 rounded-lg bg-white/[0.03] px-2.5 py-1.5 text-xs"
+        class="border hairline bg-ink-950"
+        :style="{ borderLeftWidth: '3px', borderLeftColor: dot(e.srcId) }"
       >
-        <span class="h-1.5 w-1.5 shrink-0 rounded-full" :style="{ background: dot(e.srcId) }" />
-        <span class="truncate text-ink-200">{{ icon(e.srcId) }} {{ label(e.srcId) }}</span>
-        <span class="shrink-0 rounded bg-white/5 px-1.5 py-0.5 font-mono text-[0.66rem] text-ink-300">→ {{ typeLabel(e.type) }}</span>
-        <button class="btn-ghost btn ml-auto shrink-0 !px-1.5 !py-0.5 opacity-0 group-hover:opacity-100" @click="removeEdge(e.id)" title="Remove">✕</button>
+        <div class="group flex items-center gap-2 px-2.5 py-1.5 text-xs">
+          <span class="truncate text-ink-200">{{ icon(e.srcId) }} {{ label(e.srcId) }}</span>
+          <select
+            :value="e.type"
+            class="shrink-0 cursor-pointer appearance-none border-0 bg-white/5 px-1.5 py-0.5 font-mono text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-ink-300 outline-none"
+            title="Change relationship type"
+            @change="updateEdge(e.id, { type: ($event.target as HTMLSelectElement).value })"
+          >
+            <optgroup v-for="g in grouped" :key="g.category.id" :label="g.category.label">
+              <option v-for="t in g.types" :key="t.type" :value="t.type" :title="t.hint">→ {{ t.label }}</option>
+            </optgroup>
+          </select>
+          <span v-if="e.label && editingId !== e.id" class="truncate text-[0.66rem] italic text-ink-400">“{{ e.label }}”</span>
+          <span class="ml-auto flex shrink-0 opacity-0 group-hover:opacity-100">
+            <button class="btn-ghost btn !px-1.5 !py-0.5" title="Edit label" @click="editingId = editingId === e.id ? null : e.id">✎</button>
+            <button class="btn-ghost btn !px-1.5 !py-0.5" title="Remove" @click="removeEdge(e.id)">✕</button>
+          </span>
+        </div>
+        <div v-if="editingId === e.id" class="px-2.5 pb-2">
+          <input
+            :value="e.label ?? ''"
+            class="field !py-1 text-xs"
+            placeholder="Optional label…"
+            @input="updateEdge(e.id, { label: ($event.target as HTMLInputElement).value || undefined })"
+            @keydown.enter="editingId = null"
+            @keydown.escape="editingId = null"
+          />
+        </div>
       </li>
     </ul>
     <p v-else class="text-xs text-ink-400">No relationships yet.</p>
@@ -72,13 +166,42 @@ function typeLabel(t: string) {
       <div class="mb-2 text-[0.68rem] font-semibold uppercase tracking-wide text-ink-400">Add relationship</div>
       <div class="flex flex-col gap-2">
         <select v-model="newType" class="field !py-1.5 text-xs" :title="EDGE_TYPES.find((e) => e.type === newType)?.hint">
-          <option v-for="t in EDGE_TYPES" :key="t.type" :value="t.type">this {{ t.label }} …</option>
+          <optgroup v-if="suggestedDefs.length" label="Suggested">
+            <option v-for="t in suggestedDefs" :key="t.type" :value="t.type">this {{ t.label }} …</option>
+          </optgroup>
+          <optgroup v-for="g in grouped" :key="g.category.id" :label="g.category.label">
+            <option v-for="t in g.types" :key="t.type" :value="t.type" :title="t.hint">this {{ t.label }} …</option>
+          </optgroup>
         </select>
-        <select v-model="newTarget" class="field !py-1.5 text-xs">
-          <option value="">Choose a target node…</option>
-          <option v-for="t in targets" :key="t.id" :value="t.id">{{ KIND_MAP[t.kind]?.icon }} {{ t.title }}</option>
-        </select>
-        <button class="btn btn-primary justify-center" :disabled="!newTarget" @click="add">Link</button>
+
+        <!-- searchable target picker — results stay in-flow (Inspector scrolls) -->
+        <input
+          v-model="query"
+          class="field !py-1.5 text-xs"
+          placeholder="Search for a target node…"
+          @focus="focused = true"
+          @blur="focused = false"
+          @keydown="onKey"
+        />
+        <ul
+          v-if="(focused || query) && results.length"
+          class="max-h-44 space-y-0.5 overflow-y-auto rounded-lg border border-white/8 bg-white/[0.02] p-1"
+        >
+          <li v-for="(n, i) in results" :key="n.id">
+            <button
+              class="flex w-full items-center gap-2 rounded px-2 py-1 text-left text-xs transition"
+              :class="i === hi ? 'bg-white/[0.08] text-ink-100' : 'text-ink-300 hover:bg-white/[0.05]'"
+              @pointerdown.prevent
+              @click="pick(n.id)"
+              @pointerenter="hi = i"
+            >
+              <span class="h-1.5 w-1.5 shrink-0 rounded-full" :style="{ background: nodeHue(n) }" />
+              <span class="truncate">{{ KIND_MAP[n.kind]?.icon }} {{ n.title }}</span>
+              <span class="ml-auto shrink-0 text-[0.64rem] text-ink-400">{{ KIND_MAP[n.kind]?.label }}</span>
+            </button>
+          </li>
+        </ul>
+        <p v-else-if="query && !results.length" class="px-1 text-[0.68rem] text-ink-400">No matching nodes.</p>
       </div>
     </div>
   </div>

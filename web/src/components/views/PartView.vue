@@ -26,27 +26,20 @@ function select(id: string) {
 <template>
   <div class="mx-auto max-w-5xl px-8 py-8">
     <!-- part hero -->
-    <header class="mb-8 animate-fade-up">
-      <div class="flex items-center gap-2 text-sm font-medium text-accent">
-        <span class="text-lg">{{ partDef.icon }}</span>
-        <span>{{ partDef.tagline }}</span>
-      </div>
-      <h1 class="mt-1 text-3xl font-bold tracking-tight">{{ partDef.label }}</h1>
-      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-ink-300 text-balance">{{ partDef.description }}</p>
+    <header class="mb-10 animate-fade-up border-b hairline pb-8">
+      <div class="kicker text-accent">{{ partDef.icon }} {{ partDef.tagline }}</div>
+      <h1 class="display mt-3 text-5xl text-balance">{{ partDef.label }}</h1>
+      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-ink-300 text-balance">{{ partDef.description }}</p>
     </header>
 
     <!-- sections per kind -->
-    <div class="space-y-9">
-      <section v-for="k in kinds" :key="k.kind" class="animate-fade-up">
-        <div class="mb-3 flex items-center gap-3">
-          <h2 class="flex items-center gap-2 text-sm font-semibold text-ink-100">
-            <span>{{ k.icon }}</span>
+    <div class="space-y-10">
+      <section v-for="(k, ki) in kinds" :key="k.kind" class="animate-fade-up">
+        <div class="mb-3 flex items-baseline gap-3 border-t hairline pt-3">
+          <span class="kicker text-ink-400">{{ String(ki + 1).padStart(2, '0') }}</span>
+          <h2 class="flex items-baseline gap-2 text-base font-semibold text-ink-100">
             <span>{{ k.plural }}</span>
-            <span
-              class="rounded-full px-1.5 py-0.5 text-[0.62rem] font-semibold"
-              :style="{ color: SPACES[k.space].hue, background: SPACES[k.space].glow }"
-              >{{ nodes(k.kind).length }}</span
-            >
+            <span class="kicker" :style="{ color: SPACES[k.space].hue }">{{ nodes(k.kind).length }}</span>
           </h2>
           <span class="hidden text-xs text-ink-400 sm:inline">{{ k.blurb }}</span>
           <button

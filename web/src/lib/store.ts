@@ -1,4 +1,4 @@
-import { reactive, computed, watch } from 'vue';
+import { reactive, ref, computed, watch } from 'vue';
 import { nanoid } from 'nanoid';
 import {
   type Graph,
@@ -12,18 +12,33 @@ import {
 import { SAMPLE_GRAPH } from './sample';
 
 const STORAGE_KEY = 'bropilot:graph:v1';
+const SEED_KEY = 'bropilot:seed:v1'; // exact JSON we last seeded — detects untouched demo data
 
 function emptyGraph(): Graph {
   return { nodes: [], edges: [] };
+}
+
+function seedSample(): Graph {
+  try {
+    localStorage.setItem(SEED_KEY, JSON.stringify(SAMPLE_GRAPH));
+  } catch {
+    /* ignore */
+  }
+  return structuredClone(SAMPLE_GRAPH);
 }
 
 function load(): Graph {
   if (typeof localStorage === 'undefined') return emptyGraph();
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return structuredClone(SAMPLE_GRAPH); // first run → seed with demo
+    if (!raw) return seedSample(); // first run → seed with demo
     const parsed = JSON.parse(raw);
-    if (parsed && Array.isArray(parsed.nodes) && Array.isArray(parsed.edges)) return parsed;
+    if (parsed && Array.isArray(parsed.nodes) && Array.isArray(parsed.edges)) {
+      // stored graph is demo data the user never edited → follow sample upgrades
+      const seeded = localStorage.getItem(SEED_KEY);
+      if (seeded && raw === seeded && raw !== JSON.stringify(SAMPLE_GRAPH)) return seedSample();
+      return parsed;
+    }
   } catch {
     /* fall through to empty */
   }
@@ -42,19 +57,88 @@ export const state = reactive<StoreState>({
   loaded: false,
 });
 
+/** Bumped after every successful autosave — drives the "Saved" indicator. */
+export const savedAt = ref(0);
+
+// ── Undo/redo — snapshot history driven by the autosave watch ───────────────
+// `baseline` is the serialized graph at the last recorded history point. The
+// deep watch schedules a debounced record(); undo/redo set `baseline` to the
+// snapshot they apply, so the watch-triggered record() compares equal and
+// no-ops — no isApplying flag needed.
+const HISTORY_LIMIT = 50;
+const HISTORY_DEBOUNCE_MS = 400;
+
+const history = reactive<{ past: string[]; future: string[] }>({ past: [], future: [] });
+let baseline = '';
+let pendingRecord: ReturnType<typeof setTimeout> | null = null;
+
+function record() {
+  const current = JSON.stringify(state.graph);
+  if (current === baseline) return;
+  history.past.push(baseline);
+  if (history.past.length > HISTORY_LIMIT) history.past.shift();
+  history.future = [];
+  baseline = current;
+}
+
+function scheduleRecord() {
+  if (pendingRecord) clearTimeout(pendingRecord);
+  pendingRecord = setTimeout(() => {
+    pendingRecord = null;
+    record();
+  }, HISTORY_DEBOUNCE_MS);
+}
+
+/** Flush any pending debounced record so the next mutation is a discrete undo step. */
+function checkpoint() {
+  if (!state.loaded) return;
+  if (pendingRecord) {
+    clearTimeout(pendingRecord);
+    pendingRecord = null;
+  }
+  record();
+}
+
+export const canUndo = computed(() => history.past.length > 0);
+export const canRedo = computed(() => history.future.length > 0);
+
+function applySnapshot(snapshot: string) {
+  baseline = snapshot; // set before the watch fires — echo guard
+  state.graph = JSON.parse(snapshot);
+  if (state.selectedId && !state.graph.nodes.some((n) => n.id === state.selectedId)) {
+    state.selectedId = null;
+  }
+}
+
+export function undo() {
+  checkpoint(); // mid-typing Cmd+Z reverts the typed chunk
+  if (!history.past.length) return;
+  history.future.push(baseline);
+  applySnapshot(history.past.pop()!);
+}
+
+export function redo() {
+  if (!history.future.length) return;
+  history.past.push(baseline);
+  applySnapshot(history.future.pop()!);
+}
+
 /** Call once, client-side, to hydrate from localStorage. */
 export function hydrate() {
   if (state.loaded) return;
   state.graph = load();
+  baseline = JSON.stringify(state.graph);
   state.loaded = true;
   watch(
     () => state.graph,
     (g) => {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(g));
+        savedAt.value = Date.now();
       } catch {
         /* quota / unavailable — ignore */
       }
+      scheduleRecord();
     },
     { deep: true },
   );
@@ -69,6 +153,7 @@ function makeNodeId(kind: string, title: string): string {
 
 // ── Node CRUD ───────────────────────────────────────────────────────────────
 export function addNode(kind: string, partial: Partial<GraphNode> = {}): GraphNode {
+  checkpoint();
   const def = KIND_MAP[kind];
   const title = partial.title?.trim() || `New ${def?.label ?? kind}`;
   const node: GraphNode = {
@@ -91,6 +176,7 @@ export function updateNode(id: string, patch: Partial<GraphNode>) {
 }
 
 export function removeNode(id: string) {
+  checkpoint();
   state.graph.nodes = state.graph.nodes.filter((n) => n.id !== id);
   state.graph.edges = state.graph.edges.filter((e) => e.srcId !== id && e.dstId !== id);
   if (state.selectedId === id) state.selectedId = null;
@@ -106,12 +192,20 @@ export function addEdge(srcId: string, dstId: string, type: string, label?: stri
   if (!srcId || !dstId || srcId === dstId) return null;
   const dup = state.graph.edges.find((e) => e.srcId === srcId && e.dstId === dstId && e.type === type);
   if (dup) return dup;
+  checkpoint();
   const edge: GraphEdge = { id: `e-${nanoid(8)}`, srcId, dstId, type, label };
   state.graph.edges.push(edge);
   return edge;
 }
 
+export function updateEdge(id: string, patch: Partial<Pick<GraphEdge, 'type' | 'label'>>) {
+  const edge = state.graph.edges.find((e) => e.id === id);
+  if (!edge) return;
+  Object.assign(edge, patch);
+}
+
 export function removeEdge(id: string) {
+  checkpoint();
   state.graph.edges = state.graph.edges.filter((e) => e.id !== id);
 }
 
@@ -151,6 +245,7 @@ export function importGraph(raw: string): { ok: boolean; error?: string } {
     if (!parsed || !Array.isArray(parsed.nodes) || !Array.isArray(parsed.edges)) {
       return { ok: false, error: 'Expected { nodes: [...], edges: [...] }' };
     }
+    checkpoint();
     state.graph = { nodes: parsed.nodes, edges: parsed.edges };
     state.selectedId = null;
     return { ok: true };
@@ -160,11 +255,13 @@ export function importGraph(raw: string): { ok: boolean; error?: string } {
 }
 
 export function resetToSample() {
-  state.graph = structuredClone(SAMPLE_GRAPH);
+  checkpoint();
+  state.graph = seedSample();
   state.selectedId = null;
 }
 
 export function clearGraph() {
+  checkpoint();
   state.graph = emptyGraph();
   state.selectedId = null;
 }
