@@ -13,7 +13,7 @@ import {
 import { KIND_MAP, SPACES, EDGE_TYPE_LABELS, nodeHue, nodeSpace, type GraphNode, type GraphEdge, type Space } from '../../lib/schema';
 import { getPos, setPositions, flushPositions, clearLayout } from '../../lib/layout';
 
-const props = defineProps<{ nodes: GraphNode[]; edges: GraphEdge[]; selectedId: string | null }>();
+const props = defineProps<{ nodes: GraphNode[]; edges: GraphEdge[]; selectedId: string | null; dash?: Record<string, string> }>();
 const emit = defineEmits<{ (e: 'select', id: string | null): void }>();
 
 interface SimNode {
@@ -431,6 +431,7 @@ watch(
             :y2="l.y2"
             :stroke="l.connectsSel || l.active ? '#78a9ff' : 'rgba(190,195,215,0.26)'"
             :stroke-width="l.connectsSel || l.active ? 2.2 : 1.2"
+            :stroke-dasharray="props.dash?.[l.id] || undefined"
             :marker-end="l.connectsSel || l.active ? 'url(#arrow-active)' : 'url(#arrow)'"
             :style="{ transition: 'stroke 0.2s' }"
           />
