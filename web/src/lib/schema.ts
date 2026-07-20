@@ -268,40 +268,153 @@ export function edgeTypesByCategory(): { category: (typeof EDGE_CATEGORIES)[numb
   return EDGE_CATEGORIES.map((c) => ({ category: c, types: EDGE_TYPES.filter((t) => t.category === c.id) }));
 }
 
+// ── Meta-ontology (T-Box) ───────────────────────────────────────────────────
+// Kind→kind triples: which edge types typically connect which kinds. Sources:
+// the bro.png ontology arrows, the canonical pairs named in edge-type hints,
+// and edge patterns in the sample graph. Advisory everywhere — never blocking.
+export type TripleStrength = 'canonical' | 'typical' | 'possible';
+
+export interface OntologyTriple {
+  src: string;
+  type: string;
+  dst: string;
+  strength: TripleStrength;
+  note?: string;
+}
+
+export const ONTOLOGY: OntologyTriple[] = [
+  // basics
+  { src: 'name', type: 'has', dst: 'purpose', strength: 'canonical' },
+  { src: 'name', type: 'has', dst: 'capability', strength: 'canonical' },
+  // intent chain
+  { src: 'purpose', type: 'motivates', dst: 'goal', strength: 'canonical' },
+  { src: 'purpose', type: 'serves', dst: 'persona', strength: 'canonical' },
+  { src: 'purpose', type: 'motivates', dst: 'capability', strength: 'typical' },
+  { src: 'purpose', type: 'depends_on', dst: 'hypothesis', strength: 'typical' },
+  { src: 'goal', type: 'motivates', dst: 'usecase', strength: 'typical' },
+  { src: 'goal', type: 'motivates', dst: 'capability', strength: 'typical' },
+  { src: 'hypothesis', type: 'motivates', dst: 'goal', strength: 'typical' },
+  { src: 'hypothesis', type: 'motivates', dst: 'capability', strength: 'typical' },
+  { src: 'persona', type: 'motivates', dst: 'usecase', strength: 'canonical' },
+  { src: 'persona', type: 'motivates', dst: 'requirement', strength: 'typical' },
+  { src: 'persona', type: 'triggers', dst: 'usecase', strength: 'typical' },
+  { src: 'persona', type: 'triggers', dst: 'flow', strength: 'typical' },
+  { src: 'persona', type: 'uses', dst: 'capability', strength: 'typical' },
+  { src: 'capability', type: 'serves', dst: 'persona', strength: 'canonical' },
+  { src: 'capability', type: 'satisfies', dst: 'requirement', strength: 'canonical' },
+  { src: 'capability', type: 'satisfies', dst: 'usecase', strength: 'typical' },
+  { src: 'capability', type: 'depends_on', dst: 'constraint', strength: 'possible' },
+  { src: 'usecase', type: 'uses', dst: 'screen', strength: 'typical' },
+  { src: 'usecase', type: 'uses', dst: 'capability', strength: 'typical' },
+  { src: 'requirement', type: 'constrains', dst: 'module', strength: 'typical' },
+  { src: 'requirement', type: 'constrains', dst: 'design', strength: 'typical' },
+  { src: 'constraint', type: 'constrains', dst: 'module', strength: 'canonical' },
+  { src: 'constraint', type: 'constrains', dst: 'api', strength: 'typical' },
+  { src: 'constraint', type: 'constrains', dst: 'component', strength: 'possible' },
+  { src: 'assumption', type: 'constrains', dst: 'design', strength: 'possible' },
+  { src: 'assumption', type: 'constrains', dst: 'module', strength: 'possible' },
+  // domain
+  { src: 'term', type: 'describes', dst: 'entity', strength: 'canonical' },
+  { src: 'term', type: 'describes', dst: 'behaviour', strength: 'typical' },
+  { src: 'term', type: 'describes', dst: 'event', strength: 'possible' },
+  { src: 'term', type: 'extends', dst: 'term', strength: 'possible' },
+  { src: 'entity', type: 'has', dst: 'relationship', strength: 'typical' },
+  { src: 'entity', type: 'extends', dst: 'entity', strength: 'typical' },
+  { src: 'relationship', type: 'references', dst: 'entity', strength: 'canonical' },
+  { src: 'behaviour', type: 'emits', dst: 'event', strength: 'canonical' },
+  { src: 'behaviour', type: 'uses', dst: 'state', strength: 'typical' },
+  { src: 'event', type: 'triggers', dst: 'behaviour', strength: 'canonical' },
+  { src: 'event', type: 'triggers', dst: 'flow', strength: 'typical' },
+  { src: 'state', type: 'references', dst: 'entity', strength: 'typical' },
+  { src: 'flow', type: 'satisfies', dst: 'usecase', strength: 'canonical' },
+  { src: 'flow', type: 'uses', dst: 'screen', strength: 'canonical' },
+  { src: 'flow', type: 'uses', dst: 'capability', strength: 'typical' },
+  { src: 'flow', type: 'triggers', dst: 'event', strength: 'typical' },
+  { src: 'screen', type: 'contains', dst: 'component', strength: 'canonical' },
+  { src: 'screen', type: 'serves', dst: 'persona', strength: 'typical' },
+  { src: 'screen', type: 'uses', dst: 'state', strength: 'typical' },
+  { src: 'screen', type: 'uses', dst: 'api', strength: 'typical' },
+  { src: 'screen', type: 'uses', dst: 'design', strength: 'typical' },
+  { src: 'screen', type: 'uses', dst: 'module', strength: 'typical' },
+  { src: 'design', type: 'describes', dst: 'screen', strength: 'canonical' },
+  { src: 'design', type: 'describes', dst: 'component', strength: 'typical' },
+  { src: 'design', type: 'constrains', dst: 'component', strength: 'typical' },
+  // implementation
+  { src: 'module', type: 'contains', dst: 'component', strength: 'canonical' },
+  { src: 'module', type: 'contains', dst: 'module', strength: 'typical' },
+  { src: 'module', type: 'contains', dst: 'logic', strength: 'typical' },
+  { src: 'module', type: 'exposes', dst: 'api', strength: 'canonical' },
+  { src: 'module', type: 'exposes', dst: 'interface', strength: 'typical' },
+  { src: 'module', type: 'implements', dst: 'capability', strength: 'canonical' },
+  { src: 'module', type: 'implements', dst: 'behaviour', strength: 'canonical' },
+  { src: 'module', type: 'satisfies', dst: 'requirement', strength: 'canonical' },
+  { src: 'module', type: 'depends_on', dst: 'module', strength: 'canonical' },
+  { src: 'module', type: 'uses', dst: 'external', strength: 'canonical' },
+  { src: 'module', type: 'uses', dst: 'interface', strength: 'typical' },
+  { src: 'component', type: 'implements', dst: 'screen', strength: 'canonical' },
+  { src: 'component', type: 'implements', dst: 'capability', strength: 'typical' },
+  { src: 'component', type: 'implements', dst: 'design', strength: 'typical' },
+  { src: 'component', type: 'emits', dst: 'event', strength: 'canonical' },
+  { src: 'component', type: 'uses', dst: 'api', strength: 'typical' },
+  { src: 'component', type: 'uses', dst: 'entity', strength: 'typical' },
+  { src: 'component', type: 'uses', dst: 'state', strength: 'typical' },
+  { src: 'component', type: 'uses', dst: 'external', strength: 'typical' },
+  { src: 'component', type: 'uses', dst: 'module', strength: 'typical' },
+  { src: 'logic', type: 'implements', dst: 'behaviour', strength: 'canonical' },
+  { src: 'logic', type: 'uses', dst: 'entity', strength: 'typical' },
+  { src: 'api', type: 'implements', dst: 'interface', strength: 'canonical' },
+  { src: 'api', type: 'satisfies', dst: 'requirement', strength: 'typical' },
+  { src: 'api', type: 'emits', dst: 'event', strength: 'canonical' },
+  { src: 'api', type: 'uses', dst: 'module', strength: 'typical' },
+  { src: 'interface', type: 'extends', dst: 'interface', strength: 'canonical' },
+  { src: 'interface', type: 'references', dst: 'entity', strength: 'typical' },
+  { src: 'repository', type: 'contains', dst: 'module', strength: 'canonical' },
+  { src: 'external', type: 'triggers', dst: 'event', strength: 'typical' },
+  // verification
+  { src: 'tests', type: 'verifies', dst: 'module', strength: 'canonical' },
+  { src: 'tests', type: 'verifies', dst: 'api', strength: 'canonical' },
+  { src: 'tests', type: 'verifies', dst: 'behaviour', strength: 'canonical' },
+  { src: 'tests', type: 'verifies', dst: 'hypothesis', strength: 'canonical' },
+  { src: 'tests', type: 'verifies', dst: 'component', strength: 'typical' },
+  { src: 'tests', type: 'verifies', dst: 'flow', strength: 'typical' },
+  { src: 'observability', type: 'monitors', dst: 'goal', strength: 'canonical' },
+  { src: 'observability', type: 'monitors', dst: 'api', strength: 'typical' },
+  { src: 'observability', type: 'monitors', dst: 'module', strength: 'typical' },
+];
+
+const STRENGTH_RANK: Record<TripleStrength, number> = { canonical: 0, typical: 1, possible: 2 };
+
+export function triplesFrom(kind: string): OntologyTriple[] {
+  return ONTOLOGY.filter((t) => t.src === kind).sort(
+    (a, b) => STRENGTH_RANK[a.strength] - STRENGTH_RANK[b.strength],
+  );
+}
+
+export function tripleFor(src: string, type: string, dst: string): OntologyTriple | undefined {
+  return ONTOLOGY.find((t) => t.src === src && t.type === type && t.dst === dst);
+}
+
 /**
  * Likely edge types per source kind — pure ordering hints for the editor.
- * Nothing is validated or blocked; kinds not listed fall back to all types.
+ * Derived from ONTOLOGY (canonical first); nothing is validated or blocked.
  */
-export const SUGGESTED_EDGE_TYPES: Partial<Record<string, string[]>> = {
-  name: ['references', 'describes'],
-  purpose: ['motivates', 'references'],
-  capability: ['satisfies', 'serves', 'uses', 'depends_on'],
-  persona: ['motivates', 'has', 'triggers'],
-  requirement: ['constrains', 'depends_on', 'references'],
-  usecase: ['triggers', 'motivates', 'uses'],
-  constraint: ['constrains', 'references'],
-  goal: ['motivates', 'depends_on', 'references'],
-  hypothesis: ['motivates', 'depends_on', 'references'],
-  assumption: ['constrains', 'references'],
-  term: ['describes', 'extends', 'references'],
-  entity: ['has', 'extends', 'references'],
-  relationship: ['references', 'describes'],
-  behaviour: ['emits', 'triggers', 'uses'],
-  event: ['triggers', 'references'],
-  state: ['has', 'triggers', 'references'],
-  flow: ['contains', 'triggers', 'satisfies', 'uses'],
-  screen: ['uses', 'triggers', 'serves'],
-  module: ['contains', 'exposes', 'implements', 'depends_on'],
-  component: ['implements', 'uses', 'emits', 'contains'],
-  interface: ['extends', 'references'],
-  api: ['implements', 'uses', 'emits'],
-  logic: ['implements', 'uses', 'depends_on'],
-  repository: ['contains', 'references'],
-  external: ['references', 'triggers'],
-  tests: ['verifies', 'references'],
-  observability: ['monitors', 'references'],
-  design: ['describes', 'constrains', 'references'],
-};
+export const SUGGESTED_EDGE_TYPES: Partial<Record<string, string[]>> = (() => {
+  const out: Record<string, string[]> = {};
+  for (const k of KINDS) {
+    const types: string[] = [];
+    for (const t of triplesFrom(k.kind)) if (!types.includes(t.type)) types.push(t.type);
+    if (types.length) out[k.kind] = types;
+  }
+  return out;
+})();
+
+/** The T-Box projected into the instance Graph shape, for rendering in ForceGraph. */
+export function ontologyGraph(): Graph {
+  return {
+    nodes: KINDS.map((k) => ({ id: k.kind, kind: k.kind, title: k.label, description: k.blurb, props: {} })),
+    edges: ONTOLOGY.map((t) => ({ id: `o-${t.src}-${t.type}-${t.dst}`, srcId: t.src, dstId: t.dst, type: t.type })),
+  };
+}
 
 // ── Node / edge / graph types ───────────────────────────────────────────────
 export interface SourceRef {
