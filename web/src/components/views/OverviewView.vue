@@ -22,7 +22,7 @@ function jump(nodeId?: string) {
   if (!nodeId) return;
   const part = KIND_MAP[state.graph.nodes.find((n) => n.id === nodeId)?.kind ?? '']?.part;
   state.selectedId = nodeId;
-  location.hash = `#/${part ?? 'graph'}/${nodeId}`;
+  emit('navigate', part ?? 'graph');
 }
 </script>
 
