@@ -55,9 +55,10 @@ export function validateQuery(q: GraphQuery): QueryError[] {
       }
     }
   }
+  const bound = [...new Set(q.match.flatMap((p) => [p.s.var, p.o.var].filter((v): v is string => !!v)))];
   for (const v of q.select ?? []) {
     if (!q.match.some((p) => p.s.var === v || p.o.var === v)) {
-      errs.push({ level: 'error', message: `select var "${v}" is never bound in match.` });
+      errs.push({ level: 'error', message: `select var "${v}" is never bound in match. Bound vars: ${bound.join(', ') || 'none'}.` });
     }
   }
   return errs;
@@ -104,6 +105,7 @@ export function runQuery(graph: Graph, q: GraphQuery): Record<string, GraphNode>
         const targets = reach(sid, type, inverse, transitive);
         for (const oid of candidates(pat.o, b)) {
           if (!targets.has(oid)) continue;
+          if (pat.s.var && pat.s.var === pat.o.var && sid !== oid) continue;
           const nb: Binding = { ...b };
           if (pat.s.var) nb[pat.s.var] = sid;
           if (pat.o.var) nb[pat.o.var] = oid;
