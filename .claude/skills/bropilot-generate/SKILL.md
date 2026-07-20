@@ -40,11 +40,111 @@ If no graph is provided, prompt user to paste or specify file path.
 | `hypothesis` | Documented assumption — surfaced in README/comments, not code |
 | `term` | Glossary comment near the closest related type/component |
 
-### Edge Types
+### Edge Types & Ontology
 
-```
-has, uses, triggers, implements, depends_on, extends, contains, references
-```
+When walking the graph to scaffold, follow ontology order: intentional edges first (purpose/persona/goal), then domain, then implementation. The 8 stock types (marked ✱) round-trip everywhere.
+
+<!-- ontology:begin -->
+
+**Edge types** (✱ = stock, always round-trips):
+
+- *Structural*: `contains`✱, `has`✱, `extends`✱, `implements`✱, `exposes`
+- *Dependency & reference*: `uses`✱, `depends_on`✱, `describes`, `references`✱
+- *Behavioural*: `triggers`✱, `emits`
+- *Intentional*: `motivates`, `serves`, `satisfies`, `constrains`
+- *Verification*: `verifies`, `monitors`
+
+**Kind→kind ontology** (canonical and typical triples — prefer these when choosing edges):
+
+| src | edge | dst | strength |
+|---|---|---|---|
+| name | has | purpose | canonical |
+| name | has | capability | canonical |
+| purpose | motivates | goal | canonical |
+| purpose | serves | persona | canonical |
+| purpose | motivates | capability | typical |
+| purpose | depends_on | hypothesis | typical |
+| goal | motivates | usecase | typical |
+| goal | motivates | capability | typical |
+| hypothesis | motivates | goal | typical |
+| hypothesis | motivates | capability | typical |
+| persona | motivates | usecase | canonical |
+| persona | motivates | requirement | typical |
+| persona | triggers | usecase | typical |
+| persona | triggers | flow | typical |
+| persona | uses | capability | typical |
+| capability | serves | persona | canonical |
+| capability | satisfies | requirement | canonical |
+| capability | satisfies | usecase | typical |
+| usecase | uses | screen | typical |
+| usecase | uses | capability | typical |
+| requirement | constrains | module | typical |
+| requirement | constrains | design | typical |
+| constraint | constrains | module | canonical |
+| constraint | constrains | api | typical |
+| term | describes | entity | canonical |
+| term | describes | behaviour | typical |
+| entity | has | relationship | typical |
+| entity | extends | entity | typical |
+| relationship | references | entity | canonical |
+| behaviour | emits | event | canonical |
+| behaviour | uses | state | typical |
+| event | triggers | behaviour | canonical |
+| event | triggers | flow | typical |
+| state | references | entity | typical |
+| flow | satisfies | usecase | canonical |
+| flow | uses | screen | canonical |
+| flow | uses | capability | typical |
+| flow | triggers | event | typical |
+| screen | contains | component | canonical |
+| screen | serves | persona | typical |
+| screen | uses | state | typical |
+| screen | uses | api | typical |
+| screen | uses | design | typical |
+| screen | uses | module | typical |
+| design | describes | screen | canonical |
+| design | describes | component | typical |
+| design | constrains | component | typical |
+| module | contains | component | canonical |
+| module | contains | module | typical |
+| module | contains | logic | typical |
+| module | exposes | api | canonical |
+| module | exposes | interface | typical |
+| module | implements | capability | canonical |
+| module | implements | behaviour | canonical |
+| module | satisfies | requirement | canonical |
+| module | depends_on | module | canonical |
+| module | uses | external | canonical |
+| module | uses | interface | typical |
+| component | implements | screen | canonical |
+| component | implements | capability | typical |
+| component | implements | design | typical |
+| component | emits | event | canonical |
+| component | uses | api | typical |
+| component | uses | entity | typical |
+| component | uses | state | typical |
+| component | uses | external | typical |
+| component | uses | module | typical |
+| logic | implements | behaviour | canonical |
+| logic | uses | entity | typical |
+| api | implements | interface | canonical |
+| api | satisfies | requirement | typical |
+| api | emits | event | canonical |
+| api | uses | module | typical |
+| interface | extends | interface | canonical |
+| interface | references | entity | typical |
+| repository | contains | module | canonical |
+| external | triggers | event | typical |
+| tests | verifies | module | canonical |
+| tests | verifies | api | canonical |
+| tests | verifies | behaviour | canonical |
+| tests | verifies | hypothesis | canonical |
+| tests | verifies | component | typical |
+| tests | verifies | flow | typical |
+| observability | monitors | goal | canonical |
+| observability | monitors | api | typical |
+| observability | monitors | module | typical |
+<!-- ontology:end -->
 
 ### props (kind-specific fields)
 
