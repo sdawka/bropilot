@@ -15,6 +15,7 @@ One new data structure — an `ONTOLOGY` array of kind→kind triples in `web/sr
 3. **Advisory linting** — `web/src/lib/lint.ts` flags off-ontology edges, orphans, why-chain gaps, unverified surfaces. Never blocks (standing rule: nothing is ever validated or blocked).
 4. **Skills round-trip** — a generated ontology block synced into both SKILL.md files via `npm run sync-skills`.
 5. **New `bropilot-interview` skill** — conversational collection of an instance graph, using the ontology to drive gap-based questioning.
+6. **Query layer** (§7) — a T-Box-validated JSON graph-pattern engine with named verbs, powering an Inspector "Copy context" export and any future MCP surface.
 
 ## 1 · Data model (`schema.ts`)
 
@@ -206,6 +207,42 @@ New `.claude/skills/bropilot-interview/SKILL.md`. Behaviour:
 - **Exit**: writes the file, summarises node/edge counts, points at Studio import and `/bropilot-generate`.
 - Contains the same synced ontology block (add its markers; `sync-skills` targets all three skills).
 
+## 7 · Query layer (`lib/query.ts`)
+
+A schema-constrained graph query engine — SPARQL's basic-graph-pattern kernel, JSON-encoded, validated against the T-Box before execution. Chosen for expressiveness and LLM reliability, not speed (at this scale everything is instant).
+
+### Query shape
+
+```ts
+interface NodeRef { var?: string; id?: string; kind?: string }   // at least one
+interface QueryPattern {
+  s: NodeRef;
+  p: string;        // edge type; '^' prefix = inverse, '+' suffix = transitive (e.g. '^motivates+')
+  o: NodeRef;
+  not?: boolean;    // anti-pattern: bindings survive only if NO match exists
+}
+interface GraphQuery { match: QueryPattern[]; select: string[]; limit?: number }
+
+function validateQuery(q: GraphQuery): QueryError[];
+function runQuery(graph: Graph, q: GraphQuery): Record<string, GraphNode>[];
+```
+
+- **Validation before execution** (`validateQuery`): unknown kind or edge type → error listing valid names; a pattern whose `(srcKind, type, dstKind)` has no `ONTOLOGY` triple → *warning* with nearest ontology-licensed alternatives (advisory rule holds even for queries). This reuses `tripleFor`/`triplesFrom`.
+- **Evaluation**: nested-loop join over patterns in order; `not` patterns as anti-joins after positive bindings; transitive `+` via BFS with a visited set. No optimizer — wrong tool at hundreds of nodes.
+- **No text syntax**: JSON only. No parser to write, and structured output can force well-formedness.
+
+### Named verbs = canned queries
+
+`whyChain(id)`, `realization(id)`, `evidence(id)` are exported functions defined as `GraphQuery` values run through the evaluator (dogfooding). `neighborhood(id, { depth, edgeTypes })` is a direct BFS — depth-bounded neighborhoods aren't expressible as a single BGP, and pretending otherwise would contort the language.
+
+### Consumers (v1)
+
+- **Inspector "Copy context" button**: copies a markdown rendering of `neighborhood(selectedId, { depth: 2 })` — a token-budgeted context slice for pasting into any LLM chat.
+- The **interview skill** documents patch-style editing (add/update ops against the JSON file, never whole-file regeneration) and uses the ontology block for its gap logic; it does not call `query.ts` (skills run outside the app).
+- Future MCP server (out of scope) would expose `runQuery` + verbs directly; the API contract is engine-agnostic by design.
+
+Explicitly rejected: Rust/WASM engine (JS↔WASM serialization overhead exceeds any gain at this scale; second type system to sync), full SPARQL (grammar surface exists for open-world web data; a closed validated schema doesn't need it), replacing verbs with the language (verbs are the cheap, reliable 90% path).
+
 ## Docs
 
 CLAUDE.md architecture section: one added sentence — `ONTOLOGY` in `schema.ts` drives editor suggestions, the ontology view, lint, and the skills' ontology blocks; run `npm run sync-skills` after editing it.
@@ -223,6 +260,7 @@ No test suite exists (standing decision); gates are:
 - `npm run check` passes.
 - Browser verification (dev server + headless Chrome CDP): editor chips add correct edges; ontology toggle renders ~28 kinds with strength-coded strokes; health card findings navigate correctly; cross-layer links round-trip (kind chip → ontology overlay → instance → back).
 - `npm run sync-skills` run twice → second run makes no changes (`git diff --exit-code` on the skill files).
+- Query layer: `validateQuery` rejects unknown kinds/types with named alternatives; each verb returns the expected rows against `SAMPLE_GRAPH` (e.g. `whyChain('module-store')` reaches `purpose-shared-understanding`); "Copy context" produces valid markdown.
 - Interview skill: dry-run a short interview, import the produced JSON into the Studio, confirm zero import errors and sensible lint results.
 
 ## Build order
@@ -232,6 +270,7 @@ No test suite exists (standing decision); gates are:
 3. RelationshipEditor chips + re-ranking.
 4. GraphView ontology toggle.
 5. Overview health card + Inspector badge.
-6. `sync-skills` script + skill block updates.
-7. `bropilot-interview` skill.
-8. CLAUDE.md sentence; browser verification pass.
+6. `query.ts` (validate + evaluate + verbs) and Inspector "Copy context".
+7. `sync-skills` script + skill block updates.
+8. `bropilot-interview` skill.
+9. CLAUDE.md sentence; browser verification pass.
