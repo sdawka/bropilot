@@ -7,6 +7,7 @@ import { narrativeFor, type Sentence } from '../../lib/narrative';
 import { lintGraph } from '../../lib/lint';
 import { openOntology } from '../../lib/graphMode';
 import { buildHash } from '../../lib/router';
+import { contextMarkdown } from '../../lib/query';
 import NodeForm from './NodeForm.vue';
 import RelationshipEditor from './RelationshipEditor.vue';
 
@@ -68,6 +69,16 @@ function del() {
   toast(`Deleted “${title}”${links ? ` (+${links} link${links > 1 ? 's' : ''})` : ''}`, {
     action: { label: 'Undo', handler: undo },
   });
+}
+
+async function copyContext() {
+  if (!node.value) return;
+  try {
+    await navigator.clipboard.writeText(contextMarkdown(state.graph, node.value.id));
+    toast('✓ Context copied — paste into any LLM chat');
+  } catch {
+    /* clipboard unavailable — ignore */
+  }
 }
 </script>
 
@@ -170,8 +181,9 @@ function del() {
           </section>
         </div>
 
-        <footer class="shrink-0 border-t hairline px-5 py-3">
-          <button class="btn btn-danger w-full justify-center" @click="del">🗑 Delete node</button>
+        <footer class="flex shrink-0 gap-2 border-t hairline px-5 py-3">
+          <button class="btn flex-1 justify-center" title="Copy a markdown context slice (2-hop neighborhood)" @click="copyContext">⧉ Copy context</button>
+          <button class="btn btn-danger flex-1 justify-center" @click="del">🗑 Delete</button>
         </footer>
       </template>
 
