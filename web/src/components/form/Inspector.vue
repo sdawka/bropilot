@@ -4,6 +4,9 @@ import { KIND_MAP, SPACES, PARTS, nodeHue, type Part } from '../../lib/schema';
 import { state, getNode, removeNode, edgesOf, undo } from '../../lib/store';
 import { toast } from '../../lib/toast';
 import { narrativeFor, type Sentence } from '../../lib/narrative';
+import { lintGraph } from '../../lib/lint';
+import { openOntology } from '../../lib/graphMode';
+import { buildHash } from '../../lib/router';
 import NodeForm from './NodeForm.vue';
 import RelationshipEditor from './RelationshipEditor.vue';
 
@@ -15,6 +18,16 @@ const node = computed(() => getNode(state.selectedId));
 const def = computed(() => (node.value ? KIND_MAP[node.value.kind] : undefined));
 const hue = computed(() => (node.value ? nodeHue(node.value) : '#6f6f7e'));
 const space = computed(() => (def.value ? SPACES[def.value.space] : undefined));
+
+const nodeFindings = computed(() =>
+  node.value ? lintGraph(state.graph).filter((f) => f.nodeId === node.value!.id) : [],
+);
+
+function toOntology() {
+  if (!node.value) return;
+  openOntology(node.value.kind);
+  location.hash = buildHash('graph', null);
+}
 
 // which parts the narrative covers: the current one, or all three on the graph
 const parts = computed<Part[]>(() =>
@@ -118,7 +131,17 @@ function del() {
           <div class="absolute inset-0 opacity-60" :style="{ background: `radial-gradient(120% 100% at 0% 0%, ${space?.glow}, transparent 70%)` }" />
           <div class="relative flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <span class="chip" :style="{ color: hue }">{{ def?.icon }} {{ def?.label }}</span>
+              <button
+                class="chip cursor-pointer transition hover:opacity-80"
+                :style="{ color: hue }"
+                title="View this kind in the ontology"
+                @click="toOntology"
+              >{{ def?.icon }} {{ def?.label }}</button>
+              <span
+                v-if="nodeFindings.length"
+                class="chip ml-1.5 !border-amber-400/40 text-amber-400/90"
+                :title="nodeFindings.map((f) => f.message + (f.suggestion ? ` — ${f.suggestion}` : '')).join('\n')"
+              >⚠ {{ nodeFindings.length }}</span>
               <h2 class="display mt-2 truncate text-xl text-ink-100">{{ node.title || 'Untitled' }}</h2>
               <code class="mt-1 block truncate font-mono text-[0.68rem] text-ink-400">{{ node.id }}</code>
             </div>

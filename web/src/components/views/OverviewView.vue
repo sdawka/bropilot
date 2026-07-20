@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { PARTS, SPACES, KIND_MAP, type Part, type Space } from '../../lib/schema';
 import { state, counts, nodesByKind, nodesInPart } from '../../lib/store';
+import { lintGraph } from '../../lib/lint';
 
 const emit = defineEmits<{ (e: 'navigate', part: Part | 'graph'): void }>();
 
@@ -13,6 +14,15 @@ function spaceCount(sp: Space) {
 }
 function partCount(p: Part) {
   return nodesInPart(p).length;
+}
+
+const findings = computed(() => lintGraph(state.graph));
+
+function jump(nodeId?: string) {
+  if (!nodeId) return;
+  const part = KIND_MAP[state.graph.nodes.find((n) => n.id === nodeId)?.kind ?? '']?.part;
+  state.selectedId = nodeId;
+  location.hash = `#/${part ?? 'graph'}/${nodeId}`;
 }
 </script>
 
@@ -81,5 +91,20 @@ function partCount(p: Part) {
       </div>
       <span class="text-2xl">🕸️</span>
     </button>
+
+    <!-- graph health -->
+    <section v-if="findings.length" class="mt-4 border hairline bg-ink-900 px-5 py-4">
+      <h3 class="display text-xl">Graph health</h3>
+      <p class="mt-1 text-xs text-ink-300">{{ findings.length }} advisory finding{{ findings.length > 1 ? 's' : '' }} — suggestions, never rules.</p>
+      <ul class="mt-3 space-y-1.5">
+        <li v-for="(f, i) in findings" :key="i">
+          <button class="w-full text-left text-xs text-ink-200 transition hover:text-accent" @click="jump(f.nodeId)">
+            <span class="font-mono text-[0.62rem] uppercase tracking-wide" :class="f.severity === 'note' ? 'text-amber-400/80' : 'text-ink-400'">{{ f.severity }}</span>
+            {{ f.message }}
+            <span v-if="f.suggestion" class="text-ink-400">{{ f.suggestion }}</span>
+          </button>
+        </li>
+      </ul>
+    </section>
   </div>
 </template>
