@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { EDGE_TYPES, SUGGESTED_EDGE_TYPES, edgeTypesByCategory, KIND_MAP, nodeHue, type GraphNode } from '../../lib/schema';
+import { EDGE_TYPES, SUGGESTED_EDGE_TYPES, edgeTypesByCategory, KIND_MAP, nodeHue, triplesFrom, tripleFor, type GraphNode } from '../../lib/schema';
 import { state, edgesOf, addEdge, removeEdge, updateEdge, getNode } from '../../lib/store';
 
 const props = defineProps<{ node: GraphNode }>();
@@ -22,6 +22,29 @@ watch(
 
 const links = computed(() => edgesOf(props.node.id));
 
+// ── one-click suggestions from the ontology (advisory — never exhaustive) ──
+const chips = computed(() => {
+  const existing = new Set(links.value.outgoing.map((e) => `${e.type}|${e.dstId}`));
+  const out: { type: string; target: GraphNode; strength: string }[] = [];
+  for (const t of triplesFrom(props.node.kind)) {
+    for (const n of state.graph.nodes) {
+      if (n.kind !== t.dst || n.id === props.node.id) continue;
+      if (existing.has(`${t.type}|${n.id}`)) continue;
+      out.push({ type: t.type, target: n, strength: t.strength });
+    }
+    if (out.length >= 6) break;
+  }
+  return out.slice(0, 6);
+});
+
+function addChip(c: { type: string; target: GraphNode }) {
+  addEdge(props.node.id, c.target.id, c.type);
+}
+
+function fitsOntology(n: GraphNode): boolean {
+  return !!tripleFor(props.node.kind, newType.value, n.kind);
+}
+
 // ── inline label editing ──
 const editingId = ref<string | null>(null);
 
@@ -39,8 +62,11 @@ const targets = computed(() =>
 
 const results = computed(() => {
   const q = query.value.trim().toLowerCase();
-  if (!q) return targets.value.slice(0, 20);
-  return targets.value.filter((n) => n.title.toLowerCase().includes(q)).slice(0, 20);
+  const pool = q ? targets.value.filter((n) => n.title.toLowerCase().includes(q)) : targets.value;
+  return pool
+    .slice()
+    .sort((a, b) => Number(fitsOntology(b)) - Number(fitsOntology(a)) || a.title.localeCompare(b.title))
+    .slice(0, 20);
 });
 
 function pick(id: string) {
@@ -161,6 +187,20 @@ function icon(id: string) {
     </ul>
     <p v-else class="text-xs text-ink-400">No relationships yet.</p>
 
+    <!-- ontology suggestions -->
+    <div v-if="chips.length" class="flex flex-wrap gap-1.5">
+      <button
+        v-for="c in chips"
+        :key="`${c.type}-${c.target.id}`"
+        class="btn btn-ghost !px-2 !py-1 text-[0.68rem]"
+        :title="`Suggested by the ontology (${c.strength})`"
+        @click="addChip(c)"
+      >
+        <span class="font-mono uppercase tracking-[0.08em] text-accent">{{ c.type }}</span>
+        <span class="ml-1 truncate">→ {{ KIND_MAP[c.target.kind]?.icon }} {{ c.target.title }}</span>
+      </button>
+    </div>
+
     <!-- add edge -->
     <div class="rounded-lg border border-dashed border-white/10 p-2.5">
       <div class="mb-2 text-[0.68rem] font-semibold uppercase tracking-wide text-ink-400">Add relationship</div>
@@ -198,6 +238,7 @@ function icon(id: string) {
               <span class="h-1.5 w-1.5 shrink-0 rounded-full" :style="{ background: nodeHue(n) }" />
               <span class="truncate">{{ KIND_MAP[n.kind]?.icon }} {{ n.title }}</span>
               <span class="ml-auto shrink-0 text-[0.64rem] text-ink-400">{{ KIND_MAP[n.kind]?.label }}</span>
+              <span v-if="fitsOntology(n)" class="shrink-0 text-[0.6rem] text-emerald-400/70">· fits ontology</span>
             </button>
           </li>
         </ul>
