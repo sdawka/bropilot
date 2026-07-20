@@ -151,6 +151,15 @@ Additive changes only:
 - Clicking a kind node opens a lightweight overlay card (icon, label, blurb, in/out triples as sentences). The Inspector is not used — it binds to store nodes. Selection state for the overlay is local to GraphView.
 - Read-only: the ontology is edited in code.
 
+### Cross-layer links (T-Box ↔ A-Box)
+
+The `kind` field on instance nodes is the type link (≈ `rdf:type`); the UI surfaces it in both directions:
+
+- **Ontology → instances**: in ontology mode each kind node shows its instance count as a badge (0 allowed); the overlay card lists that kind's instances, and clicking one switches to instance mode with that node selected (existing hash routing).
+- **Instance → ontology**: the Inspector's kind chip becomes a link that opens the graph view in ontology mode with that kind's overlay card open.
+
+Plumbing: the toggle + focused-kind state moves to a tiny exported ref pair in `lib/store.ts` (or a dedicated `lib/graphMode.ts`) so the Inspector can set it before navigating; GraphView reads it on mount. Still not routed/persisted.
+
 Verification note (from CLAUDE.md): a passing build doesn't prove rendering — verify the toggle, strokes, and overlay in a browser via headless Chrome CDP with real `Input.dispatchMouseEvent`.
 
 ## 4 · Advisory linting (`lib/lint.ts`)
@@ -212,7 +221,7 @@ CLAUDE.md architecture section: one added sentence — `ONTOLOGY` in `schema.ts`
 No test suite exists (standing decision); gates are:
 
 - `npm run check` passes.
-- Browser verification (dev server + headless Chrome CDP): editor chips add correct edges; ontology toggle renders ~28 kinds with strength-coded strokes; health card findings navigate correctly.
+- Browser verification (dev server + headless Chrome CDP): editor chips add correct edges; ontology toggle renders ~28 kinds with strength-coded strokes; health card findings navigate correctly; cross-layer links round-trip (kind chip → ontology overlay → instance → back).
 - `npm run sync-skills` run twice → second run makes no changes (`git diff --exit-code` on the skill files).
 - Interview skill: dry-run a short interview, import the produced JSON into the Studio, confirm zero import errors and sensible lint results.
 
