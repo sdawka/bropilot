@@ -25,7 +25,7 @@ There is **no test suite and no linter configured** — `npm run check` is the o
 
 ## Architecture (the big picture)
 
-**`src/lib/schema.ts` is the single source of truth.** The `KINDS` registry (each `KindDef`) drives the editor forms, the graph legend, and the part views simultaneously. Add a node kind there — with its `part`, `space`, `icon`, and `fields` — and it automatically appears everywhere. Read this file first before changing any UI.
+**`src/lib/schema.ts` is the single source of truth.** The `KINDS` registry (each `KindDef`) drives the editor forms, the graph legend, and the part views simultaneously. Add a node kind there — with its `part`, `space`, `icon`, and `fields` — and it automatically appears everywhere. Read this file first before changing any UI. The `ONTOLOGY` triple table (kind→kind, with canonical/typical/possible strengths) is the T-Box layered on top: it derives `SUGGESTED_EDGE_TYPES`, drives RelationshipEditor suggestion chips, the Graph view's Instance|Ontology toggle, `lib/lint.ts` advisory findings, and `lib/query.ts` validation. After editing `ONTOLOGY` or `EDGE_TYPES`, run `npm run sync-skills` (from `web/`) to regenerate the ontology blocks in the three bropilot skills.
 
 **Two orthogonal groupings, both on every `KindDef`:**
 - `part` (`foundations` | `domain` | `implementation`) — the display grouping the studio navigates by. Drives `PartView`.
