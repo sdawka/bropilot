@@ -3,7 +3,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ONTOLOGY, EDGE_TYPES, EDGE_CATEGORIES, KIND_MAP } from '../src/lib/schema';
+import { ONTOLOGY, EDGE_TYPES, EDGE_CATEGORIES } from '../src/lib/schema';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const FILES = [
@@ -25,7 +25,7 @@ function render(): string {
   lines.push('| src | edge | dst | strength |', '|---|---|---|---|');
   for (const t of ONTOLOGY) {
     if (t.strength === 'possible') continue;
-    lines.push(`| ${KIND_MAP[t.src]?.kind ?? t.src} | ${t.type} | ${KIND_MAP[t.dst]?.kind ?? t.dst} | ${t.strength} |`);
+    lines.push(`| ${t.src} | ${t.type} | ${t.dst} | ${t.strength} |`);
   }
   lines.push('');
   return lines.join('\n');
@@ -36,7 +36,8 @@ const block = render();
 for (const rel of FILES) {
   const path = resolve(repoRoot, rel);
   if (!existsSync(path)) {
-    console.warn(`skip (absent): ${rel}`);
+    console.error(`ERROR: missing file: ${rel}`);
+    failed = true;
     continue;
   }
   const text = readFileSync(path, 'utf8');
