@@ -1,6 +1,6 @@
 // Advisory graph-health checks against the ONTOLOGY (T-Box). Pure, never
 // throws, never blocks — findings are suggestions, not errors.
-import { type Graph, KIND_MAP, EDGE_TYPE_SET, ONTOLOGY, tripleFor } from './schema';
+import { type Graph, type GraphNode, KIND_MAP, EDGE_TYPE_SET, ONTOLOGY, tripleFor } from './schema';
 
 export interface Finding {
   severity: 'note' | 'hint';
@@ -16,11 +16,17 @@ const VERIFY_TARGETS = new Set(['module', 'api', 'behaviour']);
 
 export function lintGraph(graph: Graph): Finding[] {
   const findings: Finding[] = [];
-  const byId = new Map(graph.nodes.map((n) => [n.id, n]));
+  const nodes = graph.nodes.filter(
+    (n): n is GraphNode => !!n && typeof n === 'object' && typeof (n as GraphNode).id === 'string',
+  );
+  const edges = graph.edges.filter(
+    (e) => !!e && typeof e === 'object' && typeof e.srcId === 'string' && typeof e.dstId === 'string',
+  );
+  const byId = new Map(nodes.map((n) => [n.id, n]));
   const linked = new Set<string>();
   const incomingTypes = new Map<string, Set<string>>();
 
-  for (const e of graph.edges) {
+  for (const e of edges) {
     linked.add(e.srcId);
     linked.add(e.dstId);
     if (!incomingTypes.has(e.dstId)) incomingTypes.set(e.dstId, new Set());
@@ -28,7 +34,7 @@ export function lintGraph(graph: Graph): Finding[] {
   }
 
   // 1 · off-ontology edges (skip unknown kinds/types — imported graphs may have them)
-  for (const e of graph.edges) {
+  for (const e of edges) {
     const src = byId.get(e.srcId);
     const dst = byId.get(e.dstId);
     if (!src || !dst) continue;
@@ -44,15 +50,16 @@ export function lintGraph(graph: Graph): Finding[] {
     });
   }
 
-  // 2 · orphans
-  for (const n of graph.nodes) {
+  // 2 · orphans (unknown kinds are skipped, never flagged)
+  for (const n of nodes) {
+    if (!KIND_MAP[n.kind]) continue;
     if (!linked.has(n.id)) {
       findings.push({ severity: 'hint', nodeId: n.id, message: `"${n.title}" has no relationships yet.` });
     }
   }
 
   // 3 · why-chain gaps
-  for (const n of graph.nodes) {
+  for (const n of nodes) {
     if (!INTENT_TARGETS.has(n.kind)) continue;
     const inc = incomingTypes.get(n.id);
     if (inc && [...inc].some((t) => INTENT_TYPES.has(t))) continue;
@@ -65,7 +72,7 @@ export function lintGraph(graph: Graph): Finding[] {
   }
 
   // 4 · unverified surfaces
-  for (const n of graph.nodes) {
+  for (const n of nodes) {
     if (!VERIFY_TARGETS.has(n.kind)) continue;
     if (incomingTypes.get(n.id)?.has('verifies')) continue;
     findings.push({

@@ -34,8 +34,25 @@ export function validateQuery(q: GraphQuery): QueryError[] {
     errs.push({ level: 'error', message: 'Query has no match patterns.' });
     return errs;
   }
-  for (const pat of q.match) {
-    const { type, inverse } = parseP(pat.p);
+  const wellFormed: QueryPattern[] = [];
+  for (let i = 0; i < q.match.length; i++) {
+    const pat = q.match[i];
+    if (
+      !pat ||
+      typeof pat !== 'object' ||
+      typeof pat.p !== 'string' ||
+      !pat.s ||
+      typeof pat.s !== 'object' ||
+      !pat.o ||
+      typeof pat.o !== 'object'
+    ) {
+      errs.push({ level: 'error', message: `Malformed pattern at index ${i}: expected { s, p, o }.` });
+      continue;
+    }
+    wellFormed.push(pat);
+  }
+  for (const pat of wellFormed) {
+    const { type, inverse, transitive } = parseP(pat.p);
     if (!EDGE_TYPE_SET.has(type)) {
       errs.push({ level: 'error', message: `Unknown edge type "${type}". Valid: ${[...EDGE_TYPE_SET].join(', ')}.` });
     }
@@ -44,7 +61,14 @@ export function validateQuery(q: GraphQuery): QueryError[] {
         errs.push({ level: 'error', message: `Unknown kind "${ref.kind}". Valid: ${[...KIND_SET].join(', ')}.` });
       }
     }
-    if (pat.s.kind && pat.o.kind && EDGE_TYPE_SET.has(type) && KIND_SET.has(pat.s.kind) && KIND_SET.has(pat.o.kind)) {
+    if (
+      !transitive &&
+      pat.s.kind &&
+      pat.o.kind &&
+      EDGE_TYPE_SET.has(type) &&
+      KIND_SET.has(pat.s.kind) &&
+      KIND_SET.has(pat.o.kind)
+    ) {
       const [sk, ok] = inverse ? [pat.o.kind, pat.s.kind] : [pat.s.kind, pat.o.kind];
       if (!tripleFor(sk, type, ok)) {
         const alts = [...new Set(ONTOLOGY.filter((t) => t.src === sk && t.dst === ok).map((t) => t.type))];
@@ -55,9 +79,10 @@ export function validateQuery(q: GraphQuery): QueryError[] {
       }
     }
   }
-  const bound = [...new Set(q.match.flatMap((p) => [p.s.var, p.o.var].filter((v): v is string => !!v)))];
-  for (const v of q.select ?? []) {
-    if (!q.match.some((p) => p.s.var === v || p.o.var === v)) {
+  const bound = [...new Set(wellFormed.flatMap((p) => [p.s.var, p.o.var].filter((v): v is string => !!v)))];
+  const select = Array.isArray(q.select) ? q.select : [];
+  for (const v of select) {
+    if (!wellFormed.some((p) => p.s.var === v || p.o.var === v)) {
       errs.push({ level: 'error', message: `select var "${v}" is never bound in match. Bound vars: ${bound.join(', ') || 'none'}.` });
     }
   }
@@ -73,7 +98,10 @@ export function runQuery(graph: Graph, q: GraphQuery): Record<string, GraphNode>
   const kindOk = (ref: NodeRef, id: string) => !ref.kind || byId.get(id)?.kind === ref.kind;
 
   function candidates(ref: NodeRef, b: Binding): string[] {
-    if (ref.var && b[ref.var]) return kindOk(ref, b[ref.var]) ? [b[ref.var]] : [];
+    if (ref.var && b[ref.var]) {
+      if (ref.id && b[ref.var] !== ref.id) return [];
+      return kindOk(ref, b[ref.var]) ? [b[ref.var]] : [];
+    }
     if (ref.id) return byId.has(ref.id) && kindOk(ref, ref.id) ? [ref.id] : [];
     return graph.nodes.filter((n) => !ref.kind || n.kind === ref.kind).map((n) => n.id);
   }
@@ -96,7 +124,8 @@ export function runQuery(graph: Graph, q: GraphQuery): Record<string, GraphNode>
   }
 
   let bindings: Binding[] = [{}];
-  for (const pat of q.match) {
+  const patterns = [...q.match].sort((a, b) => Number(!!a.not) - Number(!!b.not));
+  for (const pat of patterns) {
     const { type, inverse, transitive } = parseP(pat.p);
     const next: Binding[] = [];
     for (const b of bindings) {
@@ -130,7 +159,7 @@ export function runQuery(graph: Graph, q: GraphQuery): Record<string, GraphNode>
 
   return bindings
     .slice(0, q.limit ?? 100)
-    .map((b) => Object.fromEntries(q.select.filter((v) => b[v]).map((v) => [v, byId.get(b[v])!])));
+    .map((b) => Object.fromEntries((q.select ?? []).filter((v) => b[v]).map((v) => [v, byId.get(b[v])!])));
 }
 
 // ── Named verbs ─────────────────────────────────────────────────────────────
@@ -138,7 +167,7 @@ export function runQuery(graph: Graph, q: GraphQuery): Record<string, GraphNode>
 /** Intent ancestry. Mixed-direction alternation (incoming motivates/serves/
  *  constrains, outgoing implements/satisfies) is not a single BGP — BFS. */
 const WHY_IN = new Set(['motivates', 'serves', 'constrains']);
-const WHY_OUT = new Set(['implements', 'satisfies']);
+const WHY_OUT = new Set(['implements', 'satisfies', 'serves']);
 
 export function whyChain(graph: Graph, id: string): GraphNode[] {
   const byId = new Map(graph.nodes.map((n) => [n.id, n]));
@@ -185,11 +214,12 @@ export function neighborhood(
   const keep = new Set<string>([id]);
   let frontier = [id];
   for (let d = 0; d < depth; d++) {
+    const frontierSet = new Set(frontier);
     const next: string[] = [];
     for (const e of graph.edges) {
       if (!typeOk(e.type)) continue;
       for (const [a, b] of [[e.srcId, e.dstId], [e.dstId, e.srcId]]) {
-        if (frontier.includes(a) && !keep.has(b)) {
+        if (frontierSet.has(a) && !keep.has(b)) {
           keep.add(b);
           next.push(b);
         }
@@ -230,5 +260,14 @@ export function contextMarkdown(graph: Graph, id: string, opts: { depth?: number
     if (n.id === centre.id) continue;
     lines.push(`- **${n.title}** (${kindLabel(n)}): ${n.description || '—'}`);
   }
-  return lines.join('\n');
+  const BUDGET = 10_000;
+  const joined = lines.join('\n');
+  if (joined.length <= BUDGET) return joined;
+  let out = '';
+  for (const line of lines) {
+    const next = out ? out + '\n' + line : line;
+    if (next.length > BUDGET) break;
+    out = next;
+  }
+  return out + '\n\n_… truncated (graph context exceeds budget)_';
 }
