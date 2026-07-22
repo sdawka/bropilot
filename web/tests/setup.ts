@@ -40,7 +40,13 @@ class MemoryStorage implements globalThis.Storage {
   }
 }
 
-if (typeof globalThis.localStorage === 'undefined') {
+// Detect an existing implementation via the property descriptor rather than
+// reading the value: on Node 22+ `globalThis.localStorage` is a lazy native
+// getter whose first read emits an ExperimentalWarning (polluting test
+// output). Node's own descriptor is a getter with no `value`, so it is
+// replaced too — only a real, directly-assigned storage (e.g. jsdom) is kept.
+const existing = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+if (!existing || existing.value === undefined) {
   Object.defineProperty(globalThis, 'localStorage', {
     value: new MemoryStorage(),
     writable: true,
