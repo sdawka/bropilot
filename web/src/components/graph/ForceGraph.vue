@@ -13,7 +13,10 @@ import {
 import { KIND_MAP, SPACES, EDGE_TYPE_LABELS, nodeHue, nodeSpace, type GraphNode, type GraphEdge, type Space } from '../../lib/schema';
 import { getPos, setPositions, flushPositions, clearLayout } from '../../lib/layout';
 
-const props = defineProps<{ nodes: GraphNode[]; edges: GraphEdge[]; selectedId: string | null; dash?: Record<string, string> }>();
+const props = withDefaults(
+  defineProps<{ nodes: GraphNode[]; edges: GraphEdge[]; selectedId: string | null; dash?: Record<string, string>; persist?: boolean }>(),
+  { persist: true },
+);
 const emit = defineEmits<{ (e: 'select', id: string | null): void }>();
 
 interface SimNode {
@@ -64,6 +67,7 @@ function degrees(): Map<string, number> {
 }
 
 function savePositions(flush = false) {
+  if (props.persist === false) return;
   setPositions(simNodes.map((n) => [n.id, { x: n.x, y: n.y }] as [string, { x: number; y: number }]));
   if (flush) flushPositions();
 }
@@ -80,7 +84,7 @@ function build() {
     if (existing) {
       sn = existing;
     } else {
-      const stored = getPos(node.id);
+      const stored = props.persist === false ? undefined : getPos(node.id);
       if (stored) restored++;
       else fresh++;
       sn = {
@@ -320,7 +324,7 @@ function fit() {
 
 /** Forget stored positions and run a fresh full-energy layout. */
 function relayout() {
-  clearLayout();
+  if (props.persist !== false) clearLayout();
   for (const n of simNodes) {
     n.fx = null;
     n.fy = null;

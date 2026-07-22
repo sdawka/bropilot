@@ -143,11 +143,13 @@ async function copyContext() {
           <div class="relative flex items-start justify-between gap-3">
             <div class="min-w-0">
               <button
+                v-if="def"
                 class="chip cursor-pointer transition hover:opacity-80"
                 :style="{ color: hue }"
                 title="View this kind in the ontology"
                 @click="toOntology"
-              >{{ def?.icon }} {{ def?.label }}</button>
+              >{{ def.icon }} {{ def.label }}</button>
+              <span v-else class="chip">{{ node.kind }}</span>
               <span
                 v-if="nodeFindings.length"
                 class="chip ml-1.5 !border-amber-400/40 text-amber-400/90"

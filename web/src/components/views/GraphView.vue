@@ -62,6 +62,18 @@ function jumpToInstance(id: string) {
 
 // re-frame when the mode (and thus the whole node set) swaps
 watch(isOntology, () => setTimeout(() => graphRef.value?.fit(), 650));
+
+// an instance selection (search palette, health card) landing while the
+// graph is in ontology mode must escape back to instance mode.
+watch(
+  () => state.selectedId,
+  (id) => {
+    if (id && graphMode.value === 'ontology') {
+      graphMode.value = 'instance';
+      focusedKind.value = null;
+    }
+  },
+);
 </script>
 
 <template>
@@ -72,6 +84,7 @@ watch(isOntology, () => setTimeout(() => graphRef.value?.fit(), 650));
       :edges="visibleEdges"
       :selected-id="isOntology ? focusedKind : state.selectedId"
       :dash="isOntology ? ontoDash : undefined"
+      :persist="!isOntology"
       @select="select"
     />
 

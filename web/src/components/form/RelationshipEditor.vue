@@ -26,8 +26,9 @@ const links = computed(() => edgesOf(props.node.id));
 const chips = computed(() => {
   const existing = new Set(links.value.outgoing.map((e) => `${e.type}|${e.dstId}`));
   const out: { type: string; target: GraphNode; strength: string }[] = [];
+  const byTitle = state.graph.nodes.slice().sort((a, b) => a.title.localeCompare(b.title));
   for (const t of triplesFrom(props.node.kind)) {
-    for (const n of state.graph.nodes) {
+    for (const n of byTitle) {
       if (n.kind !== t.dst || n.id === props.node.id) continue;
       if (existing.has(`${t.type}|${n.id}`)) continue;
       out.push({ type: t.type, target: n, strength: t.strength });

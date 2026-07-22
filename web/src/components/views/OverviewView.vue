@@ -97,13 +97,14 @@ function jump(nodeId?: string) {
       <h3 class="display text-xl">Graph health</h3>
       <p class="mt-1 text-xs text-ink-300">{{ findings.length }} advisory finding{{ findings.length > 1 ? 's' : '' }} — suggestions, never rules.</p>
       <ul class="mt-3 space-y-1.5">
-        <li v-for="(f, i) in findings" :key="i">
+        <li v-for="(f, i) in findings.slice(0, 30)" :key="i">
           <button class="w-full text-left text-xs text-ink-200 transition hover:text-accent" @click="jump(f.nodeId)">
             <span class="font-mono text-[0.62rem] uppercase tracking-wide" :class="f.severity === 'note' ? 'text-amber-400/80' : 'text-ink-400'">{{ f.severity }}</span>
             {{ f.message }}
             <span v-if="f.suggestion" class="text-ink-400">{{ f.suggestion }}</span>
           </button>
         </li>
+        <li v-if="findings.length > 30" class="px-0 py-1 text-xs text-ink-400">+{{ findings.length - 30 }} more — see part views</li>
       </ul>
     </section>
   </div>
