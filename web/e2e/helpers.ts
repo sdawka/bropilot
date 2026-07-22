@@ -41,12 +41,66 @@ export async function clickInspectorTab(page: Page, tab: 'Narrative' | 'Details'
 }
 
 /**
- * Give the d3-force simulation (and any queued fit()/relayout()) time to
- * settle. There's no "sim idle" signal exposed to the DOM, so this is a
- * deliberate fixed wait rather than a polled condition.
+ * Wait for the d3-force simulation (and any queued fit()/relayout()) to
+ * actually stop moving, rather than sleeping a fixed duration. Polls every
+ * node circle's screen position (via a single page.evaluate over the SVG,
+ * matching svgNodeCircle's "last circle in each node group" convention) at
+ * ~250ms intervals, and resolves once the largest per-node position delta
+ * between two consecutive samples stays under 0.5px for 2 samples in a row.
+ *
+ * A fixed wait either wastes time (most settles finish well under a second)
+ * or — worse — under-waits on slow CI hardware, where the earlier
+ * hard-coded ms values (1300/2200/4000) were tuned against local timing and
+ * had no real margin. Polled convergence adapts to whatever the machine
+ * actually needs, up to a generous overall cap so a graph that never
+ * settles (a real bug) still fails fast instead of hanging.
  */
-export async function waitForGraphSettle(page: Page, ms = 1300): Promise<void> {
-  await page.waitForTimeout(ms);
+export async function waitForGraphSettle(page: Page, timeoutMs = 15_000): Promise<void> {
+  const SAMPLE_INTERVAL_MS = 250;
+  const STABLE_THRESHOLD_PX = 0.5;
+  const REQUIRED_STABLE_SAMPLES = 2;
+
+  async function samplePositions(): Promise<number[]> {
+    return page.evaluate(() => {
+      const out: number[] = [];
+      for (const g of document.querySelectorAll('svg g.cursor-pointer')) {
+        const circles = g.querySelectorAll('circle');
+        const own = circles[circles.length - 1]; // last = node's own circle, not the selection halo
+        if (!own) continue;
+        const rect = own.getBoundingClientRect();
+        out.push(rect.x, rect.y);
+      }
+      return out;
+    });
+  }
+
+  const deadline = Date.now() + timeoutMs;
+  let prev = await samplePositions();
+  let stableStreak = 0;
+
+  while (Date.now() < deadline) {
+    await page.waitForTimeout(SAMPLE_INTERVAL_MS);
+    const curr = await samplePositions();
+
+    // A changed node count means the graph is still (re)rendering — not
+    // settled yet, regardless of how still the current set looks.
+    const comparable = curr.length > 0 && curr.length === prev.length;
+    const maxDelta = comparable
+      ? curr.reduce((max, v, i) => Math.max(max, Math.abs(v - prev[i]!)), 0)
+      : Infinity;
+
+    if (maxDelta < STABLE_THRESHOLD_PX) {
+      stableStreak++;
+      if (stableStreak >= REQUIRED_STABLE_SAMPLES) return;
+    } else {
+      stableStreak = 0;
+    }
+    prev = curr;
+  }
+  // Timed out without confirmed convergence: fall through rather than throw
+  // — a genuinely stuck simulation will still fail downstream (a click that
+  // lands on a moving target, a position assertion that doesn't match), and
+  // that failure is more informative than an opaque timeout here.
 }
 
 /** Locate an SVG node's `<text>` label by (substring) title — read-only (see svgNodeCircle for interaction). */

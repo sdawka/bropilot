@@ -94,7 +94,7 @@ test.describe('4 — KindCard cross-layer', () => {
     await freshPage(page, '#/graph');
     await waitForGraphSettle(page);
     await page.getByRole('button', { name: 'ontology', exact: true }).click();
-    await waitForGraphSettle(page, 2200); // full-energy layout (alpha 0.9) needs longer to settle
+    await waitForGraphSettle(page); // full-energy layout (alpha 0.9) — polled, so this waits exactly as long as it takes
     await clickFit(page); // re-derive the view from current (settled) node positions before clicking
 
     await clickSvgNode(page, 'Persona');
@@ -177,10 +177,10 @@ test.describe('regression — relayout preserves dragged instance positions', ()
   }) => {
     await freshPage(page, '#/graph');
     // The fresh, unrestored layout runs at full alpha (0.9) and takes several
-    // seconds of d3's default decay to actually stop moving — a short wait
-    // leaves the target node still drifting when the drag fires, which reads
-    // as a missed drag. Give it real time to settle before interacting.
-    await waitForGraphSettle(page, 4000);
+    // seconds of d3's default decay to actually stop moving — polling for
+    // convergence (rather than a fixed sleep) waits exactly as long as this
+    // machine needs before the drag fires, so it can't read as a missed drag.
+    await waitForGraphSettle(page);
     await clickFit(page);
     // "ForceGraph"/"Graph store" (not "System architect"/"Builder"): the
     // layout is deterministic, and those two instance nodes happen to settle
@@ -202,7 +202,14 @@ test.describe('regression — relayout preserves dragged instance positions', ()
     // every node — including the control — would shift by the same amount,
     // which this rules out.
     await dragSvgNode(page, 'ForceGraph', 140, -90);
-    await page.waitForTimeout(300); // onUp() flushes the position synchronously, but let Vue re-render
+    // Deliberately NOT waitForGraphSettle here: onUp() releases fx/fy (the
+    // node isn't pinned after a drag), so link/collide forces keep pulling it
+    // back toward equilibrium — waiting for full convergence would erode the
+    // very displacement this sanity check needs to observe. A short, fixed
+    // wait (just enough for onUp()'s synchronous flush to reach the DOM) is
+    // the right tool here, not the polled settle used for the DERIVED views
+    // below (clickFit, ontology round-trip) after the position has been read.
+    await page.waitForTimeout(300);
     const draggedRightAfter = await svgNodeLabel(page, 'ForceGraph').first().boundingBox();
     const controlRightAfter = await svgNodeLabel(page, 'Graph store').first().boundingBox();
     expect(draggedRightAfter).not.toBeNull();
@@ -218,6 +225,14 @@ test.describe('regression — relayout preserves dragged instance positions', ()
     expect(dragDistance).toBeGreaterThan(60); // the dragged node moved substantially
     expect(controlDrift).toBeLessThan(20); // an untouched node did not — this was a drag, not a pan
 
+    // Now let the released node actually finish settling before treating its
+    // position as "the" post-drag position: onUp() flushes positions to
+    // storage periodically as the residual alpha decays, so a position read
+    // too early (like draggedRightAfter above, taken deliberately early for
+    // the sanity check) can still drift before the eventual unmount flush
+    // below persists it — that drift was exactly what made this comparison
+    // flaky. Settling first makes boxAfterDrag match what gets persisted.
+    await waitForGraphSettle(page);
     await clickFit(page); // re-derive a view transform that accounts for the new position
     const boxAfterDrag = await svgNodeLabel(page, 'ForceGraph').first().boundingBox();
     expect(boxAfterDrag).not.toBeNull();
