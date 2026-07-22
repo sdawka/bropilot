@@ -97,10 +97,14 @@ export async function waitForGraphSettle(page: Page, timeoutMs = 15_000): Promis
     }
     prev = curr;
   }
-  // Timed out without confirmed convergence: fall through rather than throw
-  // — a genuinely stuck simulation will still fail downstream (a click that
-  // lands on a moving target, a position assertion that doesn't match), and
-  // that failure is more informative than an opaque timeout here.
+  // Timed out without confirmed convergence. Throw rather than fall through:
+  // tests whose assertions don't depend on positions (label counts, dash
+  // arrays) would otherwise pass green over a permanently jittering graph,
+  // hiding a ForceGraph re-heat regression behind a mysteriously slow run.
+  throw new Error(
+    `waitForGraphSettle: graph did not converge within ${timeoutMs}ms ` +
+      `(max per-node delta stayed ≥ ${STABLE_THRESHOLD_PX}px between samples)`,
+  );
 }
 
 /** Locate an SVG node's `<text>` label by (substring) title — read-only (see svgNodeCircle for interaction). */
