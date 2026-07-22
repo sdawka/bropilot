@@ -21,7 +21,7 @@ npm run preview    # serve the build
 npm run check       # astro check (type-check .astro/.vue/.ts)
 ```
 
-There is **no test suite and no linter configured** — `npm run check` is the only static gate. Tailwind has **no config file**: theme tokens (colours, fonts) are defined in the `@theme` block of `web/src/styles/global.css` (Tailwind v4 + `@tailwindcss/vite`).
+Vitest (`npm run test`) covers schema/lint/query units plus a seeded ontology-driven simulator (`web/src/lib/sim/` — failures always print the seed and op index; reproduce with the same seed); Playwright (`npm run e2e`) codifies the browser verification pass; CI runs check/build/test/e2e plus a sync-skills drift gate; there is still no linter/formatter. Tailwind has **no config file**: theme tokens (colours, fonts) are defined in the `@theme` block of `web/src/styles/global.css` (Tailwind v4 + `@tailwindcss/vite`).
 
 ## Architecture (the big picture)
 
@@ -49,4 +49,4 @@ Don't collapse these — a part spans multiple spaces (e.g. Implementation = `so
 
 ## Verifying UI changes
 
-Because the app is a `client:only` island, **a passing `npm run build` does not prove it renders** — always verify in a browser. The pattern used here: start `npm run dev`, then drive headless Chrome over the DevTools Protocol via a throwaway Node script (examples live in the session scratchpad). Important gotcha found: **synthetic `PointerEvent` dispatch does not trigger node selection** (pointer-capture semantics) — use real `Input.dispatchMouseEvent` (mousePressed/mouseReleased) at the node's on-screen coordinates instead.
+Because the app is a `client:only` island, **a passing `npm run build` does not prove it renders** — start with `npm run e2e` for automated browser verification (Playwright suite), or start `npm run dev` to drive headless Chrome manually over the DevTools Protocol via a throwaway Node script (examples live in the session scratchpad). Important gotcha found: **synthetic `PointerEvent` dispatch does not trigger node selection** (pointer-capture semantics) — use real `Input.dispatchMouseEvent` (mousePressed/mouseReleased) at the node's on-screen coordinates instead. Two more graph-clicking gotchas (handled by `web/e2e/helpers.ts` — reuse it): node `<text>` labels are `pointer-events:none` and sit below the circle, so clicking a label's bbox silently pans/deselects — target the `<circle>` instead; and after Fit() nodes can settle underneath the fixed corner HTML overlays, so guard that the click point actually hits the SVG.

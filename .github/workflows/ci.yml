@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: npm ci
+        run: npm ci
+        working-directory: web
+
+      - name: npm run check
+        run: npm run check
+        working-directory: web
+
+      - name: npm run build
+        run: npm run build
+        working-directory: web
+
+      - name: npm run test
+        run: npm run test
+        working-directory: web
+
+      - name: npx playwright install chromium
+        run: npx playwright install chromium --with-deps
+        working-directory: web
+
+      - name: npm run e2e
+        run: npm run e2e
+        working-directory: web
+
+      - name: npm run sync-skills
+        run: npm run sync-skills
+        working-directory: web
+
+      - name: Check skills drift
+        run: git diff --exit-code .claude/skills
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: web/playwright-report
