@@ -134,7 +134,7 @@ Strengths: **canonical** = a bro.png arrow or a pair named in an edge-type hint;
 | observability | monitors | api | typical |
 | observability | monitors | module | typical |
 
-The table is authoritative for implementation; adjustments during implementation (a strength up/down, an added `possible` row) are fine, structural changes are not.
+The table is authoritative for implementation; adjustments during implementation (a strength up/down, an added `possible` row) are fine, structural changes are not. Implementation note: four typical rows were added during build (persona motivates requirement, component uses module, module uses interface, screen uses module) — 92 rows total, 6 of strength possible, so the skills' rendered block carries 86 rows.
 
 ## 2 · RelationshipEditor (`components/form/RelationshipEditor.vue`)
 
@@ -233,7 +233,7 @@ function runQuery(graph: Graph, q: GraphQuery): Record<string, GraphNode>[];
 
 ### Named verbs = canned queries
 
-`whyChain(id)`, `realization(id)`, `evidence(id)` are exported functions defined as `GraphQuery` values run through the evaluator (dogfooding). `neighborhood(id, { depth, edgeTypes })` is a direct BFS — depth-bounded neighborhoods aren't expressible as a single BGP, and pretending otherwise would contort the language.
+whyChain(id) is a direct BFS (its mixed-direction intent traversal — incoming motivates/serves/constrains, outgoing implements/satisfies/serves — is not expressible as a single BGP); realization(id) and evidence(id) are canned queries run through the evaluator. `neighborhood(id, { depth, edgeTypes })` is also a direct BFS — depth-bounded neighborhoods aren't expressible as a single BGP, and pretending otherwise would contort the language.
 
 ### Consumers (v1)
 
