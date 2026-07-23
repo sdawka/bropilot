@@ -13,8 +13,9 @@
 import type { Page, Locator } from '@playwright/test';
 
 // playwright.config.ts pins webServer to this port with no `use.baseURL`,
-// so tests navigate with an absolute origin.
-export const BASE_URL = 'http://localhost:4433';
+// so tests navigate with an absolute origin. E2E_PORT must match the
+// config's port derivation (parallel-worktree isolation).
+export const BASE_URL = `http://localhost:${process.env.E2E_PORT ?? 4433}`;
 
 /**
  * Navigate to a brand-new page with empty localStorage (via addInitScript,
