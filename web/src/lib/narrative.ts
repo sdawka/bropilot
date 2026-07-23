@@ -66,6 +66,31 @@ function sentenceFor(n: GraphNode): Sentence {
     });
   }
 
+  // incoming edges — the reverse story, so target-heavy nodes (requirements,
+  // terms, designs) still read as connected instead of orphaned prose
+  const byTypeIn: [string, GraphNode[]][] = [];
+  for (const e of state.graph.edges) {
+    if (e.dstId !== n.id || e.srcId === n.id) continue;
+    const source = state.graph.nodes.find((x) => x.id === e.srcId);
+    if (!source) continue;
+    nodeIds.push(source.id);
+    const entry = byTypeIn.find(([t]) => t === e.type);
+    if (entry) entry[1].push(source);
+    else byTypeIn.push([e.type, [source]]);
+  }
+
+  if (byTypeIn.length) {
+    segments.push({ text: byType.length ? '. In turn, ' : '. ' });
+    byTypeIn.forEach(([type, sources], ti) => {
+      if (ti > 0) segments.push({ text: ti === byTypeIn.length - 1 ? ' and ' : ', ' });
+      sources.forEach((s, i) => {
+        if (i > 0) segments.push({ text: i === sources.length - 1 ? ' and ' : ', ' });
+        segments.push({ text: s.title || 'Untitled', nodeId: s.id });
+      });
+      segments.push({ text: ` ${EDGE_TYPE_LABELS[type] ?? type} it` });
+    });
+  }
+
   segments.push({ text: '.' });
   return { id: n.id, nodeIds, segments };
 }
