@@ -53,13 +53,21 @@ function pick(id: string) {
   state.selectedId = id;
 }
 
-// bring the first relevant sentence into view when the selection changes
+// bring the selected node's own sentence into view when the selection
+// changes. The sentence that was clicked in is also marked relevant and is
+// already visible, so "first relevant" would win and nothing would scroll —
+// target the subject sentence by id, and centre it clear of the sticky
+// summary card. Fall back to the first relevant sentence for nodes whose
+// part isn't in this narrative.
 watch(
   () => state.selectedId,
   async (id) => {
     if (!id || tab.value !== 'narrative') return;
     await nextTick();
-    document.querySelector('[data-relevant="true"]')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    const el =
+      document.querySelector(`[data-sentence-id="${CSS.escape(id)}"]`) ??
+      document.querySelector('[data-relevant="true"]');
+    el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
   },
 );
 
@@ -129,6 +137,7 @@ async function copyContext() {
           <p
             v-for="s in g.sentences"
             :key="s.id"
+            :data-sentence-id="s.id"
             :data-relevant="relevant(s) ? 'true' : 'false'"
             class="border-l-2 pl-3 font-serif text-[0.88rem] leading-relaxed transition-all duration-200"
             :class="
