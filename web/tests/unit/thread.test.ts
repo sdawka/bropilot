@@ -109,4 +109,30 @@ describe('threadFor: deterministic ordering', () => {
     // rows are contiguous 0..n-1
     expect(t.columns.find((c) => c.part === 'foundations')!.nodes.map((n) => n.row)).toEqual([0, 1]);
   });
+
+  it('sorts by barycenter mean (not title) when neighbours span different rows', () => {
+    // Two foundations nodes with different domain neighbours at different rows.
+    // Title order (Alpha < Zebra) would give WRONG answer if barycenter logic is bypassed.
+    const graph: Graph = {
+      nodes: [
+        { id: 'screen-hub', kind: 'screen', title: 'Hub', description: '', props: {} },
+        { id: 'screen-a', kind: 'screen', title: 'A', description: '', props: {} },
+        { id: 'screen-z', kind: 'screen', title: 'Z', description: '', props: {} },
+        { id: 'capability-zebra', kind: 'capability', title: 'Zebra', description: '', props: {} },
+        { id: 'capability-alpha', kind: 'capability', title: 'Alpha', description: '', props: {} },
+      ],
+      edges: [
+        { id: 'e1', srcId: 'screen-hub', dstId: 'screen-a', type: 'references' },
+        { id: 'e2', srcId: 'screen-hub', dstId: 'screen-z', type: 'references' },
+        { id: 'e3', srcId: 'capability-zebra', dstId: 'screen-a', type: 'references' },
+        { id: 'e4', srcId: 'capability-alpha', dstId: 'screen-z', type: 'references' },
+      ],
+    };
+    const t = threadFor(graph, 'screen-hub');
+    // Domain layout: screen-a (row 0), screen-hub (row 1), screen-z (row 2).
+    // Zebra connects to screen-a (row 0) → bary=0; Alpha connects to screen-z (row 2) → bary=2.
+    // Title order alone: Alpha < Zebra. Barycenter order: Zebra (0) < Alpha (2).
+    // Test verifies barycenter mean wins over title.
+    expect(ids(t, 'foundations')).toEqual(['capability-zebra', 'capability-alpha']);
+  });
 });
