@@ -43,6 +43,12 @@ function hueOf(id: string): string {
   const n = getNode(id);
   return n ? nodeHue(n) : 'inherit';
 }
+function tipOf(id: string): string {
+  const n = getNode(id);
+  if (!n) return '';
+  const label = KIND_MAP[n.kind]?.label ?? n.kind;
+  return n.description ? `${label} — ${n.description}` : label;
+}
 function pick(id: string) {
   state.selectedId = id;
 }
@@ -104,6 +110,19 @@ async function copyContext() {
 
     <!-- ── Narrative ── -->
     <div v-if="tab === 'narrative'" class="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+      <!-- selected node summary — read the description without leaving the narrative -->
+      <div v-if="node" class="sticky top-0 z-10 mb-5 border hairline bg-ink-900 px-3.5 py-3">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <span class="chip" :style="{ color: hue }">{{ def?.icon }} {{ def?.label }}</span>
+            <h3 class="mt-1 truncate text-sm font-semibold text-ink-100">{{ node.title || 'Untitled' }}</h3>
+          </div>
+          <button class="btn btn-ghost shrink-0 !px-2 !py-1 text-xs" title="Open the full editor" @click="tab = 'details'">Edit →</button>
+        </div>
+        <p v-if="node.description" class="mt-1.5 line-clamp-4 text-xs leading-relaxed text-ink-300">{{ node.description }}</p>
+        <p v-else class="mt-1.5 text-xs italic text-ink-400">No description yet.</p>
+      </div>
+
       <template v-for="g in groups" :key="g.part">
         <div class="kicker mb-4 mt-2 text-ink-400 first:mt-0">{{ g.label }}</div>
         <div class="mb-8 space-y-3">
@@ -125,6 +144,7 @@ async function copyContext() {
                 v-if="seg.nodeId"
                 class="inline cursor-pointer border-b border-dotted border-current text-left font-semibold hover:opacity-80"
                 :style="{ color: hueOf(seg.nodeId) }"
+                :title="tipOf(seg.nodeId)"
                 @click="pick(seg.nodeId)"
               >{{ seg.text }}</button>
               <span v-else>{{ seg.text }}</span>
