@@ -203,7 +203,10 @@ async function freshEmptyPage(page: Page, hash = '#/foundations'): Promise<void>
     }
   });
   await page.goto(`${BASE_URL}/${hash}`);
-  await page.getByRole('button', { name: 'Overview' }).waitFor({ state: 'visible' });
+  // Scoped to the sidebar <nav>, matching helpers.ts freshPage() — this page
+  // always starts from an empty graph so no rich-sample citation buttons
+  // collide today, but scoping keeps it safe if that ever changes.
+  await page.locator('nav').getByRole('button', { name: 'Overview' }).waitFor({ state: 'visible' });
 }
 
 async function addFirstNodeViaUi(page: Page, nodeKind: string, title: string): Promise<void> {
