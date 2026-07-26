@@ -7,12 +7,12 @@ import { narrativeFor, type Sentence } from '../../lib/narrative';
 import { lintGraph } from '../../lib/lint';
 import { suggestFor, type Suggestion } from '../../lib/suggest';
 import { openOntology } from '../../lib/graphMode';
-import { buildHash } from '../../lib/router';
+import { buildHash, type View } from '../../lib/router';
 import { contextMarkdown } from '../../lib/query';
 import NodeForm from './NodeForm.vue';
 import RelationshipEditor from './RelationshipEditor.vue';
 
-const props = defineProps<{ view: string }>();
+const props = defineProps<{ view: View }>();
 
 const tab = ref<'narrative' | 'details'>('narrative');
 
@@ -69,9 +69,9 @@ function toOntology() {
   location.hash = buildHash('graph', null);
 }
 
-// which parts the narrative covers: the current one, or all three on the graph
+// which parts the narrative covers: the current one, or all three on Graph/Workshop
 const parts = computed<Part[]>(() =>
-  props.view === 'graph' ? PARTS.map((p) => p.id) : [props.view as Part],
+  props.view === 'graph' || props.view === 'workshop' ? PARTS.map((p) => p.id) : [props.view as Part],
 );
 const groups = computed(() => narrativeFor(parts.value));
 
