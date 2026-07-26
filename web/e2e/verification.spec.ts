@@ -229,8 +229,14 @@ test.describe('regression — relayout preserves dragged instance positions', ()
       controlRightAfter!.x - controlBefore!.x,
       controlRightAfter!.y - controlBefore!.y,
     );
-    expect(dragDistance).toBeGreaterThan(60); // the dragged node moved substantially
-    expect(controlDrift).toBeLessThan(20); // an untouched node did not — this was a drag, not a pan
+    // The dragged node must move substantially AND differentially: on the
+    // dense 129-node sample, link/collide forces reclaim more of the drag
+    // before the 300ms read (CI measured 58.5px net from a 166px input), so
+    // an absolute 60px floor flakes — what actually proves "drag, not pan"
+    // is the dragged node moving far while the control barely moves.
+    expect(dragDistance).toBeGreaterThan(40);
+    expect(dragDistance).toBeGreaterThan(controlDrift * 3);
+    expect(controlDrift).toBeLessThan(20); // an untouched node did not move — this was a drag, not a pan
 
     // Now let the released node actually finish settling before treating its
     // position as "the" post-drag position: onUp() flushes positions to
