@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { draft, hydrateWorkshop } from '../../lib/workshopDraft';
 import EventStorm from '../workshop/EventStorm.vue';
 import InterviewDeck from '../workshop/InterviewDeck.vue';
+import DocExtract from '../workshop/DocExtract.vue';
 
 type Exercise = 'hub' | 'storm' | 'interview' | 'extract' | 'gap';
 const exercise = ref<Exercise>('hub');
@@ -52,11 +53,11 @@ function toHub() {
 
     <template v-else>
       <button class="btn btn-ghost mb-4 text-xs" @click="toHub">← Back to workshop</button>
-      <!-- Remaining exercise components mounted here in Tasks 7–8:
-           <DocExtract v-else-if="exercise==='extract'" />
+      <!-- Remaining exercise components mounted here in Task 8:
            <GapSprint v-else-if="exercise==='gap'" /> -->
       <EventStorm v-if="exercise === 'storm'" />
       <InterviewDeck v-else-if="exercise === 'interview'" />
+      <DocExtract v-else-if="exercise === 'extract'" />
       <div v-else class="rounded-xl border border-dashed border-white/10 p-8 text-sm text-ink-400" data-exercise-placeholder>
         {{ exercise }} exercise — implemented in a later task.
       </div>
