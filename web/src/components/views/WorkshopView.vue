@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { draft, hydrateWorkshop } from '../../lib/workshopDraft';
+import EventStorm from '../workshop/EventStorm.vue';
 
 type Exercise = 'hub' | 'storm' | 'interview' | 'extract' | 'gap';
 const exercise = ref<Exercise>('hub');
@@ -50,12 +51,12 @@ function toHub() {
 
     <template v-else>
       <button class="btn btn-ghost mb-4 text-xs" @click="toHub">← Back to workshop</button>
-      <!-- Exercise components mounted here in Tasks 5–8:
-           <EventStorm v-if="exercise==='storm'" />
-           <InterviewDeck v-else-if="exercise==='interview'" />
+      <!-- Remaining exercise components mounted here in Tasks 6–8:
+           <InterviewDeck v-if="exercise==='interview'" />
            <DocExtract v-else-if="exercise==='extract'" />
            <GapSprint v-else-if="exercise==='gap'" /> -->
-      <div class="rounded-xl border border-dashed border-white/10 p-8 text-sm text-ink-400" data-exercise-placeholder>
+      <EventStorm v-if="exercise === 'storm'" />
+      <div v-else class="rounded-xl border border-dashed border-white/10 p-8 text-sm text-ink-400" data-exercise-placeholder>
         {{ exercise }} exercise — implemented in a later task.
       </div>
     </template>
