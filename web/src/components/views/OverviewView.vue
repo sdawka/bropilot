@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { PARTS, SPACES, KIND_MAP, type Part, type Space } from '../../lib/schema';
 import { state, counts, nodesByKind, nodesInPart } from '../../lib/store';
 import { lintGraph } from '../../lib/lint';
+import { suggestStats } from '../../lib/suggest';
 
 const emit = defineEmits<{ (e: 'navigate', part: Part | 'graph'): void }>();
 
@@ -17,6 +18,7 @@ function partCount(p: Part) {
 }
 
 const findings = computed(() => lintGraph(state.graph));
+const suggestions = computed(() => suggestStats(state.graph));
 
 function jump(nodeId?: string) {
   if (!nodeId) return;
@@ -93,10 +95,19 @@ function jump(nodeId?: string) {
     </button>
 
     <!-- graph health -->
-    <section v-if="findings.length" class="mt-4 border hairline bg-ink-900 px-5 py-4">
+    <section v-if="findings.length || suggestions.total" class="mt-4 border hairline bg-ink-900 px-5 py-4">
       <h3 class="display text-xl">Graph health</h3>
-      <p class="mt-1 text-xs text-ink-300">{{ findings.length }} advisory finding{{ findings.length > 1 ? 's' : '' }} — suggestions, never rules.</p>
-      <ul class="mt-3 space-y-1.5">
+      <button
+        v-if="suggestions.total"
+        class="mt-2 flex w-full items-center gap-2 text-left text-xs text-ink-200 transition hover:text-accent"
+        @click="jump(suggestions.topNodeId ?? undefined)"
+      >
+        <span>⚡</span>
+        <span>{{ suggestions.total }} suggested connection{{ suggestions.total > 1 ? 's' : '' }} across {{ suggestions.nodes }} node{{ suggestions.nodes > 1 ? 's' : '' }}</span>
+        <span class="ml-auto text-ink-400">Review →</span>
+      </button>
+      <p v-if="findings.length" class="mt-1 text-xs text-ink-300">{{ findings.length }} advisory finding{{ findings.length > 1 ? 's' : '' }} — suggestions, never rules.</p>
+      <ul v-if="findings.length" class="mt-3 space-y-1.5">
         <li v-for="(f, i) in findings.slice(0, 30)" :key="i">
           <button class="w-full text-left text-xs text-ink-200 transition hover:text-accent" @click="jump(f.nodeId)">
             <span class="font-mono text-[0.62rem] uppercase tracking-wide" :class="f.severity === 'note' ? 'text-amber-400/80' : 'text-ink-400'">{{ f.severity }}</span>

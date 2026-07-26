@@ -6,7 +6,8 @@ import type { Graph } from '../../src/lib/schema';
 // SAMPLE-COUPLED ANCHORS — if SAMPLE_GRAPH changes, re-anchor these by role:
 //   screen-studio            a node whose closure reaches all three parts
 //   component-force-graph    an implementation node inside that closure
-//   requirement-three-parts / capability-collect / usecase-onboard
+//   requirement-round-trip-with-bropilot-skills / capability-portable-spec /
+//   usecase-onboard-onto-a-system
 //                            a why-chain (capability satisfies requirement,
 //                            usecase near it) used for column/order checks
 // Inline fixtures below are self-contained and unaffected by sample changes.
@@ -37,13 +38,14 @@ describe('threadFor: structure', () => {
 
 describe('threadFor: closure', () => {
   it('traverses edges in both directions (anchor reached only via an incoming edge)', () => {
-    // In SAMPLE_GRAPH the only edge touching requirement-three-parts is
-    // e-4: capability-collect --satisfies--> requirement-three-parts.
-    // Direction-agnostic BFS must still pull capability-collect in.
-    const t = threadFor(SAMPLE_GRAPH, 'requirement-three-parts');
+    // In SAMPLE_GRAPH, requirement-round-trip-with-bropilot-skills is reached
+    // by capability-portable-spec --satisfies--> requirement-round-trip-...
+    // (an incoming edge from the anchor's perspective). Direction-agnostic
+    // BFS must still pull capability-portable-spec in.
+    const t = threadFor(SAMPLE_GRAPH, 'requirement-round-trip-with-bropilot-skills');
     const found = allIds(t);
-    expect(found).toContain('requirement-three-parts');
-    expect(found).toContain('capability-collect');
+    expect(found).toContain('requirement-round-trip-with-bropilot-skills');
+    expect(found).toContain('capability-portable-spec');
   });
 
   it('buckets every returned node into the column matching KIND_MAP[kind].part', () => {
@@ -51,7 +53,7 @@ describe('threadFor: closure', () => {
     // foundations kinds land in foundations, etc. Spot-check known members.
     expect(ids(t, 'domain')).toContain('screen-studio');
     expect(ids(t, 'implementation')).toContain('component-force-graph');
-    expect(ids(t, 'foundations')).toContain('usecase-onboard');
+    expect(ids(t, 'foundations')).toContain('usecase-onboard-onto-a-system');
   });
 
   it('skips unknown-kind nodes but keeps their known-kind neighbours', () => {

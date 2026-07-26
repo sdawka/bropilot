@@ -6,7 +6,7 @@ import { freshPage, waitForGraphSettle, clickSvgNode, BASE_URL } from './helpers
 //   'Graph store' (module-store)             an Implementation node with an edge
 //                                            to a Foundations node → ghosts into
 //                                            the Foundations tab
-//   'Schema' (module-schema)                 a node with NO edge to any
+//   'Router' (module-router)                 a node with NO edge to any
 //                                            Foundations node → absent there
 //   screen-studio                            a node whose cross-part closure
 //                                            populates all three thread columns
@@ -32,8 +32,8 @@ test.describe('slice tabs', () => {
     await expect(page.locator('svg g.cursor-pointer', { has: page.locator('text', { hasText: 'System architect' }) }).first()).toBeVisible();
     // a ghost (module-store) is present in the DOM (its label may be opacity-hidden until hover)
     await expect(page.locator('svg g.cursor-pointer', { has: page.locator('text', { hasText: 'Graph store' }) }).first()).toBeAttached();
-    // module-schema ("Schema") is neither a foundations node nor a ghost → absent
-    await expect(page.locator('svg g.cursor-pointer', { has: page.locator('text', { hasText: 'Schema' }) })).toHaveCount(0);
+    // module-router ("Router") is neither a foundations node nor a ghost → absent
+    await expect(page.locator('svg g.cursor-pointer', { has: page.locator('text', { hasText: 'Router' }) })).toHaveCount(0);
   });
 
   test('clicking a ghost jumps to its home part tab and selects it', async ({ page }) => {
@@ -53,14 +53,18 @@ test.describe('slice tabs', () => {
     // Fresh Playwright context ⇒ empty storage, so the app seeds the sample
     // graph on first load. We deliberately do NOT use freshPage here (its
     // addInitScript clears storage on every navigation, including reloads),
-    // so the persisted tab pref survives page.reload().
+    // so the persisted tab pref survives page.reload(). Scoped to the page's
+    // one <nav> landmark like freshPage does: with the rich sample, narrative
+    // prose renders inline citation buttons (e.g. "→ implements Overview")
+    // whose accessible name also contains "Overview", so an unscoped locator
+    // is ambiguous.
     await page.goto(`${BASE_URL}/#/graph`);
-    await page.getByRole('button', { name: 'Overview' }).waitFor({ state: 'visible' });
+    await page.locator('nav').getByRole('button', { name: 'Overview' }).waitFor({ state: 'visible' });
     await page.getByRole('tab', { name: 'Domain', exact: true }).click();
     await expect(page.getByRole('tab', { name: 'Domain', exact: true })).toHaveAttribute('aria-selected', 'true');
 
     await page.reload();
-    await page.getByRole('button', { name: 'Overview' }).waitFor({ state: 'visible' });
+    await page.locator('nav').getByRole('button', { name: 'Overview' }).waitFor({ state: 'visible' });
     await expect(page.getByRole('tab', { name: 'Domain', exact: true })).toHaveAttribute('aria-selected', 'true');
   });
 });

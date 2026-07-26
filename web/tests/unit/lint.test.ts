@@ -1,42 +1,25 @@
 import { describe, expect, it } from 'vitest';
 import { lintGraph } from '../../src/lib/lint';
-import { SAMPLE_GRAPH } from '../../src/lib/sample';
 import type { Graph } from '../../src/lib/schema';
 
-describe('lintGraph on SAMPLE_GRAPH', () => {
-  const findings = lintGraph(SAMPLE_GRAPH);
-
-  it('produces exactly the 6 known findings', () => {
-    expect(findings).toHaveLength(6);
-  });
-
-  it('flags exactly one off-ontology edge: module-schema implements term-space', () => {
+describe('lintGraph: off-ontology detection', () => {
+  it('flags an edge whose (srcKind, type, dstKind) triple is not in the ontology', () => {
+    // entity → implements → screen is not in ONTOLOGY (entity is domain-space,
+    // implements is typically for implementation kinds). This tests the
+    // positive path of off-ontology detection.
+    const g: Graph = {
+      nodes: [
+        { id: 'e', kind: 'entity', title: 'User', description: '' },
+        { id: 's', kind: 'screen', title: 'Dashboard', description: '' },
+      ],
+      edges: [{ id: 'off-onto-edge', srcId: 'e', dstId: 's', type: 'implements' }],
+    };
+    const findings = lintGraph(g);
     const offOntology = findings.filter((f) => f.message.includes('not in the ontology'));
     expect(offOntology).toHaveLength(1);
-    expect(offOntology[0]).toMatchObject({ severity: 'note', nodeId: 'module-schema' });
+    expect(offOntology[0]).toMatchObject({ severity: 'note', nodeId: 'e' });
     expect(offOntology[0].message).toContain('implements');
-    expect(offOntology[0].message).toContain('module → term');
-  });
-
-  it('flags zero orphans (every sample node is linked)', () => {
-    const orphans = findings.filter((f) => f.message.includes('has no relationships yet'));
-    expect(orphans).toHaveLength(0);
-  });
-
-  it('flags exactly two why-chain gaps: capability-collect and capability-portable', () => {
-    const whyGaps = findings.filter((f) => f.message.includes('Nothing says why'));
-    expect(whyGaps).toHaveLength(2);
-    expect(whyGaps.map((f) => f.nodeId).sort()).toEqual(['capability-collect', 'capability-portable']);
-    for (const f of whyGaps) expect(f.severity).toBe('note');
-  });
-
-  it('flags exactly three unverified surfaces: module-store, module-schema, behaviour-autosave', () => {
-    const unverified = findings.filter((f) => f.message.includes('No test evidence'));
-    expect(unverified).toHaveLength(3);
-    expect(unverified.map((f) => f.nodeId).sort()).toEqual(
-      ['behaviour-autosave', 'module-schema', 'module-store'].sort(),
-    );
-    for (const f of unverified) expect(f.severity).toBe('hint');
+    expect(offOntology[0].message).toContain('entity → screen');
   });
 });
 

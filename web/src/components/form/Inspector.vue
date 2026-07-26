@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue';
 import { KIND_MAP, SPACES, PARTS, nodeHue, type Part } from '../../lib/schema';
-import { state, getNode, removeNode, edgesOf, undo } from '../../lib/store';
+import { state, getNode, removeNode, edgesOf, undo, addEdge } from '../../lib/store';
 import { toast } from '../../lib/toast';
 import { narrativeFor, type Sentence } from '../../lib/narrative';
 import { lintGraph } from '../../lib/lint';
+import { suggestFor, type Suggestion } from '../../lib/suggest';
 import { openOntology } from '../../lib/graphMode';
 import { buildHash } from '../../lib/router';
 import { contextMarkdown } from '../../lib/query';
@@ -23,6 +24,44 @@ const space = computed(() => (def.value ? SPACES[def.value.space] : undefined));
 const nodeFindings = computed(() =>
   node.value ? lintGraph(state.graph).filter((f) => f.nodeId === node.value!.id) : [],
 );
+
+// per-node, per-session dismissals — a Set of suggestion keys, reset when the node changes
+const hidden = ref<Set<string>>(new Set());
+watch(
+  () => node.value?.id,
+  () => {
+    hidden.value = new Set();
+  },
+);
+
+const suggestKey = (s: Suggestion) => `${s.dir}|${s.type}|${s.otherKind}`;
+
+const suggestions = computed(() =>
+  node.value ? suggestFor(state.graph, node.value.id).filter((s) => !hidden.value.has(suggestKey(s))) : [],
+);
+
+function candidateTitle(id: string): string {
+  return getNode(id)?.title ?? id;
+}
+function candidateIcon(id: string): string {
+  const n = getNode(id);
+  return n ? KIND_MAP[n.kind]?.icon ?? '•' : '•';
+}
+
+function applySuggestion(s: Suggestion, candidateId: string) {
+  if (!node.value) return;
+  const added =
+    s.dir === 'out'
+      ? addEdge(node.value.id, candidateId, s.type)
+      : addEdge(candidateId, node.value.id, s.type);
+  if (added) {
+    toast(`Linked “${candidateTitle(candidateId)}”`, { action: { label: 'Undo', handler: undo } });
+  }
+}
+
+function hideSuggestion(s: Suggestion) {
+  hidden.value = new Set(hidden.value).add(suggestKey(s));
+}
 
 function toOntology() {
   if (!node.value) return;
@@ -200,6 +239,37 @@ async function copyContext() {
           <section>
             <h3 class="label mb-3">Relationships</h3>
             <RelationshipEditor :node="node" />
+          </section>
+
+          <section v-if="suggestions.length">
+            <h3 class="label mb-3">Suggestions</h3>
+            <ul class="space-y-2">
+              <li v-for="s in suggestions" :key="`${s.dir}-${s.type}-${s.otherKind}`" class="group border hairline bg-ink-950 px-2.5 py-2">
+                <div class="flex items-start justify-between gap-2">
+                  <p class="text-xs leading-relaxed text-ink-300">{{ s.reason }}</p>
+                  <button
+                    class="btn btn-ghost shrink-0 !px-1.5 !py-0.5 text-xs opacity-0 group-hover:opacity-100"
+                    title="Hide this suggestion"
+                    @click="hideSuggestion(s)"
+                  >✕</button>
+                </div>
+                <div v-if="s.candidates.length" class="mt-1.5 flex flex-wrap gap-1.5">
+                  <button
+                    v-for="cid in s.candidates.slice(0, 3)"
+                    :key="cid"
+                    class="btn btn-ghost !px-2 !py-1 text-[0.68rem]"
+                    :title="`Add: ${s.dir === 'out' ? node!.title : candidateTitle(cid)} ${s.type} ${s.dir === 'out' ? candidateTitle(cid) : node!.title}`"
+                    @click="applySuggestion(s, cid)"
+                  >
+                    <span class="font-mono uppercase tracking-[0.08em] text-accent">{{ s.type }}</span>
+                    <span class="ml-1 truncate">{{ candidateIcon(cid) }} {{ candidateTitle(cid) }}</span>
+                  </button>
+                </div>
+                <p v-else class="mt-1 text-[0.68rem] italic text-ink-400">
+                  No {{ s.otherKind }} node exists yet to connect.
+                </p>
+              </li>
+            </ul>
           </section>
 
           <section v-if="node.sourceRefs && node.sourceRefs.length">

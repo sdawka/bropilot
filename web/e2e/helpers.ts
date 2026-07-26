@@ -32,8 +32,11 @@ export async function freshPage(page: Page, hash = '#/overview'): Promise<void> 
   });
   await page.goto(`${BASE_URL}/${hash}`);
   // The sidebar nav is rendered unconditionally (outside the `ready` gate),
-  // so waiting on it confirms the Vue island has mounted.
-  await page.getByRole('button', { name: 'Overview' }).waitFor({ state: 'visible' });
+  // so waiting on it confirms the Vue island has mounted. Scoped to the
+  // page's one <nav> landmark: with the rich sample, narrative prose renders
+  // inline citation buttons (e.g. "→ implements Overview") whose accessible
+  // name also contains "Overview", so an unscoped locator is ambiguous.
+  await page.locator('nav').getByRole('button', { name: 'Overview' }).waitFor({ state: 'visible' });
 }
 
 /** Switch the Inspector's Narrative/Details tab. */
