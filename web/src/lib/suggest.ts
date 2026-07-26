@@ -15,7 +15,6 @@ export interface Suggestion {
 
 const MAX_SUGGESTIONS = 8;
 const MAX_CANDIDATES = 5;
-const STRENGTH_RANK: Record<'canonical' | 'typical', number> = { canonical: 0, typical: 1 };
 
 function article(word: string): string {
   return /^[aeiou]/i.test(word) ? 'an' : 'a';
@@ -72,7 +71,7 @@ export function suggestFor(graph: Graph, nodeId: string): Suggestion[] {
     return false;
   };
 
-  // collect out+in triples (canonical/typical only) in ONTOLOGY order, then stable-sort by strength
+  // collect out+in triples (canonical/typical only) in ONTOLOGY order
   const triples: Triple[] = [];
   for (const t of ONTOLOGY) {
     if (t.strength === 'possible') continue;
@@ -80,11 +79,10 @@ export function suggestFor(graph: Graph, nodeId: string): Suggestion[] {
     if (t.src === kind) triples.push({ dir: 'out', type: t.type, otherKind: t.dst, strength });
     if (t.dst === kind) triples.push({ dir: 'in', type: t.type, otherKind: t.src, strength });
   }
-  triples.sort((a, b) => STRENGTH_RANK[a.strength] - STRENGTH_RANK[b.strength]);
 
-  const suggestions: Suggestion[] = [];
+  // collect all suggestions (not yet capped)
+  const allSuggestions: Suggestion[] = [];
   for (const t of triples) {
-    if (suggestions.length >= MAX_SUGGESTIONS) break;
     const pool = graph.nodes.filter((n) => {
       if (n.kind !== t.otherKind || n.id === nodeId) return false;
       const key = `${t.type}|${n.id}`;
@@ -99,7 +97,7 @@ export function suggestFor(graph: Graph, nodeId: string): Suggestion[] {
       .slice(0, MAX_CANDIDATES)
       .map((c) => c.id);
 
-    suggestions.push({
+    allSuggestions.push({
       nodeId,
       dir: t.dir,
       type: t.type,
@@ -109,7 +107,22 @@ export function suggestFor(graph: Graph, nodeId: string): Suggestion[] {
       reason: reasonFor(kind, t.dir, t.type, t.otherKind, t.strength),
     });
   }
-  return suggestions;
+
+  // reorder: canonical before typical; within each strength, candidates before zero-candidate; preserve ONTOLOGY order within groups
+  const ordered: Suggestion[] = [];
+  let count = 0;
+  for (const strength of ['canonical', 'typical'] as const) {
+    for (const hasCandidate of [true, false]) {
+      for (const s of allSuggestions) {
+        if (s.strength === strength && (s.candidates.length > 0) === hasCandidate) {
+          ordered.push(s);
+          if (++count >= MAX_SUGGESTIONS) return ordered;
+        }
+      }
+    }
+  }
+
+  return ordered;
 }
 
 export function suggestStats(graph: Graph): { nodes: number; total: number; topNodeId: string | null } {
