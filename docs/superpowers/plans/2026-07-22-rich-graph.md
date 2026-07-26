@@ -164,8 +164,12 @@ describe('suggestFor: ordering & caps', () => {
   });
 
   it('produces a readable reason sentence', () => {
-    const g: Graph = { nodes: [node('m', 'module', 'M')], edges: [] };
+    // Amended by controller 2026-07-26: a lone module makes all 11 canonical
+    // triples zero-candidate ties, so 'verifies' (declared last) can never beat
+    // the cap of 8 — a tests node gives it a candidate and exercises promotion.
+    const g: Graph = { nodes: [node('m', 'module', 'M'), node('t', 'tests', 'T')], edges: [] };
     const s = suggestFor(g, 'm').find((x) => x.type === 'verifies' && x.otherKind === 'tests');
+    expect(s!.candidates).toEqual(['t']);
     expect(s!.reason).toMatch(/verifies/);
     expect(s!.reason.endsWith('.')).toBe(true);
     expect(s!.reason[0]).toBe(s!.reason[0].toUpperCase());
