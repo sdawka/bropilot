@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue';
 import { KIND_MAP, SPACES, PARTS, nodeHue, type Part } from '../../lib/schema';
-import { state, getNode, removeNode, edgesOf, undo } from '../../lib/store';
+import { state, getNode, removeNode, edgesOf, undo, addEdge } from '../../lib/store';
 import { toast } from '../../lib/toast';
 import { narrativeFor, type Sentence } from '../../lib/narrative';
 import { lintGraph } from '../../lib/lint';
+import { suggestFor, type Suggestion } from '../../lib/suggest';
 import { openOntology } from '../../lib/graphMode';
-import { buildHash } from '../../lib/router';
+import { buildHash, type View } from '../../lib/router';
 import { contextMarkdown } from '../../lib/query';
 import NodeForm from './NodeForm.vue';
 import RelationshipEditor from './RelationshipEditor.vue';
 
-const props = defineProps<{ view: string }>();
+const props = defineProps<{ view: View }>();
 
 const tab = ref<'narrative' | 'details'>('narrative');
 
@@ -24,15 +25,53 @@ const nodeFindings = computed(() =>
   node.value ? lintGraph(state.graph).filter((f) => f.nodeId === node.value!.id) : [],
 );
 
+// per-node, per-session dismissals — a Set of suggestion keys, reset when the node changes
+const hidden = ref<Set<string>>(new Set());
+watch(
+  () => node.value?.id,
+  () => {
+    hidden.value = new Set();
+  },
+);
+
+const suggestKey = (s: Suggestion) => `${s.dir}|${s.type}|${s.otherKind}`;
+
+const suggestions = computed(() =>
+  node.value ? suggestFor(state.graph, node.value.id).filter((s) => !hidden.value.has(suggestKey(s))) : [],
+);
+
+function candidateTitle(id: string): string {
+  return getNode(id)?.title ?? id;
+}
+function candidateIcon(id: string): string {
+  const n = getNode(id);
+  return n ? KIND_MAP[n.kind]?.icon ?? '•' : '•';
+}
+
+function applySuggestion(s: Suggestion, candidateId: string) {
+  if (!node.value) return;
+  const added =
+    s.dir === 'out'
+      ? addEdge(node.value.id, candidateId, s.type)
+      : addEdge(candidateId, node.value.id, s.type);
+  if (added) {
+    toast(`Linked “${candidateTitle(candidateId)}”`, { action: { label: 'Undo', handler: undo } });
+  }
+}
+
+function hideSuggestion(s: Suggestion) {
+  hidden.value = new Set(hidden.value).add(suggestKey(s));
+}
+
 function toOntology() {
   if (!node.value) return;
   openOntology(node.value.kind);
   location.hash = buildHash('graph', null);
 }
 
-// which parts the narrative covers: the current one, or all three on the graph
+// which parts the narrative covers: the current one, or all three on Graph/Workshop
 const parts = computed<Part[]>(() =>
-  props.view === 'graph' ? PARTS.map((p) => p.id) : [props.view as Part],
+  props.view === 'graph' || props.view === 'workshop' ? PARTS.map((p) => p.id) : [props.view as Part],
 );
 const groups = computed(() => narrativeFor(parts.value));
 
@@ -43,17 +82,31 @@ function hueOf(id: string): string {
   const n = getNode(id);
   return n ? nodeHue(n) : 'inherit';
 }
+function tipOf(id: string): string {
+  const n = getNode(id);
+  if (!n) return '';
+  const label = KIND_MAP[n.kind]?.label ?? n.kind;
+  return n.description ? `${label} — ${n.description}` : label;
+}
 function pick(id: string) {
   state.selectedId = id;
 }
 
-// bring the first relevant sentence into view when the selection changes
+// bring the selected node's own sentence into view when the selection
+// changes. The sentence that was clicked in is also marked relevant and is
+// already visible, so "first relevant" would win and nothing would scroll —
+// target the subject sentence by id, and centre it clear of the sticky
+// summary card. Fall back to the first relevant sentence for nodes whose
+// part isn't in this narrative.
 watch(
   () => state.selectedId,
   async (id) => {
     if (!id || tab.value !== 'narrative') return;
     await nextTick();
-    document.querySelector('[data-relevant="true"]')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    const el =
+      document.querySelector(`[data-sentence-id="${CSS.escape(id)}"]`) ??
+      document.querySelector('[data-relevant="true"]');
+    el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
   },
 );
 
@@ -104,12 +157,26 @@ async function copyContext() {
 
     <!-- ── Narrative ── -->
     <div v-if="tab === 'narrative'" class="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+      <!-- selected node summary — read the description without leaving the narrative -->
+      <div v-if="node" class="sticky top-0 z-10 mb-5 border hairline bg-ink-900 px-3.5 py-3">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <span class="chip" :style="{ color: hue }">{{ def?.icon }} {{ def?.label }}</span>
+            <h3 class="mt-1 truncate text-sm font-semibold text-ink-100">{{ node.title || 'Untitled' }}</h3>
+          </div>
+          <button class="btn btn-ghost shrink-0 !px-2 !py-1 text-xs" title="Open the full editor" @click="tab = 'details'">Edit →</button>
+        </div>
+        <p v-if="node.description" class="mt-1.5 line-clamp-4 text-xs leading-relaxed text-ink-300">{{ node.description }}</p>
+        <p v-else class="mt-1.5 text-xs italic text-ink-400">No description yet.</p>
+      </div>
+
       <template v-for="g in groups" :key="g.part">
         <div class="kicker mb-4 mt-2 text-ink-400 first:mt-0">{{ g.label }}</div>
         <div class="mb-8 space-y-3">
           <p
             v-for="s in g.sentences"
             :key="s.id"
+            :data-sentence-id="s.id"
             :data-relevant="relevant(s) ? 'true' : 'false'"
             class="border-l-2 pl-3 font-serif text-[0.88rem] leading-relaxed transition-all duration-200"
             :class="
@@ -125,6 +192,7 @@ async function copyContext() {
                 v-if="seg.nodeId"
                 class="inline cursor-pointer border-b border-dotted border-current text-left font-semibold hover:opacity-80"
                 :style="{ color: hueOf(seg.nodeId) }"
+                :title="tipOf(seg.nodeId)"
                 @click="pick(seg.nodeId)"
               >{{ seg.text }}</button>
               <span v-else>{{ seg.text }}</span>
@@ -171,6 +239,37 @@ async function copyContext() {
           <section>
             <h3 class="label mb-3">Relationships</h3>
             <RelationshipEditor :node="node" />
+          </section>
+
+          <section v-if="suggestions.length">
+            <h3 class="label mb-3">Suggestions</h3>
+            <ul class="space-y-2">
+              <li v-for="s in suggestions" :key="`${s.dir}-${s.type}-${s.otherKind}`" class="group border hairline bg-ink-950 px-2.5 py-2">
+                <div class="flex items-start justify-between gap-2">
+                  <p class="text-xs leading-relaxed text-ink-300">{{ s.reason }}</p>
+                  <button
+                    class="btn btn-ghost shrink-0 !px-1.5 !py-0.5 text-xs opacity-0 group-hover:opacity-100"
+                    title="Hide this suggestion"
+                    @click="hideSuggestion(s)"
+                  >✕</button>
+                </div>
+                <div v-if="s.candidates.length" class="mt-1.5 flex flex-wrap gap-1.5">
+                  <button
+                    v-for="cid in s.candidates.slice(0, 3)"
+                    :key="cid"
+                    class="btn btn-ghost !px-2 !py-1 text-[0.68rem]"
+                    :title="`Add: ${s.dir === 'out' ? node!.title : candidateTitle(cid)} ${s.type} ${s.dir === 'out' ? candidateTitle(cid) : node!.title}`"
+                    @click="applySuggestion(s, cid)"
+                  >
+                    <span class="font-mono uppercase tracking-[0.08em] text-accent">{{ s.type }}</span>
+                    <span class="ml-1 truncate">{{ candidateIcon(cid) }} {{ candidateTitle(cid) }}</span>
+                  </button>
+                </div>
+                <p v-else class="mt-1 text-[0.68rem] italic text-ink-400">
+                  No {{ s.otherKind }} node exists yet to connect.
+                </p>
+              </li>
+            </ul>
           </section>
 
           <section v-if="node.sourceRefs && node.sourceRefs.length">

@@ -254,6 +254,46 @@ export function importGraph(raw: string): { ok: boolean; error?: string } {
   }
 }
 
+/**
+ * Apply a whole batch of node/edge changes as ONE undo step. Unlike the
+ * per-item CRUD mutations (each of which checkpoints), this checkpoints once
+ * up front, then mutates synchronously — the deep-watch records the post-batch
+ * state as a single history transition. This is the store side of the merge
+ * review; nothing else should write many changes at once.
+ */
+export function applyGraphBatch(batch: {
+  addNodes: GraphNode[];
+  updateNodes: { id: string; patch: Partial<GraphNode> }[];
+  addEdges: { srcId: string; dstId: string; type: string; label?: string }[];
+}): { addedNodes: number; updatedNodes: number; addedEdges: number } {
+  checkpoint();
+  const existingIds = new Set(state.graph.nodes.map((n) => n.id));
+  let addedNodes = 0;
+  for (const node of batch.addNodes) {
+    if (existingIds.has(node.id)) continue; // defensive: never clobber an id
+    existingIds.add(node.id);
+    state.graph.nodes.push(node);
+    addedNodes++;
+  }
+  let updatedNodes = 0;
+  for (const { id, patch } of batch.updateNodes) {
+    const node = state.graph.nodes.find((n) => n.id === id);
+    if (!node) continue;
+    Object.assign(node, patch);
+    updatedNodes++;
+  }
+  let addedEdges = 0;
+  for (const e of batch.addEdges) {
+    if (!e.srcId || !e.dstId || e.srcId === e.dstId) continue;
+    if (!existingIds.has(e.srcId) || !existingIds.has(e.dstId)) continue; // endpoint must exist post-batch
+    const dup = state.graph.edges.find((x) => x.srcId === e.srcId && x.dstId === e.dstId && x.type === e.type);
+    if (dup) continue;
+    state.graph.edges.push({ id: `e-${nanoid(8)}`, srcId: e.srcId, dstId: e.dstId, type: e.type, label: e.label });
+    addedEdges++;
+  }
+  return { addedNodes, updatedNodes, addedEdges };
+}
+
 export function resetToSample() {
   checkpoint();
   state.graph = seedSample();

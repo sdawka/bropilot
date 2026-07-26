@@ -1,8 +1,8 @@
 import { PARTS, type Part } from './schema';
 
-export type View = 'overview' | Part | 'graph';
+export type View = 'overview' | Part | 'graph' | 'workshop';
 
-const VALID_VIEWS = new Set<string>(['overview', 'graph', ...PARTS.map((p) => p.id)]);
+const VALID_VIEWS = new Set<string>(['overview', 'graph', 'workshop', ...PARTS.map((p) => p.id)]);
 
 /** Parse `#/{view}` or `#/{view}/{nodeId}` — invalid views fall back to overview. */
 export function parseHash(hash: string): { view: View; nodeId: string | null } {

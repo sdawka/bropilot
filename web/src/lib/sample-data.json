@@ -1,0 +1,2995 @@
+{
+  "nodes": [
+    {
+      "id": "name-bropilot-studio",
+      "kind": "name",
+      "title": "Bropilot Studio",
+      "description": "A studio for collecting and visualising the knowledge graph of a system across its foundations, domain and implementation.",
+      "props": {}
+    },
+    {
+      "id": "purpose-shared-understanding-codified",
+      "kind": "purpose",
+      "title": "Shared understanding, codified",
+      "description": "Capture the why, the what and the how of a system in one navigable graph so a team and its AI share a single source of truth.",
+      "props": {}
+    },
+    {
+      "id": "capability-guided-collection",
+      "kind": "capability",
+      "title": "Guided collection",
+      "description": "Structured, kind-specific forms walk a user through every category of knowledge a system has, foundations through implementation.",
+      "props": {}
+    },
+    {
+      "id": "capability-live-graph-view",
+      "kind": "capability",
+      "title": "Live graph view",
+      "description": "Renders the whole system as an explorable, force-directed node-link graph that updates as the underlying data changes.",
+      "props": {}
+    },
+    {
+      "id": "capability-portable-spec",
+      "kind": "capability",
+      "title": "Portable spec",
+      "description": "Imports and exports the canonical Bropilot JSON schema so a graph round-trips cleanly with external code generators.",
+      "props": {}
+    },
+    {
+      "id": "capability-ontology-aware-suggestions",
+      "kind": "capability",
+      "title": "Ontology-aware suggestions",
+      "description": "Offers one-click edge suggestions and ranks search results by how well they fit the ontology, without ever forcing a choice.",
+      "props": {}
+    },
+    {
+      "id": "capability-graph-health-linting",
+      "kind": "capability",
+      "title": "Graph health linting",
+      "description": "Surfaces advisory findings about orphaned nodes, missing why-chains, off-ontology edges and unverified surfaces.",
+      "props": {}
+    },
+    {
+      "id": "capability-ontology-driven-query",
+      "kind": "capability",
+      "title": "Ontology-driven query",
+      "description": "Runs schema-validated graph-pattern queries and derives named traversals like why-chains and evidence chains.",
+      "props": {}
+    },
+    {
+      "id": "persona-architect",
+      "kind": "persona",
+      "title": "System architect",
+      "description": "Owns the shape of the system and keeps the graph honest as it grows.",
+      "props": {
+        "role": "Designs and curates the knowledge graph"
+      }
+    },
+    {
+      "id": "persona-builder",
+      "kind": "persona",
+      "title": "Builder",
+      "description": "Turns the graph into running code, one module and component at a time.",
+      "props": {
+        "role": "Implements modules from the domain"
+      }
+    },
+    {
+      "id": "persona-newcomer-onboarding-engineer",
+      "kind": "persona",
+      "title": "Newcomer/onboarding engineer",
+      "description": "Joins the project cold and needs the lay of the land fast, without reading every source file first.",
+      "props": {
+        "role": "Reads the graph to ramp up"
+      }
+    },
+    {
+      "id": "persona-the-ai-agent",
+      "kind": "persona",
+      "title": "The AI agent",
+      "description": "Consumes and produces the same JSON graph as a human, extracting it from code or generating code from it.",
+      "props": {
+        "role": "Round-trips the graph with /bropilot-extract and /bropilot-generate"
+      }
+    },
+    {
+      "id": "requirement-three-part-model",
+      "kind": "requirement",
+      "title": "Three-part model",
+      "description": "Foundations, Domain and Implementation must each be first-class, navigable sections of the studio.",
+      "props": {
+        "priority": "must"
+      }
+    },
+    {
+      "id": "requirement-code-traceability",
+      "kind": "requirement",
+      "title": "Code traceability",
+      "description": "Every implementation node must link to where its code actually lives.",
+      "props": {
+        "priority": "should"
+      }
+    },
+    {
+      "id": "requirement-round-trip-with-bropilot-skills",
+      "kind": "requirement",
+      "title": "Round-trip with Bropilot skills",
+      "description": "The exported JSON must import cleanly back through /bropilot-extract and /bropilot-generate with no lossy transform.",
+      "props": {
+        "priority": "must"
+      }
+    },
+    {
+      "id": "requirement-advisory-only-ontology",
+      "kind": "requirement",
+      "title": "Advisory-only ontology",
+      "description": "Ontology suggestions must never block or invalidate an edge a user actually wants to create.",
+      "props": {
+        "priority": "must"
+      }
+    },
+    {
+      "id": "requirement-deterministic-node-ids",
+      "kind": "requirement",
+      "title": "Deterministic node ids",
+      "description": "Every node id must be derivable from its kind and title alone, so imports and diffs stay stable.",
+      "props": {
+        "priority": "should"
+      }
+    },
+    {
+      "id": "usecase-onboard-onto-a-system",
+      "kind": "usecase",
+      "title": "Onboard onto a system",
+      "description": "A newcomer reads the graph to understand a system fast instead of spelunking through source files.",
+      "props": {
+        "situation": "A new engineer joins and needs the lay of the land in an hour, not a week."
+      }
+    },
+    {
+      "id": "usecase-explore-via-search",
+      "kind": "usecase",
+      "title": "Explore via search",
+      "description": "A user presses the search shortcut and jumps straight to any node by title, description or kind.",
+      "props": {
+        "situation": "Someone remembers a term but not which part of the graph it lives in."
+      }
+    },
+    {
+      "id": "usecase-wire-up-a-relationship",
+      "kind": "usecase",
+      "title": "Wire up a relationship",
+      "description": "A user links two nodes together, guided by ontology suggestion chips instead of guessing at edge types.",
+      "props": {
+        "situation": "Two nodes clearly relate but no edge exists yet connecting them."
+      }
+    },
+    {
+      "id": "usecase-copy-context-into-an-llm-chat",
+      "kind": "usecase",
+      "title": "Copy context into an LLM chat",
+      "description": "A user copies a token-budgeted markdown slice of a node's neighbourhood to paste into another conversation.",
+      "props": {
+        "situation": "Someone needs to hand an AI assistant just enough context about one part of the system."
+      }
+    },
+    {
+      "id": "usecase-extract-a-graph-from-a-codebase",
+      "kind": "usecase",
+      "title": "Extract a graph from a codebase",
+      "description": "An agent walks an existing repository and produces a Bropilot graph that models it.",
+      "props": {
+        "situation": "A team has code but no spec and wants one derived from what already exists."
+      }
+    },
+    {
+      "id": "constraint-no-backend-required",
+      "kind": "constraint",
+      "title": "No backend required",
+      "description": "The studio runs entirely client-side, with no server component to deploy or keep alive.",
+      "props": {
+        "invariant": "The graph is always usable offline and stored entirely in the browser."
+      }
+    },
+    {
+      "id": "constraint-single-vue-island",
+      "kind": "constraint",
+      "title": "Single Vue island",
+      "description": "The whole app is one Vue island so the editor and the graph can share live reactive state.",
+      "props": {
+        "invariant": "All interactive state lives inside one mounted island, never split across separate mounts."
+      }
+    },
+    {
+      "id": "constraint-svg-not-canvas",
+      "kind": "constraint",
+      "title": "SVG not canvas",
+      "description": "The graph renders as SVG rather than canvas, trading raw performance for stylability and native hit-testing.",
+      "props": {
+        "invariant": "Every node and edge in the force graph must remain a real, hit-testable DOM element."
+      }
+    },
+    {
+      "id": "constraint-nothing-is-ever-validated-or-blocked",
+      "kind": "constraint",
+      "title": "Nothing is ever validated or blocked",
+      "description": "The ontology and lint layers only ever advise; they never refuse an edge or a node a user actually wants.",
+      "props": {
+        "invariant": "An off-ontology edge or unusual kind pairing must always be creatable, only ever flagged."
+      }
+    },
+    {
+      "id": "goal-faster-alignment",
+      "kind": "goal",
+      "title": "Faster alignment",
+      "description": "Cut the time a team spends arguing about what the system actually is.",
+      "props": {
+        "metric": "Onboarding time and spec drift both trend down."
+      }
+    },
+    {
+      "id": "goal-zero-drift-between-spec-and-code",
+      "kind": "goal",
+      "title": "Zero drift between spec and code",
+      "description": "Keep the knowledge graph and the running code close enough that either one can regenerate the other.",
+      "props": {
+        "metric": "Extracted graphs from the live repo match the hand-authored spec almost node for node."
+      }
+    },
+    {
+      "id": "goal-confident-refactors",
+      "kind": "goal",
+      "title": "Confident refactors",
+      "description": "Let a builder change implementation details without fear of breaking an intent nobody wrote down.",
+      "props": {
+        "metric": "Fewer regressions traced back to an undocumented assumption."
+      }
+    },
+    {
+      "id": "goal-ship-without-re-litigating-design",
+      "kind": "goal",
+      "title": "Ship without re-litigating design",
+      "description": "Keep past architectural decisions visible in the graph so teams stop re-debating settled questions.",
+      "props": {
+        "metric": "Design decisions referenced instead of re-argued in code review."
+      }
+    },
+    {
+      "id": "hypothesis-a-graph-beats-a-doc",
+      "kind": "hypothesis",
+      "title": "A graph beats a doc",
+      "description": "A linked graph is retained and trusted better than an equivalent page of prose documentation.",
+      "props": {
+        "belief": "People reason about systems as connected things, not paragraphs.",
+        "validation": "Users navigate edges more than they read descriptions in isolation."
+      }
+    },
+    {
+      "id": "hypothesis-suggestions-raise-edge-quality",
+      "kind": "hypothesis",
+      "title": "Suggestions raise edge quality",
+      "description": "Ranking targets and offering suggestion chips nudges users toward richer, more precise edge types.",
+      "props": {
+        "belief": "Most users pick the first sensible option rather than deliberate over edge types.",
+        "validation": "Ontology-suggested edge types get chosen far more often than the weak, catch-all references type."
+      }
+    },
+    {
+      "id": "hypothesis-seeded-simulation-catches-invariant-breaks",
+      "kind": "hypothesis",
+      "title": "Seeded simulation catches invariant breaks",
+      "description": "Replaying long sequences of randomly generated but schema-valid operations surfaces invariant violations that hand-written tests would miss.",
+      "props": {
+        "belief": "Random valid graph operations will eventually exercise an edge case manual tests miss.",
+        "validation": "A failing seed reproduces the same operation sequence deterministically."
+      }
+    },
+    {
+      "id": "assumption-users-tolerate-advisory-noise",
+      "kind": "assumption",
+      "title": "Users tolerate advisory noise",
+      "description": "People will keep a few unresolved lint findings around rather than feel compelled to clear every one.",
+      "props": {}
+    },
+    {
+      "id": "assumption-one-island-scales-to-hundreds-of-nodes",
+      "kind": "assumption",
+      "title": "One island scales to hundreds of nodes",
+      "description": "A single reactive Vue island can hold a few hundred nodes and edges without the UI becoming sluggish.",
+      "props": {}
+    },
+    {
+      "id": "assumption-contributors-read-claude-md-before-diving-in",
+      "kind": "assumption",
+      "title": "Contributors read CLAUDE.md before diving in",
+      "description": "New contributors, human or AI, check the project's CLAUDE.md for prior decisions before re-proposing something already settled.",
+      "props": {}
+    },
+    {
+      "id": "term-space",
+      "kind": "term",
+      "title": "Space",
+      "description": "One of four semantic groupings — basics, problem, solution or crosscutting — that drives node and edge colour.",
+      "props": {
+        "aka": [
+          "concern"
+        ]
+      }
+    },
+    {
+      "id": "term-part",
+      "kind": "term",
+      "title": "Part",
+      "description": "One of the three display groupings — Foundations, Domain or Implementation — that the studio navigates by.",
+      "props": {}
+    },
+    {
+      "id": "term-edge-type",
+      "kind": "term",
+      "title": "Edge type",
+      "description": "One of seventeen typed, directional relationships a graph edge can carry, grouped into five categories.",
+      "props": {
+        "aka": [
+          "relationship type"
+        ]
+      }
+    },
+    {
+      "id": "term-why-chain",
+      "kind": "term",
+      "title": "Why-chain",
+      "description": "The traceable path of motivates, serves, implements and satisfies edges connecting a piece of code back to the intent that justifies it.",
+      "props": {}
+    },
+    {
+      "id": "term-ontology-t-box",
+      "kind": "term",
+      "title": "Ontology (T-Box)",
+      "description": "The kind-to-kind triple table describing which edge types typically connect which kinds, layered advisory on top of the instance graph.",
+      "props": {
+        "aka": [
+          "T-Box",
+          "meta-ontology"
+        ]
+      }
+    },
+    {
+      "id": "term-triple-strength",
+      "kind": "term",
+      "title": "Triple strength",
+      "description": "How strongly an ontology triple is endorsed — canonical, typical or merely possible — which drives dash-coding in the ontology view.",
+      "props": {
+        "aka": [
+          "canonical",
+          "typical",
+          "possible"
+        ]
+      }
+    },
+    {
+      "id": "entity-node",
+      "kind": "entity",
+      "title": "Node",
+      "description": "A unit of knowledge with a kind, a title and a description, plus kind-specific fields kept in props.",
+      "props": {
+        "attributes": [
+          "id",
+          "kind",
+          "title",
+          "description",
+          "props",
+          "sourceRefs"
+        ]
+      }
+    },
+    {
+      "id": "entity-edge",
+      "kind": "entity",
+      "title": "Edge",
+      "description": "A typed, directed relationship connecting a source node to a destination node.",
+      "props": {
+        "attributes": [
+          "id",
+          "srcId",
+          "dstId",
+          "type",
+          "label"
+        ]
+      }
+    },
+    {
+      "id": "entity-kind",
+      "kind": "entity",
+      "title": "Kind",
+      "description": "One of the twenty-eight categories a node can belong to, each carrying its own display part, semantic space and editable fields.",
+      "props": {
+        "attributes": [
+          "kind",
+          "label",
+          "part",
+          "space",
+          "icon",
+          "fields"
+        ]
+      }
+    },
+    {
+      "id": "entity-ontology-triple",
+      "kind": "entity",
+      "title": "Ontology triple",
+      "description": "A single kind-to-kind-via-edge-type rule recorded in the T-Box, tagged with how strongly it is endorsed.",
+      "props": {
+        "attributes": [
+          "src",
+          "type",
+          "dst",
+          "strength"
+        ]
+      }
+    },
+    {
+      "id": "entity-finding",
+      "kind": "entity",
+      "title": "Finding",
+      "description": "An advisory lint result pointing at a node or edge, describing an issue and never blocking anything.",
+      "props": {
+        "attributes": [
+          "severity",
+          "nodeId",
+          "edgeId",
+          "message",
+          "suggestion"
+        ]
+      }
+    },
+    {
+      "id": "entity-source-reference",
+      "kind": "entity",
+      "title": "Source reference",
+      "description": "A quoted excerpt tying a node back to the interview answer or code passage that produced it.",
+      "props": {
+        "attributes": [
+          "turnId",
+          "excerpt"
+        ]
+      }
+    },
+    {
+      "id": "relationship-nodes-connect-via-edges",
+      "kind": "relationship",
+      "title": "Nodes connect via Edges",
+      "description": "Edges link a source node to a destination node, and any node can carry many edges in either direction.",
+      "props": {
+        "cardinality": "many-to-many"
+      }
+    },
+    {
+      "id": "relationship-kind-maps-to-part-and-space",
+      "kind": "relationship",
+      "title": "Kind maps to Part and Space",
+      "description": "Every kind declares exactly one display part and one semantic space, and many kinds can share either.",
+      "props": {
+        "cardinality": "many-to-many"
+      }
+    },
+    {
+      "id": "relationship-finding-points-at-a-node",
+      "kind": "relationship",
+      "title": "Finding points at a Node",
+      "description": "A lint finding optionally names the single node or edge it concerns, letting the UI navigate straight to it.",
+      "props": {
+        "cardinality": "many-to-one"
+      }
+    },
+    {
+      "id": "relationship-ontology-triple-connects-two-kinds",
+      "kind": "relationship",
+      "title": "Ontology triple connects two Kinds",
+      "description": "Each triple names a source kind and a destination kind, and the same pair of kinds can be linked by several different triples.",
+      "props": {
+        "cardinality": "many-to-many"
+      }
+    },
+    {
+      "id": "behaviour-autosave",
+      "kind": "behaviour",
+      "title": "Autosave",
+      "description": "Any change to the graph is persisted to localStorage immediately, debounced just enough to avoid thrashing storage.",
+      "props": {}
+    },
+    {
+      "id": "behaviour-undo-redo-history-tracking",
+      "kind": "behaviour",
+      "title": "Undo/redo history tracking",
+      "description": "A debounced watch snapshots the graph after each pause in editing, so Cmd+Z and Cmd+Shift+Z step through real history points.",
+      "props": {}
+    },
+    {
+      "id": "behaviour-off-ontology-edge-detection",
+      "kind": "behaviour",
+      "title": "Off-ontology edge detection",
+      "description": "Flags an edge whose kind pairing and type have no matching ontology triple, without ever refusing to save it.",
+      "props": {}
+    },
+    {
+      "id": "behaviour-why-chain-gap-detection",
+      "kind": "behaviour",
+      "title": "Why-chain gap detection",
+      "description": "Flags a capability, use case or goal that has no incoming motivates or serves edge explaining why it exists.",
+      "props": {}
+    },
+    {
+      "id": "behaviour-orphan-detection",
+      "kind": "behaviour",
+      "title": "Orphan detection",
+      "description": "Flags a node of a known kind that appears in no edge at all, in either direction.",
+      "props": {}
+    },
+    {
+      "id": "behaviour-unverified-surface-detection",
+      "kind": "behaviour",
+      "title": "Unverified surface detection",
+      "description": "Flags a module, API or behaviour with no incoming verifies edge, so the health card always has something concrete to act on.",
+      "props": {}
+    },
+    {
+      "id": "event-node-created",
+      "kind": "event",
+      "title": "Node created",
+      "description": "Fires whenever a new node is added to the graph, whether typed by hand or extracted from code.",
+      "props": {}
+    },
+    {
+      "id": "event-node-selected",
+      "kind": "event",
+      "title": "Node selected",
+      "description": "Fires when a user clicks a node in the graph or picks one from search, driving the Inspector panel.",
+      "props": {}
+    },
+    {
+      "id": "event-graph-imported",
+      "kind": "event",
+      "title": "Graph imported",
+      "description": "Fires when a whole JSON graph replaces the current one via import or reset-to-sample.",
+      "props": {}
+    },
+    {
+      "id": "event-lint-finding-raised",
+      "kind": "event",
+      "title": "Lint finding raised",
+      "description": "Fires whenever the lint pass produces a new advisory finding against the current graph.",
+      "props": {}
+    },
+    {
+      "id": "state-localstorage-graph",
+      "kind": "state",
+      "title": "localStorage graph",
+      "description": "The full { nodes, edges } JSON persisted under a single storage key, the sole source of truth on reload.",
+      "props": {}
+    },
+    {
+      "id": "state-undo-redo-history-stacks",
+      "kind": "state",
+      "title": "Undo/redo history stacks",
+      "description": "Two bounded arrays of serialized graph snapshots, one for undo and one for redo, capped at fifty entries.",
+      "props": {}
+    },
+    {
+      "id": "state-selected-node-id",
+      "kind": "state",
+      "title": "Selected node id",
+      "description": "The id of the node currently shown in the Inspector, or null when nothing is selected.",
+      "props": {}
+    },
+    {
+      "id": "state-autosave-timestamp",
+      "kind": "state",
+      "title": "Autosave timestamp",
+      "description": "The moment of the most recent successful save, driving the small \"Saved\" indicator in the corner.",
+      "props": {}
+    },
+    {
+      "id": "flow-collect-a-system",
+      "kind": "flow",
+      "title": "Collect a system",
+      "description": "Walk the three parts in order, filling in what is known and leaving the rest for later.",
+      "props": {
+        "steps": [
+          "Name & purpose",
+          "Personas & needs",
+          "Domain objects",
+          "Wire up relationships",
+          "Link implementation to code"
+        ]
+      }
+    },
+    {
+      "id": "flow-extract-a-graph-from-code",
+      "kind": "flow",
+      "title": "Extract a graph from code",
+      "description": "Mine an existing codebase's modules, components, tests and docs into a canonical Bropilot graph.",
+      "props": {
+        "steps": [
+          "Read the repo structure",
+          "Identify kinds per file and folder",
+          "Draft nodes and edges",
+          "Check thresholds and ontology fit"
+        ]
+      }
+    },
+    {
+      "id": "flow-generate-an-spa-from-a-graph",
+      "kind": "flow",
+      "title": "Generate an SPA from a graph",
+      "description": "Turn a Bropilot graph, in JSON, markdown or clipboard form, into scaffolded or updated application code.",
+      "props": {
+        "steps": [
+          "Parse the input graph",
+          "Map kinds to code artifacts",
+          "Scaffold or update files",
+          "Report what changed"
+        ]
+      }
+    },
+    {
+      "id": "flow-interview-to-build-a-graph",
+      "kind": "flow",
+      "title": "Interview to build a graph",
+      "description": "Build or extend a graph conversationally, patching the JSON file after every couple of answers rather than regenerating it.",
+      "props": {
+        "steps": [
+          "Load or start the graph file",
+          "Ask one focused question",
+          "Patch specific nodes and edges",
+          "Save after every few answers"
+        ]
+      }
+    },
+    {
+      "id": "flow-explore-the-graph-via-search",
+      "kind": "flow",
+      "title": "Explore the graph via search",
+      "description": "Open the search palette, type a fragment of a title or description, and jump straight to the matching node.",
+      "props": {
+        "steps": [
+          "Press the search shortcut",
+          "Type a title, description or kind fragment",
+          "Pick a result",
+          "Land on that node, selected"
+        ]
+      }
+    },
+    {
+      "id": "screen-studio",
+      "kind": "screen",
+      "title": "Studio",
+      "description": "The single-page workspace shell hosting the sidebar navigation, every view and the Inspector panel.",
+      "props": {}
+    },
+    {
+      "id": "screen-overview",
+      "kind": "screen",
+      "title": "Overview",
+      "description": "The landing view summarising node and edge counts per part alongside the graph health card.",
+      "props": {}
+    },
+    {
+      "id": "screen-graph",
+      "kind": "screen",
+      "title": "Graph",
+      "description": "The full force-directed graph view, with an instance/ontology toggle and a search palette.",
+      "props": {}
+    },
+    {
+      "id": "screen-foundations-view",
+      "kind": "screen",
+      "title": "Foundations view",
+      "description": "The part view listing every foundations-kind node with its guided editor form.",
+      "props": {}
+    },
+    {
+      "id": "screen-domain-view",
+      "kind": "screen",
+      "title": "Domain view",
+      "description": "The part view listing every domain-kind node with its guided editor form.",
+      "props": {}
+    },
+    {
+      "id": "screen-implementation-view",
+      "kind": "screen",
+      "title": "Implementation view",
+      "description": "The part view listing every implementation-kind node with its guided editor form.",
+      "props": {}
+    },
+    {
+      "id": "module-store",
+      "kind": "module",
+      "title": "Graph store",
+      "description": "Reactive graph state, autosave, undo/redo history and JSON import/export, all behind one small module.",
+      "props": {
+        "path": "web/src/lib/store.ts",
+        "repo": ""
+      }
+    },
+    {
+      "id": "module-schema",
+      "kind": "module",
+      "title": "Schema",
+      "description": "The kind registry, the three parts, the four spaces, per-kind field defs and the edge-type ontology, all in one file.",
+      "props": {
+        "path": "web/src/lib/schema.ts",
+        "repo": ""
+      }
+    },
+    {
+      "id": "module-graph-lint",
+      "kind": "module",
+      "title": "Graph lint",
+      "description": "Advisory graph-health checks against the ontology — never throws, never blocks, only ever suggests.",
+      "props": {
+        "path": "web/src/lib/lint.ts",
+        "repo": ""
+      }
+    },
+    {
+      "id": "module-graph-query-engine",
+      "kind": "module",
+      "title": "Graph query engine",
+      "description": "A SPARQL-flavoured basic-graph-pattern kernel, JSON encoded, plus named traversals like why-chain and evidence.",
+      "props": {
+        "path": "web/src/lib/query.ts",
+        "repo": ""
+      }
+    },
+    {
+      "id": "module-narrative-generator",
+      "kind": "module",
+      "title": "Narrative generator",
+      "description": "Composes one sentence per node from its description and its edges, turning a part into readable prose.",
+      "props": {
+        "path": "web/src/lib/narrative.ts",
+        "repo": ""
+      }
+    },
+    {
+      "id": "module-router",
+      "kind": "module",
+      "title": "Router",
+      "description": "Parses and builds the #/{view}/{nodeId} hash so navigation state lives in the URL.",
+      "props": {
+        "path": "web/src/lib/router.ts",
+        "repo": ""
+      }
+    },
+    {
+      "id": "module-toast-notifications",
+      "kind": "module",
+      "title": "Toast notifications",
+      "description": "A tiny reactive queue of dismissable toast messages with optional actions.",
+      "props": {
+        "path": "web/src/lib/toast.ts",
+        "repo": ""
+      }
+    },
+    {
+      "id": "module-ontology-simulator",
+      "kind": "module",
+      "title": "Ontology simulator",
+      "description": "A seeded, weighted operation generator that drives the real store through thousands of schema-valid mutations to hunt invariant breaks.",
+      "props": {
+        "path": "web/src/lib/sim",
+        "repo": ""
+      }
+    },
+    {
+      "id": "module-suggestion-engine",
+      "kind": "module",
+      "title": "Suggestion engine",
+      "description": "Derives ranked, advisory edge suggestions for a node from the ontology, favouring triangle-closing candidates.",
+      "props": {
+        "path": "web/src/lib/suggest.ts",
+        "repo": ""
+      }
+    },
+    {
+      "id": "component-force-graph",
+      "kind": "component",
+      "title": "ForceGraph",
+      "description": "d3-force layout rendered as interactive, hand-rolled SVG — pan, zoom and drag without d3-zoom or d3-drag.",
+      "props": {
+        "path": "web/src/components/graph/ForceGraph.vue",
+        "repo": ""
+      }
+    },
+    {
+      "id": "component-studio",
+      "kind": "component",
+      "title": "Studio",
+      "description": "The root shell component: sidebar navigation, the active view, the Inspector panel and import/export controls.",
+      "props": {
+        "path": "web/src/components/Studio.vue",
+        "repo": ""
+      }
+    },
+    {
+      "id": "component-inspector",
+      "kind": "component",
+      "title": "Inspector",
+      "description": "The side panel that shows a selected node's Details or generated Narrative, plus its lint badge.",
+      "props": {
+        "path": "web/src/components/form/Inspector.vue",
+        "repo": ""
+      }
+    },
+    {
+      "id": "component-relationshipeditor",
+      "kind": "component",
+      "title": "RelationshipEditor",
+      "description": "Lists a node's relationships and offers ontology suggestion chips for adding new ones.",
+      "props": {
+        "path": "web/src/components/form/RelationshipEditor.vue",
+        "repo": ""
+      }
+    },
+    {
+      "id": "component-nodeform",
+      "kind": "component",
+      "title": "NodeForm",
+      "description": "A dynamic editor generated from a kind's field defs, so every kind gets a tailored form for free.",
+      "props": {
+        "path": "web/src/components/form/NodeForm.vue",
+        "repo": ""
+      }
+    },
+    {
+      "id": "component-overviewview",
+      "kind": "component",
+      "title": "OverviewView",
+      "description": "The landing screen: per-part counts, the graph health card and quick links into each part.",
+      "props": {
+        "path": "web/src/components/views/OverviewView.vue",
+        "repo": ""
+      }
+    },
+    {
+      "id": "component-partview",
+      "kind": "component",
+      "title": "PartView",
+      "description": "Lists every node of a given part with its NodeForm, parameterised by which of the three parts is active.",
+      "props": {
+        "path": "web/src/components/views/PartView.vue",
+        "repo": ""
+      }
+    },
+    {
+      "id": "component-graphview",
+      "kind": "component",
+      "title": "GraphView",
+      "description": "Hosts ForceGraph plus the instance/ontology toggle, the search palette and the KindCard overlay.",
+      "props": {
+        "path": "web/src/components/views/GraphView.vue",
+        "repo": ""
+      }
+    },
+    {
+      "id": "component-kindcard",
+      "kind": "component",
+      "title": "KindCard",
+      "description": "The bottom-right card shown in ontology mode listing a kind's live instances, with cross-layer jump-to-instance.",
+      "props": {
+        "path": "web/src/components/graph/KindCard.vue",
+        "repo": ""
+      }
+    },
+    {
+      "id": "interface-graph",
+      "kind": "interface",
+      "title": "Graph",
+      "description": "The serialisable shape of the whole knowledge graph: { nodes: GraphNode[]; edges: GraphEdge[] }.",
+      "props": {
+        "signature": "interface Graph { nodes: GraphNode[]; edges: GraphEdge[] }"
+      }
+    },
+    {
+      "id": "interface-graphnode",
+      "kind": "interface",
+      "title": "GraphNode",
+      "description": "The TS contract for a node: id, kind, title, description, and optional props and sourceRefs.",
+      "props": {
+        "signature": "interface GraphNode { id: string; kind: string; title: string; description: string; props?: Record<string, unknown>; sourceRefs?: SourceRef[] }"
+      }
+    },
+    {
+      "id": "interface-graphedge",
+      "kind": "interface",
+      "title": "GraphEdge",
+      "description": "The TS contract for an edge: id, srcId, dstId, type, and an optional label.",
+      "props": {
+        "signature": "interface GraphEdge { id: string; srcId: string; dstId: string; type: string; label?: string }"
+      }
+    },
+    {
+      "id": "interface-kinddef",
+      "kind": "interface",
+      "title": "KindDef",
+      "description": "The TS contract behind every entry in the KINDS registry: kind, label, part, space, icon and optional fields.",
+      "props": {
+        "signature": "interface KindDef { kind: string; label: string; part: Part; space: Space; icon: string; fields?: FieldDef[] }"
+      }
+    },
+    {
+      "id": "api-localstorage-web-api",
+      "kind": "api",
+      "title": "localStorage Web API",
+      "description": "The browser storage surface the graph store reads from and writes to on every change.",
+      "props": {}
+    },
+    {
+      "id": "api-clipboard-api",
+      "kind": "api",
+      "title": "Clipboard API",
+      "description": "The browser surface Copy Context writes markdown to, and the e2e suite reads back to assert on.",
+      "props": {}
+    },
+    {
+      "id": "api-hash-based-routing-api",
+      "kind": "api",
+      "title": "Hash-based routing API",
+      "description": "The window.location.hash surface the Router reads and writes instead of a full client-side router.",
+      "props": {}
+    },
+    {
+      "id": "api-pointer-events-api",
+      "kind": "api",
+      "title": "Pointer Events API",
+      "description": "The real pointerdown/mousemove/mouseup surface ForceGraph's hand-rolled pan, zoom and drag are built on.",
+      "props": {}
+    },
+    {
+      "id": "logic-kebab-case-id-generation",
+      "kind": "logic",
+      "title": "Kebab-case id generation",
+      "description": "Turns any title into the lowercase, hyphenated slug used to derive a fresh node id.",
+      "props": {}
+    },
+    {
+      "id": "logic-basic-graph-pattern-matching",
+      "kind": "logic",
+      "title": "Basic graph pattern matching",
+      "description": "Resolves a JSON-encoded match clause — inverse and transitive edges included — into a set of variable bindings.",
+      "props": {}
+    },
+    {
+      "id": "logic-force-directed-layout-tick",
+      "kind": "logic",
+      "title": "Force-directed layout tick",
+      "description": "Advances d3-force's simulation one step and bumps a frame counter so Vue's computeds re-read the mutated sim-node positions.",
+      "props": {}
+    },
+    {
+      "id": "logic-ontology-valid-operation-generation",
+      "kind": "logic",
+      "title": "Ontology-valid operation generation",
+      "description": "Generates a weighted, seeded sequence of schema-valid graph operations, reproducible from the same seed and op index.",
+      "props": {}
+    },
+    {
+      "id": "repository-bropilot-repo",
+      "kind": "repository",
+      "title": "bropilot repo",
+      "description": "The single repository holding both Bropilot Studio and the three Bropilot skills.",
+      "props": {
+        "url": "https://github.com"
+      }
+    },
+    {
+      "id": "external-d3-force",
+      "kind": "external",
+      "title": "d3-force",
+      "description": "The physics simulation library driving ForceGraph's layout.",
+      "props": {
+        "url": "https://github.com/d3/d3-force"
+      }
+    },
+    {
+      "id": "external-vue",
+      "kind": "external",
+      "title": "Vue",
+      "description": "The reactive UI framework every component and the store are built on.",
+      "props": {
+        "url": "https://vuejs.org"
+      }
+    },
+    {
+      "id": "external-astro",
+      "kind": "external",
+      "title": "Astro",
+      "description": "The static-site shell that mounts the single client:only Vue island.",
+      "props": {
+        "url": "https://astro.build"
+      }
+    },
+    {
+      "id": "external-vitest",
+      "kind": "external",
+      "title": "Vitest",
+      "description": "Runs the unit and seeded-simulator test suites.",
+      "props": {
+        "url": "https://vitest.dev"
+      }
+    },
+    {
+      "id": "external-playwright",
+      "kind": "external",
+      "title": "Playwright",
+      "description": "Drives the browser verification suite against a real Chromium instance.",
+      "props": {
+        "url": "https://playwright.dev"
+      }
+    },
+    {
+      "id": "external-nanoid",
+      "kind": "external",
+      "title": "nanoid",
+      "description": "Generates short random suffixes for de-duplicated node and edge ids.",
+      "props": {
+        "url": "https://github.com/ai/nanoid"
+      }
+    },
+    {
+      "id": "external-tailwind-v4",
+      "kind": "external",
+      "title": "Tailwind v4",
+      "description": "Utility CSS with no config file — theme tokens live in an @theme block in global.css instead.",
+      "props": {
+        "url": "https://tailwindcss.com"
+      }
+    },
+    {
+      "id": "external-github-actions",
+      "kind": "external",
+      "title": "GitHub Actions",
+      "description": "Runs check, build, unit tests, e2e and the sync-skills drift gate on every push and pull request.",
+      "props": {
+        "url": "https://github.com/features/actions"
+      }
+    },
+    {
+      "id": "tests-schema-unit-tests",
+      "kind": "tests",
+      "title": "Schema unit tests",
+      "description": "Exercises the KINDS registry, the ontology triple table and the kebab id helper.",
+      "props": {
+        "path": "web/tests/unit/schema.test.ts"
+      }
+    },
+    {
+      "id": "tests-lint-unit-tests",
+      "kind": "tests",
+      "title": "Lint unit tests",
+      "description": "Exercises every advisory lint rule: off-ontology edges, orphans, why-chain gaps and unverified surfaces.",
+      "props": {
+        "path": "web/tests/unit/lint.test.ts"
+      }
+    },
+    {
+      "id": "tests-query-unit-tests",
+      "kind": "tests",
+      "title": "Query unit tests",
+      "description": "Exercises basic-graph-pattern matching plus the named why-chain, realization and evidence traversals.",
+      "props": {
+        "path": "web/tests/unit/query.test.ts"
+      }
+    },
+    {
+      "id": "tests-narrative-unit-tests",
+      "kind": "tests",
+      "title": "Narrative unit tests",
+      "description": "Exercises sentence generation from a node's description and its incoming and outgoing edges.",
+      "props": {
+        "path": "web/tests/unit/narrative.test.ts"
+      }
+    },
+    {
+      "id": "tests-suggestion-unit-tests",
+      "kind": "tests",
+      "title": "Suggestion unit tests",
+      "description": "Exercises ranked, ontology-derived edge suggestions and their triangle-closing candidate ordering.",
+      "props": {
+        "path": "web/tests/unit/suggest.test.ts"
+      }
+    },
+    {
+      "id": "tests-ontology-simulator-tests",
+      "kind": "tests",
+      "title": "Ontology simulator tests",
+      "description": "Replays seeded operation sequences against the real store and checks cheap and expensive invariants after each one.",
+      "props": {
+        "path": "web/tests/sim/simulator.test.ts"
+      }
+    },
+    {
+      "id": "tests-verification-e2e-suite",
+      "kind": "tests",
+      "title": "Verification e2e suite",
+      "description": "Codifies the full manual verification pass in Playwright, plus regressions caught by earlier fix batches.",
+      "props": {
+        "path": "web/e2e/verification.spec.ts"
+      }
+    },
+    {
+      "id": "observability-ci-pipeline",
+      "kind": "observability",
+      "title": "CI pipeline",
+      "description": "The GitHub Actions workflow that gatekeeps every push and pull request against main.",
+      "props": {}
+    },
+    {
+      "id": "observability-graph-health-card",
+      "kind": "observability",
+      "title": "Graph health card",
+      "description": "The Overview panel surfacing every current lint finding, each one clickable straight to its node.",
+      "props": {}
+    },
+    {
+      "id": "observability-autosave-status-indicator",
+      "kind": "observability",
+      "title": "Autosave status indicator",
+      "description": "The small \"Saved\" ticker driven by the store's savedAt timestamp.",
+      "props": {}
+    },
+    {
+      "id": "design-glass-dark-theme",
+      "kind": "design",
+      "title": "Glass dark theme",
+      "description": "Translucent panels, per-space accent glows and refined typography across the whole studio.",
+      "props": {}
+    },
+    {
+      "id": "design-per-space-accent-hues",
+      "kind": "design",
+      "title": "Per-space accent hues",
+      "description": "Each of the four semantic spaces gets its own accent colour, used consistently for node fills and legend chips.",
+      "props": {}
+    },
+    {
+      "id": "design-hand-rolled-svg-interaction",
+      "kind": "design",
+      "title": "Hand-rolled SVG interaction",
+      "description": "Pan, zoom and drag built directly on pointer events instead of d3-zoom or d3-drag, chosen for finer control over hit-testing.",
+      "props": {}
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-1",
+      "srcId": "name-bropilot-studio",
+      "dstId": "purpose-shared-understanding-codified",
+      "type": "has"
+    },
+    {
+      "id": "e-2",
+      "srcId": "name-bropilot-studio",
+      "dstId": "capability-guided-collection",
+      "type": "has"
+    },
+    {
+      "id": "e-3",
+      "srcId": "name-bropilot-studio",
+      "dstId": "capability-live-graph-view",
+      "type": "has"
+    },
+    {
+      "id": "e-4",
+      "srcId": "name-bropilot-studio",
+      "dstId": "capability-portable-spec",
+      "type": "has"
+    },
+    {
+      "id": "e-5",
+      "srcId": "name-bropilot-studio",
+      "dstId": "capability-ontology-aware-suggestions",
+      "type": "has"
+    },
+    {
+      "id": "e-6",
+      "srcId": "name-bropilot-studio",
+      "dstId": "capability-graph-health-linting",
+      "type": "has"
+    },
+    {
+      "id": "e-7",
+      "srcId": "name-bropilot-studio",
+      "dstId": "capability-ontology-driven-query",
+      "type": "has"
+    },
+    {
+      "id": "e-8",
+      "srcId": "purpose-shared-understanding-codified",
+      "dstId": "goal-faster-alignment",
+      "type": "motivates"
+    },
+    {
+      "id": "e-9",
+      "srcId": "purpose-shared-understanding-codified",
+      "dstId": "goal-ship-without-re-litigating-design",
+      "type": "motivates"
+    },
+    {
+      "id": "e-10",
+      "srcId": "purpose-shared-understanding-codified",
+      "dstId": "capability-guided-collection",
+      "type": "motivates"
+    },
+    {
+      "id": "e-11",
+      "srcId": "purpose-shared-understanding-codified",
+      "dstId": "capability-live-graph-view",
+      "type": "motivates"
+    },
+    {
+      "id": "e-12",
+      "srcId": "purpose-shared-understanding-codified",
+      "dstId": "persona-architect",
+      "type": "serves"
+    },
+    {
+      "id": "e-13",
+      "srcId": "purpose-shared-understanding-codified",
+      "dstId": "persona-builder",
+      "type": "serves"
+    },
+    {
+      "id": "e-14",
+      "srcId": "purpose-shared-understanding-codified",
+      "dstId": "persona-newcomer-onboarding-engineer",
+      "type": "serves"
+    },
+    {
+      "id": "e-15",
+      "srcId": "purpose-shared-understanding-codified",
+      "dstId": "persona-the-ai-agent",
+      "type": "serves"
+    },
+    {
+      "id": "e-16",
+      "srcId": "purpose-shared-understanding-codified",
+      "dstId": "hypothesis-a-graph-beats-a-doc",
+      "type": "depends_on"
+    },
+    {
+      "id": "e-17",
+      "srcId": "hypothesis-a-graph-beats-a-doc",
+      "dstId": "goal-zero-drift-between-spec-and-code",
+      "type": "motivates"
+    },
+    {
+      "id": "e-18",
+      "srcId": "hypothesis-seeded-simulation-catches-invariant-breaks",
+      "dstId": "goal-confident-refactors",
+      "type": "motivates"
+    },
+    {
+      "id": "e-19",
+      "srcId": "goal-zero-drift-between-spec-and-code",
+      "dstId": "capability-portable-spec",
+      "type": "motivates"
+    },
+    {
+      "id": "e-20",
+      "srcId": "hypothesis-suggestions-raise-edge-quality",
+      "dstId": "capability-ontology-aware-suggestions",
+      "type": "motivates"
+    },
+    {
+      "id": "e-21",
+      "srcId": "goal-confident-refactors",
+      "dstId": "capability-graph-health-linting",
+      "type": "motivates"
+    },
+    {
+      "id": "e-22",
+      "srcId": "goal-ship-without-re-litigating-design",
+      "dstId": "capability-ontology-driven-query",
+      "type": "motivates"
+    },
+    {
+      "id": "e-23",
+      "srcId": "persona-newcomer-onboarding-engineer",
+      "dstId": "usecase-onboard-onto-a-system",
+      "type": "motivates"
+    },
+    {
+      "id": "e-24",
+      "srcId": "persona-architect",
+      "dstId": "usecase-explore-via-search",
+      "type": "motivates"
+    },
+    {
+      "id": "e-25",
+      "srcId": "persona-builder",
+      "dstId": "usecase-wire-up-a-relationship",
+      "type": "motivates"
+    },
+    {
+      "id": "e-26",
+      "srcId": "persona-the-ai-agent",
+      "dstId": "usecase-copy-context-into-an-llm-chat",
+      "type": "motivates"
+    },
+    {
+      "id": "e-27",
+      "srcId": "persona-the-ai-agent",
+      "dstId": "usecase-extract-a-graph-from-a-codebase",
+      "type": "motivates"
+    },
+    {
+      "id": "e-28",
+      "srcId": "persona-architect",
+      "dstId": "requirement-three-part-model",
+      "type": "motivates"
+    },
+    {
+      "id": "e-29",
+      "srcId": "persona-builder",
+      "dstId": "requirement-code-traceability",
+      "type": "motivates"
+    },
+    {
+      "id": "e-30",
+      "srcId": "persona-the-ai-agent",
+      "dstId": "requirement-round-trip-with-bropilot-skills",
+      "type": "motivates"
+    },
+    {
+      "id": "e-31",
+      "srcId": "persona-architect",
+      "dstId": "requirement-advisory-only-ontology",
+      "type": "motivates"
+    },
+    {
+      "id": "e-32",
+      "srcId": "persona-builder",
+      "dstId": "requirement-deterministic-node-ids",
+      "type": "motivates"
+    },
+    {
+      "id": "e-33",
+      "srcId": "persona-architect",
+      "dstId": "usecase-wire-up-a-relationship",
+      "type": "triggers"
+    },
+    {
+      "id": "e-34",
+      "srcId": "persona-architect",
+      "dstId": "flow-collect-a-system",
+      "type": "triggers"
+    },
+    {
+      "id": "e-35",
+      "srcId": "persona-the-ai-agent",
+      "dstId": "flow-extract-a-graph-from-code",
+      "type": "triggers"
+    },
+    {
+      "id": "e-36",
+      "srcId": "persona-the-ai-agent",
+      "dstId": "flow-generate-an-spa-from-a-graph",
+      "type": "triggers"
+    },
+    {
+      "id": "e-37",
+      "srcId": "persona-the-ai-agent",
+      "dstId": "flow-interview-to-build-a-graph",
+      "type": "triggers"
+    },
+    {
+      "id": "e-38",
+      "srcId": "persona-newcomer-onboarding-engineer",
+      "dstId": "flow-explore-the-graph-via-search",
+      "type": "triggers"
+    },
+    {
+      "id": "e-39",
+      "srcId": "persona-architect",
+      "dstId": "capability-guided-collection",
+      "type": "uses"
+    },
+    {
+      "id": "e-40",
+      "srcId": "persona-architect",
+      "dstId": "capability-graph-health-linting",
+      "type": "uses"
+    },
+    {
+      "id": "e-41",
+      "srcId": "persona-builder",
+      "dstId": "capability-portable-spec",
+      "type": "uses"
+    },
+    {
+      "id": "e-42",
+      "srcId": "persona-builder",
+      "dstId": "capability-ontology-aware-suggestions",
+      "type": "uses"
+    },
+    {
+      "id": "e-43",
+      "srcId": "persona-newcomer-onboarding-engineer",
+      "dstId": "capability-live-graph-view",
+      "type": "uses"
+    },
+    {
+      "id": "e-44",
+      "srcId": "persona-the-ai-agent",
+      "dstId": "capability-ontology-driven-query",
+      "type": "uses"
+    },
+    {
+      "id": "e-45",
+      "srcId": "persona-the-ai-agent",
+      "dstId": "capability-portable-spec",
+      "type": "uses"
+    },
+    {
+      "id": "e-46",
+      "srcId": "capability-guided-collection",
+      "dstId": "persona-architect",
+      "type": "serves"
+    },
+    {
+      "id": "e-47",
+      "srcId": "capability-live-graph-view",
+      "dstId": "persona-newcomer-onboarding-engineer",
+      "type": "serves"
+    },
+    {
+      "id": "e-48",
+      "srcId": "capability-portable-spec",
+      "dstId": "persona-the-ai-agent",
+      "type": "serves"
+    },
+    {
+      "id": "e-49",
+      "srcId": "capability-ontology-aware-suggestions",
+      "dstId": "persona-builder",
+      "type": "serves"
+    },
+    {
+      "id": "e-50",
+      "srcId": "capability-graph-health-linting",
+      "dstId": "persona-architect",
+      "type": "serves"
+    },
+    {
+      "id": "e-51",
+      "srcId": "capability-ontology-driven-query",
+      "dstId": "persona-the-ai-agent",
+      "type": "serves"
+    },
+    {
+      "id": "e-52",
+      "srcId": "capability-guided-collection",
+      "dstId": "requirement-three-part-model",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-53",
+      "srcId": "capability-portable-spec",
+      "dstId": "requirement-round-trip-with-bropilot-skills",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-54",
+      "srcId": "capability-graph-health-linting",
+      "dstId": "requirement-code-traceability",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-55",
+      "srcId": "capability-live-graph-view",
+      "dstId": "usecase-onboard-onto-a-system",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-56",
+      "srcId": "capability-ontology-aware-suggestions",
+      "dstId": "usecase-wire-up-a-relationship",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-57",
+      "srcId": "capability-ontology-driven-query",
+      "dstId": "usecase-copy-context-into-an-llm-chat",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-58",
+      "srcId": "usecase-onboard-onto-a-system",
+      "dstId": "screen-overview",
+      "type": "uses"
+    },
+    {
+      "id": "e-59",
+      "srcId": "usecase-onboard-onto-a-system",
+      "dstId": "capability-live-graph-view",
+      "type": "uses"
+    },
+    {
+      "id": "e-60",
+      "srcId": "usecase-explore-via-search",
+      "dstId": "screen-graph",
+      "type": "uses"
+    },
+    {
+      "id": "e-61",
+      "srcId": "usecase-explore-via-search",
+      "dstId": "capability-live-graph-view",
+      "type": "uses"
+    },
+    {
+      "id": "e-62",
+      "srcId": "usecase-wire-up-a-relationship",
+      "dstId": "capability-ontology-aware-suggestions",
+      "type": "uses"
+    },
+    {
+      "id": "e-63",
+      "srcId": "usecase-wire-up-a-relationship",
+      "dstId": "screen-domain-view",
+      "type": "uses"
+    },
+    {
+      "id": "e-64",
+      "srcId": "usecase-copy-context-into-an-llm-chat",
+      "dstId": "capability-ontology-driven-query",
+      "type": "uses"
+    },
+    {
+      "id": "e-65",
+      "srcId": "usecase-extract-a-graph-from-a-codebase",
+      "dstId": "capability-portable-spec",
+      "type": "uses"
+    },
+    {
+      "id": "e-66",
+      "srcId": "requirement-code-traceability",
+      "dstId": "module-store",
+      "type": "constrains"
+    },
+    {
+      "id": "e-67",
+      "srcId": "requirement-three-part-model",
+      "dstId": "module-schema",
+      "type": "constrains"
+    },
+    {
+      "id": "e-68",
+      "srcId": "requirement-advisory-only-ontology",
+      "dstId": "module-graph-lint",
+      "type": "constrains"
+    },
+    {
+      "id": "e-69",
+      "srcId": "requirement-deterministic-node-ids",
+      "dstId": "module-store",
+      "type": "constrains"
+    },
+    {
+      "id": "e-70",
+      "srcId": "requirement-round-trip-with-bropilot-skills",
+      "dstId": "module-store",
+      "type": "constrains"
+    },
+    {
+      "id": "e-71",
+      "srcId": "constraint-no-backend-required",
+      "dstId": "module-store",
+      "type": "constrains"
+    },
+    {
+      "id": "e-72",
+      "srcId": "constraint-single-vue-island",
+      "dstId": "component-studio",
+      "type": "constrains"
+    },
+    {
+      "id": "e-73",
+      "srcId": "constraint-svg-not-canvas",
+      "dstId": "component-force-graph",
+      "type": "constrains"
+    },
+    {
+      "id": "e-74",
+      "srcId": "constraint-nothing-is-ever-validated-or-blocked",
+      "dstId": "module-graph-lint",
+      "type": "constrains"
+    },
+    {
+      "id": "e-75",
+      "srcId": "constraint-nothing-is-ever-validated-or-blocked",
+      "dstId": "module-graph-query-engine",
+      "type": "constrains"
+    },
+    {
+      "id": "e-76",
+      "srcId": "assumption-users-tolerate-advisory-noise",
+      "dstId": "module-graph-lint",
+      "type": "constrains"
+    },
+    {
+      "id": "e-77",
+      "srcId": "assumption-one-island-scales-to-hundreds-of-nodes",
+      "dstId": "component-studio",
+      "type": "constrains"
+    },
+    {
+      "id": "e-78",
+      "srcId": "assumption-contributors-read-claude-md-before-diving-in",
+      "dstId": "module-schema",
+      "type": "references"
+    },
+    {
+      "id": "e-79",
+      "srcId": "term-space",
+      "dstId": "entity-kind",
+      "type": "describes"
+    },
+    {
+      "id": "e-80",
+      "srcId": "term-part",
+      "dstId": "entity-kind",
+      "type": "describes"
+    },
+    {
+      "id": "e-81",
+      "srcId": "term-edge-type",
+      "dstId": "entity-edge",
+      "type": "describes"
+    },
+    {
+      "id": "e-82",
+      "srcId": "term-why-chain",
+      "dstId": "behaviour-why-chain-gap-detection",
+      "type": "describes"
+    },
+    {
+      "id": "e-83",
+      "srcId": "term-ontology-t-box",
+      "dstId": "entity-ontology-triple",
+      "type": "describes"
+    },
+    {
+      "id": "e-84",
+      "srcId": "term-triple-strength",
+      "dstId": "entity-ontology-triple",
+      "type": "describes"
+    },
+    {
+      "id": "e-85",
+      "srcId": "term-ontology-t-box",
+      "dstId": "behaviour-off-ontology-edge-detection",
+      "type": "describes"
+    },
+    {
+      "id": "e-86",
+      "srcId": "term-edge-type",
+      "dstId": "event-lint-finding-raised",
+      "type": "describes"
+    },
+    {
+      "id": "e-87",
+      "srcId": "term-ontology-t-box",
+      "dstId": "term-edge-type",
+      "type": "extends"
+    },
+    {
+      "id": "e-88",
+      "srcId": "entity-node",
+      "dstId": "relationship-nodes-connect-via-edges",
+      "type": "has"
+    },
+    {
+      "id": "e-89",
+      "srcId": "entity-edge",
+      "dstId": "relationship-nodes-connect-via-edges",
+      "type": "has"
+    },
+    {
+      "id": "e-90",
+      "srcId": "entity-kind",
+      "dstId": "relationship-kind-maps-to-part-and-space",
+      "type": "has"
+    },
+    {
+      "id": "e-91",
+      "srcId": "entity-ontology-triple",
+      "dstId": "relationship-ontology-triple-connects-two-kinds",
+      "type": "has"
+    },
+    {
+      "id": "e-92",
+      "srcId": "entity-finding",
+      "dstId": "relationship-finding-points-at-a-node",
+      "type": "has"
+    },
+    {
+      "id": "e-93",
+      "srcId": "entity-kind",
+      "dstId": "entity-node",
+      "type": "extends"
+    },
+    {
+      "id": "e-94",
+      "srcId": "relationship-nodes-connect-via-edges",
+      "dstId": "entity-node",
+      "type": "references"
+    },
+    {
+      "id": "e-95",
+      "srcId": "relationship-nodes-connect-via-edges",
+      "dstId": "entity-edge",
+      "type": "references"
+    },
+    {
+      "id": "e-96",
+      "srcId": "relationship-kind-maps-to-part-and-space",
+      "dstId": "entity-kind",
+      "type": "references"
+    },
+    {
+      "id": "e-97",
+      "srcId": "relationship-finding-points-at-a-node",
+      "dstId": "entity-finding",
+      "type": "references"
+    },
+    {
+      "id": "e-98",
+      "srcId": "relationship-ontology-triple-connects-two-kinds",
+      "dstId": "entity-ontology-triple",
+      "type": "references"
+    },
+    {
+      "id": "e-99",
+      "srcId": "behaviour-autosave",
+      "dstId": "event-graph-imported",
+      "type": "emits"
+    },
+    {
+      "id": "e-100",
+      "srcId": "behaviour-undo-redo-history-tracking",
+      "dstId": "event-node-created",
+      "type": "emits"
+    },
+    {
+      "id": "e-101",
+      "srcId": "behaviour-why-chain-gap-detection",
+      "dstId": "event-lint-finding-raised",
+      "type": "emits"
+    },
+    {
+      "id": "e-102",
+      "srcId": "behaviour-off-ontology-edge-detection",
+      "dstId": "event-lint-finding-raised",
+      "type": "emits"
+    },
+    {
+      "id": "e-103",
+      "srcId": "behaviour-orphan-detection",
+      "dstId": "event-lint-finding-raised",
+      "type": "emits"
+    },
+    {
+      "id": "e-104",
+      "srcId": "behaviour-unverified-surface-detection",
+      "dstId": "event-lint-finding-raised",
+      "type": "emits"
+    },
+    {
+      "id": "e-105",
+      "srcId": "behaviour-autosave",
+      "dstId": "state-localstorage-graph",
+      "type": "uses"
+    },
+    {
+      "id": "e-106",
+      "srcId": "behaviour-undo-redo-history-tracking",
+      "dstId": "state-undo-redo-history-stacks",
+      "type": "uses"
+    },
+    {
+      "id": "e-107",
+      "srcId": "event-node-created",
+      "dstId": "behaviour-autosave",
+      "type": "triggers"
+    },
+    {
+      "id": "e-108",
+      "srcId": "event-node-selected",
+      "dstId": "flow-explore-the-graph-via-search",
+      "type": "triggers"
+    },
+    {
+      "id": "e-109",
+      "srcId": "event-graph-imported",
+      "dstId": "behaviour-autosave",
+      "type": "triggers"
+    },
+    {
+      "id": "e-110",
+      "srcId": "event-lint-finding-raised",
+      "dstId": "flow-explore-the-graph-via-search",
+      "type": "triggers"
+    },
+    {
+      "id": "e-111",
+      "srcId": "state-localstorage-graph",
+      "dstId": "entity-node",
+      "type": "references"
+    },
+    {
+      "id": "e-112",
+      "srcId": "state-localstorage-graph",
+      "dstId": "entity-edge",
+      "type": "references"
+    },
+    {
+      "id": "e-113",
+      "srcId": "state-selected-node-id",
+      "dstId": "entity-node",
+      "type": "references"
+    },
+    {
+      "id": "e-114",
+      "srcId": "flow-collect-a-system",
+      "dstId": "usecase-onboard-onto-a-system",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-115",
+      "srcId": "flow-extract-a-graph-from-code",
+      "dstId": "usecase-extract-a-graph-from-a-codebase",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-116",
+      "srcId": "flow-generate-an-spa-from-a-graph",
+      "dstId": "usecase-copy-context-into-an-llm-chat",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-117",
+      "srcId": "flow-interview-to-build-a-graph",
+      "dstId": "usecase-wire-up-a-relationship",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-118",
+      "srcId": "flow-explore-the-graph-via-search",
+      "dstId": "usecase-explore-via-search",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-119",
+      "srcId": "flow-collect-a-system",
+      "dstId": "screen-studio",
+      "type": "uses"
+    },
+    {
+      "id": "e-120",
+      "srcId": "flow-extract-a-graph-from-code",
+      "dstId": "capability-portable-spec",
+      "type": "uses"
+    },
+    {
+      "id": "e-121",
+      "srcId": "flow-generate-an-spa-from-a-graph",
+      "dstId": "capability-portable-spec",
+      "type": "uses"
+    },
+    {
+      "id": "e-122",
+      "srcId": "flow-interview-to-build-a-graph",
+      "dstId": "capability-guided-collection",
+      "type": "uses"
+    },
+    {
+      "id": "e-123",
+      "srcId": "flow-explore-the-graph-via-search",
+      "dstId": "screen-graph",
+      "type": "uses"
+    },
+    {
+      "id": "e-124",
+      "srcId": "flow-explore-the-graph-via-search",
+      "dstId": "event-node-selected",
+      "type": "triggers"
+    },
+    {
+      "id": "e-125",
+      "srcId": "screen-studio",
+      "dstId": "component-studio",
+      "type": "contains"
+    },
+    {
+      "id": "e-126",
+      "srcId": "screen-overview",
+      "dstId": "component-overviewview",
+      "type": "contains"
+    },
+    {
+      "id": "e-127",
+      "srcId": "screen-graph",
+      "dstId": "component-graphview",
+      "type": "contains"
+    },
+    {
+      "id": "e-128",
+      "srcId": "screen-graph",
+      "dstId": "component-force-graph",
+      "type": "contains"
+    },
+    {
+      "id": "e-129",
+      "srcId": "screen-foundations-view",
+      "dstId": "component-partview",
+      "type": "contains"
+    },
+    {
+      "id": "e-130",
+      "srcId": "screen-domain-view",
+      "dstId": "component-partview",
+      "type": "contains"
+    },
+    {
+      "id": "e-131",
+      "srcId": "screen-implementation-view",
+      "dstId": "component-partview",
+      "type": "contains"
+    },
+    {
+      "id": "e-132",
+      "srcId": "screen-overview",
+      "dstId": "persona-newcomer-onboarding-engineer",
+      "type": "serves"
+    },
+    {
+      "id": "e-133",
+      "srcId": "screen-graph",
+      "dstId": "persona-architect",
+      "type": "serves"
+    },
+    {
+      "id": "e-134",
+      "srcId": "screen-studio",
+      "dstId": "state-selected-node-id",
+      "type": "uses"
+    },
+    {
+      "id": "e-135",
+      "srcId": "screen-graph",
+      "dstId": "api-pointer-events-api",
+      "type": "uses"
+    },
+    {
+      "id": "e-136",
+      "srcId": "screen-studio",
+      "dstId": "design-glass-dark-theme",
+      "type": "uses"
+    },
+    {
+      "id": "e-137",
+      "srcId": "screen-studio",
+      "dstId": "module-router",
+      "type": "uses"
+    },
+    {
+      "id": "e-138",
+      "srcId": "design-glass-dark-theme",
+      "dstId": "screen-studio",
+      "type": "describes"
+    },
+    {
+      "id": "e-139",
+      "srcId": "design-glass-dark-theme",
+      "dstId": "component-studio",
+      "type": "describes"
+    },
+    {
+      "id": "e-140",
+      "srcId": "design-per-space-accent-hues",
+      "dstId": "screen-graph",
+      "type": "describes"
+    },
+    {
+      "id": "e-141",
+      "srcId": "design-hand-rolled-svg-interaction",
+      "dstId": "component-force-graph",
+      "type": "describes"
+    },
+    {
+      "id": "e-142",
+      "srcId": "design-per-space-accent-hues",
+      "dstId": "component-force-graph",
+      "type": "constrains"
+    },
+    {
+      "id": "e-143",
+      "srcId": "design-hand-rolled-svg-interaction",
+      "dstId": "component-force-graph",
+      "type": "constrains"
+    },
+    {
+      "id": "e-144",
+      "srcId": "module-store",
+      "dstId": "logic-kebab-case-id-generation",
+      "type": "contains"
+    },
+    {
+      "id": "e-145",
+      "srcId": "module-schema",
+      "dstId": "logic-kebab-case-id-generation",
+      "type": "contains"
+    },
+    {
+      "id": "e-146",
+      "srcId": "module-graph-query-engine",
+      "dstId": "logic-basic-graph-pattern-matching",
+      "type": "contains"
+    },
+    {
+      "id": "e-147",
+      "srcId": "module-ontology-simulator",
+      "dstId": "logic-ontology-valid-operation-generation",
+      "type": "contains"
+    },
+    {
+      "id": "e-148",
+      "srcId": "module-store",
+      "dstId": "module-schema",
+      "type": "depends_on"
+    },
+    {
+      "id": "e-149",
+      "srcId": "module-store",
+      "dstId": "api-localstorage-web-api",
+      "type": "exposes"
+    },
+    {
+      "id": "e-150",
+      "srcId": "module-store",
+      "dstId": "interface-graph",
+      "type": "exposes"
+    },
+    {
+      "id": "e-151",
+      "srcId": "module-router",
+      "dstId": "api-hash-based-routing-api",
+      "type": "exposes"
+    },
+    {
+      "id": "e-152",
+      "srcId": "module-schema",
+      "dstId": "interface-kinddef",
+      "type": "exposes"
+    },
+    {
+      "id": "e-153",
+      "srcId": "module-schema",
+      "dstId": "interface-graph",
+      "type": "exposes"
+    },
+    {
+      "id": "e-154",
+      "srcId": "module-schema",
+      "dstId": "interface-graphnode",
+      "type": "exposes"
+    },
+    {
+      "id": "e-155",
+      "srcId": "module-schema",
+      "dstId": "interface-graphedge",
+      "type": "exposes"
+    },
+    {
+      "id": "e-156",
+      "srcId": "module-store",
+      "dstId": "capability-portable-spec",
+      "type": "implements"
+    },
+    {
+      "id": "e-157",
+      "srcId": "module-store",
+      "dstId": "behaviour-autosave",
+      "type": "implements"
+    },
+    {
+      "id": "e-158",
+      "srcId": "module-store",
+      "dstId": "behaviour-undo-redo-history-tracking",
+      "type": "implements"
+    },
+    {
+      "id": "e-159",
+      "srcId": "module-graph-lint",
+      "dstId": "capability-graph-health-linting",
+      "type": "implements"
+    },
+    {
+      "id": "e-160",
+      "srcId": "module-graph-lint",
+      "dstId": "behaviour-off-ontology-edge-detection",
+      "type": "implements"
+    },
+    {
+      "id": "e-161",
+      "srcId": "module-graph-lint",
+      "dstId": "behaviour-why-chain-gap-detection",
+      "type": "implements"
+    },
+    {
+      "id": "e-162",
+      "srcId": "module-graph-lint",
+      "dstId": "behaviour-orphan-detection",
+      "type": "implements"
+    },
+    {
+      "id": "e-163",
+      "srcId": "module-graph-lint",
+      "dstId": "behaviour-unverified-surface-detection",
+      "type": "implements"
+    },
+    {
+      "id": "e-164",
+      "srcId": "module-graph-query-engine",
+      "dstId": "capability-ontology-driven-query",
+      "type": "implements"
+    },
+    {
+      "id": "e-165",
+      "srcId": "module-suggestion-engine",
+      "dstId": "capability-ontology-aware-suggestions",
+      "type": "implements"
+    },
+    {
+      "id": "e-166",
+      "srcId": "module-narrative-generator",
+      "dstId": "capability-live-graph-view",
+      "type": "implements"
+    },
+    {
+      "id": "e-167",
+      "srcId": "module-store",
+      "dstId": "requirement-code-traceability",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-168",
+      "srcId": "module-schema",
+      "dstId": "requirement-three-part-model",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-169",
+      "srcId": "module-store",
+      "dstId": "requirement-deterministic-node-ids",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-170",
+      "srcId": "module-graph-lint",
+      "dstId": "requirement-advisory-only-ontology",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-171",
+      "srcId": "module-graph-lint",
+      "dstId": "module-schema",
+      "type": "depends_on"
+    },
+    {
+      "id": "e-172",
+      "srcId": "module-graph-query-engine",
+      "dstId": "module-schema",
+      "type": "depends_on"
+    },
+    {
+      "id": "e-173",
+      "srcId": "module-suggestion-engine",
+      "dstId": "module-schema",
+      "type": "depends_on"
+    },
+    {
+      "id": "e-174",
+      "srcId": "module-narrative-generator",
+      "dstId": "module-schema",
+      "type": "depends_on"
+    },
+    {
+      "id": "e-175",
+      "srcId": "module-narrative-generator",
+      "dstId": "module-store",
+      "type": "depends_on"
+    },
+    {
+      "id": "e-176",
+      "srcId": "module-ontology-simulator",
+      "dstId": "module-store",
+      "type": "depends_on"
+    },
+    {
+      "id": "e-177",
+      "srcId": "module-ontology-simulator",
+      "dstId": "module-graph-lint",
+      "type": "depends_on"
+    },
+    {
+      "id": "e-178",
+      "srcId": "module-ontology-simulator",
+      "dstId": "module-graph-query-engine",
+      "type": "depends_on"
+    },
+    {
+      "id": "e-179",
+      "srcId": "component-studio",
+      "dstId": "module-router",
+      "type": "depends_on"
+    },
+    {
+      "id": "e-180",
+      "srcId": "module-store",
+      "dstId": "external-nanoid",
+      "type": "uses"
+    },
+    {
+      "id": "e-181",
+      "srcId": "module-store",
+      "dstId": "interface-graphnode",
+      "type": "uses"
+    },
+    {
+      "id": "e-182",
+      "srcId": "module-graph-query-engine",
+      "dstId": "interface-graph",
+      "type": "uses"
+    },
+    {
+      "id": "e-183",
+      "srcId": "module-ontology-simulator",
+      "dstId": "external-vitest",
+      "type": "uses"
+    },
+    {
+      "id": "e-184",
+      "srcId": "repository-bropilot-repo",
+      "dstId": "module-store",
+      "type": "contains"
+    },
+    {
+      "id": "e-185",
+      "srcId": "repository-bropilot-repo",
+      "dstId": "module-schema",
+      "type": "contains"
+    },
+    {
+      "id": "e-186",
+      "srcId": "component-force-graph",
+      "dstId": "capability-live-graph-view",
+      "type": "implements"
+    },
+    {
+      "id": "e-187",
+      "srcId": "component-force-graph",
+      "dstId": "screen-graph",
+      "type": "implements"
+    },
+    {
+      "id": "e-188",
+      "srcId": "component-force-graph",
+      "dstId": "design-hand-rolled-svg-interaction",
+      "type": "implements"
+    },
+    {
+      "id": "e-189",
+      "srcId": "component-studio",
+      "dstId": "screen-studio",
+      "type": "implements"
+    },
+    {
+      "id": "e-190",
+      "srcId": "component-inspector",
+      "dstId": "capability-ontology-driven-query",
+      "type": "implements"
+    },
+    {
+      "id": "e-191",
+      "srcId": "component-relationshipeditor",
+      "dstId": "capability-ontology-aware-suggestions",
+      "type": "implements"
+    },
+    {
+      "id": "e-192",
+      "srcId": "component-nodeform",
+      "dstId": "capability-guided-collection",
+      "type": "implements"
+    },
+    {
+      "id": "e-193",
+      "srcId": "component-overviewview",
+      "dstId": "screen-overview",
+      "type": "implements"
+    },
+    {
+      "id": "e-194",
+      "srcId": "component-partview",
+      "dstId": "screen-foundations-view",
+      "type": "implements"
+    },
+    {
+      "id": "e-195",
+      "srcId": "component-graphview",
+      "dstId": "screen-graph",
+      "type": "implements"
+    },
+    {
+      "id": "e-196",
+      "srcId": "component-kindcard",
+      "dstId": "capability-ontology-driven-query",
+      "type": "implements"
+    },
+    {
+      "id": "e-197",
+      "srcId": "component-force-graph",
+      "dstId": "event-node-selected",
+      "type": "emits"
+    },
+    {
+      "id": "e-198",
+      "srcId": "component-nodeform",
+      "dstId": "event-node-created",
+      "type": "emits"
+    },
+    {
+      "id": "e-199",
+      "srcId": "component-studio",
+      "dstId": "event-graph-imported",
+      "type": "emits"
+    },
+    {
+      "id": "e-200",
+      "srcId": "component-force-graph",
+      "dstId": "external-d3-force",
+      "type": "uses"
+    },
+    {
+      "id": "e-201",
+      "srcId": "component-force-graph",
+      "dstId": "entity-node",
+      "type": "uses"
+    },
+    {
+      "id": "e-202",
+      "srcId": "component-force-graph",
+      "dstId": "api-pointer-events-api",
+      "type": "uses"
+    },
+    {
+      "id": "e-203",
+      "srcId": "component-inspector",
+      "dstId": "api-clipboard-api",
+      "type": "uses"
+    },
+    {
+      "id": "e-204",
+      "srcId": "component-inspector",
+      "dstId": "module-graph-query-engine",
+      "type": "uses"
+    },
+    {
+      "id": "e-205",
+      "srcId": "component-inspector",
+      "dstId": "state-selected-node-id",
+      "type": "uses"
+    },
+    {
+      "id": "e-206",
+      "srcId": "component-relationshipeditor",
+      "dstId": "module-suggestion-engine",
+      "type": "uses"
+    },
+    {
+      "id": "e-207",
+      "srcId": "component-nodeform",
+      "dstId": "module-schema",
+      "type": "uses"
+    },
+    {
+      "id": "e-208",
+      "srcId": "component-overviewview",
+      "dstId": "module-graph-lint",
+      "type": "uses"
+    },
+    {
+      "id": "e-209",
+      "srcId": "component-graphview",
+      "dstId": "module-router",
+      "type": "uses"
+    },
+    {
+      "id": "e-210",
+      "srcId": "component-graphview",
+      "dstId": "external-vue",
+      "type": "uses"
+    },
+    {
+      "id": "e-211",
+      "srcId": "component-kindcard",
+      "dstId": "entity-kind",
+      "type": "uses"
+    },
+    {
+      "id": "e-212",
+      "srcId": "component-studio",
+      "dstId": "external-vue",
+      "type": "uses"
+    },
+    {
+      "id": "e-213",
+      "srcId": "component-studio",
+      "dstId": "external-astro",
+      "type": "uses"
+    },
+    {
+      "id": "e-214",
+      "srcId": "api-localstorage-web-api",
+      "dstId": "interface-graph",
+      "type": "implements"
+    },
+    {
+      "id": "e-215",
+      "srcId": "api-hash-based-routing-api",
+      "dstId": "event-node-selected",
+      "type": "emits"
+    },
+    {
+      "id": "e-216",
+      "srcId": "api-localstorage-web-api",
+      "dstId": "event-graph-imported",
+      "type": "emits"
+    },
+    {
+      "id": "e-217",
+      "srcId": "api-localstorage-web-api",
+      "dstId": "requirement-code-traceability",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-218",
+      "srcId": "api-hash-based-routing-api",
+      "dstId": "module-router",
+      "type": "uses"
+    },
+    {
+      "id": "e-219",
+      "srcId": "api-clipboard-api",
+      "dstId": "module-graph-query-engine",
+      "type": "uses"
+    },
+    {
+      "id": "e-220",
+      "srcId": "interface-graphedge",
+      "dstId": "interface-graphnode",
+      "type": "extends"
+    },
+    {
+      "id": "e-221",
+      "srcId": "interface-graphnode",
+      "dstId": "entity-node",
+      "type": "references"
+    },
+    {
+      "id": "e-222",
+      "srcId": "interface-graphedge",
+      "dstId": "entity-edge",
+      "type": "references"
+    },
+    {
+      "id": "e-223",
+      "srcId": "interface-kinddef",
+      "dstId": "entity-kind",
+      "type": "references"
+    },
+    {
+      "id": "e-224",
+      "srcId": "interface-graph",
+      "dstId": "entity-node",
+      "type": "references"
+    },
+    {
+      "id": "e-225",
+      "srcId": "logic-kebab-case-id-generation",
+      "dstId": "behaviour-autosave",
+      "type": "implements"
+    },
+    {
+      "id": "e-226",
+      "srcId": "logic-basic-graph-pattern-matching",
+      "dstId": "behaviour-why-chain-gap-detection",
+      "type": "implements"
+    },
+    {
+      "id": "e-227",
+      "srcId": "logic-force-directed-layout-tick",
+      "dstId": "behaviour-autosave",
+      "type": "implements"
+    },
+    {
+      "id": "e-228",
+      "srcId": "logic-ontology-valid-operation-generation",
+      "dstId": "behaviour-undo-redo-history-tracking",
+      "type": "implements"
+    },
+    {
+      "id": "e-229",
+      "srcId": "logic-kebab-case-id-generation",
+      "dstId": "entity-node",
+      "type": "uses"
+    },
+    {
+      "id": "e-230",
+      "srcId": "logic-basic-graph-pattern-matching",
+      "dstId": "entity-edge",
+      "type": "uses"
+    },
+    {
+      "id": "e-231",
+      "srcId": "external-d3-force",
+      "dstId": "event-node-selected",
+      "type": "triggers"
+    },
+    {
+      "id": "e-232",
+      "srcId": "external-github-actions",
+      "dstId": "event-lint-finding-raised",
+      "type": "triggers"
+    },
+    {
+      "id": "e-233",
+      "srcId": "tests-schema-unit-tests",
+      "dstId": "module-schema",
+      "type": "verifies"
+    },
+    {
+      "id": "e-234",
+      "srcId": "tests-lint-unit-tests",
+      "dstId": "module-graph-lint",
+      "type": "verifies"
+    },
+    {
+      "id": "e-235",
+      "srcId": "tests-lint-unit-tests",
+      "dstId": "behaviour-off-ontology-edge-detection",
+      "type": "verifies"
+    },
+    {
+      "id": "e-236",
+      "srcId": "tests-lint-unit-tests",
+      "dstId": "behaviour-why-chain-gap-detection",
+      "type": "verifies"
+    },
+    {
+      "id": "e-237",
+      "srcId": "tests-lint-unit-tests",
+      "dstId": "behaviour-orphan-detection",
+      "type": "verifies"
+    },
+    {
+      "id": "e-238",
+      "srcId": "tests-lint-unit-tests",
+      "dstId": "behaviour-unverified-surface-detection",
+      "type": "verifies"
+    },
+    {
+      "id": "e-239",
+      "srcId": "tests-query-unit-tests",
+      "dstId": "module-graph-query-engine",
+      "type": "verifies"
+    },
+    {
+      "id": "e-240",
+      "srcId": "tests-narrative-unit-tests",
+      "dstId": "module-narrative-generator",
+      "type": "verifies"
+    },
+    {
+      "id": "e-241",
+      "srcId": "tests-suggestion-unit-tests",
+      "dstId": "module-suggestion-engine",
+      "type": "verifies"
+    },
+    {
+      "id": "e-242",
+      "srcId": "tests-ontology-simulator-tests",
+      "dstId": "module-ontology-simulator",
+      "type": "verifies"
+    },
+    {
+      "id": "e-243",
+      "srcId": "tests-ontology-simulator-tests",
+      "dstId": "module-store",
+      "type": "verifies"
+    },
+    {
+      "id": "e-244",
+      "srcId": "tests-ontology-simulator-tests",
+      "dstId": "module-graph-lint",
+      "type": "verifies"
+    },
+    {
+      "id": "e-245",
+      "srcId": "tests-ontology-simulator-tests",
+      "dstId": "module-graph-query-engine",
+      "type": "verifies"
+    },
+    {
+      "id": "e-246",
+      "srcId": "tests-ontology-simulator-tests",
+      "dstId": "behaviour-undo-redo-history-tracking",
+      "type": "verifies"
+    },
+    {
+      "id": "e-247",
+      "srcId": "tests-ontology-simulator-tests",
+      "dstId": "behaviour-autosave",
+      "type": "verifies"
+    },
+    {
+      "id": "e-248",
+      "srcId": "tests-ontology-simulator-tests",
+      "dstId": "hypothesis-seeded-simulation-catches-invariant-breaks",
+      "type": "verifies"
+    },
+    {
+      "id": "e-249",
+      "srcId": "tests-verification-e2e-suite",
+      "dstId": "module-store",
+      "type": "verifies"
+    },
+    {
+      "id": "e-250",
+      "srcId": "tests-verification-e2e-suite",
+      "dstId": "component-force-graph",
+      "type": "verifies"
+    },
+    {
+      "id": "e-251",
+      "srcId": "tests-verification-e2e-suite",
+      "dstId": "component-inspector",
+      "type": "verifies"
+    },
+    {
+      "id": "e-252",
+      "srcId": "tests-verification-e2e-suite",
+      "dstId": "component-relationshipeditor",
+      "type": "verifies"
+    },
+    {
+      "id": "e-253",
+      "srcId": "tests-verification-e2e-suite",
+      "dstId": "component-graphview",
+      "type": "verifies"
+    },
+    {
+      "id": "e-254",
+      "srcId": "tests-verification-e2e-suite",
+      "dstId": "component-kindcard",
+      "type": "verifies"
+    },
+    {
+      "id": "e-255",
+      "srcId": "tests-verification-e2e-suite",
+      "dstId": "flow-explore-the-graph-via-search",
+      "type": "verifies"
+    },
+    {
+      "id": "e-256",
+      "srcId": "tests-verification-e2e-suite",
+      "dstId": "api-localstorage-web-api",
+      "type": "verifies"
+    },
+    {
+      "id": "e-257",
+      "srcId": "tests-verification-e2e-suite",
+      "dstId": "api-clipboard-api",
+      "type": "verifies"
+    },
+    {
+      "id": "e-258",
+      "srcId": "tests-verification-e2e-suite",
+      "dstId": "api-hash-based-routing-api",
+      "type": "verifies"
+    },
+    {
+      "id": "e-259",
+      "srcId": "tests-verification-e2e-suite",
+      "dstId": "api-pointer-events-api",
+      "type": "verifies"
+    },
+    {
+      "id": "e-260",
+      "srcId": "observability-ci-pipeline",
+      "dstId": "goal-zero-drift-between-spec-and-code",
+      "type": "monitors"
+    },
+    {
+      "id": "e-261",
+      "srcId": "observability-ci-pipeline",
+      "dstId": "module-schema",
+      "type": "monitors"
+    },
+    {
+      "id": "e-262",
+      "srcId": "observability-graph-health-card",
+      "dstId": "goal-faster-alignment",
+      "type": "monitors"
+    },
+    {
+      "id": "e-263",
+      "srcId": "observability-graph-health-card",
+      "dstId": "module-graph-lint",
+      "type": "monitors"
+    },
+    {
+      "id": "e-264",
+      "srcId": "observability-autosave-status-indicator",
+      "dstId": "module-store",
+      "type": "monitors"
+    },
+    {
+      "id": "e-265",
+      "srcId": "observability-autosave-status-indicator",
+      "dstId": "behaviour-autosave",
+      "type": "monitors"
+    },
+    {
+      "id": "e-266",
+      "srcId": "tests-verification-e2e-suite",
+      "dstId": "repository-bropilot-repo",
+      "type": "references"
+    },
+    {
+      "id": "e-267",
+      "srcId": "tests-schema-unit-tests",
+      "dstId": "repository-bropilot-repo",
+      "type": "references"
+    },
+    {
+      "id": "e-268",
+      "srcId": "observability-ci-pipeline",
+      "dstId": "external-github-actions",
+      "type": "uses"
+    },
+    {
+      "id": "e-269",
+      "srcId": "observability-ci-pipeline",
+      "dstId": "external-playwright",
+      "type": "uses"
+    },
+    {
+      "id": "e-270",
+      "srcId": "observability-ci-pipeline",
+      "dstId": "external-vitest",
+      "type": "uses"
+    },
+    {
+      "id": "e-271",
+      "srcId": "observability-ci-pipeline",
+      "dstId": "tests-verification-e2e-suite",
+      "type": "depends_on"
+    },
+    {
+      "id": "e-272",
+      "srcId": "observability-ci-pipeline",
+      "dstId": "tests-schema-unit-tests",
+      "type": "depends_on"
+    },
+    {
+      "id": "e-273",
+      "srcId": "component-studio",
+      "dstId": "module-toast-notifications",
+      "type": "uses"
+    },
+    {
+      "id": "e-274",
+      "srcId": "module-toast-notifications",
+      "dstId": "event-lint-finding-raised",
+      "type": "emits"
+    },
+    {
+      "id": "e-275",
+      "srcId": "component-graphview",
+      "dstId": "module-toast-notifications",
+      "type": "uses"
+    },
+    {
+      "id": "e-276",
+      "srcId": "module-router",
+      "dstId": "screen-graph",
+      "type": "uses"
+    },
+    {
+      "id": "e-277",
+      "srcId": "module-router",
+      "dstId": "screen-overview",
+      "type": "uses"
+    },
+    {
+      "id": "e-278",
+      "srcId": "entity-kind",
+      "dstId": "entity-ontology-triple",
+      "type": "has"
+    },
+    {
+      "id": "e-279",
+      "srcId": "term-why-chain",
+      "dstId": "entity-finding",
+      "type": "describes"
+    },
+    {
+      "id": "e-280",
+      "srcId": "term-triple-strength",
+      "dstId": "entity-ontology-triple",
+      "type": "describes"
+    },
+    {
+      "id": "e-281",
+      "srcId": "assumption-one-island-scales-to-hundreds-of-nodes",
+      "dstId": "component-force-graph",
+      "type": "constrains"
+    },
+    {
+      "id": "e-282",
+      "srcId": "hypothesis-a-graph-beats-a-doc",
+      "dstId": "capability-live-graph-view",
+      "type": "motivates"
+    },
+    {
+      "id": "e-283",
+      "srcId": "persona-builder",
+      "dstId": "usecase-extract-a-graph-from-a-codebase",
+      "type": "uses"
+    },
+    {
+      "id": "e-284",
+      "srcId": "persona-architect",
+      "dstId": "usecase-copy-context-into-an-llm-chat",
+      "type": "uses"
+    },
+    {
+      "id": "e-285",
+      "srcId": "screen-domain-view",
+      "dstId": "persona-architect",
+      "type": "serves"
+    },
+    {
+      "id": "e-286",
+      "srcId": "screen-foundations-view",
+      "dstId": "persona-newcomer-onboarding-engineer",
+      "type": "serves"
+    },
+    {
+      "id": "e-287",
+      "srcId": "screen-implementation-view",
+      "dstId": "persona-builder",
+      "type": "serves"
+    },
+    {
+      "id": "e-288",
+      "srcId": "flow-collect-a-system",
+      "dstId": "persona-architect",
+      "type": "satisfies"
+    },
+    {
+      "id": "e-289",
+      "srcId": "component-partview",
+      "dstId": "screen-domain-view",
+      "type": "implements"
+    },
+    {
+      "id": "e-290",
+      "srcId": "component-partview",
+      "dstId": "screen-implementation-view",
+      "type": "implements"
+    },
+    {
+      "id": "e-291",
+      "srcId": "entity-node",
+      "dstId": "entity-source-reference",
+      "type": "has"
+    },
+    {
+      "id": "e-292",
+      "srcId": "behaviour-autosave",
+      "dstId": "state-autosave-timestamp",
+      "type": "uses"
+    },
+    {
+      "id": "e-293",
+      "srcId": "component-studio",
+      "dstId": "external-tailwind-v4",
+      "type": "uses"
+    },
+    {
+      "id": "e-294",
+      "srcId": "design-glass-dark-theme",
+      "dstId": "external-tailwind-v4",
+      "type": "uses"
+    },
+    {
+      "id": "e-295",
+      "srcId": "component-kindcard",
+      "dstId": "module-graph-query-engine",
+      "type": "uses"
+    },
+    {
+      "id": "e-296",
+      "srcId": "component-relationshipeditor",
+      "dstId": "entity-kind",
+      "type": "uses"
+    },
+    {
+      "id": "e-297",
+      "srcId": "logic-force-directed-layout-tick",
+      "dstId": "external-d3-force",
+      "type": "uses"
+    },
+    {
+      "id": "e-298",
+      "srcId": "observability-ci-pipeline",
+      "dstId": "module-graph-lint",
+      "type": "monitors"
+    },
+    {
+      "id": "e-299",
+      "srcId": "observability-ci-pipeline",
+      "dstId": "module-store",
+      "type": "monitors"
+    },
+    {
+      "id": "e-300",
+      "srcId": "screen-overview",
+      "dstId": "capability-graph-health-linting",
+      "type": "uses"
+    },
+    {
+      "id": "e-301",
+      "srcId": "screen-graph",
+      "dstId": "capability-ontology-driven-query",
+      "type": "uses"
+    },
+    {
+      "id": "e-302",
+      "srcId": "usecase-explore-via-search",
+      "dstId": "event-node-selected",
+      "type": "triggers"
+    },
+    {
+      "id": "e-303",
+      "srcId": "flow-interview-to-build-a-graph",
+      "dstId": "entity-source-reference",
+      "type": "uses"
+    },
+    {
+      "id": "e-304",
+      "srcId": "persona-the-ai-agent",
+      "dstId": "entity-source-reference",
+      "type": "uses"
+    },
+    {
+      "id": "e-305",
+      "srcId": "component-nodeform",
+      "dstId": "entity-source-reference",
+      "type": "uses"
+    }
+  ]
+}
