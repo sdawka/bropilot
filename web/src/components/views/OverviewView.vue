@@ -106,8 +106,8 @@ function jump(nodeId?: string) {
         <span>{{ suggestions.total }} suggested connection{{ suggestions.total > 1 ? 's' : '' }} across {{ suggestions.nodes }} node{{ suggestions.nodes > 1 ? 's' : '' }}</span>
         <span class="ml-auto text-ink-400">Review →</span>
       </button>
-      <p class="mt-1 text-xs text-ink-300">{{ findings.length }} advisory finding{{ findings.length > 1 ? 's' : '' }} — suggestions, never rules.</p>
-      <ul class="mt-3 space-y-1.5">
+      <p v-if="findings.length" class="mt-1 text-xs text-ink-300">{{ findings.length }} advisory finding{{ findings.length > 1 ? 's' : '' }} — suggestions, never rules.</p>
+      <ul v-if="findings.length" class="mt-3 space-y-1.5">
         <li v-for="(f, i) in findings.slice(0, 30)" :key="i">
           <button class="w-full text-left text-xs text-ink-200 transition hover:text-accent" @click="jump(f.nodeId)">
             <span class="font-mono text-[0.62rem] uppercase tracking-wide" :class="f.severity === 'note' ? 'text-amber-400/80' : 'text-ink-400'">{{ f.severity }}</span>
