@@ -1,6 +1,6 @@
 // Autosaved workshop draft — stickies, deck answers, pasted doc text — under a
 // key separate from the graph. SSR-safe hydrate guard, same shape as store.ts.
-import { reactive, watch } from 'vue';
+import { reactive, watch, effectScope } from 'vue';
 
 const KEY = 'bropilot:workshop:v1';
 
@@ -40,17 +40,24 @@ export function hydrateWorkshop(): void {
       /* ignore malformed draft */
     }
   }
-  watch(
-    draft,
-    (d) => {
-      try {
-        localStorage.setItem(KEY, JSON.stringify(d));
-      } catch {
-        /* quota / unavailable */
-      }
-    },
-    { deep: true, flush: 'sync' },
-  );
+  // WorkshopView.vue calls hydrateWorkshop() from onMounted, so the first
+  // caller's component scope is active here. Registering the watch in a
+  // detached scope keeps it alive after that component unmounts — otherwise
+  // Vue ties the watch to the calling scope and stops it, and the `hydrated`
+  // guard above blocks it from ever being re-registered.
+  effectScope(true).run(() => {
+    watch(
+      draft,
+      (d) => {
+        try {
+          localStorage.setItem(KEY, JSON.stringify(d));
+        } catch {
+          /* quota / unavailable */
+        }
+      },
+      { deep: true, flush: 'sync' },
+    );
+  });
 }
 
 export function resetStorm(): void {
