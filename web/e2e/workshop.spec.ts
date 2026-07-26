@@ -22,6 +22,14 @@ const test = base.extend<{ failOnPageError: void }>({
 // localStorage (bypassing the SAMPLE_GRAPH seed) — used where a test needs a
 // small, fully-controlled graph so lint/suggestion counts are exact, rather
 // than depending on the shape of the (evolving) rich sample data.
+// Sticky drag must pointerdown on the sticky CONTAINER, never the title/note
+// <input> (they @pointerdown.stop by design — see EventStorm.vue). The
+// container has 8px (p-2) padding before the title input begins, so a
+// previous offset of exactly 8px landed right on that boundary — safe today,
+// but one CSS tweak away from silently missing the container. 3px sits
+// comfortably inside the padding, nowhere near the input.
+const STICKY_CONTAINER_EDGE_Y = 3;
+
 async function seededPage(page: Page, hash: string, graph: Graph): Promise<void> {
   await page.addInitScript((g) => {
     try {
@@ -62,9 +70,9 @@ test.describe('event storming', () => {
     const from = await actor.boundingBox();
     const to = await command.boundingBox();
     if (!from || !to) throw new Error('sticky boxes missing');
-    await page.mouse.move(from.x + from.width / 2, from.y + 8);
+    await page.mouse.move(from.x + from.width / 2, from.y + STICKY_CONTAINER_EDGE_Y);
     await page.mouse.down();
-    await page.mouse.move(to.x + to.width / 2, to.y + 8, { steps: 8 });
+    await page.mouse.move(to.x + to.width / 2, to.y + STICKY_CONTAINER_EDGE_Y, { steps: 8 });
     await page.mouse.up();
     await expect(actor.getByText('link', { exact: false })).toBeVisible();
 
@@ -112,9 +120,9 @@ test.describe('event storming', () => {
     const from = await command.boundingBox();
     const to = await aggregate.boundingBox();
     if (!from || !to) throw new Error('sticky boxes missing');
-    await page.mouse.move(from.x + from.width / 2, from.y + 8);
+    await page.mouse.move(from.x + from.width / 2, from.y + STICKY_CONTAINER_EDGE_Y);
     await page.mouse.down();
-    await page.mouse.move(to.x + to.width / 2, to.y + 8, { steps: 8 });
+    await page.mouse.move(to.x + to.width / 2, to.y + STICKY_CONTAINER_EDGE_Y, { steps: 8 });
     await page.mouse.up();
     await expect(command.getByText('link', { exact: false })).toBeVisible();
 
@@ -207,6 +215,24 @@ test.describe('guided interview', () => {
 
     await review.getByRole('button', { name: /Apply \d+ change/ }).click();
     await expect(review).toHaveCount(0);
+
+    // The modal closing only proves the UI moved on, not that the edge
+    // landed correctly — read the graph straight out of localStorage and
+    // assert the exact srcId/dstId/type, which is the actual point of the
+    // "earlier answer as a followup target" requirement. Node ids follow
+    // {kind}-{kebab-title} (see CLAUDE.md).
+    const graph = await page.evaluate(() => {
+      const raw = window.localStorage.getItem('bropilot:graph:v1');
+      return raw ? (JSON.parse(raw) as { nodes: { id: string }[]; edges: { srcId: string; dstId: string; type: string }[] }) : null;
+    });
+    expect(graph).not.toBeNull();
+    const capabilityId = 'capability-submit-expense-report';
+    const personaId = 'persona-field-ops-lead';
+    expect(graph!.nodes.some((n) => n.id === capabilityId)).toBe(true);
+    expect(graph!.nodes.some((n) => n.id === personaId)).toBe(true);
+    expect(
+      graph!.edges.some((e) => e.srcId === capabilityId && e.dstId === personaId && e.type === 'serves'),
+    ).toBe(true);
   });
 });
 
