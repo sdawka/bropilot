@@ -32,8 +32,11 @@ export async function freshPage(page: Page, hash = '#/overview'): Promise<void> 
   });
   await page.goto(`${BASE_URL}/${hash}`);
   // The sidebar nav is rendered unconditionally (outside the `ready` gate),
-  // so waiting on it confirms the Vue island has mounted.
-  await page.getByRole('button', { name: 'Overview' }).waitFor({ state: 'visible' });
+  // so waiting on it confirms the Vue island has mounted. Scoped to the
+  // page's one <nav> landmark: with the rich sample, narrative prose renders
+  // inline citation buttons (e.g. "→ implements Overview") whose accessible
+  // name also contains "Overview", so an unscoped locator is ambiguous.
+  await page.locator('nav').getByRole('button', { name: 'Overview' }).waitFor({ state: 'visible' });
 }
 
 /** Switch the Inspector's Narrative/Details tab. */
@@ -201,4 +204,34 @@ export async function clickFit(page: Page): Promise<void> {
 /** Read the clipboard via the permissions already granted in playwright.config.ts. */
 export async function readClipboard(page: Page): Promise<string> {
   return page.evaluate(() => navigator.clipboard.readText());
+}
+
+/**
+ * Return the label text of the N node circles closest to the SVG canvas
+ * centre, in instance mode. Central nodes are guaranteed away from the fixed
+ * corner overlays (title, mode toggle, legend), so clicking/dragging them
+ * survives any sample layout — unlike hard-coded node titles, whose fitted
+ * positions depend entirely on sample content.
+ */
+export async function nMostCentralNodeLabels(page: Page, n: number): Promise<string[]> {
+  return page.evaluate((count) => {
+    const svg = document.querySelector('svg');
+    if (!svg) return [] as string[];
+    const r = svg.getBoundingClientRect();
+    const cx = r.x + r.width / 2;
+    const cy = r.y + r.height / 2;
+    const items: { label: string; d: number }[] = [];
+    for (const g of document.querySelectorAll('svg g.cursor-pointer')) {
+      const circles = g.querySelectorAll('circle');
+      const own = circles[circles.length - 1];
+      const text = g.querySelector('text');
+      if (!own || !text) continue;
+      const b = own.getBoundingClientRect();
+      const x = b.x + b.width / 2;
+      const y = b.y + b.height / 2;
+      items.push({ label: text.textContent ?? '', d: Math.hypot(x - cx, y - cy) });
+    }
+    items.sort((a, b) => a.d - b.d);
+    return items.slice(0, count).map((i) => i.label);
+  }, n);
 }

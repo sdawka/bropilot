@@ -15,14 +15,21 @@ import {
   clickFit,
   readClipboard,
 } from './helpers';
-import { KINDS } from '../src/lib/schema';
+import { KINDS, KIND_MAP } from '../src/lib/schema';
 import { lintGraph } from '../src/lib/lint';
 import { SAMPLE_GRAPH } from '../src/lib/sample';
 
-// Ground the "6 findings" / "module-schema" expectations in the same lint
+// Ground the finding-count / finding-driven expectations in the same lint
 // function the app runs, rather than hard-coding numbers that would silently
 // drift if SAMPLE_GRAPH or the lint rules change.
 const SAMPLE_FINDINGS = lintGraph(SAMPLE_GRAPH);
+
+// First lint finding that points at a node — used to drive the health-card
+// navigation and Inspector-badge tests without hard-coding a node id that
+// depends on sample content.
+const FINDING = SAMPLE_FINDINGS.find((f) => f.nodeId)!;
+const FINDING_NODE = SAMPLE_GRAPH.nodes.find((n) => n.id === FINDING.nodeId)!;
+const FINDING_PART = KIND_MAP[FINDING_NODE.kind].part;
 
 test.describe('1 — editor chips add edges', () => {
   test('ontology suggestion chips are visible and clicking one adds an edge row', async ({ page }) => {
@@ -140,20 +147,20 @@ test.describe('6 — health card navigation', () => {
     });
     await expect(health.locator('li')).toHaveCount(SAMPLE_FINDINGS.length);
 
-    await health.locator('li button', { hasText: 'Schema' }).first().click();
-    await expect(page).toHaveURL(/#\/implementation\/module-schema$/);
+    await health.locator('li button', { hasText: FINDING_NODE.title }).first().click();
+    await expect(page).toHaveURL(new RegExp(`#/${FINDING_PART}/${FINDING_NODE.id}$`));
 
     await clickInspectorTab(page, 'Details');
-    await expect(page.locator('code', { hasText: 'module-schema' })).toBeVisible();
+    await expect(page.locator('code', { hasText: FINDING_NODE.id })).toBeVisible();
   });
 });
 
 test.describe('7 — Inspector badge', () => {
   test('a node with lint findings shows a warning badge', async ({ page }) => {
-    await freshPage(page, '#/implementation/module-store');
+    await freshPage(page, `#/${FINDING_PART}/${FINDING_NODE.id}`);
     await clickInspectorTab(page, 'Details');
 
-    const findingsForNode = SAMPLE_FINDINGS.filter((f) => f.nodeId === 'module-store').length;
+    const findingsForNode = SAMPLE_FINDINGS.filter((f) => f.nodeId === FINDING_NODE.id).length;
     expect(findingsForNode).toBeGreaterThan(0);
     await expect(page.getByText(`⚠ ${findingsForNode}`, { exact: true })).toBeVisible();
   });
@@ -277,17 +284,20 @@ test.describe('regression — health card navigation works with a prior selectio
     page,
   }) => {
     await freshPage(page, '#/implementation/module-store');
-    await page.getByRole('button', { name: 'Overview' }).click();
+    // Scoped to the sidebar <nav> — the rich sample's interlinked
+    // descriptions also render inline citation buttons/headings titled
+    // "Overview" elsewhere on the page, which would otherwise collide.
+    await page.locator('nav').getByRole('button', { name: 'Overview' }).click();
 
     const health = page.locator('section', {
       has: page.getByRole('heading', { level: 3, name: 'Graph health' }),
     });
     await expect(health.locator('li')).toHaveCount(SAMPLE_FINDINGS.length);
 
-    await health.locator('li button', { hasText: 'Schema' }).first().click();
-    await expect(page).toHaveURL(/#\/implementation\/module-schema$/);
+    await health.locator('li button', { hasText: FINDING_NODE.title }).first().click();
+    await expect(page).toHaveURL(new RegExp(`#/${FINDING_PART}/${FINDING_NODE.id}$`));
 
     await clickInspectorTab(page, 'Details');
-    await expect(page.locator('code', { hasText: 'module-schema' })).toBeVisible();
+    await expect(page.locator('code', { hasText: FINDING_NODE.id })).toBeVisible();
   });
 });
