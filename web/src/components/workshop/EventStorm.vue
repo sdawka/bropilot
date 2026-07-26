@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onBeforeUnmount } from 'vue';
 import { nanoid } from 'nanoid';
 import { draft, resetStorm, type Sticky, type StormCol } from '../../lib/workshopDraft';
 import { diffAgainstGraph, type Changeset, type RawGraph } from '../../lib/changeset';
@@ -76,6 +76,14 @@ function onUp() {
   window.removeEventListener('pointermove', onMove);
   window.removeEventListener('pointerup', onUp);
 }
+// A drag left in progress when this view unmounts (e.g. navigating back to
+// the hub mid-drag) must not leave window listeners alive over stale state.
+onBeforeUnmount(() => {
+  window.removeEventListener('pointermove', onMove);
+  window.removeEventListener('pointerup', onUp);
+  dragId.value = null;
+  dropTarget = null;
+});
 
 // ── convert ──
 const review = ref<Changeset | null>(null);

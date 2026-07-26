@@ -12,16 +12,27 @@ export const STORM_KIND_BY_COL: Record<StormCol, string> = {
   hotspot: 'hypothesis',
 };
 
-// pair (srcCol → dstCol) ⇒ edge type; hotspot→* handled specially
-const PAIR_EDGE: Record<string, string> = {
-  'actor|command': 'uses',
-  'command|aggregate': 'has',
-  'command|event': 'emits',
+// pair (srcCol → dstCol, i.e. dragged sticky → drop target) ⇒ edge type.
+// `reversed` flips which sticky lands as the edge's src/dst so the output
+// matches the ontology's semantics rather than the drag direction — e.g. the
+// aggregate (entity) *has* the command (behaviour) as an aspect, not the
+// other way around, even though you drag the command onto the aggregate.
+// hotspot→* is handled specially (never reversed: the hypothesis references
+// whatever it's dropped onto).
+const PAIR_EDGE: Record<string, { type: string; reversed?: boolean }> = {
+  'actor|command': { type: 'uses' },
+  'command|aggregate': { type: 'has', reversed: true },
+  'command|event': { type: 'emits' },
 };
 
+function pairEdge(srcCol: StormCol, dstCol: StormCol): { type: string; reversed: boolean } | null {
+  if (srcCol === 'hotspot') return { type: 'references', reversed: false };
+  const m = PAIR_EDGE[`${srcCol}|${dstCol}`];
+  return m ? { type: m.type, reversed: !!m.reversed } : null;
+}
+
 export function edgeForPair(srcCol: StormCol, dstCol: StormCol): string | null {
-  if (srcCol === 'hotspot') return 'references';
-  return PAIR_EDGE[`${srcCol}|${dstCol}`] ?? null;
+  return pairEdge(srcCol, dstCol)?.type ?? null;
 }
 
 export function buildRawFromStickies(stickies: Sticky[]): RawGraph {
@@ -31,14 +42,21 @@ export function buildRawFromStickies(stickies: Sticky[]): RawGraph {
     .map((s) => ({ kind: STORM_KIND_BY_COL[s.col], title: s.title.trim(), description: s.note ?? '' }));
 
   const edges: { src: string; dst: string; type: string }[] = [];
+  const seen = new Set<string>();
   for (const s of stickies) {
-    if (!s.title.trim()) continue;
+    const srcTitle = s.title.trim();
+    if (!srcTitle) continue;
     for (const l of s.links) {
       const dst = byId.get(l.toId);
-      if (!dst || !dst.title.trim()) continue;
-      const type = edgeForPair(s.col, dst.col);
-      if (!type) continue;
-      edges.push({ src: s.title.trim(), dst: dst.title.trim(), type });
+      const dstTitle = dst?.title.trim();
+      if (!dst || !dstTitle) continue;
+      const pe = pairEdge(s.col, dst.col);
+      if (!pe) continue;
+      const edge = pe.reversed ? { src: dstTitle, dst: srcTitle, type: pe.type } : { src: srcTitle, dst: dstTitle, type: pe.type };
+      const key = `${edge.src}|${edge.type}|${edge.dst}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      edges.push(edge);
     }
   }
   return { nodes, edges };

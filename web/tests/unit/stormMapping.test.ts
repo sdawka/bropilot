@@ -59,15 +59,6 @@ describe('buildRawFromStickies', () => {
     expect(buildRawFromStickies(stickies).nodes).toEqual([]);
   });
 
-  it('emits an edge for a legal linked pair', () => {
-    const stickies: Sticky[] = [
-      sticky({ id: 's1', col: 'actor', title: 'Rep', links: [{ toId: 's2' }] }),
-      sticky({ id: 's2', col: 'command', title: 'Place order' }),
-    ];
-    const raw = buildRawFromStickies(stickies);
-    expect(raw.edges).toEqual([{ src: 'Rep', dst: 'Place order', type: 'uses' }]);
-  });
-
   it('drops a link with no legal pairing', () => {
     const stickies: Sticky[] = [
       sticky({ id: 's1', col: 'command', title: 'Place order', links: [{ toId: 's2' }] }),
@@ -87,5 +78,67 @@ describe('buildRawFromStickies', () => {
       sticky({ id: 's2', col: 'command', title: '  ' }),
     ];
     expect(buildRawFromStickies(stickies).edges).toEqual([]);
+  });
+
+  // ── direction-pinned: every legal pair asserts exact src AND dst titles,
+  // so a swapped polarity fails even though the edge *type* would still match. ──
+
+  it('actor -[uses]-> command: keeps the dragged actor as edge src', () => {
+    const stickies: Sticky[] = [
+      sticky({ id: 'a', col: 'actor', title: 'Sales rep', links: [{ toId: 'c' }] }),
+      sticky({ id: 'c', col: 'command', title: 'Place order' }),
+    ];
+    expect(buildRawFromStickies(stickies).edges).toEqual([{ src: 'Sales rep', dst: 'Place order', type: 'uses' }]);
+  });
+
+  it('command dragged onto aggregate produces entity-has-behaviour: aggregate is edge src, command is edge dst', () => {
+    // "has" is conceptual possession — the aggregate (entity) owns the command
+    // (behaviour) as one of its capabilities — so the *edge* must read
+    // aggregate--has-->command even though the drag went command->aggregate.
+    const stickies: Sticky[] = [
+      sticky({ id: 'cmd', col: 'command', title: 'Place order', links: [{ toId: 'agg' }] }),
+      sticky({ id: 'agg', col: 'aggregate', title: 'Order' }),
+    ];
+    expect(buildRawFromStickies(stickies).edges).toEqual([{ src: 'Order', dst: 'Place order', type: 'has' }]);
+  });
+
+  it('command -[emits]-> event: keeps the dragged command as edge src', () => {
+    const stickies: Sticky[] = [
+      sticky({ id: 'cmd', col: 'command', title: 'Place order', links: [{ toId: 'evt' }] }),
+      sticky({ id: 'evt', col: 'event', title: 'Order placed' }),
+    ];
+    expect(buildRawFromStickies(stickies).edges).toEqual([{ src: 'Place order', dst: 'Order placed', type: 'emits' }]);
+  });
+
+  it('hotspot -[references]-> anything: keeps the dragged hotspot as edge src, for every target column', () => {
+    const targets: { col: Sticky['col']; title: string }[] = [
+      { col: 'actor', title: 'Sales rep' },
+      { col: 'command', title: 'Place order' },
+      { col: 'aggregate', title: 'Order' },
+      { col: 'event', title: 'Order placed' },
+      { col: 'hotspot', title: 'Other hotspot' },
+    ];
+    for (const target of targets) {
+      const stickies: Sticky[] = [
+        sticky({ id: 'h', col: 'hotspot', title: 'Slow checkout', links: [{ toId: 't' }] }),
+        sticky({ id: 't', col: target.col, title: target.title }),
+      ];
+      expect(buildRawFromStickies(stickies).edges).toEqual([
+        { src: 'Slow checkout', dst: target.title, type: 'references' },
+      ]);
+    }
+  });
+
+  it('dedupes identical edges (same src/dst/type) even if produced by separate link entries', () => {
+    const stickies: Sticky[] = [
+      sticky({
+        id: 'a',
+        col: 'actor',
+        title: 'Sales rep',
+        links: [{ toId: 'c' }, { toId: 'c' }], // defensive: duplicate link entries shouldn't double the edge
+      }),
+      sticky({ id: 'c', col: 'command', title: 'Place order' }),
+    ];
+    expect(buildRawFromStickies(stickies).edges).toEqual([{ src: 'Sales rep', dst: 'Place order', type: 'uses' }]);
   });
 });
