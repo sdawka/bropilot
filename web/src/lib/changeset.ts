@@ -63,7 +63,7 @@ export function diffAgainstGraph(graph: Graph, raw: RawGraph): Changeset {
   for (const n of graph.nodes) if (!existingByTitle.has(norm(n.title))) existingByTitle.set(norm(n.title), n);
 
   const takenIds = new Set(graph.nodes.map((n) => n.id));
-  const seenKeys = new Set<string>(); // dedupe raw nodes by kind|title
+  const seenContent = new Set<string>(); // dedupe raw nodes only when content identical
   const stagedByTitle = new Map<string, StagedNode>(); // for edge resolution
 
   for (const rawNode of Array.isArray(raw.nodes) ? raw.nodes : []) {
@@ -75,9 +75,6 @@ export function diffAgainstGraph(graph: Graph, raw: RawGraph): Changeset {
       warnings.push('Skipped a node with no kind or title.');
       continue;
     }
-    const key = `${kind}|${norm(title)}`;
-    if (seenKeys.has(key)) continue; // exact duplicate within the reply
-    seenKeys.add(key);
 
     if (!KIND_MAP[kind]) warnings.push(`Unknown kind "${kind}" for "${title}" — you can still apply it.`);
 
@@ -85,12 +82,23 @@ export function diffAgainstGraph(graph: Graph, raw: RawGraph): Changeset {
     const props = r.props && typeof r.props === 'object' ? (r.props as Record<string, unknown>) : undefined;
     const excerpt = typeof r.excerpt === 'string' && r.excerpt.trim() ? r.excerpt.trim() : undefined;
 
-    // update? (same kind + exact title, or an explicit existing id)
+    // Check for content-identical duplicates within the reply
+    const contentKey = JSON.stringify({ kind, title: norm(title), description, props, excerpt });
+    if (seenContent.has(contentKey)) continue; // true duplicate
+    seenContent.add(contentKey);
+
+    const key = `${kind}|${norm(title)}`;
+
+    // update? (explicit existing id, or same kind + exact title)
     const byId = typeof r.id === 'string' ? existingById.get(r.id) : undefined;
     const match = byId ?? existingByKindTitle.get(key);
     if (match) {
       const patch: StagedNode = { id: match.id, kind: match.kind, title: match.title, op: 'update' };
       let changed = false;
+      // kind mismatch: warn and preserve existing kind
+      if (byId && kind !== match.kind) {
+        warnings.push(`Kind mismatch for "${match.id}": kept "${match.kind}" instead of "${kind}".`);
+      }
       if (description !== undefined && description !== match.description) {
         patch.description = description;
         changed = true;

@@ -38,13 +38,19 @@ describe('diffAgainstGraph — classification', () => {
     expect(cs.nodes).toHaveLength(0);
   });
 
-  it('gives colliding new titles deterministic -2/-3 suffixes', () => {
+  it('gives same-title-different-content nodes deterministic -2/-3 suffixes', () => {
     const cs = diffAgainstGraph(baseGraph, {
-      nodes: [{ kind: 'goal', title: 'Win' }, { kind: 'goal', title: 'Win' }, { kind: 'goal', title: 'Win' }],
+      nodes: [
+        { kind: 'goal', title: 'Win', description: 'For profit' },
+        { kind: 'goal', title: 'Win', description: 'For impact' },
+      ],
       edges: [],
     });
-    // second is an exact-duplicate add of the first → dropped; ids stay unique across the batch
-    expect(cs.nodes.map((n) => n.id)).toEqual(['goal-win']);
+    // Different descriptions: both should survive with distinct ids and content
+    expect(cs.nodes).toHaveLength(2);
+    const sorted = cs.nodes.sort((a, b) => a.id.localeCompare(b.id));
+    expect(sorted[0]).toMatchObject({ id: 'goal-win', description: 'For profit' });
+    expect(sorted[1]).toMatchObject({ id: 'goal-win-2', description: 'For impact' });
   });
 
   it('resolves edge endpoints by title against staged + existing nodes', () => {
@@ -77,6 +83,22 @@ describe('diffAgainstGraph — classification', () => {
     const cs = diffAgainstGraph(baseGraph, { nodes: [], edges: [{ src: 'Build a quote', dst: 'Sales rep', type: 'serves' }] });
     expect(cs.edges).toHaveLength(0);
   });
+
+  it('drops a dangling edge (source unresolvable) with a warning', () => {
+    const cs = diffAgainstGraph(baseGraph, { nodes: [], edges: [{ src: 'Nowhere at all', dst: 'Sales rep', type: 'uses' }] });
+    expect(cs.edges).toHaveLength(0);
+    expect(cs.warnings.some((w) => w.includes('Nowhere at all'))).toBe(true);
+  });
+
+  it('applies byId update but preserves existing kind and warns on mismatch', () => {
+    const cs = diffAgainstGraph(baseGraph, {
+      nodes: [{ id: 'persona-rep', kind: 'actor', title: 'Sales rep', description: 'Updated role' }],
+      edges: [],
+    });
+    expect(cs.nodes).toHaveLength(1);
+    expect(cs.nodes[0]).toMatchObject({ id: 'persona-rep', kind: 'persona', description: 'Updated role', op: 'update' });
+    expect(cs.warnings.some((w) => w.includes('Kind mismatch') && w.includes('persona-rep'))).toBe(true);
+  });
 });
 
 describe('applyChangeset — selection + single undo step', () => {
@@ -106,11 +128,14 @@ describe('applyChangeset — selection + single undo step', () => {
       edges: [{ src: 'A', dst: 'Sales rep', type: 'references' }],
     });
     const selected = new Set([...cs.nodes.map((n) => n.id), ...cs.edges.map((e) => e.id)]);
-    const before = state.graph.nodes.length;
+    const beforeNodes = state.graph.nodes.length;
+    const beforeEdges = state.graph.edges.length;
     applyChangeset(cs, selected);
-    expect(state.graph.nodes.length).toBe(before + 2);
+    expect(state.graph.nodes.length).toBe(beforeNodes + 2);
+    expect(state.graph.edges.length).toBe(beforeEdges + 1);
     expect(canUndo.value).toBe(true);
     undo();
-    expect(state.graph.nodes.length).toBe(before); // single revert restores everything
+    expect(state.graph.nodes.length).toBe(beforeNodes); // single revert restores everything
+    expect(state.graph.edges.length).toBe(beforeEdges);
   });
 });
