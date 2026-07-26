@@ -301,3 +301,44 @@ test.describe('regression — health card navigation works with a prior selectio
     await expect(page.locator('code', { hasText: FINDING_NODE.id })).toBeVisible();
   });
 });
+
+test.describe('9 — overview suggestions row navigates', () => {
+  test('clicking the suggestions row selects the top node and opens its part', async ({ page }) => {
+    await freshPage(page, '#/overview');
+
+    const row = page.getByRole('button', { name: /suggested connection/ });
+    await expect(row).toBeVisible();
+    await row.click();
+
+    // lands on a part route with a node selected (not overview, not bare graph)
+    await expect(page).toHaveURL(/#\/(foundations|domain|implementation|graph)\/[a-z0-9-]+$/);
+  });
+});
+
+test.describe('10 — Inspector suggestion adds an edge', () => {
+  test('clicking a suggestion candidate adds a relationship row and fires a toast', async ({ page }) => {
+    // navigate via the overview row to the node with the most suggestions (guaranteed to have candidates)
+    await freshPage(page, '#/overview');
+    await page.getByRole('button', { name: /suggested connection/ }).click();
+    await clickInspectorTab(page, 'Details');
+
+    const suggestions = page.locator('section', {
+      has: page.getByRole('heading', { level: 3, name: 'Suggestions' }),
+    });
+    await expect(suggestions).toBeVisible();
+
+    // a candidate button carries an "Add: …" title — pick the first
+    const candidate = suggestions.locator('button[title^="Add:"]').first();
+    await expect(candidate).toBeVisible();
+
+    const relationships = page.locator('section', {
+      has: page.getByRole('heading', { level: 3, name: 'Relationships' }),
+    });
+    const rowsBefore = await relationships.locator('ul li').count();
+
+    await candidate.click();
+
+    await expect(relationships.locator('ul li')).toHaveCount(rowsBefore + 1);
+    await expect(page.getByRole('button', { name: 'Undo' })).toBeVisible(); // toast action
+  });
+});
