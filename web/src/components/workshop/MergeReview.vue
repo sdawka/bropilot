@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import Modal from '../ui/Modal.vue';
 import { KIND_MAP, PARTS, EDGE_TYPE_LABELS } from '../../lib/schema';
 import { applyChangeset, type Changeset } from '../../lib/changeset';
+import { getNode } from '../../lib/store';
 
 const props = defineProps<{ changeset: Changeset }>();
 const emit = defineEmits<{
@@ -35,7 +36,8 @@ const groups = computed(() => {
 const applyCount = computed(() => selected.value.size);
 
 function label(id: string) {
-  return props.changeset.nodes.find((n) => n.id === id)?.title ?? id;
+  // staged first, then the live graph — edges often link to existing nodes
+  return props.changeset.nodes.find((n) => n.id === id)?.title ?? getNode(id)?.title ?? id;
 }
 function edgeText(e: (typeof props.changeset.edges)[number]) {
   return `${label(e.srcId)} · ${EDGE_TYPE_LABELS[e.type] ?? e.type} → ${label(e.dstId)}`;

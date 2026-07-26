@@ -36,20 +36,17 @@ function byId(id: string) {
 
 // ── hand-rolled drag (pointer events, like ForceGraph) ──
 const dragId = ref<string | null>(null);
-const dragPos = ref({ x: 0, y: 0 });
 let dropTarget: { type: 'sticky'; id: string } | { type: 'col'; col: StormCol } | null = null;
 
 function onStickyDown(id: string, ev: PointerEvent) {
   ev.stopPropagation();
   dragId.value = id;
-  dragPos.value = { x: ev.clientX, y: ev.clientY };
   (ev.target as Element).setPointerCapture?.(ev.pointerId);
   window.addEventListener('pointermove', onMove);
   window.addEventListener('pointerup', onUp);
 }
 function onMove(ev: PointerEvent) {
   if (!dragId.value) return;
-  dragPos.value = { x: ev.clientX, y: ev.clientY };
   const el = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('[data-sticky-id],[data-col-id]') as HTMLElement | null;
   if (!el) dropTarget = null;
   else if (el.dataset.stickyId && el.dataset.stickyId !== dragId.value) dropTarget = { type: 'sticky', id: el.dataset.stickyId };
