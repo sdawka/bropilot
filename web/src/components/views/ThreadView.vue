@@ -35,7 +35,6 @@ interface Placed {
   col: number;
   cx: number; // card left
   cy: number; // card top
-  centerX: number;
   centerY: number;
 }
 const placed = computed(() => {
@@ -53,7 +52,6 @@ const placed = computed(() => {
         col,
         cx,
         cy,
-        centerX: cx + CARD_W / 2,
         centerY: cy + CARD_H / 2,
       });
     }

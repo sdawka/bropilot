@@ -1,6 +1,18 @@
 import { test, expect } from '@playwright/test';
 import { freshPage, waitForGraphSettle, clickSvgNode, BASE_URL } from './helpers';
 
+// SAMPLE-COUPLED ANCHORS — if SAMPLE_GRAPH changes, re-anchor by role, not name:
+//   'System architect' (persona-architect)   any Foundations-part node
+//   'Graph store' (module-store)             an Implementation node with an edge
+//                                            to a Foundations node → ghosts into
+//                                            the Foundations tab
+//   'Schema' (module-schema)                 a node with NO edge to any
+//                                            Foundations node → absent there
+//   screen-studio                            a node whose cross-part closure
+//                                            populates all three thread columns
+//   component-force-graph                    an Implementation node in that
+//                                            closure (re-anchor target)
+
 test.describe('slice tabs', () => {
   test('the tab strip renders all five tabs on the graph view', async ({ page }) => {
     await freshPage(page, '#/graph');

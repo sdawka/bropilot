@@ -3,6 +3,14 @@ import { threadFor, type Thread } from '../../src/lib/thread';
 import { SAMPLE_GRAPH } from '../../src/lib/sample';
 import type { Graph } from '../../src/lib/schema';
 
+// SAMPLE-COUPLED ANCHORS — if SAMPLE_GRAPH changes, re-anchor these by role:
+//   screen-studio            a node whose closure reaches all three parts
+//   component-force-graph    an implementation node inside that closure
+//   requirement-three-parts / capability-collect / usecase-onboard
+//                            a why-chain (capability satisfies requirement,
+//                            usecase near it) used for column/order checks
+// Inline fixtures below are self-contained and unaffected by sample changes.
+
 const PARTS = ['foundations', 'domain', 'implementation'] as const;
 
 function ids(thread: Thread, part: (typeof PARTS)[number]): string[] {
