@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { freshPage, waitForGraphSettle, clickSvgNode, clickInspectorTab, BASE_URL } from './helpers';
+import { freshPage, waitForGraphSettle, clickSvgNode, BASE_URL } from './helpers';
 
 test.describe('slice tabs', () => {
   test('the tab strip renders all five tabs on the graph view', async ({ page }) => {
