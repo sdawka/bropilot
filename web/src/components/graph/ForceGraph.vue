@@ -11,11 +11,19 @@ import {
   type Simulation,
 } from 'd3-force';
 import { KIND_MAP, SPACES, EDGE_TYPE_LABELS, nodeHue, nodeSpace, type GraphNode, type GraphEdge, type Space } from '../../lib/schema';
-import { getPos, setPositions, flushPositions, clearLayout } from '../../lib/layout';
+import { getPos, setPositions, flushPositions, clearLayout, type LayoutNamespace } from '../../lib/layout';
 
 const props = withDefaults(
-  defineProps<{ nodes: GraphNode[]; edges: GraphEdge[]; selectedId: string | null; dash?: Record<string, string>; persist?: boolean }>(),
-  { persist: true },
+  defineProps<{
+    nodes: GraphNode[];
+    edges: GraphEdge[];
+    selectedId: string | null;
+    dash?: Record<string, string>;
+    persist?: boolean;
+    ghostIds?: Set<string>;
+    namespace?: LayoutNamespace;
+  }>(),
+  { persist: true, namespace: 'all', ghostIds: () => new Set<string>() },
 );
 const emit = defineEmits<{ (e: 'select', id: string | null): void }>();
 
@@ -68,7 +76,10 @@ function degrees(): Map<string, number> {
 
 function savePositions(flush = false) {
   if (props.persist === false) return;
-  setPositions(simNodes.map((n) => [n.id, { x: n.x, y: n.y }] as [string, { x: number; y: number }]));
+  setPositions(
+    simNodes.map((n) => [n.id, { x: n.x, y: n.y }] as [string, { x: number; y: number }]),
+    props.namespace,
+  );
   if (flush) flushPositions();
 }
 
@@ -84,7 +95,7 @@ function build() {
     if (existing) {
       sn = existing;
     } else {
-      const stored = props.persist === false ? undefined : getPos(node.id);
+      const stored = props.persist === false ? undefined : getPos(node.id, props.namespace);
       if (stored) restored++;
       else fresh++;
       sn = {
@@ -148,6 +159,10 @@ function radius(d: SimNode) {
   return 9 + Math.min(d.deg, 8) * 1.7;
 }
 
+function isGhost(id: string) {
+  return props.ghostIds.has(id);
+}
+
 // ── derived render data (re-computed each frame) ──
 const links = computed(() => {
   frame.value; // dependency
@@ -161,6 +176,7 @@ const links = computed(() => {
     active: isActive(l.source.id) || isActive(l.target.id),
     connectsSel:
       props.selectedId != null && (l.source.id === props.selectedId || l.target.id === props.selectedId),
+    ghost: isGhost(l.source.id) || isGhost(l.target.id),
     mx: (l.source.x + l.target.x) / 2,
     my: (l.source.y + l.target.y) / 2,
     text: (EDGE_TYPE_LABELS[l.type] ?? l.type) + (l.label ? ` · ${l.label}` : ''),
@@ -169,18 +185,27 @@ const links = computed(() => {
 
 const dots = computed(() => {
   frame.value;
-  return simNodes.map((d) => ({
-    id: d.id,
-    x: d.x,
-    y: d.y,
-    r: radius(d),
-    title: d.node.title,
-    icon: KIND_MAP[d.node.kind]?.icon ?? '•',
-    hue: nodeHue(d.node),
-    selected: d.id === props.selectedId,
-    active: isActive(d.id),
-    dim: dimmed(d.id),
-  }));
+  const focus = hoverId.value ?? props.selectedId;
+  return simNodes.map((d) => {
+    const ghost = isGhost(d.id);
+    const dim = dimmed(d.id);
+    return {
+      id: d.id,
+      x: d.x,
+      y: d.y,
+      r: radius(d) * (ghost ? 0.62 : 1),
+      title: d.node.title,
+      icon: KIND_MAP[d.node.kind]?.icon ?? '•',
+      hue: nodeHue(d.node),
+      selected: d.id === props.selectedId,
+      active: isActive(d.id),
+      dim,
+      ghost,
+      opacity: dim ? 0.28 : ghost ? 0.35 : 1,
+      // ghosts stay label-free until hovered or selected, to avoid crowding
+      showLabel: !ghost || d.id === props.selectedId || d.id === focus,
+    };
+  });
 });
 
 // column headers + separators track the node bounds, panning/zooming with the graph
@@ -324,7 +349,7 @@ function fit() {
 
 /** Forget stored positions and run a fresh full-energy layout. */
 function relayout() {
-  if (props.persist !== false) clearLayout();
+  if (props.persist !== false) clearLayout(props.namespace);
   for (const n of simNodes) {
     n.fx = null;
     n.fy = null;
@@ -433,9 +458,9 @@ watch(
             :y1="l.y1"
             :x2="l.x2"
             :y2="l.y2"
-            :stroke="l.connectsSel || l.active ? '#78a9ff' : 'rgba(190,195,215,0.26)'"
+            :stroke="l.connectsSel || l.active ? '#78a9ff' : l.ghost ? 'rgba(190,195,215,0.12)' : 'rgba(190,195,215,0.26)'"
             :stroke-width="l.connectsSel || l.active ? 2.2 : 1.2"
-            :stroke-dasharray="props.dash?.[l.id] || undefined"
+            :stroke-dasharray="l.ghost && !(l.connectsSel || l.active) ? '4 4' : props.dash?.[l.id] || undefined"
             :marker-end="l.connectsSel || l.active ? 'url(#arrow-active)' : 'url(#arrow)'"
             :style="{ transition: 'stroke 0.2s' }"
           />
@@ -464,7 +489,7 @@ watch(
             :key="d.id"
             :transform="`translate(${d.x},${d.y})`"
             class="cursor-pointer"
-            :style="{ opacity: d.dim ? 0.28 : 1, transition: 'opacity 0.2s' }"
+            :style="{ opacity: d.opacity, transition: 'opacity 0.2s' }"
             @pointerdown="onNodeDown(d, $event)"
             @pointerenter="hoverId = d.id"
             @pointerleave="hoverId = null"
@@ -483,7 +508,12 @@ watch(
               class="pointer-events-none font-medium"
               :font-size="11"
               :fill="d.dim ? 'rgba(139,151,176,0.6)' : '#cdd5e8'"
-              :style="{ paintOrder: 'stroke', stroke: 'rgba(7,8,13,0.85)', strokeWidth: '3px' }"
+              :style="{
+                opacity: d.showLabel ? 1 : 0,
+                paintOrder: 'stroke',
+                stroke: 'rgba(7,8,13,0.85)',
+                strokeWidth: '3px',
+              }"
             >{{ d.title.length > 22 ? d.title.slice(0, 21) + '…' : d.title }}</text>
           </g>
         </g>
