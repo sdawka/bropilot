@@ -21,7 +21,6 @@ import {
   redo,
   removeEdge,
   removeNode,
-  resetToSample,
   state,
   undo,
   updateEdge,
@@ -29,6 +28,7 @@ import {
   importGraph as storeImportGraph,
 } from '../store';
 import { int, pick } from './rng';
+import { SIM_FIXTURE } from './fixture';
 
 // ── Op type ──────────────────────────────────────────────────────────────
 export type SimOp =
@@ -332,7 +332,10 @@ export function applyOp(op: SimOp): void {
       clearGraph();
       return;
     case 'resetToSample':
-      resetToSample();
+      // Content-independent: reseeds from the small, fixed SIM_FIXTURE
+      // rather than store.ts's resetToSample() (which reseeds from the real,
+      // much larger SAMPLE_GRAPH) — see fixture.ts for why.
+      storeImportGraph(JSON.stringify(SIM_FIXTURE));
       return;
   }
 }
