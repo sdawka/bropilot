@@ -2,6 +2,27 @@ import { describe, expect, it } from 'vitest';
 import { lintGraph } from '../../src/lib/lint';
 import type { Graph } from '../../src/lib/schema';
 
+describe('lintGraph: off-ontology detection', () => {
+  it('flags an edge whose (srcKind, type, dstKind) triple is not in the ontology', () => {
+    // entity → implements → screen is not in ONTOLOGY (entity is domain-space,
+    // implements is typically for implementation kinds). This tests the
+    // positive path of off-ontology detection.
+    const g: Graph = {
+      nodes: [
+        { id: 'e', kind: 'entity', title: 'User', description: '' },
+        { id: 's', kind: 'screen', title: 'Dashboard', description: '' },
+      ],
+      edges: [{ id: 'off-onto-edge', srcId: 'e', dstId: 's', type: 'implements' }],
+    };
+    const findings = lintGraph(g);
+    const offOntology = findings.filter((f) => f.message.includes('not in the ontology'));
+    expect(offOntology).toHaveLength(1);
+    expect(offOntology[0]).toMatchObject({ severity: 'note', nodeId: 'e' });
+    expect(offOntology[0].message).toContain('implements');
+    expect(offOntology[0].message).toContain('entity → screen');
+  });
+});
+
 describe('lintGraph: unknown kinds are skipped everywhere', () => {
   it('does not flag an unlinked node of an unknown kind as an orphan', () => {
     const g: Graph = {
