@@ -18,6 +18,7 @@ A fancy form **and** display for a system's knowledge graph, built with **Astro 
 - **Ontology view** — an **Instance | Ontology** toggle in the graph view renders the schema itself: kinds as nodes, typical relationships as strength-coded edges, with instance counts and cross-layer navigation (kind chip ⇄ instances).
 - **Graph health** — advisory lint findings on the Overview (off-ontology edges, orphans, why-chain gaps, unverified surfaces) that navigate to the node in question.
 - **Copy context** — a token-budgeted markdown slice of any node's 2-hop neighbourhood, for pasting into an LLM chat; backed by a schema-validated graph-pattern query engine (`lib/query.ts`).
+- **Workshop** — four structured exercises that grow the graph: an event-storming board, guided interview decks, paste-a-document extraction via a copy-paste LLM bridge (no API keys), and a lint-driven gap-fix sprint. Every bulk import lands in a reviewable merge diff before touching the graph.
 - **Client-only & portable** — the graph lives in `localStorage` (autosaved on every change). Import/export the canonical Bropilot JSON (`{ nodes, edges }`) to round-trip with `/bropilot-extract`, `/bropilot-generate` and `/bropilot-interview`.
 
 ## Develop

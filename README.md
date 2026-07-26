@@ -6,6 +6,7 @@ Bropilot captures everything known about a software system — why it exists, th
 
 - **Bropilot Studio** (`web/`) — a client-only web app: guided forms for collecting the graph, an interactive force-directed display for exploring it, and an ontology that suggests how things connect.
 - **Claude skills** (`.claude/skills/`) — `/bropilot-extract` reverse-engineers a repo into a graph, `/bropilot-generate` scaffolds code from one, `/bropilot-interview` builds one by asking you questions.
+- **A workshop** — in-app exercises (event storming, guided interviews, document extraction, gap-fix sprints) that turn raw knowledge into graph structure, with LLM help via copy-paste prompts — no API keys.
 - **A queryable model** — a schema-validated graph-pattern engine plus "copy context" export, so an LLM gets the relevant slice of your system instead of the whole dump.
 
 ## Quickstart

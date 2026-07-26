@@ -18,6 +18,7 @@ import {
 import OverviewView from './views/OverviewView.vue';
 import PartView from './views/PartView.vue';
 import GraphView from './views/GraphView.vue';
+import WorkshopView from './views/WorkshopView.vue';
 import { parseHash, buildHash, type View } from '../lib/router';
 import Inspector from './form/Inspector.vue';
 import Modal from './ui/Modal.vue';
@@ -37,6 +38,7 @@ const importError = ref('');
 const nav = computed(() => [
   { id: 'overview' as View, label: 'Overview', icon: '🏠', count: null as number | null },
   ...PARTS.map((p) => ({ id: p.id as View, label: p.label, icon: p.icon, count: counts.value[p.id] })),
+  { id: 'workshop' as View, label: 'Workshop', icon: '🛠️', count: null },
   { id: 'graph' as View, label: 'Graph', icon: '🕸️', count: null },
 ]);
 
@@ -307,6 +309,7 @@ onBeforeUnmount(() => {
       <template v-if="ready">
         <OverviewView v-if="view === 'overview'" @navigate="navigateFromOverview" />
         <GraphView v-else-if="view === 'graph'" />
+        <WorkshopView v-else-if="view === 'workshop'" />
         <PartView v-else :key="view" :part="view" />
       </template>
     </main>
