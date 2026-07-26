@@ -15,7 +15,6 @@ type LayoutStore = Record<string, Layout>;
 
 let store: LayoutStore | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
-let lastGraphRef = state.graph;
 
 // Legacy (un-namespaced) data maps id -> {x,y}: its first value carries a
 // numeric x/y. The namespaced shape maps namespace -> id -> {x,y}, whose first
@@ -53,15 +52,11 @@ function nsMap(namespace: LayoutNamespace): Layout {
 function write() {
   const s = loadStore();
   // prune ids no longer in the graph so no namespace can grow unboundedly
-  // (only if the graph has been explicitly replaced/changed)
-  if (state.graph !== lastGraphRef) {
-    const ids = new Set(state.graph.nodes.map((n) => n.id));
-    for (const layout of Object.values(s)) {
-      for (const id of Object.keys(layout)) {
-        if (!ids.has(id)) delete layout[id];
-      }
+  const ids = new Set(state.graph.nodes.map((n) => n.id));
+  for (const layout of Object.values(s)) {
+    for (const id of Object.keys(layout)) {
+      if (!ids.has(id)) delete layout[id];
     }
-    lastGraphRef = state.graph;
   }
   try {
     localStorage.setItem(LAYOUT_KEY, JSON.stringify(s));
