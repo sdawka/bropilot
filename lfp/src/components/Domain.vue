@@ -42,6 +42,8 @@ watch(modules, (m) => { if (!selectedModule.value && m.length) selectedModule.va
 
 const things = computed(() => selectedModule.value ? edgesOfType('contains').filter((e) => e.src === selectedModule.value && nodeById(e.dst)?.kind === 'thing').map((e) => nodeById(e.dst)!) : []);
 const rules = computed(() => selectedModule.value ? edgesOfType('contains').filter((e) => e.src === selectedModule.value && nodeById(e.dst)?.kind === 'rule').map((e) => nodeById(e.dst)!) : []);
+const events = computed(() => selectedModule.value ? edgesOfType('contains').filter((e) => e.src === selectedModule.value && nodeById(e.dst)?.kind === 'event').map((e) => nodeById(e.dst)!) : []);
+const emitterOf = (eventId: string) => edgesOfType('emits').filter((e) => e.dst === eventId).map((e) => title(e.src));
 const interfaces = computed(() => selectedModule.value ? edgesOfType('exposes').filter((e) => e.src === selectedModule.value && nodeById(e.dst)?.kind === 'interface').map((e) => nodeById(e.dst)!) : []);
 const tests = computed(() => selectedModule.value ? edgesOfType('contains').filter((e) => e.src === selectedModule.value && nodeById(e.dst)?.kind === 'test').map((e) => nodeById(e.dst)!) : []);
 
@@ -178,6 +180,16 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
           <p v-if="!rules.length" class="empty">No rules in this module.</p>
         </div>
         <div class="col">
+          <h3>Events <span class="small">(S74)</span></h3>
+          <p v-if="!events.length" class="small">no events recorded for this module</p>
+          <button v-for="ev in events" :key="ev.id" class="item-card" :class="[{ selected: state.selectedId === ev.id }]" @click="select(ev.id)">
+            <div class="title">⚡ {{ ev.title }}</div>
+            <p class="small" v-if="emitterOf(ev.id).length">emitted by {{ emitterOf(ev.id).join(', ') }}</p>
+            <a v-if="ev.props?.codeRef" :href="ev.props.codeRef" target="_blank" rel="noopener" @click.stop>code ↗</a>
+            <Prov :source="ev.source" />
+          </button>
+        </div>
+        <div class="col">
           <h3>Interface</h3>
           <button v-for="i in interfaces" :key="i.id" class="item-card" :class="{ selected: state.selectedId === i.id }" @click="select(i.id)">
             <div class="title">🔌 {{ i.title }}</div>
@@ -243,7 +255,7 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
 .module-chips { display: flex; gap: .4rem; flex-wrap: wrap; }
 .mod-chip { border-radius: 999px; }
 .mod-chip.active { background: var(--ink); color: #fff; }
-.l3-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; margin-top: .6rem; }
+.l3-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: .8rem; margin-top: .6rem; }
 .item-card { width: 100%; text-align: left; display: block; }
 .item-card.dim { opacity: .35; }
 .item-card a { display: inline-block; margin-top: .2rem; font-size: .8rem; }
@@ -251,7 +263,7 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
 .tests-footer { border-top: 1px solid var(--line); padding-top: .5rem; display: flex; gap: .6rem; align-items: center; }
 .tests-footer h3 { color: var(--muted); font-size: .75rem; text-transform: uppercase; margin: 0; }
 
-.detail { position: fixed; right: 1rem; top: 4rem; bottom: 1rem; width: 340px; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1rem; box-shadow: 0 8px 30px rgba(0,0,0,.08); z-index: 4; }
+.detail { position: fixed; right: 1rem; top: 4rem; bottom: 1rem; width: 400px; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1rem; box-shadow: 0 8px 30px rgba(0,0,0,.08); z-index: 4; }
 .detail .close { position: absolute; right: .6rem; top: .5rem; border: none; font-size: 1.1rem; }
 .detail h3 { margin-top: 1rem; color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; }
 .detail ul { padding-left: 1rem; margin: .2rem 0; font-size: .85rem; }

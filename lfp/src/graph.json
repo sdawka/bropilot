@@ -1189,38 +1189,6 @@
       }
     },
     {
-      "id": "interface-definition-ui",
-      "kind": "interface",
-      "title": "Definition screen",
-      "status": "committed",
-      "props": {
-        "style": "ui",
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Definition.vue"
-      },
-      "source": {
-        "kind": "said",
-        "statements": [
-          36
-        ]
-      }
-    },
-    {
-      "id": "interface-domain-ui",
-      "kind": "interface",
-      "title": "Domain screen (C4 levels)",
-      "status": "committed",
-      "props": {
-        "style": "ui",
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Domain.vue"
-      },
-      "source": {
-        "kind": "said",
-        "statements": [
-          56
-        ]
-      }
-    },
-    {
       "id": "interface-agent-actions",
       "kind": "interface",
       "title": "Action queue for agents (stub)",
@@ -1237,8 +1205,8 @@
       }
     },
     {
-      "id": "function-strategy",
-      "kind": "function",
+      "id": "feature-strategy",
+      "kind": "feature",
       "title": "Strategy",
       "status": "committed",
       "props": {
@@ -1247,14 +1215,14 @@
       "source": {
         "kind": "said",
         "statements": [
-          5,
-          7
+          71,
+          72
         ]
       }
     },
     {
-      "id": "function-product",
-      "kind": "function",
+      "id": "feature-product",
+      "kind": "feature",
       "title": "Product management",
       "status": "committed",
       "props": {
@@ -1263,14 +1231,14 @@
       "source": {
         "kind": "said",
         "statements": [
-          5,
-          7
+          71,
+          72
         ]
       }
     },
     {
-      "id": "function-engineering",
-      "kind": "function",
+      "id": "feature-engineering",
+      "kind": "feature",
       "title": "Engineering & deploy",
       "status": "committed",
       "props": {
@@ -1279,14 +1247,14 @@
       "source": {
         "kind": "said",
         "statements": [
-          5,
-          7
+          71,
+          72
         ]
       }
     },
     {
-      "id": "function-domain-modelling",
-      "kind": "function",
+      "id": "feature-domain-modelling",
+      "kind": "feature",
       "title": "Domain modelling",
       "status": "committed",
       "props": {
@@ -1295,14 +1263,14 @@
       "source": {
         "kind": "said",
         "statements": [
-          5,
-          7
+          71,
+          72
         ]
       }
     },
     {
-      "id": "function-ux-research",
-      "kind": "function",
+      "id": "feature-ux-research",
+      "kind": "feature",
       "title": "UX research",
       "status": "committed",
       "props": {
@@ -1311,14 +1279,14 @@
       "source": {
         "kind": "said",
         "statements": [
-          5,
-          7
+          71,
+          72
         ]
       }
     },
     {
-      "id": "function-design",
-      "kind": "function",
+      "id": "feature-design",
+      "kind": "feature",
       "title": "Design & tone",
       "status": "committed",
       "props": {
@@ -1327,14 +1295,14 @@
       "source": {
         "kind": "said",
         "statements": [
-          5,
-          7
+          71,
+          72
         ]
       }
     },
     {
-      "id": "function-marketing",
-      "kind": "function",
+      "id": "feature-marketing",
+      "kind": "feature",
       "title": "Marketing",
       "status": "committed",
       "props": {
@@ -1343,14 +1311,14 @@
       "source": {
         "kind": "said",
         "statements": [
-          5,
-          7
+          71,
+          72
         ]
       }
     },
     {
-      "id": "function-education",
-      "kind": "function",
+      "id": "feature-education",
+      "kind": "feature",
       "title": "Education & support",
       "status": "committed",
       "props": {
@@ -1359,14 +1327,14 @@
       "source": {
         "kind": "said",
         "statements": [
-          5,
-          7
+          71,
+          72
         ]
       }
     },
     {
-      "id": "function-meta",
-      "kind": "function",
+      "id": "feature-meta",
+      "kind": "feature",
       "title": "Observe Bropilot itself",
       "status": "committed",
       "props": {
@@ -1375,8 +1343,251 @@
       "source": {
         "kind": "said",
         "statements": [
-          5,
-          7
+          71,
+          72
+        ]
+      }
+    },
+    {
+      "id": "problem-no-experience",
+      "kind": "problem",
+      "title": "The user hasn't spent years in every department of a startup",
+      "status": "committed",
+      "description": "The main problem. It subfields into every function a startup would have a department for; each becomes a feature here.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          13,
+          72
+        ]
+      }
+    },
+    {
+      "id": "hypothesis-h6",
+      "kind": "hypothesis",
+      "title": "H6 Guiding with standard constraints and procedures, asking for simple choices and offering options, gives baseline quality and greatly reduces the user's burden",
+      "status": "committed",
+      "props": {
+        "verdict": "open"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          73
+        ]
+      }
+    },
+    {
+      "id": "screen-overview",
+      "kind": "screen",
+      "title": "Overview",
+      "status": "committed",
+      "description": "The representation, space by space; basics collapsed in a header.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Overview.vue"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          55
+        ]
+      }
+    },
+    {
+      "id": "screen-definition",
+      "kind": "screen",
+      "title": "Definition",
+      "status": "committed",
+      "description": "Question tree: template roots, project sub-questions and threads; stage, review, commit, undo.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Definition.vue"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          51,
+          55
+        ]
+      }
+    },
+    {
+      "id": "screen-domain",
+      "kind": "screen",
+      "title": "Domain",
+      "status": "committed",
+      "description": "C4-style levels: context, modules, inside a module.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Domain.vue"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          55,
+          56
+        ]
+      }
+    },
+    {
+      "id": "screen-flows",
+      "kind": "screen",
+      "title": "Flows",
+      "status": "committed",
+      "description": "All flows and the kernel objects they touch.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Flows.vue"
+      },
+      "source": {
+        "kind": "inferred",
+        "reason": "A screen we built; not named in the brief."
+      }
+    },
+    {
+      "id": "screen-reference",
+      "kind": "screen",
+      "title": "Reference",
+      "status": "committed",
+      "description": "Bropilot's kernel as tables; said/inferred filter; statement bank.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Kernel.vue"
+      },
+      "source": {
+        "kind": "inferred",
+        "reason": "A screen we built; not named in the brief."
+      }
+    },
+    {
+      "id": "screen-glossary",
+      "kind": "screen",
+      "title": "Glossary drawer",
+      "status": "committed",
+      "description": "Always reachable; add, edit, delete terms; commits immediately.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Glossary.vue"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          59
+        ]
+      }
+    },
+    {
+      "id": "screen-inspector",
+      "kind": "screen",
+      "title": "Inspector panel",
+      "status": "committed",
+      "description": "Node details, edges, provenance in context, applicable kernel rules.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Inspector.vue"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          47,
+          48
+        ]
+      }
+    },
+    {
+      "id": "event-answer-given",
+      "kind": "event",
+      "title": "AnswerGiven",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          21
+        ]
+      }
+    },
+    {
+      "id": "event-followup-added",
+      "kind": "event",
+      "title": "FollowUpAdded",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          52,
+          53
+        ]
+      }
+    },
+    {
+      "id": "event-effects-staged",
+      "kind": "event",
+      "title": "EffectsStaged",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          21,
+          27
+        ]
+      }
+    },
+    {
+      "id": "event-committed",
+      "kind": "event",
+      "title": "Committed",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      }
+    },
+    {
+      "id": "event-undone",
+      "kind": "event",
+      "title": "Undone",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "inferred",
+        "reason": "Mirror of commit; not in the brief."
+      }
+    },
+    {
+      "id": "event-term-edited",
+      "kind": "event",
+      "title": "TermEdited",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          59
+        ]
+      }
+    },
+    {
+      "id": "term-event",
+      "kind": "term",
+      "title": "Event",
+      "status": "committed",
+      "description": "Something notable that happened; a past-tense fact in the domain.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          74
         ]
       }
     }
@@ -1941,18 +2152,6 @@
       "type": "exposes"
     },
     {
-      "id": "e94",
-      "src": "module-definition",
-      "dst": "interface-definition-ui",
-      "type": "exposes"
-    },
-    {
-      "id": "e95",
-      "src": "module-representation",
-      "dst": "interface-domain-ui",
-      "type": "exposes"
-    },
-    {
       "id": "e96",
       "src": "module-orchestration",
       "dst": "interface-agent-actions",
@@ -1961,56 +2160,56 @@
     {
       "id": "e97",
       "src": "agent-strategist",
-      "dst": "function-strategy",
-      "type": "owns"
+      "dst": "feature-strategy",
+      "type": "implements"
     },
     {
       "id": "e98",
       "src": "agent-product-manager",
-      "dst": "function-product",
-      "type": "owns"
+      "dst": "feature-product",
+      "type": "implements"
     },
     {
       "id": "e99",
       "src": "agent-engineer",
-      "dst": "function-engineering",
-      "type": "owns"
+      "dst": "feature-engineering",
+      "type": "implements"
     },
     {
       "id": "e100",
       "src": "agent-domain-modeller",
-      "dst": "function-domain-modelling",
-      "type": "owns"
+      "dst": "feature-domain-modelling",
+      "type": "implements"
     },
     {
       "id": "e101",
       "src": "agent-ux-researcher",
-      "dst": "function-ux-research",
-      "type": "owns"
+      "dst": "feature-ux-research",
+      "type": "implements"
     },
     {
       "id": "e102",
       "src": "agent-designer",
-      "dst": "function-design",
-      "type": "owns"
+      "dst": "feature-design",
+      "type": "implements"
     },
     {
       "id": "e103",
       "src": "agent-marketer",
-      "dst": "function-marketing",
-      "type": "owns"
+      "dst": "feature-marketing",
+      "type": "implements"
     },
     {
       "id": "e104",
       "src": "agent-educator",
-      "dst": "function-education",
-      "type": "owns"
+      "dst": "feature-education",
+      "type": "implements"
     },
     {
       "id": "e105",
       "src": "agent-meta",
-      "dst": "function-meta",
-      "type": "owns"
+      "dst": "feature-meta",
+      "type": "implements"
     },
     {
       "id": "e106",
@@ -2040,6 +2239,360 @@
       "id": "e110",
       "src": "term-reality-layer",
       "dst": "module-reality",
+      "type": "defines"
+    },
+    {
+      "id": "e111",
+      "src": "capability-orchestration",
+      "dst": "agent-strategist",
+      "type": "has"
+    },
+    {
+      "id": "e112",
+      "src": "capability-orchestration",
+      "dst": "agent-product-manager",
+      "type": "has"
+    },
+    {
+      "id": "e113",
+      "src": "capability-orchestration",
+      "dst": "agent-engineer",
+      "type": "has"
+    },
+    {
+      "id": "e114",
+      "src": "capability-orchestration",
+      "dst": "agent-domain-modeller",
+      "type": "has"
+    },
+    {
+      "id": "e115",
+      "src": "capability-orchestration",
+      "dst": "agent-ux-researcher",
+      "type": "has"
+    },
+    {
+      "id": "e116",
+      "src": "capability-orchestration",
+      "dst": "agent-designer",
+      "type": "has"
+    },
+    {
+      "id": "e117",
+      "src": "capability-orchestration",
+      "dst": "agent-marketer",
+      "type": "has"
+    },
+    {
+      "id": "e118",
+      "src": "capability-orchestration",
+      "dst": "agent-educator",
+      "type": "has"
+    },
+    {
+      "id": "e119",
+      "src": "capability-orchestration",
+      "dst": "agent-meta",
+      "type": "has"
+    },
+    {
+      "id": "e120",
+      "src": "problem-no-experience",
+      "dst": "problem-no-constraints",
+      "type": "has"
+    },
+    {
+      "id": "e121",
+      "src": "problem-no-experience",
+      "dst": "problem-unstructured-articulation",
+      "type": "has"
+    },
+    {
+      "id": "e122",
+      "src": "problem-no-experience",
+      "dst": "problem-no-real-world-effect",
+      "type": "has"
+    },
+    {
+      "id": "e123",
+      "src": "problem-no-experience",
+      "dst": "problem-functions-neglected",
+      "type": "has"
+    },
+    {
+      "id": "e124",
+      "src": "audience-untrained-builder",
+      "dst": "problem-no-experience",
+      "type": "has"
+    },
+    {
+      "id": "e125",
+      "src": "feature-strategy",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e126",
+      "src": "feature-product",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e127",
+      "src": "feature-engineering",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e128",
+      "src": "feature-domain-modelling",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e129",
+      "src": "feature-ux-research",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e130",
+      "src": "feature-design",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e131",
+      "src": "feature-marketing",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e132",
+      "src": "feature-education",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e133",
+      "src": "feature-meta",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e134",
+      "src": "hypothesis-h6",
+      "dst": "problem-no-experience",
+      "type": "references"
+    },
+    {
+      "id": "e135",
+      "src": "capability-guided-path",
+      "dst": "hypothesis-h6",
+      "type": "references"
+    },
+    {
+      "id": "e136",
+      "src": "capability-orchestration",
+      "dst": "hypothesis-h6",
+      "type": "references"
+    },
+    {
+      "id": "e137",
+      "src": "assumption-accept-constraints",
+      "dst": "hypothesis-h6",
+      "type": "references"
+    },
+    {
+      "id": "e138",
+      "src": "module-representation",
+      "dst": "screen-overview",
+      "type": "exposes"
+    },
+    {
+      "id": "e139",
+      "src": "screen-overview",
+      "dst": "interface-store-rpc",
+      "type": "uses"
+    },
+    {
+      "id": "e140",
+      "src": "module-definition",
+      "dst": "screen-definition",
+      "type": "exposes"
+    },
+    {
+      "id": "e141",
+      "src": "screen-definition",
+      "dst": "interface-store-rpc",
+      "type": "uses"
+    },
+    {
+      "id": "e142",
+      "src": "module-representation",
+      "dst": "screen-domain",
+      "type": "exposes"
+    },
+    {
+      "id": "e143",
+      "src": "screen-domain",
+      "dst": "interface-store-rpc",
+      "type": "uses"
+    },
+    {
+      "id": "e144",
+      "src": "module-orchestration",
+      "dst": "screen-flows",
+      "type": "exposes"
+    },
+    {
+      "id": "e145",
+      "src": "screen-flows",
+      "dst": "interface-store-rpc",
+      "type": "uses"
+    },
+    {
+      "id": "e146",
+      "src": "module-representation",
+      "dst": "screen-reference",
+      "type": "exposes"
+    },
+    {
+      "id": "e147",
+      "src": "screen-reference",
+      "dst": "interface-store-rpc",
+      "type": "uses"
+    },
+    {
+      "id": "e148",
+      "src": "module-representation",
+      "dst": "screen-glossary",
+      "type": "exposes"
+    },
+    {
+      "id": "e149",
+      "src": "screen-glossary",
+      "dst": "interface-store-rpc",
+      "type": "uses"
+    },
+    {
+      "id": "e150",
+      "src": "module-representation",
+      "dst": "screen-inspector",
+      "type": "exposes"
+    },
+    {
+      "id": "e151",
+      "src": "screen-inspector",
+      "dst": "interface-store-rpc",
+      "type": "uses"
+    },
+    {
+      "id": "e152",
+      "src": "screen-definition",
+      "dst": "capability-guided-path",
+      "type": "implements"
+    },
+    {
+      "id": "e153",
+      "src": "screen-definition",
+      "dst": "capability-commit-gate",
+      "type": "implements"
+    },
+    {
+      "id": "e154",
+      "src": "screen-glossary",
+      "dst": "capability-share",
+      "type": "references"
+    },
+    {
+      "id": "e155",
+      "src": "module-definition",
+      "dst": "event-answer-given",
+      "type": "contains"
+    },
+    {
+      "id": "e156",
+      "src": "module-definition",
+      "dst": "event-followup-added",
+      "type": "contains"
+    },
+    {
+      "id": "e157",
+      "src": "module-orchestration",
+      "dst": "event-effects-staged",
+      "type": "contains"
+    },
+    {
+      "id": "e158",
+      "src": "module-orchestration",
+      "dst": "event-committed",
+      "type": "contains"
+    },
+    {
+      "id": "e159",
+      "src": "module-orchestration",
+      "dst": "event-undone",
+      "type": "contains"
+    },
+    {
+      "id": "e160",
+      "src": "module-representation",
+      "dst": "event-term-edited",
+      "type": "contains"
+    },
+    {
+      "id": "e161",
+      "src": "interface-store-rpc",
+      "dst": "event-answer-given",
+      "type": "emits"
+    },
+    {
+      "id": "e162",
+      "src": "interface-store-rpc",
+      "dst": "event-effects-staged",
+      "type": "emits"
+    },
+    {
+      "id": "e163",
+      "src": "interface-store-rpc",
+      "dst": "event-committed",
+      "type": "emits"
+    },
+    {
+      "id": "e164",
+      "src": "interface-store-rpc",
+      "dst": "event-undone",
+      "type": "emits"
+    },
+    {
+      "id": "e165",
+      "src": "interface-store-rpc",
+      "dst": "event-followup-added",
+      "type": "emits"
+    },
+    {
+      "id": "e166",
+      "src": "interface-store-rpc",
+      "dst": "event-term-edited",
+      "type": "emits"
+    },
+    {
+      "id": "e167",
+      "src": "event-answer-given",
+      "dst": "event-effects-staged",
+      "type": "triggers"
+    },
+    {
+      "id": "e168",
+      "src": "event-committed",
+      "dst": "thing-commit",
+      "type": "references"
+    },
+    {
+      "id": "e169",
+      "src": "term-event",
+      "dst": "event-committed",
       "type": "defines"
     }
   ]

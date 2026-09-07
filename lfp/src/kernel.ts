@@ -81,11 +81,19 @@ export const STATEMENTS: Record<number, string> = {
   68: 'along with the things and the rules, we probably also have the interface, which will define the API, whether it\'s REST or RPC',
   69: 'clicking on any of these items in this level, we can basically be pointed to some file or code block in GitHub itself where it\'s implemented',
   70: 'I\'m not sure if we need a fourth layer. At the moment, I don\'t think so',
+  // ── feedback on v1 (2026-09-07) ──
+  71: 'what we have as functions are actually features more or less',
+  72: 'the agents are a sub items of the agent orchestration solution… all of them are related to the main problem of the user not having years and years of product building experience, and then that subfielded into… what becomes a department at a startup',
+  73: 'if we guide the user with standard constraints and procedures, just asking them to make simple choices and giving them options, we can get at least some level of quality and reduce the user\'s burden by a lot',
+  74: 'In the vocabulary, we probably also have events',
+  75: 'I want the sidebar to pop out and basically change the screen size (width)',
+  76: 'the screens, we literally are building now so we can record what we built',
+  77: 'Design system can stay unpopulated a little bit',
 };
 
 // ── Layers & spaces ─────────────────────────────────────────────────────────
 export type Layer = 'representation' | 'reality' | 'orchestration';
-export type SpaceId = 'basics' | 'problem' | 'hypothesis' | 'solution' | 'functions' | 'system' | 'usage' | 'evidence';
+export type SpaceId = 'basics' | 'problem' | 'hypothesis' | 'solution' | 'system' | 'usage' | 'evidence';
 
 export interface SpaceDef {
   id: SpaceId;
@@ -102,8 +110,7 @@ export const SPACES: SpaceDef[] = [
   { id: 'basics', label: 'Basics', layer: 'representation', order: 0, settled: false, hue: '#d9a441', blurb: 'Name and purpose. The one-liner.', source: said(29) },
   { id: 'problem', label: 'Problem', layer: 'representation', order: 1, settled: false, hue: '#9b7bea', blurb: 'Who, in what context, with what problems, wanting what outcomes.', source: said(23, 30) },
   { id: 'hypothesis', label: 'Hypothesis', layer: 'representation', order: 2, settled: false, hue: '#e0699a', blurb: 'What we are betting on and assuming; how we will know.', source: said(23, 25, 30) },
-  { id: 'solution', label: 'Solution', layer: 'representation', order: 3, settled: false, hue: '#3fa9e0', blurb: 'Capabilities, features, journeys, domain, architecture, interface.', source: said(23, 31, 32, 33, 35, 36) },
-  { id: 'functions', label: 'Functions', layer: 'representation', order: 4, settled: false, hue: '#3fbf8a', blurb: 'The non-product functions and the agents that own them.', source: said(5, 26, 34, 37) },
+  { id: 'solution', label: 'Solution', layer: 'representation', order: 3, settled: false, hue: '#3fa9e0', blurb: 'Capabilities, features (one per would-be department), agents, journeys, domain, architecture, screens.', source: said(23, 31, 32, 33, 35, 36, 71, 72) },
   { id: 'system', label: 'System', layer: 'reality', order: 5, settled: false, hue: '#888', blurb: 'The deployed thing as observed. STUB.', source: said(24, 40) },
   { id: 'usage', label: 'Usage', layer: 'reality', order: 6, settled: false, hue: '#888', blurb: 'Events, sessions, feedback. STUB.', source: said(24, 40) },
   { id: 'evidence', label: 'Evidence', layer: 'reality', order: 7, settled: false, hue: '#888', blurb: 'Metric readings and hypothesis verdicts. STUB.', source: said(25, 39, 40) },
@@ -145,7 +152,7 @@ export const KINDS: KindDef[] = [
   { id: 'metric', label: 'Metric', plural: 'Metrics', space: 'hypothesis', icon: '📏', kernel: true, blurb: 'How an outcome or hypothesis will be measured.', source: inferred('Outcomes and hypothesis validation (S15, S25) need a named measure; the brief never says "metric".') },
   // solution (kernel core; template kinds come as we reach this column)
   { id: 'capability', label: 'Capability', plural: 'Capabilities', space: 'solution', icon: '⚡', kernel: true, blurb: 'A high-level thing the system can do.', source: said(30) },
-  { id: 'feature', label: 'Feature', plural: 'Features', space: 'solution', icon: '🎁', kernel: false, blurb: 'A value grouping, described by journeys and flows.', source: said(32) },
+  { id: 'feature', label: 'Feature', plural: 'Features', space: 'solution', icon: '🎁', kernel: true, fields: [{ key: 'stages', label: 'Lifecycle stages' }], blurb: 'A value grouping, described by journeys and flows. What a startup would have a department for becomes a feature here.', source: said(32, 71, 72) },
   { id: 'flow', label: 'Flow', plural: 'Journeys & flows', space: 'solution', icon: '🧭', kernel: false, blurb: 'A happy path through the system.', source: said(31, 32) },
   { id: 'term', label: 'Term', plural: 'Vocabulary', space: 'solution', icon: '📖', kernel: false, blurb: 'A fixed word of the domain.', source: said(31) },
   // domain, C4-style levels
@@ -156,12 +163,12 @@ export const KINDS: KindDef[] = [
   { id: 'thing', label: 'Thing', plural: 'Things', space: 'solution', icon: '🔷', kernel: true, level: 3, blurb: 'An entity in domain language; a noun.', source: said(64) },
   { id: 'rule', label: 'Rule', plural: 'Rules', space: 'solution', icon: '⚖️', kernel: true, level: 3, fields: [{ key: 'tests', label: 'Tests (pos/neg)' }], blurb: 'Logic about one or more things, from hasMany to expectations. Should be tested both ways.', source: said(31, 64, 65, 66, 67) },
   { id: 'interface', label: 'Interface', plural: 'Interfaces', space: 'solution', icon: '🔌', kernel: true, level: 3, fields: [{ key: 'style', label: 'Style', type: 'select', options: ['rpc', 'rest', 'ui', 'events'] }], blurb: 'The API a module exposes; REST, RPC, UI or events.', source: said(35, 68) },
+  { id: 'event', label: 'Event', plural: 'Events', space: 'solution', icon: '⚡', kernel: true, level: 3, blurb: 'Something notable that happened; a past-tense fact in the vocabulary.', source: said(74) },
   { id: 'test', label: 'Test', plural: 'Tests', space: 'solution', icon: '🧪', kernel: false, level: 3, blurb: 'Evidence that a rule holds; count and quality fed back from reality. STUB.', source: said(67) },
   { id: 'screen', label: 'Screen', plural: 'Screens', space: 'solution', icon: '🖼️', kernel: false, blurb: 'A user interface; composed of layouts and components.', source: said(36) },
   { id: 'design-system', label: 'Design system', plural: 'Design system', space: 'solution', icon: '🎨', kernel: false, singular: true, blurb: 'Guides product and marketing material, including tone.', source: said(37) },
-  // functions
-  { id: 'function', label: 'Function', plural: 'Functions', space: 'functions', icon: '🧩', kernel: true, fields: [{ key: 'stages', label: 'Lifecycle stages' }], blurb: 'An area of responsibility in running the project.', source: said(5, 7) },
-  { id: 'agent', label: 'Agent', plural: 'Agents', space: 'functions', icon: '🤖', kernel: true, fields: [{ key: 'status', label: 'Status', type: 'select', options: ['core', 'stub'] }], blurb: 'A grouping of functions that executes actions.', source: said(2, 4, 5) },
+  // agents (sub-items of the orchestration capability)
+  { id: 'agent', label: 'Agent', plural: 'Agents', space: 'solution', icon: '🤖', kernel: true, fields: [{ key: 'status', label: 'Status', type: 'select', options: ['core', 'stub'] }], blurb: 'Executes actions for one or more features; a sub-item of the orchestration capability.', source: said(2, 4, 5, 72) },
   // reality (stub)
   { id: 'evidence', label: 'Evidence', plural: 'Evidence', space: 'evidence', icon: '🧾', kernel: true, blurb: 'An observation from reality tied to a hypothesis or metric. STUB.', source: said(24, 25, 40) },
 ];
@@ -188,6 +195,7 @@ export const EDGE_TYPES: EdgeTypeDef[] = [
   { id: 'implements', label: 'implements', category: 'structural', kernel: true, hint: 'Realises a solution-space spec.', source: said(33) },
   { id: 'contains', label: 'contains', category: 'structural', kernel: true, hint: 'Composition (screen contains component).', source: said(36) },
   { id: 'exposes', label: 'exposes', category: 'structural', kernel: true, hint: 'Module exposes an interface.', source: said(35, 68) },
+  { id: 'emits', label: 'emits', category: 'behavioural', kernel: true, hint: 'Produces an event (interface or rule emits event).', source: inferred('Events (S74) need a producer edge; the brief does not name it.') },
   { id: 'governs', label: 'governs', category: 'behavioural', kernel: true, hint: 'Rule governs a thing (or several: relationship rules).', source: said(65) },
   { id: 'defines', label: 'defines', category: 'dependency', kernel: true, hint: 'Glossary term defines a node.', source: said(31, 59) },
   { id: 'uses', label: 'uses', category: 'dependency', kernel: true, hint: 'Runtime dependency.', source: said(35) },
@@ -196,7 +204,6 @@ export const EDGE_TYPES: EdgeTypeDef[] = [
   { id: 'monitors', label: 'monitors', category: 'verification', kernel: true, hint: 'Metric watches an outcome.', source: said(15, 39) },
   { id: 'supports', label: 'supports', category: 'verification', kernel: true, hint: 'Evidence supports a hypothesis. STUB.', source: said(25) },
   { id: 'refutes', label: 'refutes', category: 'verification', kernel: true, hint: 'Evidence refutes a hypothesis. STUB.', source: said(25) },
-  { id: 'owns', label: 'owns', category: 'orchestration', kernel: true, hint: 'Agent owns a function.', source: said(5) },
   { id: 'in-stage', label: 'in stage', category: 'orchestration', kernel: true, hint: 'Tags any node with a lifecycle stage.', source: said(7) },
 ];
 
@@ -238,7 +245,7 @@ export interface LevelDef { level: 1 | 2 | 3; label: string; blurb: string; kind
 export const LEVELS: LevelDef[] = [
   { level: 1, label: 'Context', blurb: 'The real world as people talk about it: our system as a bubble, the people outside it, other systems.', kinds: ['system', 'audience', 'external'], source: said(56, 57) },
   { level: 2, label: 'Modules', blurb: 'Inside the system: meaningfully different business domains, with their dedicated infra. Arrows are calls or events between them; flows run across them.', kinds: ['module', 'infra'], source: said(58, 60, 61) },
-  { level: 3, label: 'Inside a module', blurb: 'Things (nouns), rules (logic about things and their relationships), the interface it exposes, and the tests that prove the rules. Each points at code.', kinds: ['thing', 'rule', 'interface', 'test'], source: said(63, 64, 65, 68, 69) },
+  { level: 3, label: 'Inside a module', blurb: 'Things (nouns), rules (logic about things and their relationships), events (past-tense facts), the interface it exposes, and the tests that prove the rules. Each points at code.', kinds: ['thing', 'rule', 'event', 'interface', 'test'], source: said(63, 64, 65, 68, 69, 74) },
 ];
 export const NO_LEVEL_4: Provenance = said(70);
 
@@ -251,7 +258,7 @@ export const INVARIANTS: Invariant[] = [
   { id: 'inv-kernel-additive', text: 'Templates can add kinds, edge types, and questions; they cannot remove kernel ones.', source: said(6, 43) },
   { id: 'inv-unlock', text: 'A question unlocks only after all of its unlocksAfter questions have a committed answer.', source: said(20, 21) },
   { id: 'inv-undo', text: 'Undo reverts one whole Commit, never a partial.', source: inferred('Standard; keeps the commit the unit of meaning.') },
-  { id: 'inv-left-to-right', text: 'Spaces are enriched left to right: basics → problem → hypothesis → solution → functions.', source: said(19, 29, 45) },
+  { id: 'inv-left-to-right', text: 'Spaces are enriched left to right: basics → problem → hypothesis → solution.', source: said(19, 29, 45) },
   { id: 'inv-fixed-vocab', text: 'Once a term is committed in the vocabulary, other nodes should use it verbatim.', source: said(31) },
   { id: 'inv-code-ref', text: 'Every level-3 item may carry props.codeRef, a URL to the file or block on GitHub that implements it.', source: said(69) },
   { id: 'inv-dogfood', text: 'Bropilot must be describable in Bropilot with no special cases.', source: said(10, 46) },

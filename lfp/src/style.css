@@ -26,7 +26,8 @@ th { font-weight: 600; color: var(--muted); font-size: .75rem; text-transform: u
 .top nav button { border: none; background: none; padding: .35rem .7rem; border-radius: 6px; }
 .top nav button.active { background: var(--bg); font-weight: 600; }
 .top .actions { margin-left: auto; display: flex; gap: .5rem; align-items: center; }
-.view { padding: 1rem; }
+.view { padding: 1rem; transition: margin-right .15s ease; }
+.view.panel-open { margin-right: 432px; } /* side panels push the page instead of covering it (S75) */
 
 /* provenance */
 .prov { display: inline-block; font-size: .68rem; padding: .05rem .4rem; border-radius: 999px; border: 1px solid; line-height: 1.4; white-space: nowrap; }
@@ -61,7 +62,7 @@ th { font-weight: 600; color: var(--muted); font-size: .75rem; text-transform: u
 .card .status { font-size: .68rem; color: var(--muted); }
 
 /* inspector */
-.inspector { position: fixed; right: 1rem; top: 4rem; bottom: 1rem; width: 380px; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1rem; box-shadow: 0 8px 30px rgba(0,0,0,.08); z-index: 4; }
+.inspector { position: fixed; right: 1rem; top: 4rem; bottom: 1rem; width: 400px; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1rem; box-shadow: 0 8px 30px rgba(0,0,0,.08); z-index: 4; }
 .inspector .close { position: absolute; right: .6rem; top: .5rem; border: none; font-size: 1.1rem; }
 .inspector h3 { margin-top: 1rem; color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; }
 .inspector ul { padding-left: 1rem; margin: .2rem 0; font-size: .85rem; }

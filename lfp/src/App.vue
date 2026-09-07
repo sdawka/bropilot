@@ -42,7 +42,7 @@ function reset() { if (confirm('Reset to the seed graph.json? Local edits, answe
       <button @click="reset">Reset to seed</button>
     </div>
   </header>
-  <div class="view" v-if="state.hydrated">
+  <div class="view" :class="{ 'panel-open': !!state.selectedId || glossaryOpen }" v-if="state.hydrated" title="">
     <Overview v-if="view === 'overview'" />
     <Definition v-else-if="view === 'definition'" />
     <Domain v-else-if="view === 'domain'" />

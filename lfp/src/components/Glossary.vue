@@ -95,7 +95,7 @@ function del(id: string, title: string) {
 </template>
 
 <style scoped>
-.glossary { position: fixed; right: 0; top: 0; bottom: 0; width: 420px; overflow-y: auto; background: var(--panel); border-left: 1px solid var(--line); box-shadow: -8px 0 30px rgba(0, 0, 0, .1); z-index: 20; padding: 1rem; display: flex; flex-direction: column; gap: .6rem; }
+.glossary { position: fixed; right: 1rem; top: 4rem; bottom: 1rem; border-radius: 10px; width: 400px; overflow-y: auto; background: var(--panel); border-left: 1px solid var(--line); box-shadow: -8px 0 30px rgba(0, 0, 0, .1); z-index: 20; padding: 1rem; display: flex; flex-direction: column; gap: .6rem; }
 .head { display: flex; justify-content: space-between; align-items: center; }
 .head h2 { margin: 0; }
 .close { border: none; font-size: 1.2rem; background: none; padding: 0 .3rem; }

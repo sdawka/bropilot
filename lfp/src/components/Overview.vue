@@ -94,7 +94,7 @@ const domainCounts = computed(() => domainKinds.value.map((k) => ({ kind: k, cou
 </template>
 
 <style scoped>
-.overview-board { grid-template-columns: repeat(4, minmax(220px, 1fr)); }
+.overview-board { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 .project-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: .8rem; }
 .project-header h1 { font-size: 1.3rem; margin-bottom: .1rem; }
 .project-header .subtitle { color: var(--muted); font-size: .9rem; margin: 0; }
