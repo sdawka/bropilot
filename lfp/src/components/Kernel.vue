@@ -2,6 +2,8 @@
 import { ref, computed } from 'vue';
 import { SPACES, KINDS, EDGE_TYPES, QUESTIONS, INVARIANTS, KERNEL_OBJECTS, LIFECYCLE_STAGES, LIFECYCLE_SOURCE, STATEMENTS, type Provenance } from '../kernel';
 import Prov from './Prov.vue';
+import { unanchored, BRIEFS } from '../brief';
+const missingAnchors = unanchored();
 
 const onlyInferred = ref(false);
 const keep = (s: Provenance) => !onlyInferred.value || s.kind === 'inferred';
@@ -62,7 +64,7 @@ const counts = computed(() => {
     <h2>Lifecycle stages</h2>
     <p v-if="keep(LIFECYCLE_SOURCE)"><span v-for="s in LIFECYCLE_STAGES" :key="s" class="tag stage">{{ s }}</span> <Prov :source="LIFECYCLE_SOURCE" /></p>
 
-    <h2>Statement bank</h2>
+    <h2>Statement bank <span class="small">{{ BRIEFS.length }} briefs on record · <span :class="missingAnchors.length ? 'warn' : ''">{{ missingAnchors.length ? `anchors missing for S${missingAnchors.join(', S')}` : 'every statement anchors to a sentence in a brief' }}</span></span></h2>
     <ol class="statements"><li v-for="(t, n) in STATEMENTS" :key="n" :value="n">{{ t }}</li></ol>
   </div>
 </template>

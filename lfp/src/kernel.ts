@@ -56,6 +56,31 @@ export const STATEMENTS: Record<number, string> = {
   44: "relating your decisions to things I've explicitly said as the reference",
   45: 'enrich and iterate on the layers from left to right in the representation layer',
   46: 'use it to improve itself and update the graph together',
+  // ── feedback on v0 (2026-09-07) ──
+  47: 'I like the provenance with the specific utterances, but I also want to see them in the context of the overall message',
+  48: 'a few sentences before and after. So hovering or something in the side panel should show me the full thing',
+  49: 'the basics should also include a summary',
+  50: 'When I\'m picking amongst my projects, probably the name purpose summary is useful… once I\'m within a project… should be hidden away somewhere',
+  51: 'I\'d rather see it in some kind of tree view where the outermost view is the global ontology, which is standard for a template and doesn\'t change',
+  52: 'if I click on a main question and expand the node, the sub questions might be specific to the project itself based on what the user previously answered',
+  53: 'Some questions could even probably have threads. we can use AI to organize this hierarchy because follow-up questions should sort of count as threads',
+  54: 'completely different aspects that are being studied, each with their own depth… counts probably as more of a subtree',
+  55: 'Board should probably be called overview. path can be called definition. And now the kernel page should be called domain, and it needs a complete rehaul',
+  56: 'levels of view like a c4 diagram. The outermost view should be with the system itself in one bubble, the user outside, and any other systems',
+  57: 'we can still separate maybe front end and back end if they are very meaningfully separate… represent the real world in a way that people would talk about it',
+  58: 'Under this level is our system itself… the main modules and the different domains if we are strictly talking about domain driven development',
+  59: 'above all the pages, we should also always have a glossary that is easy to view and edit and readily accessed',
+  60: 'at the second level, we have separately any meaningfully different business domains… the representation layer or module, and then the reality layer or module, and then maybe a metrics collection module',
+  61: 'if we have dedicated infra, like a cache or a durable object… it should also be shown within the module that it belongs to',
+  62: 'Clicking on a module should probably show all the things and rules related to that module, that part of the world',
+  63: 'the third level should be more detailed view of within a module… things and rules and relationships',
+  64: 'things are basically entities in domain language, and the rules are logic that\'s related to the things or the nouns of our domain',
+  65: 'When selecting a thing, we should see all the rules related to that thing… rules that have multiple things and define rules about relationships',
+  66: 'simple ORM type stuff, like hasmany… but it can also be more complex around expectations',
+  67: 'all of these statements will be tested, both positive and negative directions. The number and quality of tests is another thing that can be fed back from the reality layer',
+  68: 'along with the things and the rules, we probably also have the interface, which will define the API, whether it\'s REST or RPC',
+  69: 'clicking on any of these items in this level, we can basically be pointed to some file or code block in GitHub itself where it\'s implemented',
+  70: 'I\'m not sure if we need a fourth layer. At the moment, I don\'t think so',
 };
 
 // ── Layers & spaces ─────────────────────────────────────────────────────────
@@ -96,6 +121,7 @@ export interface KindDef {
   space: SpaceId;
   icon: string;
   kernel: boolean; // immutable if true; templates can only add kinds
+  level?: 1 | 2 | 3; // C4-style level on the Domain page
   singular?: boolean;
   fields?: FieldDef[];
   blurb: string;
@@ -106,6 +132,7 @@ export const KINDS: KindDef[] = [
   // basics
   { id: 'name', label: 'Name', plural: 'Name', space: 'basics', icon: '🏷️', kernel: true, singular: true, blurb: 'What the system is called.', source: said(29) },
   { id: 'purpose', label: 'Purpose', plural: 'Purpose', space: 'basics', icon: '🎯', kernel: true, singular: true, blurb: 'Why it exists; the real-world effect and value it is for.', source: said(9, 29) },
+  { id: 'summary', label: 'Summary', plural: 'Summary', space: 'basics', icon: '📝', kernel: true, singular: true, blurb: 'A paragraph for picking this project out of a list.', source: said(49, 50) },
   // problem
   { id: 'audience', label: 'Audience', plural: 'Audience', space: 'problem', icon: '👤', kernel: true, blurb: 'A type of person or agent the system is for.', source: said(30) },
   { id: 'context', label: 'Context', plural: 'Contexts', space: 'problem', icon: '🌍', kernel: true, blurb: 'The situation an audience is in when the problem shows up.', source: said(30) },
@@ -121,9 +148,15 @@ export const KINDS: KindDef[] = [
   { id: 'feature', label: 'Feature', plural: 'Features', space: 'solution', icon: '🎁', kernel: false, blurb: 'A value grouping, described by journeys and flows.', source: said(32) },
   { id: 'flow', label: 'Flow', plural: 'Journeys & flows', space: 'solution', icon: '🧭', kernel: false, blurb: 'A happy path through the system.', source: said(31, 32) },
   { id: 'term', label: 'Term', plural: 'Vocabulary', space: 'solution', icon: '📖', kernel: false, blurb: 'A fixed word of the domain.', source: said(31) },
-  { id: 'rule', label: 'Rule', plural: 'Rules', space: 'solution', icon: '⚖️', kernel: false, blurb: 'Logic of the domain.', source: said(31) },
-  { id: 'module', label: 'Module', plural: 'Modules', space: 'solution', icon: '📦', kernel: false, blurb: 'A division of the architecture. Always exposes an RPC.', source: said(33, 35) },
-  { id: 'rpc', label: 'RPC', plural: 'RPCs', space: 'solution', icon: '🔌', kernel: false, blurb: 'A module surface used by modules, agents, or the user.', source: said(35) },
+  // domain, C4-style levels
+  { id: 'system', label: 'System', plural: 'Systems', space: 'solution', icon: '🫧', kernel: true, level: 1, blurb: 'The system itself as one bubble, or a meaningfully separate part of it (web vs mobile).', source: said(56, 57) },
+  { id: 'external', label: 'External system', plural: 'External systems', space: 'solution', icon: '🛰️', kernel: true, level: 1, blurb: 'Another system ours talks to.', source: said(56) },
+  { id: 'module', label: 'Module', plural: 'Modules', space: 'solution', icon: '📦', kernel: true, level: 2, blurb: 'A business domain / bounded context. Always exposes an interface.', source: said(33, 35, 58, 60) },
+  { id: 'infra', label: 'Infra', plural: 'Infra', space: 'solution', icon: '🧱', kernel: false, level: 2, blurb: 'Dedicated infrastructure (cache, durable object) shown inside its module.', source: said(61) },
+  { id: 'thing', label: 'Thing', plural: 'Things', space: 'solution', icon: '🔷', kernel: true, level: 3, blurb: 'An entity in domain language; a noun.', source: said(64) },
+  { id: 'rule', label: 'Rule', plural: 'Rules', space: 'solution', icon: '⚖️', kernel: true, level: 3, fields: [{ key: 'tests', label: 'Tests (pos/neg)' }], blurb: 'Logic about one or more things, from hasMany to expectations. Should be tested both ways.', source: said(31, 64, 65, 66, 67) },
+  { id: 'interface', label: 'Interface', plural: 'Interfaces', space: 'solution', icon: '🔌', kernel: true, level: 3, fields: [{ key: 'style', label: 'Style', type: 'select', options: ['rpc', 'rest', 'ui', 'events'] }], blurb: 'The API a module exposes; REST, RPC, UI or events.', source: said(35, 68) },
+  { id: 'test', label: 'Test', plural: 'Tests', space: 'solution', icon: '🧪', kernel: false, level: 3, blurb: 'Evidence that a rule holds; count and quality fed back from reality. STUB.', source: said(67) },
   { id: 'screen', label: 'Screen', plural: 'Screens', space: 'solution', icon: '🖼️', kernel: false, blurb: 'A user interface; composed of layouts and components.', source: said(36) },
   { id: 'design-system', label: 'Design system', plural: 'Design system', space: 'solution', icon: '🎨', kernel: false, singular: true, blurb: 'Guides product and marketing material, including tone.', source: said(37) },
   // functions
@@ -154,7 +187,9 @@ export const EDGE_TYPES: EdgeTypeDef[] = [
   { id: 'has', label: 'has', category: 'structural', kernel: true, hint: 'Conceptual possession (audience has problem).', source: inferred('Generic structural link; no direct quote.') },
   { id: 'implements', label: 'implements', category: 'structural', kernel: true, hint: 'Realises a solution-space spec.', source: said(33) },
   { id: 'contains', label: 'contains', category: 'structural', kernel: true, hint: 'Composition (screen contains component).', source: said(36) },
-  { id: 'exposes', label: 'exposes', category: 'structural', kernel: true, hint: 'Module exposes an RPC.', source: said(35) },
+  { id: 'exposes', label: 'exposes', category: 'structural', kernel: true, hint: 'Module exposes an interface.', source: said(35, 68) },
+  { id: 'governs', label: 'governs', category: 'behavioural', kernel: true, hint: 'Rule governs a thing (or several: relationship rules).', source: said(65) },
+  { id: 'defines', label: 'defines', category: 'dependency', kernel: true, hint: 'Glossary term defines a node.', source: said(31, 59) },
   { id: 'uses', label: 'uses', category: 'dependency', kernel: true, hint: 'Runtime dependency.', source: said(35) },
   { id: 'references', label: 'references', category: 'dependency', kernel: true, hint: 'Weak link of last resort.', source: inferred('Escape hatch so nothing is ever blocked.') },
   { id: 'triggers', label: 'triggers', category: 'behavioural', kernel: true, hint: 'Causal succession.', source: inferred('Needed once flows and events exist (S31).') },
@@ -186,6 +221,7 @@ export interface QuestionDef {
 export const QUESTIONS: QuestionDef[] = [
   { id: 'q-name', prompt: 'What is it called?', help: 'One line.', space: 'basics', produces: 'name', unlocksAfter: [], kernel: true, source: said(29) },
   { id: 'q-purpose', prompt: 'What is it for? What real-world effect should it have?', help: 'One or two sentences. Not features.', space: 'basics', produces: 'purpose', unlocksAfter: ['q-name'], kernel: true, source: said(9, 29) },
+  { id: 'q-summary', prompt: 'Summarise it in a paragraph.', help: 'What you would want to read when picking this project out of a list.', space: 'basics', produces: 'summary', unlocksAfter: ['q-purpose'], kernel: true, source: said(49, 50) },
   { id: 'q-audience', prompt: 'Who is it for?', help: 'One audience per line.', space: 'problem', produces: 'audience', unlocksAfter: ['q-purpose'], kernel: true, source: said(30) },
   { id: 'q-context', prompt: 'In what situations do they meet this?', help: 'One context per line.', space: 'problem', produces: 'context', unlocksAfter: ['q-audience'], kernel: true, source: said(30) },
   { id: 'q-usecase', prompt: 'What are they trying to get done?', help: 'One use case per line.', space: 'problem', produces: 'usecase', unlocksAfter: ['q-audience'], kernel: true, source: said(30) },
@@ -196,6 +232,15 @@ export const QUESTIONS: QuestionDef[] = [
   { id: 'q-metric', prompt: 'How will you know?', help: 'One metric per line.', space: 'hypothesis', produces: 'metric', unlocksAfter: ['q-outcome'], kernel: true, source: inferred('Follows from S15/S25; the brief has no explicit "how will you measure" question.') },
   { id: 'q-capability', prompt: 'What must it be able to do?', help: 'One capability per line.', space: 'solution', produces: 'capability', unlocksAfter: ['q-hypothesis'], kernel: true, source: said(30) },
 ];
+
+// ── Domain levels (C4-style) ────────────────────────────────────────────────
+export interface LevelDef { level: 1 | 2 | 3; label: string; blurb: string; kinds: string[]; source: Provenance }
+export const LEVELS: LevelDef[] = [
+  { level: 1, label: 'Context', blurb: 'The real world as people talk about it: our system as a bubble, the people outside it, other systems.', kinds: ['system', 'audience', 'external'], source: said(56, 57) },
+  { level: 2, label: 'Modules', blurb: 'Inside the system: meaningfully different business domains, with their dedicated infra. Arrows are calls or events between them; flows run across them.', kinds: ['module', 'infra'], source: said(58, 60, 61) },
+  { level: 3, label: 'Inside a module', blurb: 'Things (nouns), rules (logic about things and their relationships), the interface it exposes, and the tests that prove the rules. Each points at code.', kinds: ['thing', 'rule', 'interface', 'test'], source: said(63, 64, 65, 68, 69) },
+];
+export const NO_LEVEL_4: Provenance = said(70);
 
 // ── Invariants ──────────────────────────────────────────────────────────────
 export interface Invariant { id: string; text: string; source: Provenance }
@@ -208,6 +253,7 @@ export const INVARIANTS: Invariant[] = [
   { id: 'inv-undo', text: 'Undo reverts one whole Commit, never a partial.', source: inferred('Standard; keeps the commit the unit of meaning.') },
   { id: 'inv-left-to-right', text: 'Spaces are enriched left to right: basics → problem → hypothesis → solution → functions.', source: said(19, 29, 45) },
   { id: 'inv-fixed-vocab', text: 'Once a term is committed in the vocabulary, other nodes should use it verbatim.', source: said(31) },
+  { id: 'inv-code-ref', text: 'Every level-3 item may carry props.codeRef, a URL to the file or block on GitHub that implements it.', source: said(69) },
   { id: 'inv-dogfood', text: 'Bropilot must be describable in Bropilot with no special cases.', source: said(10, 46) },
 ];
 
@@ -231,6 +277,11 @@ export const FLOWS: FlowDef[] = [
   { id: 'Q2', group: 'Path', title: 'Jump to a question', steps: ['pick any unlocked question', 'answer'], scope: 'core', touches: ['Question'], source: said(20) },
   { id: 'Q3', group: 'Path', title: 'Re-answer', steps: ['new answer', 'effects update/remove old nodes'], scope: 'core', touches: ['Answer', 'Effect', 'Node'], source: said(19) },
   { id: 'Q5', group: 'Path', title: 'Direct edit (escape hatch)', steps: ['edit node in board', 'treated as an answer', 'effects staged'], scope: 'core', touches: ['Node', 'Answer', 'Effect'], source: inferred('Author has the knowledge (S20) and will want to bypass the path.') },
+  { id: 'Q7', group: 'Path', title: 'Add a sub-question or thread', steps: ['expand a template question', 'add a project-specific sub-question or a follow-up thread', 'answer it → effects staged'], scope: 'core', touches: ['Question', 'Answer', 'Effect'], source: said(52, 53, 54) },
+  { id: 'Q8', group: 'Path', title: 'AI organises the tree', steps: ['follow-ups clustered into threads and subtrees'], scope: 'later', touches: ['Question', 'Agent'], source: said(53, 54) },
+  { id: 'G1', group: 'Glossary', title: 'Edit the glossary', steps: ['open glossary from any page', 'add / edit / delete a term', 'commits immediately (escape hatch)'], scope: 'core', touches: ['Node', 'Commit', 'Kind'], source: said(59) },
+  { id: 'T1', group: 'Template', title: 'Declare a template', steps: ['pick base template', 'declare extension kinds (with space), edge types, questions, agents', 'kernel kinds untouched'], scope: 'later', touches: ['Template', 'Kind', 'Space', 'Layer', 'Question', 'Agent'], source: said(6, 17, 18, 43) },
+  { id: 'D1', group: 'Domain', title: 'Walk the C4 levels', steps: ['context: system, people, other systems', 'modules with infra', 'inside a module: things, rules, interface, tests', 'jump to code on GitHub'], scope: 'core', touches: ['Node', 'Edge', 'Kind'], source: said(56, 58, 63, 69) },
   { id: 'Q6', group: 'Path', title: 'Question from evidence', steps: ['evidence refutes hypothesis', 'new question unlocked'], scope: 'stub', touches: ['Evidence', 'Question'], source: said(25, 26) },
   { id: 'C1', group: 'Commit', title: 'Review changeset', steps: ['effects grouped by space', 'toggle each', 'warnings on top'], scope: 'core', touches: ['Changeset', 'Effect'], source: said(27) },
   { id: 'C2', group: 'Commit', title: 'Commit', steps: ['apply accepted effects', 'nodes → committed', 'dispatch actions'], scope: 'core', touches: ['Commit', 'Action'], source: said(27) },

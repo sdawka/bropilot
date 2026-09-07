@@ -101,3 +101,20 @@ textarea { width: 100%; font: inherit; padding: .5rem; border: 1px solid var(--l
 .objects { display: flex; flex-wrap: wrap; gap: .35rem; margin: .4rem 0; }
 .obj { border: 1px solid var(--line); border-radius: 6px; padding: .2rem .5rem; font-size: .82rem; color: var(--muted); }
 .obj.lit { border-color: var(--kernel); color: var(--kernel); background: #eef0fb; font-weight: 600; }
+
+/* provenance in context (S47, S48) */
+.prov-wrap { position: relative; display: inline-block; }
+.pop { position: absolute; left: 0; top: 1.5rem; z-index: 30; width: 440px; max-width: 80vw; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: .6rem .8rem; box-shadow: 0 10px 30px rgba(0,0,0,.12); font-size: .8rem; line-height: 1.45; white-space: normal; text-align: left; display: block; }
+.pop-s { display: block; margin-bottom: .5rem; } .pop-s:last-child { margin-bottom: 0; }
+.brief-name { color: var(--muted); font-size: .72rem; }
+.ctx { display: block; margin-top: .2rem; color: var(--ink); }
+.ctx .dim { color: var(--muted); }
+.ctx .sentence { color: var(--ink); }
+.hit { background: #e2f3e8; border-bottom: 2px solid var(--said); }
+.ctx.block { font-size: .82rem; line-height: 1.5; padding: .3rem .5rem .3rem .6rem; border-left: 3px solid var(--line); margin: .2rem 0 .6rem; }
+.more { display: block; margin-top: .3rem; font-size: .75rem; }
+.full-brief { background: var(--bg); border-radius: 6px; padding: .6rem .8rem; font-size: .82rem; line-height: 1.55; margin-bottom: .8rem; max-height: 360px; overflow: auto; }
+.quote { margin-bottom: .4rem; }
+
+/* glossary button + drawer host */
+.top .glossary-btn { font-weight: 600; }

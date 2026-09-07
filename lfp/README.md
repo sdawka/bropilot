@@ -21,10 +21,14 @@ Decisions: fully local for now · representation only, reality stubbed · graph 
 Browser edits (answers, commits) live in `localStorage` (`bropilot:lfp:v1`). "Copy graph JSON" exports the live graph; when we agree on a change it gets folded back into `graph.json`. "Reset to seed" throws the local state away.
 
 ## Screens
-- **Board** — representation spaces as columns, left to right. Cards per node with status and provenance badge. Dogfood check on top (unknown kinds, dangling edges, unknown edge types, orphans). Click a card for the inspector: edges in/out, provenance quote, which kernel rules apply.
-- **Path** — the questions with locked / unlocked / answered state. Answer → staged changeset → review checkboxes → commit (one undo step) → undo.
-- **Kernel** — everything in `kernel.ts` as tables; immutable vs extensible tagged; "show only inferred" filter to challenge my extrapolations.
-- **Flows** — all flows, tagged core / stub / later; clicking one lights up the kernel objects it touches; reports objects no flow touches.
+- **Overview** (was Board) — representation spaces as columns, left to right, minus basics: the project's name and purpose sit in a compact header with a "show basics" toggle (name, purpose, summary). Cards per node with status and provenance. Dogfood check on top. Click a card for the inspector. Domain-level kinds (system, module, thing, rule, …) are summarised as counts; the Domain page shows them.
+- **Definition** (was Path) — the question tree. Roots are the template's questions and never change. Under a root: this project's sub-questions and threads (manual now; AI-organised later). Answer → staged changeset → review → commit (one undo step) → undo.
+- **Domain** (was Kernel) — three C4-style levels. 1 Context: the system as a bubble, the people outside, other systems. 2 Modules: business domains with their infra, arrows between them. 3 Inside a module: things, rules, interface, tests; select a thing to see the rules that govern it; every item can link to the code on GitHub (`props.codeRef`). No level 4.
+- **Flows** — all flows tagged core / stub / later; clicking one lights up the kernel objects it touches.
+- **Reference** — Bropilot's own kernel as tables (`kernel.ts`), with the "show only inferred" filter and the statement bank.
+- **📖 Glossary** — a drawer reachable from every page; add / edit / delete terms; edits commit immediately (escape hatch) and are undoable.
+
+**Provenance in context.** Every said-badge shows, on hover, the quoted sentence with two sentences before and after from the full brief. In the inspector the full brief is one click away with the quote highlighted. `src/brief.ts` holds the briefs verbatim and one exact anchor per statement; the Reference page reports any anchor that no longer resolves.
 
 ## The loop
 1. Look at one column (start: basics, then problem).

@@ -1,81 +1,2046 @@
 {
   "nodes": [
-    { "id": "name-bropilot", "kind": "name", "title": "Bropilot", "status": "committed", "source": { "kind": "said", "statements": [10] } },
-    { "id": "purpose-self-sustaining", "kind": "purpose", "title": "Help people build self-sustaining software systems without having held every startup role", "description": "A system is self-sustaining when it has a stated real-world effect, a way to measure it, and a loop that keeps improving it.", "status": "committed", "source": { "kind": "said", "statements": [11, 13, 15] } },
-
-    { "id": "audience-untrained-builder", "kind": "audience", "title": "Untrained builder", "description": "Has an idea and can operate an AI coding tool; hasn't done PM, marketing, UX research, design or strategy rigorously.", "status": "committed", "source": { "kind": "said", "statements": [13] } },
-    { "id": "audience-trained-unstructured", "kind": "audience", "title": "Trained but unstructured builder", "description": "Knows the roles, still benefits from being held to a structure.", "status": "committed", "source": { "kind": "said", "statements": [20] } },
-    { "id": "audience-agent-team", "kind": "audience", "title": "The agent team", "description": "Consumes the representation to act.", "status": "committed", "source": { "kind": "said", "statements": [2, 35] } },
-    { "id": "context-hazy-idea", "kind": "context", "title": "Talking an idea out as one hazy mess", "status": "committed", "source": { "kind": "said", "statements": [19] } },
-    { "id": "usecase-describe-system", "kind": "usecase", "title": "Describe the system I want to build", "status": "committed", "source": { "kind": "said", "statements": [10, 21] } },
-    { "id": "usecase-share-system", "kind": "usecase", "title": "Share a system with others", "status": "committed", "source": { "kind": "said", "statements": [38] } },
-    { "id": "problem-no-constraints", "kind": "problem", "title": "Vibe-coding tools have no constraints or template", "status": "committed", "source": { "kind": "said", "statements": [16] } },
-    { "id": "problem-unstructured-articulation", "kind": "problem", "title": "Knowing the next question to ask is the scarce skill", "status": "committed", "source": { "kind": "said", "statements": [19, 20] } },
-    { "id": "problem-no-real-world-effect", "kind": "problem", "title": "Products ship without a stated real-world effect", "status": "committed", "source": { "kind": "said", "statements": [9] } },
-    { "id": "problem-functions-neglected", "kind": "problem", "title": "Non-product functions are left to chance", "status": "committed", "source": { "kind": "said", "statements": [7, 26] } },
-    { "id": "outcome-ships-coherent", "kind": "outcome", "title": "Ships something coherent end to end", "props": { "metric": "first commit executed by agents" }, "status": "committed", "source": { "kind": "said", "statements": [14] } },
-    { "id": "outcome-knows-good", "kind": "outcome", "title": "Knows what good means and sees progress toward it", "props": { "metric": "hypotheses with verdicts" }, "status": "committed", "source": { "kind": "said", "statements": [15] } },
-    { "id": "outcome-keeps-improving", "kind": "outcome", "title": "System keeps improving after launch", "props": { "metric": "commits after first deploy" }, "status": "committed", "source": { "kind": "said", "statements": [11, 15] } },
-
-    { "id": "hypothesis-h1", "kind": "hypothesis", "title": "H1 Structured questions beat free chat for spec quality", "props": { "verdict": "open" }, "status": "committed", "source": { "kind": "said", "statements": [14, 21] } },
-    { "id": "hypothesis-h2", "kind": "hypothesis", "title": "H2 A committed representation executed by agents beats hand-driving an IDE agent", "props": { "verdict": "open" }, "status": "committed", "source": { "kind": "said", "statements": [27] } },
-    { "id": "hypothesis-h3", "kind": "hypothesis", "title": "H3 An explicit reality loop causes real iteration", "props": { "verdict": "open" }, "status": "committed", "source": { "kind": "said", "statements": [24, 25, 26] } },
-    { "id": "hypothesis-h4", "kind": "hypothesis", "title": "H4 One ontology holds web app, course and info product", "props": { "verdict": "open" }, "status": "committed", "source": { "kind": "said", "statements": [6, 17] } },
-    { "id": "hypothesis-h5", "kind": "hypothesis", "title": "H5 Bropilot can describe itself with no special cases", "props": { "verdict": "open" }, "status": "committed", "source": { "kind": "said", "statements": [10] } },
-    { "id": "assumption-agents-capable", "kind": "assumption", "title": "Agents can act on a spec with limited supervision", "status": "committed", "source": { "kind": "said", "statements": [2, 27] } },
-    { "id": "assumption-accept-constraints", "kind": "assumption", "title": "Users accept constraints in exchange for guidance", "status": "committed", "source": { "kind": "said", "statements": [14] } },
-    { "id": "assumption-representation-source", "kind": "assumption", "title": "The representation can stay the source of truth", "status": "committed", "source": { "kind": "said", "statements": [22] } },
-    { "id": "metric-first-commit", "kind": "metric", "title": "Time to first agent-executed commit", "status": "committed", "source": { "kind": "inferred", "reason": "Measure for outcome 'ships coherent'." } },
-    { "id": "metric-verdicts", "kind": "metric", "title": "Share of hypotheses with a verdict", "status": "committed", "source": { "kind": "inferred", "reason": "Measure for outcome 'knows good'." } },
-    { "id": "metric-post-launch-commits", "kind": "metric", "title": "Commits after first deploy", "status": "committed", "source": { "kind": "inferred", "reason": "Measure for outcome 'keeps improving'." } },
-
-    { "id": "capability-guided-path", "kind": "capability", "title": "Guided articulation path", "status": "committed", "source": { "kind": "said", "statements": [21] } },
-    { "id": "capability-commit-gate", "kind": "capability", "title": "Effect preview and commit gate", "status": "committed", "source": { "kind": "said", "statements": [27] } },
-    { "id": "capability-orchestration", "kind": "capability", "title": "Agent orchestration", "status": "committed", "source": { "kind": "said", "statements": [2, 27] } },
-    { "id": "capability-templates", "kind": "capability", "title": "Templates and implementation styles", "status": "committed", "source": { "kind": "said", "statements": [6, 17, 18] } },
-    { "id": "capability-share", "kind": "capability", "title": "Share and export a system", "status": "committed", "source": { "kind": "said", "statements": [38] } },
-    { "id": "capability-reality", "kind": "capability", "title": "Reality observation (stub)", "status": "committed", "source": { "kind": "said", "statements": [24, 40] } },
-    { "id": "capability-self-improve", "kind": "capability", "title": "Self-improvement (stub)", "status": "committed", "source": { "kind": "said", "statements": [28] } },
-
-    { "id": "agent-strategist", "kind": "agent", "title": "Strategist", "props": { "status": "core" }, "status": "committed", "source": { "kind": "said", "statements": [4] } },
-    { "id": "agent-product-manager", "kind": "agent", "title": "Product manager", "props": { "status": "core" }, "status": "committed", "source": { "kind": "said", "statements": [4] } },
-    { "id": "agent-engineer", "kind": "agent", "title": "Engineer", "props": { "status": "core" }, "status": "committed", "source": { "kind": "inferred", "reason": "Someone has to write the code; not named in the brief's list." } },
-    { "id": "agent-domain-modeller", "kind": "agent", "title": "Domain modeller", "props": { "status": "stub" }, "status": "committed", "source": { "kind": "inferred", "reason": "Owns vocabulary and rules (S31)." } },
-    { "id": "agent-ux-researcher", "kind": "agent", "title": "UX researcher", "props": { "status": "stub" }, "status": "committed", "source": { "kind": "said", "statements": [4] } },
-    { "id": "agent-designer", "kind": "agent", "title": "Designer", "props": { "status": "stub" }, "status": "committed", "source": { "kind": "said", "statements": [4, 37] } },
-    { "id": "agent-marketer", "kind": "agent", "title": "Marketing specialist", "props": { "status": "stub" }, "status": "committed", "source": { "kind": "said", "statements": [4, 34] } },
-    { "id": "agent-educator", "kind": "agent", "title": "Educator / support", "props": { "status": "stub" }, "status": "committed", "source": { "kind": "said", "statements": [7] } },
-    { "id": "agent-meta", "kind": "agent", "title": "Meta (watches Bropilot itself)", "props": { "status": "stub" }, "status": "committed", "source": { "kind": "said", "statements": [28] } }
+    {
+      "id": "name-bropilot",
+      "kind": "name",
+      "title": "Bropilot",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          10
+        ]
+      }
+    },
+    {
+      "id": "purpose-self-sustaining",
+      "kind": "purpose",
+      "title": "Help people build self-sustaining software systems without having held every startup role",
+      "description": "A system is self-sustaining when it has a stated real-world effect, a way to measure it, and a loop that keeps improving it.",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          11,
+          13,
+          15
+        ]
+      }
+    },
+    {
+      "id": "audience-untrained-builder",
+      "kind": "audience",
+      "title": "Untrained builder",
+      "description": "Has an idea and can operate an AI coding tool; hasn't done PM, marketing, UX research, design or strategy rigorously.",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          13
+        ]
+      }
+    },
+    {
+      "id": "audience-trained-unstructured",
+      "kind": "audience",
+      "title": "Trained but unstructured builder",
+      "description": "Knows the roles, still benefits from being held to a structure.",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          20
+        ]
+      }
+    },
+    {
+      "id": "audience-agent-team",
+      "kind": "audience",
+      "title": "The agent team",
+      "description": "Consumes the representation to act.",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          35
+        ]
+      }
+    },
+    {
+      "id": "context-hazy-idea",
+      "kind": "context",
+      "title": "Talking an idea out as one hazy mess",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          19
+        ]
+      }
+    },
+    {
+      "id": "usecase-describe-system",
+      "kind": "usecase",
+      "title": "Describe the system I want to build",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          10,
+          21
+        ]
+      }
+    },
+    {
+      "id": "usecase-share-system",
+      "kind": "usecase",
+      "title": "Share a system with others",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          38
+        ]
+      }
+    },
+    {
+      "id": "problem-no-constraints",
+      "kind": "problem",
+      "title": "Vibe-coding tools have no constraints or template",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          16
+        ]
+      }
+    },
+    {
+      "id": "problem-unstructured-articulation",
+      "kind": "problem",
+      "title": "Knowing the next question to ask is the scarce skill",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          19,
+          20
+        ]
+      }
+    },
+    {
+      "id": "problem-no-real-world-effect",
+      "kind": "problem",
+      "title": "Products ship without a stated real-world effect",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          9
+        ]
+      }
+    },
+    {
+      "id": "problem-functions-neglected",
+      "kind": "problem",
+      "title": "Non-product functions are left to chance",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          7,
+          26
+        ]
+      }
+    },
+    {
+      "id": "outcome-ships-coherent",
+      "kind": "outcome",
+      "title": "Ships something coherent end to end",
+      "props": {
+        "metric": "first commit executed by agents"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          14
+        ]
+      }
+    },
+    {
+      "id": "outcome-knows-good",
+      "kind": "outcome",
+      "title": "Knows what good means and sees progress toward it",
+      "props": {
+        "metric": "hypotheses with verdicts"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          15
+        ]
+      }
+    },
+    {
+      "id": "outcome-keeps-improving",
+      "kind": "outcome",
+      "title": "System keeps improving after launch",
+      "props": {
+        "metric": "commits after first deploy"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          11,
+          15
+        ]
+      }
+    },
+    {
+      "id": "hypothesis-h1",
+      "kind": "hypothesis",
+      "title": "H1 Structured questions beat free chat for spec quality",
+      "props": {
+        "verdict": "open"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          14,
+          21
+        ]
+      }
+    },
+    {
+      "id": "hypothesis-h2",
+      "kind": "hypothesis",
+      "title": "H2 A committed representation executed by agents beats hand-driving an IDE agent",
+      "props": {
+        "verdict": "open"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      }
+    },
+    {
+      "id": "hypothesis-h3",
+      "kind": "hypothesis",
+      "title": "H3 An explicit reality loop causes real iteration",
+      "props": {
+        "verdict": "open"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          24,
+          25,
+          26
+        ]
+      }
+    },
+    {
+      "id": "hypothesis-h4",
+      "kind": "hypothesis",
+      "title": "H4 One ontology holds web app, course and info product",
+      "props": {
+        "verdict": "open"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          6,
+          17
+        ]
+      }
+    },
+    {
+      "id": "hypothesis-h5",
+      "kind": "hypothesis",
+      "title": "H5 Bropilot can describe itself with no special cases",
+      "props": {
+        "verdict": "open"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          10
+        ]
+      }
+    },
+    {
+      "id": "assumption-agents-capable",
+      "kind": "assumption",
+      "title": "Agents can act on a spec with limited supervision",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          27
+        ]
+      }
+    },
+    {
+      "id": "assumption-accept-constraints",
+      "kind": "assumption",
+      "title": "Users accept constraints in exchange for guidance",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          14
+        ]
+      }
+    },
+    {
+      "id": "assumption-representation-source",
+      "kind": "assumption",
+      "title": "The representation can stay the source of truth",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          22
+        ]
+      }
+    },
+    {
+      "id": "metric-first-commit",
+      "kind": "metric",
+      "title": "Time to first agent-executed commit",
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "reason": "Measure for outcome 'ships coherent'."
+      }
+    },
+    {
+      "id": "metric-verdicts",
+      "kind": "metric",
+      "title": "Share of hypotheses with a verdict",
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "reason": "Measure for outcome 'knows good'."
+      }
+    },
+    {
+      "id": "metric-post-launch-commits",
+      "kind": "metric",
+      "title": "Commits after first deploy",
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "reason": "Measure for outcome 'keeps improving'."
+      }
+    },
+    {
+      "id": "capability-guided-path",
+      "kind": "capability",
+      "title": "Guided articulation path",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          21
+        ]
+      }
+    },
+    {
+      "id": "capability-commit-gate",
+      "kind": "capability",
+      "title": "Effect preview and commit gate",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      }
+    },
+    {
+      "id": "capability-orchestration",
+      "kind": "capability",
+      "title": "Agent orchestration",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          27
+        ]
+      }
+    },
+    {
+      "id": "capability-templates",
+      "kind": "capability",
+      "title": "Templates and implementation styles",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          6,
+          17,
+          18
+        ]
+      }
+    },
+    {
+      "id": "capability-share",
+      "kind": "capability",
+      "title": "Share and export a system",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          38
+        ]
+      }
+    },
+    {
+      "id": "capability-reality",
+      "kind": "capability",
+      "title": "Reality observation (stub)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          24,
+          40
+        ]
+      }
+    },
+    {
+      "id": "capability-self-improve",
+      "kind": "capability",
+      "title": "Self-improvement (stub)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          28
+        ]
+      }
+    },
+    {
+      "id": "agent-strategist",
+      "kind": "agent",
+      "title": "Strategist",
+      "props": {
+        "status": "core"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          4
+        ]
+      }
+    },
+    {
+      "id": "agent-product-manager",
+      "kind": "agent",
+      "title": "Product manager",
+      "props": {
+        "status": "core"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          4
+        ]
+      }
+    },
+    {
+      "id": "agent-engineer",
+      "kind": "agent",
+      "title": "Engineer",
+      "props": {
+        "status": "core"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "reason": "Someone has to write the code; not named in the brief's list."
+      }
+    },
+    {
+      "id": "agent-domain-modeller",
+      "kind": "agent",
+      "title": "Domain modeller",
+      "props": {
+        "status": "stub"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "reason": "Owns vocabulary and rules (S31)."
+      }
+    },
+    {
+      "id": "agent-ux-researcher",
+      "kind": "agent",
+      "title": "UX researcher",
+      "props": {
+        "status": "stub"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          4
+        ]
+      }
+    },
+    {
+      "id": "agent-designer",
+      "kind": "agent",
+      "title": "Designer",
+      "props": {
+        "status": "stub"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          4,
+          37
+        ]
+      }
+    },
+    {
+      "id": "agent-marketer",
+      "kind": "agent",
+      "title": "Marketing specialist",
+      "props": {
+        "status": "stub"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          4,
+          34
+        ]
+      }
+    },
+    {
+      "id": "agent-educator",
+      "kind": "agent",
+      "title": "Educator / support",
+      "props": {
+        "status": "stub"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          7
+        ]
+      }
+    },
+    {
+      "id": "agent-meta",
+      "kind": "agent",
+      "title": "Meta (watches Bropilot itself)",
+      "props": {
+        "status": "stub"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          28
+        ]
+      }
+    },
+    {
+      "id": "summary-bropilot",
+      "kind": "summary",
+      "title": "Bropilot turns a hazy idea into a committed representation that an agent team can act on. You answer structured questions; each answer stages effects on a knowledge graph; you commit; agents build, deploy and measure; reality feeds back. Built to describe itself.",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          49,
+          50
+        ]
+      }
+    },
+    {
+      "id": "system-bropilot",
+      "kind": "system",
+      "title": "Bropilot",
+      "status": "committed",
+      "description": "The whole system as one bubble. Web app + local agent runtime; not meaningfully separate yet.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          56
+        ]
+      }
+    },
+    {
+      "id": "external-github",
+      "kind": "external",
+      "title": "GitHub",
+      "status": "committed",
+      "description": "Where code lives and where level-3 items point.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          39,
+          69
+        ]
+      }
+    },
+    {
+      "id": "external-flue",
+      "kind": "external",
+      "title": "Flue (agent runtime)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          3,
+          39
+        ]
+      }
+    },
+    {
+      "id": "external-llm",
+      "kind": "external",
+      "title": "LLM provider",
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "reason": "Agents need a model; the brief never names one."
+      }
+    },
+    {
+      "id": "external-deploy",
+      "kind": "external",
+      "title": "Cloudflare Workers",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          39
+        ]
+      }
+    },
+    {
+      "id": "module-representation",
+      "kind": "module",
+      "title": "Representation",
+      "status": "committed",
+      "description": "The graph: nodes, edges, kinds, spaces, glossary. Source of truth.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          23,
+          60
+        ]
+      }
+    },
+    {
+      "id": "module-definition",
+      "kind": "module",
+      "title": "Definition",
+      "status": "committed",
+      "description": "The question tree, answers and threads that grow the representation.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          21,
+          51,
+          52
+        ]
+      }
+    },
+    {
+      "id": "module-orchestration",
+      "kind": "module",
+      "title": "Orchestration",
+      "status": "committed",
+      "description": "Effects, changesets, commits, actions, agents.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          27
+        ]
+      }
+    },
+    {
+      "id": "module-reality",
+      "kind": "module",
+      "title": "Reality (stub)",
+      "status": "committed",
+      "description": "Deployed system, usage, evidence. Shape only.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          24,
+          40,
+          60
+        ]
+      }
+    },
+    {
+      "id": "module-metrics",
+      "kind": "module",
+      "title": "Metrics collection (stub)",
+      "status": "committed",
+      "description": "Turns reality into evidence: metric readings, test counts, verdicts.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          60,
+          67
+        ]
+      }
+    },
+    {
+      "id": "infra-localstorage",
+      "kind": "infra",
+      "title": "localStorage (bropilot:lfp:v1)",
+      "status": "committed",
+      "description": "Where the lfp persists graph, answers, commits.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          61
+        ]
+      }
+    },
+    {
+      "id": "thing-node",
+      "kind": "thing",
+      "title": "Node",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          43
+        ]
+      }
+    },
+    {
+      "id": "thing-edge",
+      "kind": "thing",
+      "title": "Edge",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          43
+        ]
+      }
+    },
+    {
+      "id": "thing-kind",
+      "kind": "thing",
+      "title": "Kind",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/kernel.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          6,
+          43
+        ]
+      }
+    },
+    {
+      "id": "thing-space",
+      "kind": "thing",
+      "title": "Space",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/kernel.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          23,
+          45
+        ]
+      }
+    },
+    {
+      "id": "thing-term",
+      "kind": "thing",
+      "title": "Term",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/kernel.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          31,
+          59
+        ]
+      }
+    },
+    {
+      "id": "thing-question",
+      "kind": "thing",
+      "title": "Question",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/kernel.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          21
+        ]
+      }
+    },
+    {
+      "id": "thing-answer",
+      "kind": "thing",
+      "title": "Answer",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          21
+        ]
+      }
+    },
+    {
+      "id": "thing-thread",
+      "kind": "thing",
+      "title": "Thread",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          52,
+          53
+        ]
+      }
+    },
+    {
+      "id": "thing-effect",
+      "kind": "thing",
+      "title": "Effect",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          21,
+          27
+        ]
+      }
+    },
+    {
+      "id": "thing-changeset",
+      "kind": "thing",
+      "title": "Changeset",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      }
+    },
+    {
+      "id": "thing-commit",
+      "kind": "thing",
+      "title": "Commit",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      }
+    },
+    {
+      "id": "thing-action",
+      "kind": "thing",
+      "title": "Action",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          27
+        ]
+      }
+    },
+    {
+      "id": "thing-agent",
+      "kind": "thing",
+      "title": "Agent",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          4,
+          5
+        ]
+      }
+    },
+    {
+      "id": "thing-evidence",
+      "kind": "thing",
+      "title": "Evidence",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          24,
+          25,
+          40
+        ]
+      }
+    },
+    {
+      "id": "thing-metric-reading",
+      "kind": "thing",
+      "title": "Metric reading",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          67
+        ]
+      }
+    },
+    {
+      "id": "term-representation-layer",
+      "kind": "term",
+      "title": "Representation layer",
+      "status": "committed",
+      "description": "Everything descriptive: problem, hypothesis, solution spaces. The source.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          23
+        ]
+      }
+    },
+    {
+      "id": "term-reality-layer",
+      "kind": "term",
+      "title": "Reality layer",
+      "status": "committed",
+      "description": "The coded, deployed, used system and what it emits.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          24
+        ]
+      }
+    },
+    {
+      "id": "term-effect",
+      "kind": "term",
+      "title": "Effect",
+      "status": "committed",
+      "description": "One staged change derived from an answer or an action.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          21,
+          27
+        ]
+      }
+    },
+    {
+      "id": "term-commit",
+      "kind": "term",
+      "title": "Commit",
+      "status": "committed",
+      "description": "Accepting a changeset; the only way things become real in the representation.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      }
+    },
+    {
+      "id": "term-thing",
+      "kind": "term",
+      "title": "Thing",
+      "status": "committed",
+      "description": "An entity in domain language; a noun.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          64
+        ]
+      }
+    },
+    {
+      "id": "term-rule",
+      "kind": "term",
+      "title": "Rule",
+      "status": "committed",
+      "description": "Logic about one or more things.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          64,
+          65
+        ]
+      }
+    },
+    {
+      "id": "term-space",
+      "kind": "term",
+      "title": "Space",
+      "status": "committed",
+      "description": "A column of the representation, enriched left to right.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          45
+        ]
+      }
+    },
+    {
+      "id": "rule-commit-gate",
+      "kind": "rule",
+      "title": "A node or edge becomes committed only through a Commit",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts",
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      }
+    },
+    {
+      "id": "rule-effect-provenance",
+      "kind": "rule",
+      "title": "Every Effect traces to exactly one Answer or Action",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts",
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "inferred",
+        "reason": "Structural rule I added; not in the brief."
+      }
+    },
+    {
+      "id": "rule-unlock",
+      "kind": "rule",
+      "title": "A Question unlocks only when all unlocksAfter have a committed Answer",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts",
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          20,
+          21
+        ]
+      }
+    },
+    {
+      "id": "rule-undo-whole",
+      "kind": "rule",
+      "title": "Undo reverts one whole Commit",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts",
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "inferred",
+        "reason": "Structural rule I added; not in the brief."
+      }
+    },
+    {
+      "id": "rule-kernel-additive",
+      "kind": "rule",
+      "title": "Templates add Kinds; they never remove kernel Kinds",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/kernel.ts",
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          6,
+          43
+        ]
+      }
+    },
+    {
+      "id": "rule-node-has-kind",
+      "kind": "rule",
+      "title": "Every Node has exactly one Kind; a Kind belongs to one Space",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/kernel.ts",
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          43
+        ]
+      }
+    },
+    {
+      "id": "rule-thread-parent",
+      "kind": "rule",
+      "title": "A Thread belongs to one Question; sub-questions are project-specific",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts",
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          52,
+          53
+        ]
+      }
+    },
+    {
+      "id": "rule-fixed-vocab",
+      "kind": "rule",
+      "title": "Committed Terms are used verbatim by other nodes",
+      "status": "committed",
+      "props": {
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          31
+        ]
+      }
+    },
+    {
+      "id": "interface-store-rpc",
+      "kind": "interface",
+      "title": "Store RPC: answer / commit / undo / exportJson",
+      "status": "committed",
+      "props": {
+        "style": "rpc",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          35
+        ]
+      }
+    },
+    {
+      "id": "interface-definition-ui",
+      "kind": "interface",
+      "title": "Definition screen",
+      "status": "committed",
+      "props": {
+        "style": "ui",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Definition.vue"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          36
+        ]
+      }
+    },
+    {
+      "id": "interface-domain-ui",
+      "kind": "interface",
+      "title": "Domain screen (C4 levels)",
+      "status": "committed",
+      "props": {
+        "style": "ui",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Domain.vue"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          56
+        ]
+      }
+    },
+    {
+      "id": "interface-agent-actions",
+      "kind": "interface",
+      "title": "Action queue for agents (stub)",
+      "status": "committed",
+      "props": {
+        "style": "events"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          35
+        ]
+      }
+    },
+    {
+      "id": "function-strategy",
+      "kind": "function",
+      "title": "Strategy",
+      "status": "committed",
+      "props": {
+        "stages": "all"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          5,
+          7
+        ]
+      }
+    },
+    {
+      "id": "function-product",
+      "kind": "function",
+      "title": "Product management",
+      "status": "committed",
+      "props": {
+        "stages": "build, use"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          5,
+          7
+        ]
+      }
+    },
+    {
+      "id": "function-engineering",
+      "kind": "function",
+      "title": "Engineering & deploy",
+      "status": "committed",
+      "props": {
+        "stages": "build, use"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          5,
+          7
+        ]
+      }
+    },
+    {
+      "id": "function-domain-modelling",
+      "kind": "function",
+      "title": "Domain modelling",
+      "status": "committed",
+      "props": {
+        "stages": "build"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          5,
+          7
+        ]
+      }
+    },
+    {
+      "id": "function-ux-research",
+      "kind": "function",
+      "title": "UX research",
+      "status": "committed",
+      "props": {
+        "stages": "use, support, retention"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          5,
+          7
+        ]
+      }
+    },
+    {
+      "id": "function-design",
+      "kind": "function",
+      "title": "Design & tone",
+      "status": "committed",
+      "props": {
+        "stages": "build, awareness"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          5,
+          7
+        ]
+      }
+    },
+    {
+      "id": "function-marketing",
+      "kind": "function",
+      "title": "Marketing",
+      "status": "committed",
+      "props": {
+        "stages": "awareness, acquisition"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          5,
+          7
+        ]
+      }
+    },
+    {
+      "id": "function-education",
+      "kind": "function",
+      "title": "Education & support",
+      "status": "committed",
+      "props": {
+        "stages": "onboarding, support"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          5,
+          7
+        ]
+      }
+    },
+    {
+      "id": "function-meta",
+      "kind": "function",
+      "title": "Observe Bropilot itself",
+      "status": "committed",
+      "props": {
+        "stages": "all"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          5,
+          7
+        ]
+      }
+    }
   ],
   "edges": [
-    { "id": "e1", "src": "purpose-self-sustaining", "dst": "outcome-ships-coherent", "type": "motivates" },
-    { "id": "e2", "src": "purpose-self-sustaining", "dst": "outcome-knows-good", "type": "motivates" },
-    { "id": "e3", "src": "purpose-self-sustaining", "dst": "outcome-keeps-improving", "type": "motivates" },
-    { "id": "e4", "src": "audience-untrained-builder", "dst": "problem-no-constraints", "type": "has" },
-    { "id": "e5", "src": "audience-untrained-builder", "dst": "problem-unstructured-articulation", "type": "has" },
-    { "id": "e6", "src": "audience-untrained-builder", "dst": "problem-functions-neglected", "type": "has" },
-    { "id": "e7", "src": "audience-trained-unstructured", "dst": "problem-unstructured-articulation", "type": "has" },
-    { "id": "e8", "src": "audience-trained-unstructured", "dst": "problem-no-real-world-effect", "type": "has" },
-    { "id": "e9", "src": "audience-untrained-builder", "dst": "context-hazy-idea", "type": "has" },
-    { "id": "e10", "src": "audience-untrained-builder", "dst": "usecase-describe-system", "type": "has" },
-    { "id": "e11", "src": "audience-untrained-builder", "dst": "usecase-share-system", "type": "has" },
-    { "id": "e12", "src": "metric-first-commit", "dst": "outcome-ships-coherent", "type": "monitors" },
-    { "id": "e13", "src": "metric-verdicts", "dst": "outcome-knows-good", "type": "monitors" },
-    { "id": "e14", "src": "metric-post-launch-commits", "dst": "outcome-keeps-improving", "type": "monitors" },
-    { "id": "e15", "src": "hypothesis-h1", "dst": "outcome-ships-coherent", "type": "references" },
-    { "id": "e16", "src": "hypothesis-h2", "dst": "outcome-ships-coherent", "type": "references" },
-    { "id": "e17", "src": "hypothesis-h3", "dst": "outcome-keeps-improving", "type": "references" },
-    { "id": "e18", "src": "hypothesis-h4", "dst": "capability-templates", "type": "references" },
-    { "id": "e19", "src": "hypothesis-h5", "dst": "outcome-knows-good", "type": "references" },
-    { "id": "e20", "src": "capability-guided-path", "dst": "audience-untrained-builder", "type": "serves" },
-    { "id": "e21", "src": "capability-guided-path", "dst": "problem-unstructured-articulation", "type": "satisfies" },
-    { "id": "e22", "src": "capability-guided-path", "dst": "problem-no-constraints", "type": "satisfies" },
-    { "id": "e23", "src": "capability-commit-gate", "dst": "audience-trained-unstructured", "type": "serves" },
-    { "id": "e24", "src": "capability-orchestration", "dst": "audience-agent-team", "type": "serves" },
-    { "id": "e25", "src": "capability-orchestration", "dst": "problem-functions-neglected", "type": "satisfies" },
-    { "id": "e26", "src": "capability-templates", "dst": "problem-no-constraints", "type": "satisfies" },
-    { "id": "e27", "src": "capability-share", "dst": "usecase-share-system", "type": "satisfies" },
-    { "id": "e28", "src": "capability-reality", "dst": "problem-no-real-world-effect", "type": "satisfies" },
-    { "id": "e29", "src": "capability-self-improve", "dst": "outcome-keeps-improving", "type": "serves" }
+    {
+      "id": "e1",
+      "src": "purpose-self-sustaining",
+      "dst": "outcome-ships-coherent",
+      "type": "motivates"
+    },
+    {
+      "id": "e2",
+      "src": "purpose-self-sustaining",
+      "dst": "outcome-knows-good",
+      "type": "motivates"
+    },
+    {
+      "id": "e3",
+      "src": "purpose-self-sustaining",
+      "dst": "outcome-keeps-improving",
+      "type": "motivates"
+    },
+    {
+      "id": "e4",
+      "src": "audience-untrained-builder",
+      "dst": "problem-no-constraints",
+      "type": "has"
+    },
+    {
+      "id": "e5",
+      "src": "audience-untrained-builder",
+      "dst": "problem-unstructured-articulation",
+      "type": "has"
+    },
+    {
+      "id": "e6",
+      "src": "audience-untrained-builder",
+      "dst": "problem-functions-neglected",
+      "type": "has"
+    },
+    {
+      "id": "e7",
+      "src": "audience-trained-unstructured",
+      "dst": "problem-unstructured-articulation",
+      "type": "has"
+    },
+    {
+      "id": "e8",
+      "src": "audience-trained-unstructured",
+      "dst": "problem-no-real-world-effect",
+      "type": "has"
+    },
+    {
+      "id": "e9",
+      "src": "audience-untrained-builder",
+      "dst": "context-hazy-idea",
+      "type": "has"
+    },
+    {
+      "id": "e10",
+      "src": "audience-untrained-builder",
+      "dst": "usecase-describe-system",
+      "type": "has"
+    },
+    {
+      "id": "e11",
+      "src": "audience-untrained-builder",
+      "dst": "usecase-share-system",
+      "type": "has"
+    },
+    {
+      "id": "e12",
+      "src": "metric-first-commit",
+      "dst": "outcome-ships-coherent",
+      "type": "monitors"
+    },
+    {
+      "id": "e13",
+      "src": "metric-verdicts",
+      "dst": "outcome-knows-good",
+      "type": "monitors"
+    },
+    {
+      "id": "e14",
+      "src": "metric-post-launch-commits",
+      "dst": "outcome-keeps-improving",
+      "type": "monitors"
+    },
+    {
+      "id": "e15",
+      "src": "hypothesis-h1",
+      "dst": "outcome-ships-coherent",
+      "type": "references"
+    },
+    {
+      "id": "e16",
+      "src": "hypothesis-h2",
+      "dst": "outcome-ships-coherent",
+      "type": "references"
+    },
+    {
+      "id": "e17",
+      "src": "hypothesis-h3",
+      "dst": "outcome-keeps-improving",
+      "type": "references"
+    },
+    {
+      "id": "e18",
+      "src": "hypothesis-h4",
+      "dst": "capability-templates",
+      "type": "references"
+    },
+    {
+      "id": "e19",
+      "src": "hypothesis-h5",
+      "dst": "outcome-knows-good",
+      "type": "references"
+    },
+    {
+      "id": "e20",
+      "src": "capability-guided-path",
+      "dst": "audience-untrained-builder",
+      "type": "serves"
+    },
+    {
+      "id": "e21",
+      "src": "capability-guided-path",
+      "dst": "problem-unstructured-articulation",
+      "type": "satisfies"
+    },
+    {
+      "id": "e22",
+      "src": "capability-guided-path",
+      "dst": "problem-no-constraints",
+      "type": "satisfies"
+    },
+    {
+      "id": "e23",
+      "src": "capability-commit-gate",
+      "dst": "audience-trained-unstructured",
+      "type": "serves"
+    },
+    {
+      "id": "e24",
+      "src": "capability-orchestration",
+      "dst": "audience-agent-team",
+      "type": "serves"
+    },
+    {
+      "id": "e25",
+      "src": "capability-orchestration",
+      "dst": "problem-functions-neglected",
+      "type": "satisfies"
+    },
+    {
+      "id": "e26",
+      "src": "capability-templates",
+      "dst": "problem-no-constraints",
+      "type": "satisfies"
+    },
+    {
+      "id": "e27",
+      "src": "capability-share",
+      "dst": "usecase-share-system",
+      "type": "satisfies"
+    },
+    {
+      "id": "e28",
+      "src": "capability-reality",
+      "dst": "problem-no-real-world-effect",
+      "type": "satisfies"
+    },
+    {
+      "id": "e29",
+      "src": "capability-self-improve",
+      "dst": "outcome-keeps-improving",
+      "type": "serves"
+    },
+    {
+      "id": "e30",
+      "src": "audience-untrained-builder",
+      "dst": "system-bropilot",
+      "type": "uses"
+    },
+    {
+      "id": "e31",
+      "src": "audience-trained-unstructured",
+      "dst": "system-bropilot",
+      "type": "uses"
+    },
+    {
+      "id": "e32",
+      "src": "system-bropilot",
+      "dst": "external-github",
+      "type": "uses"
+    },
+    {
+      "id": "e33",
+      "src": "system-bropilot",
+      "dst": "external-flue",
+      "type": "uses"
+    },
+    {
+      "id": "e34",
+      "src": "external-flue",
+      "dst": "external-llm",
+      "type": "uses"
+    },
+    {
+      "id": "e35",
+      "src": "system-bropilot",
+      "dst": "external-deploy",
+      "type": "uses"
+    },
+    {
+      "id": "e36",
+      "src": "audience-agent-team",
+      "dst": "external-flue",
+      "type": "uses"
+    },
+    {
+      "id": "e37",
+      "src": "system-bropilot",
+      "dst": "module-representation",
+      "type": "contains"
+    },
+    {
+      "id": "e38",
+      "src": "system-bropilot",
+      "dst": "module-definition",
+      "type": "contains"
+    },
+    {
+      "id": "e39",
+      "src": "system-bropilot",
+      "dst": "module-orchestration",
+      "type": "contains"
+    },
+    {
+      "id": "e40",
+      "src": "system-bropilot",
+      "dst": "module-reality",
+      "type": "contains"
+    },
+    {
+      "id": "e41",
+      "src": "system-bropilot",
+      "dst": "module-metrics",
+      "type": "contains"
+    },
+    {
+      "id": "e42",
+      "src": "module-representation",
+      "dst": "infra-localstorage",
+      "type": "contains"
+    },
+    {
+      "id": "e43",
+      "src": "module-definition",
+      "dst": "module-orchestration",
+      "type": "triggers"
+    },
+    {
+      "id": "e44",
+      "src": "module-orchestration",
+      "dst": "module-representation",
+      "type": "uses"
+    },
+    {
+      "id": "e45",
+      "src": "module-reality",
+      "dst": "module-metrics",
+      "type": "triggers"
+    },
+    {
+      "id": "e46",
+      "src": "module-metrics",
+      "dst": "module-representation",
+      "type": "uses"
+    },
+    {
+      "id": "e47",
+      "src": "module-orchestration",
+      "dst": "external-flue",
+      "type": "uses"
+    },
+    {
+      "id": "e48",
+      "src": "module-orchestration",
+      "dst": "external-github",
+      "type": "uses"
+    },
+    {
+      "id": "e49",
+      "src": "module-representation",
+      "dst": "thing-node",
+      "type": "contains"
+    },
+    {
+      "id": "e50",
+      "src": "module-representation",
+      "dst": "thing-edge",
+      "type": "contains"
+    },
+    {
+      "id": "e51",
+      "src": "module-representation",
+      "dst": "thing-kind",
+      "type": "contains"
+    },
+    {
+      "id": "e52",
+      "src": "module-representation",
+      "dst": "thing-space",
+      "type": "contains"
+    },
+    {
+      "id": "e53",
+      "src": "module-representation",
+      "dst": "thing-term",
+      "type": "contains"
+    },
+    {
+      "id": "e54",
+      "src": "module-definition",
+      "dst": "thing-question",
+      "type": "contains"
+    },
+    {
+      "id": "e55",
+      "src": "module-definition",
+      "dst": "thing-answer",
+      "type": "contains"
+    },
+    {
+      "id": "e56",
+      "src": "module-definition",
+      "dst": "thing-thread",
+      "type": "contains"
+    },
+    {
+      "id": "e57",
+      "src": "module-orchestration",
+      "dst": "thing-effect",
+      "type": "contains"
+    },
+    {
+      "id": "e58",
+      "src": "module-orchestration",
+      "dst": "thing-changeset",
+      "type": "contains"
+    },
+    {
+      "id": "e59",
+      "src": "module-orchestration",
+      "dst": "thing-commit",
+      "type": "contains"
+    },
+    {
+      "id": "e60",
+      "src": "module-orchestration",
+      "dst": "thing-action",
+      "type": "contains"
+    },
+    {
+      "id": "e61",
+      "src": "module-orchestration",
+      "dst": "thing-agent",
+      "type": "contains"
+    },
+    {
+      "id": "e62",
+      "src": "module-reality",
+      "dst": "thing-evidence",
+      "type": "contains"
+    },
+    {
+      "id": "e63",
+      "src": "module-metrics",
+      "dst": "thing-metric-reading",
+      "type": "contains"
+    },
+    {
+      "id": "e64",
+      "src": "term-effect",
+      "dst": "thing-effect",
+      "type": "defines"
+    },
+    {
+      "id": "e65",
+      "src": "term-commit",
+      "dst": "thing-commit",
+      "type": "defines"
+    },
+    {
+      "id": "e66",
+      "src": "term-thing",
+      "dst": "thing-node",
+      "type": "defines"
+    },
+    {
+      "id": "e67",
+      "src": "term-space",
+      "dst": "thing-space",
+      "type": "defines"
+    },
+    {
+      "id": "e68",
+      "src": "rule-commit-gate",
+      "dst": "thing-node",
+      "type": "governs"
+    },
+    {
+      "id": "e69",
+      "src": "rule-commit-gate",
+      "dst": "thing-edge",
+      "type": "governs"
+    },
+    {
+      "id": "e70",
+      "src": "rule-commit-gate",
+      "dst": "thing-commit",
+      "type": "governs"
+    },
+    {
+      "id": "e71",
+      "src": "module-representation",
+      "dst": "rule-commit-gate",
+      "type": "contains"
+    },
+    {
+      "id": "e72",
+      "src": "rule-effect-provenance",
+      "dst": "thing-effect",
+      "type": "governs"
+    },
+    {
+      "id": "e73",
+      "src": "rule-effect-provenance",
+      "dst": "thing-answer",
+      "type": "governs"
+    },
+    {
+      "id": "e74",
+      "src": "rule-effect-provenance",
+      "dst": "thing-action",
+      "type": "governs"
+    },
+    {
+      "id": "e75",
+      "src": "module-orchestration",
+      "dst": "rule-effect-provenance",
+      "type": "contains"
+    },
+    {
+      "id": "e76",
+      "src": "rule-unlock",
+      "dst": "thing-question",
+      "type": "governs"
+    },
+    {
+      "id": "e77",
+      "src": "rule-unlock",
+      "dst": "thing-answer",
+      "type": "governs"
+    },
+    {
+      "id": "e78",
+      "src": "module-definition",
+      "dst": "rule-unlock",
+      "type": "contains"
+    },
+    {
+      "id": "e79",
+      "src": "rule-undo-whole",
+      "dst": "thing-commit",
+      "type": "governs"
+    },
+    {
+      "id": "e80",
+      "src": "module-orchestration",
+      "dst": "rule-undo-whole",
+      "type": "contains"
+    },
+    {
+      "id": "e81",
+      "src": "rule-kernel-additive",
+      "dst": "thing-kind",
+      "type": "governs"
+    },
+    {
+      "id": "e82",
+      "src": "module-representation",
+      "dst": "rule-kernel-additive",
+      "type": "contains"
+    },
+    {
+      "id": "e83",
+      "src": "rule-node-has-kind",
+      "dst": "thing-node",
+      "type": "governs"
+    },
+    {
+      "id": "e84",
+      "src": "rule-node-has-kind",
+      "dst": "thing-kind",
+      "type": "governs"
+    },
+    {
+      "id": "e85",
+      "src": "rule-node-has-kind",
+      "dst": "thing-space",
+      "type": "governs"
+    },
+    {
+      "id": "e86",
+      "src": "module-representation",
+      "dst": "rule-node-has-kind",
+      "type": "contains"
+    },
+    {
+      "id": "e87",
+      "src": "rule-thread-parent",
+      "dst": "thing-thread",
+      "type": "governs"
+    },
+    {
+      "id": "e88",
+      "src": "rule-thread-parent",
+      "dst": "thing-question",
+      "type": "governs"
+    },
+    {
+      "id": "e89",
+      "src": "module-definition",
+      "dst": "rule-thread-parent",
+      "type": "contains"
+    },
+    {
+      "id": "e90",
+      "src": "rule-fixed-vocab",
+      "dst": "thing-term",
+      "type": "governs"
+    },
+    {
+      "id": "e91",
+      "src": "rule-fixed-vocab",
+      "dst": "thing-node",
+      "type": "governs"
+    },
+    {
+      "id": "e92",
+      "src": "module-representation",
+      "dst": "rule-fixed-vocab",
+      "type": "contains"
+    },
+    {
+      "id": "e93",
+      "src": "module-representation",
+      "dst": "interface-store-rpc",
+      "type": "exposes"
+    },
+    {
+      "id": "e94",
+      "src": "module-definition",
+      "dst": "interface-definition-ui",
+      "type": "exposes"
+    },
+    {
+      "id": "e95",
+      "src": "module-representation",
+      "dst": "interface-domain-ui",
+      "type": "exposes"
+    },
+    {
+      "id": "e96",
+      "src": "module-orchestration",
+      "dst": "interface-agent-actions",
+      "type": "exposes"
+    },
+    {
+      "id": "e97",
+      "src": "agent-strategist",
+      "dst": "function-strategy",
+      "type": "owns"
+    },
+    {
+      "id": "e98",
+      "src": "agent-product-manager",
+      "dst": "function-product",
+      "type": "owns"
+    },
+    {
+      "id": "e99",
+      "src": "agent-engineer",
+      "dst": "function-engineering",
+      "type": "owns"
+    },
+    {
+      "id": "e100",
+      "src": "agent-domain-modeller",
+      "dst": "function-domain-modelling",
+      "type": "owns"
+    },
+    {
+      "id": "e101",
+      "src": "agent-ux-researcher",
+      "dst": "function-ux-research",
+      "type": "owns"
+    },
+    {
+      "id": "e102",
+      "src": "agent-designer",
+      "dst": "function-design",
+      "type": "owns"
+    },
+    {
+      "id": "e103",
+      "src": "agent-marketer",
+      "dst": "function-marketing",
+      "type": "owns"
+    },
+    {
+      "id": "e104",
+      "src": "agent-educator",
+      "dst": "function-education",
+      "type": "owns"
+    },
+    {
+      "id": "e105",
+      "src": "agent-meta",
+      "dst": "function-meta",
+      "type": "owns"
+    },
+    {
+      "id": "e106",
+      "src": "assumption-agents-capable",
+      "dst": "hypothesis-h2",
+      "type": "references"
+    },
+    {
+      "id": "e107",
+      "src": "assumption-accept-constraints",
+      "dst": "hypothesis-h1",
+      "type": "references"
+    },
+    {
+      "id": "e108",
+      "src": "assumption-representation-source",
+      "dst": "hypothesis-h3",
+      "type": "references"
+    },
+    {
+      "id": "e109",
+      "src": "term-representation-layer",
+      "dst": "module-representation",
+      "type": "defines"
+    },
+    {
+      "id": "e110",
+      "src": "term-reality-layer",
+      "dst": "module-reality",
+      "type": "defines"
+    }
   ]
 }

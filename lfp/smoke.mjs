@@ -1,28 +1,46 @@
+// Smoke test for the lfp. Usage: BIN=<chromium binary> OUT=<dir> node smoke.mjs   (dev server on :5199)
 import { chromium } from 'playwright';
 const out = process.env.OUT ?? '/tmp';
 const b = await chromium.launch({ executablePath: process.env.BIN }); const p = await b.newPage({ viewport: { width: 1500, height: 950 } });
 const errors = []; p.on('pageerror', (e) => errors.push(e.message)); p.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
-await p.goto('http://localhost:5199/#board'); await p.waitForSelector('.card');
 const r = {};
-r.cards = await p.locator('.card').count(); r.cols = await p.locator('.col').count(); r.dogfood = await p.locator('.dogfood').innerText();
-await p.locator('.card').first().click(); r.inspectorTitle = await p.locator('.inspector h2').innerText();
-await p.screenshot({ path: `${out}/board.png` });
-await p.locator('nav button', { hasText: 'Path' }).click(); await p.waitForSelector('.q');
-r.qStates = await p.locator('.q .q-state').allInnerTexts();
-await p.locator('.q', { hasText: 'What must it be able to do' }).click();
-await p.fill('textarea', 'Explain the kernel to a newcomer\nRecord a decision with its quote');
+await p.goto('http://localhost:5199/#overview'); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForSelector('.card');
+r.overview = { cards: await p.locator('.card').count(), cols: await p.locator('.col').count(), dogfood: await p.locator('.dogfood').innerText(), basicsHidden: (await p.locator('.card', { hasText: 'Bropilot turns a hazy idea' }).count()) === 0 };
+await p.locator('button', { hasText: /basics/i }).first().click(); r.overview.basicsShownAfterToggle = await p.locator('.card', { hasText: 'Bropilot turns a hazy idea' }).count();
+await p.locator('.card').first().click(); await p.waitForSelector('.inspector');
+r.provFull = { quotes: await p.locator('.inspector .quote').count(), ctx: await p.locator('.inspector .ctx').count() };
+await p.locator('.inspector .more').first().click(); r.provFull.fullBrief = await p.locator('.inspector .full-brief').count();
+await p.locator('.prov.said').first().hover(); await p.waitForTimeout(150); r.hoverPop = await p.locator('.pop').count();
+await p.screenshot({ path: `${out}/overview.png` });
+// definition
+await p.goto('http://localhost:5199/#definition'); await p.waitForSelector('.q, [class*=tree]');
+r.definition = { roots: await p.getByText('template', { exact: true }).count() };
+await p.getByText('Who is it for?').first().click(); await p.waitForTimeout(100);
+p.once('dialog', (d) => d.accept('Which of them pays?'));
+await p.locator('button', { hasText: /sub-question/ }).first().click(); await p.waitForTimeout(150);
+r.definition.subAdded = await p.getByText('Which of them pays?').count();
+await p.getByText('Which of them pays?').first().click(); await p.waitForTimeout(100);
+await p.fill('textarea', 'Small teams with a budget');
 await p.locator('button', { hasText: 'Stage effects' }).click(); await p.waitForSelector('.effect');
-r.effects = await p.locator('.effect').count();
-await p.locator('button', { hasText: /^Commit/ }).click(); await p.waitForTimeout(200);
-r.commits = await p.locator('.history li').count();
-await p.screenshot({ path: `${out}/path.png` });
-await p.locator('nav button', { hasText: 'Board' }).click(); await p.waitForSelector('.card');
-r.cardsAfter = await p.locator('.card').count();
-await p.locator('nav button', { hasText: 'Path' }).click(); await p.locator('button', { hasText: 'Undo last' }).click(); await p.waitForTimeout(200);
-await p.locator('nav button', { hasText: 'Board' }).click(); await p.waitForSelector('.card'); r.cardsAfterUndo = await p.locator('.card').count();
-await p.locator('nav button', { hasText: 'Kernel' }).click(); await p.waitForSelector('table'); r.kernelRows = await p.locator('tbody tr').count();
-await p.locator('input[type=checkbox]').first().check(); r.inferredRows = await p.locator('tbody tr').count();
-await p.screenshot({ path: `${out}/kernel.png`, fullPage: false });
-await p.locator('nav button', { hasText: 'Flows' }).click(); await p.locator('.flow').first().click(); r.lit = await p.locator('.obj.lit').count(); r.untouched = await p.locator('.flows .warn').count() ? await p.locator('.flows .warn').innerText() : 'none';
-await p.screenshot({ path: `${out}/flows.png` });
+r.definition.effects = await p.locator('.effect').count();
+await p.locator('button', { hasText: /^Commit/ }).click(); await p.waitForTimeout(200); r.definition.commits = await p.locator('.history li').count();
+await p.screenshot({ path: `${out}/definition.png` });
+// domain
+await p.goto('http://localhost:5199/#domain'); await p.waitForTimeout(300);
+r.domain = { l1Text: (await p.locator('body').innerText()).includes('GitHub') };
+await p.screenshot({ path: `${out}/domain-l1.png` });
+await p.getByText('2. Modules').first().click(); await p.waitForTimeout(150); await p.screenshot({ path: `${out}/domain-l2.png` });
+r.domain.modules = await p.getByText('Representation', { exact: true }).count();
+await p.getByText('Inside a module').first().click(); await p.waitForTimeout(150);
+r.domain.things = await p.locator('.item-card').count();
+await p.locator('.item-card .title', { hasText: /^🔷 Node$/ }).first().click(); await p.waitForTimeout(150);
+r.domain.dimmedRulesAfterSelectingNode = await p.locator('.item-card.dim').count();
+r.domain.codeLinks = await p.locator('a[href*="github.com"]').count();
+await p.screenshot({ path: `${out}/domain-l3.png` });
+// glossary
+await p.locator('button', { hasText: 'Glossary' }).click(); await p.waitForTimeout(200);
+r.glossary = { terms: await p.getByText('Representation layer').count() };
+await p.screenshot({ path: `${out}/glossary.png` });
+// reference anchors
+await p.goto('http://localhost:5199/#kernel'); await p.waitForSelector('table'); r.anchors = (await p.locator('body').innerText()).includes('every statement anchors');
 r.errors = errors; console.log(JSON.stringify(r, null, 1)); await b.close();

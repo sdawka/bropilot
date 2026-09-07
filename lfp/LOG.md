@@ -2,6 +2,18 @@
 
 Newest first. One entry per loop iteration: what we looked at, what changed, what's next.
 
+## 2026-09-07 — v1 (feedback on v0 applied)
+- Renames: Board → **Overview**, Path → **Definition**, Kernel → **Domain**; the old kernel tables live on as **Reference**. Legacy `#board` / `#path` hashes redirect.
+- **Provenance in context** (S47, S48): `src/brief.ts` holds all three briefs verbatim plus one exact anchor per statement (S1–S70). Hovering a said-badge shows the sentence ±2; the inspector shows it inline and can expand the full brief with the quote highlighted. The Reference page reports any anchor that stops resolving (currently none).
+- **Basics**: new singular kind `summary` + question; Overview hides basics behind a "show basics" toggle in a compact project header (S49, S50).
+- **Definition** tree (S51–S54): template questions are immutable roots grouped by space; project-specific sub-questions and threads hang under them (`FollowUp` in the store, manual for now; AI-organised later). Answering a follow-up stages effects exactly like a root question.
+- **Domain** C4 levels (S56–S70): new kinds `system`, `external`, `module`(kernel), `infra`, `thing`, `rule`(kernel), `interface`(replaces `rpc`), `test`(stub), each with a `level`; new edges `governs`, `defines`; `LEVELS` and `NO_LEVEL_4` in kernel.ts. Level 1 context, level 2 modules with infra chips and inter-module arrows (as rows), level 3 things / rules / interface / tests with thing↔rule highlighting and `props.codeRef` links to GitHub. Answer to "am I missing something": flows/journeys and inter-module events are cross-cutting, not a level 4.
+- **Glossary** drawer on every page (S59); edits commit immediately (escape hatch Q5) and are undoable.
+- Seed grew to 97 nodes / 110 edges: Bropilot's own modules (Representation, Definition, Orchestration, Reality stub, Metrics stub), 15 things, 8 rules, 4 interfaces, 7 terms, 9 functions owned by the 9 agents. This closes the v0 orphan holes (assumptions now reference the hypotheses they underpin; agents own functions). New flows Q7, Q8, G1, T1, D1 close the "Layer/Kind touched by no flow" hole.
+- Smoke (`smoke.mjs`): all screens exercised; no console errors.
+- Open from the domain agent's review: `interface-domain-ui` sits under Representation (arguable); only 4 of 15 things have a defining glossary term; no `test` nodes yet.
+- Next: react to Overview and Definition first, then argue the Domain levels one at a time.
+
 ## 2026-09-07 — v0
 - Scaffolded lfp (Vite + Vue 3 + TS). Four screens: Board, Path, Kernel, Flows.
 - Kernel first cut: 5 representation spaces + 3 reality stubs; 22 kinds (13 kernel, 9 template); 15 edge types; 11 questions; 8 invariants; 21 flows; 15 kernel objects; 46-statement bank.
