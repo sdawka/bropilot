@@ -46,6 +46,12 @@ export const BRIEFS: Brief[] = [
     date: '2026-09-11',
     text: `So maybe this is part of our hypothesis as well (meta, for bropilot), but the intended user flow is to talk about the product the same way I'm doing now with you, and that should affect the representation layer and eventually culminate in changed or added tests, which then would start to get fulfilled.`,
   },
+  {
+    id: 'brief-7',
+    title: 'Effects, protocols, and the whole business',
+    date: '2026-09-11',
+    text: `And, yes, in effects, there are metric readings, usage events, user feedback, for sure. And maybe the user will have some compounding or combinations of metrics to define their own strategic goals. As for prior practices, protocols should be baked into the reality layer, Maybe they can have some good defaults in the representation layer. I'm not sure. I would need to think about this with examples. And, also, we are again narrowing ourselves to purely tech product. We should be thinking about all the aspects of business such as promotion, delivery. So sales and marketing and implementation, etcetera.`,
+  },
 ];
 
 /** Exact substrings (case-sensitive) of a brief, one per statement. */
@@ -56,6 +62,7 @@ export const ANCHORS: Record<number, string> = {
   78: 'We can keep separate specific testable versions', 79: 'on the whole, we have, let\'s say, representation and reality', 80: 'the reality layer is more temporal because we have current state, planned changes', 81: 'instead of future state, we actually have effects such as all the measurements', 82: 'They can just be bets that we want to make', 83: 'I want to see more connection between the problems and hypothesis and the solution', 84: 'I want the tree to be more of the focus and the inputs to be something a little more on the side',
   85: 'the current state is a combination of the actual codebase and references to that in the repository', 86: 'planned changes is like the epics in jira', 87: 'dispatch coding agents according to the changes needed', 88: 'with changed tests, we have super targeted coding agent tasks', 89: 'connect to the reality layer through tests', 90: 'for each condition, we have a test', 91: "if all of them are, we don't need changes", 92: 'the plan changes should involve which tests we are targeting', 93: 'the most simplest of tests that the module exists', 94: 'it should use the API surface, whether it\'s RPC or not', 95: 'tested with deterministic simulation testing', 96: 'best practices and protocols that go into the current state',
   97: 'the intended user flow is to talk about the product the same way I\'m doing now with you', 98: 'culminate in changed or added tests, which then would start to get fulfilled',
+  99: 'in effects, there are metric readings, usage events, user feedback', 100: 'compounding or combinations of metrics to define their own strategic goals', 101: 'protocols should be baked into the reality layer', 102: 'Maybe they can have some good defaults in the representation layer', 103: 'we are again narrowing ourselves to purely tech product', 104: 'promotion, delivery. So sales and marketing and implementation',
 };
 
 const SENTENCE_RE = /[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g;

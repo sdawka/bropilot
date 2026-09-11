@@ -2,6 +2,12 @@
 
 Newest first. One entry per loop iteration: what we looked at, what changed, what's next.
 
+## 2026-09-11 — v1.5 (effects, protocols, the whole business)
+- **Effects** kinds (S99): `metric-reading`, `usage-event` (product and business events alike: lead captured, deal closed), `feedback`; edge `measures`. **Goal** kind (S100) = a compound of metrics, edge `combines`; placed in Bets for now (open question).
+- **Protocols** stay in reality (S101). Whether the representation carries default protocols is an open question needing examples (S102); `OPEN_QUESTIONS` in kernel.ts, shown on Reference.
+- **Whole business, not just tech** (S103, S104): invariant `inv-whole-business`; features Sales and Delivery & implementation (Marketing renamed Marketing & promotion) with stub agents; stub modules Marketing & promotion, Sales, Delivery & implementation inside Bropilot; `asset` kind in current state for non-code artefacts. Open question: what is the "module exists" check for a sales module?
+- Seeded Bropilot's first effects: a metric reading (commits since reset), a usage event (briefs given), a feedback quote, one goal combining two metrics, one asset (the README).
+
 ## 2026-09-11 — v1.4 (the primary flow, as a bet)
 - **H7** (S97, S98): talking about the product, the way this loop works, changes the representation and culminates in changed or added tests that then get fulfilled. Meta: a bet about Bropilot's own primary flow.
 - **Flow U1** "Talk → representation → tests → fulfilled" is now the first, core flow; seeded as a `flow` node implementing the guided path and commit gate.

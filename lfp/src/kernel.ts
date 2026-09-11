@@ -113,6 +113,13 @@ export const STATEMENTS: Record<number, string> = {
   // ── the intended user flow, as a bet (2026-09-11) ──
   97: 'maybe this is part of our hypothesis as well (meta, for bropilot), but the intended user flow is to talk about the product the same way I\'m doing now with you, and that should affect the representation layer',
   98: 'eventually culminate in changed or added tests, which then would start to get fulfilled',
+  // ── effects, protocols, the whole business (2026-09-11) ──
+  99: 'in effects, there are metric readings, usage events, user feedback, for sure',
+  100: 'the user will have some compounding or combinations of metrics to define their own strategic goals',
+  101: 'protocols should be baked into the reality layer',
+  102: 'Maybe they can have some good defaults in the representation layer. I\'m not sure. I would need to think about this with examples',
+  103: 'we are again narrowing ourselves to purely tech product. We should be thinking about all the aspects of business',
+  104: 'promotion, delivery. So sales and marketing and implementation, etcetera',
 };
 
 // ── Layers & spaces ─────────────────────────────────────────────────────────
@@ -137,7 +144,7 @@ export const SPACES: SpaceDef[] = [
   { id: 'solution', label: 'Solution', layer: 'representation', order: 3, settled: false, hue: '#3fa9e0', blurb: 'Capabilities, features (one per would-be department), agents, journeys, domain, architecture, screens.', source: said(23, 31, 32, 33, 35, 36, 71, 72) },
   { id: 'current', label: 'Current state', layer: 'reality', order: 5, settled: false, hue: '#8a8f98', blurb: 'Code and references into the repository, infrastructure, practices and protocols, and the current test results.', source: said(24, 80, 85, 96) },
   { id: 'planned', label: 'Planned changes', layer: 'reality', order: 6, settled: false, hue: '#6f7f99', blurb: 'Epics and the super-targeted coding-agent tasks under them, each naming the tests it must turn green.', source: said(80, 86, 88, 92) },
-  { id: 'effects', label: 'Effects', layer: 'reality', order: 7, settled: false, hue: '#5b8c7a', blurb: 'Measurements, usage, feedback: what confirms or denies the bets. STUB.', source: said(25, 81) },
+  { id: 'effects', label: 'Effects', layer: 'reality', order: 7, settled: false, hue: '#5b8c7a', blurb: 'Metric readings, usage events, user feedback, evidence: what confirms or denies the bets.', source: said(25, 81, 99) },
 ];
 
 export const REPRESENTATION_SPACES = SPACES.filter((s) => s.layer === 'representation');
@@ -173,6 +180,7 @@ export const KINDS: KindDef[] = [
   // hypothesis
   { id: 'hypothesis', label: 'Bet', plural: 'Bets', space: 'hypothesis', icon: '🎲', kernel: true, blurb: 'A bet linking what we build to an outcome; some are specific and testable, some are just bets.', fields: [{ key: 'verdict', label: 'Verdict', type: 'select', options: ['open', 'supported', 'refuted'] }], source: said(25, 30, 78, 82) },
   { id: 'assumption', label: 'Assumption', plural: 'Assumptions', space: 'hypothesis', icon: '💭', kernel: true, blurb: 'Taken as true until reality says otherwise.', source: said(30) },
+  { id: 'goal', label: 'Goal', plural: 'Strategic goals', space: 'hypothesis', icon: '🏁', kernel: true, blurb: 'A strategic goal the user defines as a compound or combination of metrics.', source: said(100) },
   { id: 'metric', label: 'Metric', plural: 'Metrics', space: 'hypothesis', icon: '📏', kernel: true, blurb: 'How an outcome or hypothesis will be measured.', source: inferred('Outcomes and hypothesis validation (S15, S25) need a named measure; the brief never says "metric".') },
   // solution (kernel core; template kinds come as we reach this column)
   { id: 'capability', label: 'Capability', plural: 'Capabilities', space: 'solution', icon: '⚡', kernel: true, blurb: 'A high-level thing the system can do.', source: said(30) },
@@ -198,11 +206,15 @@ export const KINDS: KindDef[] = [
   { id: 'codebase', label: 'Code', plural: 'Code', space: 'current', icon: '💾', kernel: true, blurb: 'A reference into the repository: a module, file or block as it actually exists.', source: said(85) },
   { id: 'infrastructure', label: 'Infrastructure', plural: 'Infrastructure', space: 'current', icon: '🏗️', kernel: true, blurb: 'What is actually provisioned and running.', source: said(96) },
   { id: 'practice', label: 'Practice', plural: 'Practices & protocols', space: 'current', icon: '📋', kernel: true, fields: [{ key: 'form', label: 'Form', type: 'select', options: ['protocol', 'process flow', 'CI'] }], blurb: 'Best practices and protocols in force: process flows, CI, conventions.', source: said(96) },
+  { id: 'asset', label: 'Asset', plural: 'Assets', space: 'current', icon: '🗃️', kernel: true, fields: [{ key: 'form', label: 'Form' }], blurb: 'A non-code artefact in force: landing page, pitch deck, price list, contract template, onboarding guide.', source: said(103, 104) },
   { id: 'test-result', label: 'Test result', plural: 'Test results', space: 'current', icon: '✅', kernel: true, fields: [{ key: 'status', label: 'Status', type: 'select', options: ['pass', 'fail', 'missing'] }], blurb: 'Whether a test is fulfilled in reality right now.', source: said(91) },
   // reality · planned changes (S86–S88, S92)
   { id: 'epic', label: 'Epic', plural: 'Epics', space: 'planned', icon: '🗂️', kernel: true, blurb: 'A planned change, Jira-epic sized; exists only because some tests are not fulfilled.', source: said(86, 92) },
   { id: 'task', label: 'Task', plural: 'Tasks', space: 'planned', icon: '🎯', kernel: true, fields: [{ key: 'status', label: 'Status', type: 'select', options: ['queued', 'running', 'done', 'failed'] }], blurb: 'A super-targeted coding-agent task: names the tests it must turn green.', source: said(87, 88) },
-  // reality · effects
+  // reality · effects (S99)
+  { id: 'metric-reading', label: 'Metric reading', plural: 'Metric readings', space: 'effects', icon: '📈', kernel: true, fields: [{ key: 'value', label: 'Value' }, { key: 'at', label: 'When' }], blurb: 'A value of a metric at a time; business metrics as much as product ones.', source: said(99) },
+  { id: 'usage-event', label: 'Usage event', plural: 'Usage events', space: 'effects', icon: '👣', kernel: true, blurb: 'Something a user or customer did: a click, a signup, a lead captured, a deal closed, an invoice paid.', source: said(99, 104) },
+  { id: 'feedback', label: 'Feedback', plural: 'User feedback', space: 'effects', icon: '💬', kernel: true, blurb: 'What users and customers said, in their words.', source: said(99) },
   { id: 'evidence', label: 'Evidence', plural: 'Evidence', space: 'effects', icon: '🧾', kernel: true, fields: [{ key: 'verdict', label: 'Verdict', type: 'select', options: ['supports', 'refutes', 'mixed'] }], blurb: 'An observation from reality tied to a bet or metric.', source: said(24, 25, 40, 81) },
 ];
 
@@ -229,6 +241,8 @@ export const EDGE_TYPES: EdgeTypeDef[] = [
   { id: 'contains', label: 'contains', category: 'structural', kernel: true, hint: 'Composition (screen contains component).', source: said(36) },
   { id: 'exposes', label: 'exposes', category: 'structural', kernel: true, hint: 'Module exposes an interface.', source: said(35, 68) },
   { id: 'emits', label: 'emits', category: 'behavioural', kernel: true, hint: 'Produces an event (interface or rule emits event).', source: inferred('Events (S74) need a producer edge; the brief does not name it.') },
+  { id: 'combines', label: 'combines', category: 'structural', kernel: true, hint: 'Goal combines metrics.', source: said(100) },
+  { id: 'measures', label: 'measures', category: 'verification', kernel: true, hint: 'Metric reading measures a metric; usage events and feedback measure an outcome or feature.', source: said(99) },
   { id: 'targets', label: 'targets', category: 'orchestration', kernel: true, hint: 'Task or epic targets the tests it must turn green.', source: said(88, 92) },
   { id: 'reports', label: 'reports', category: 'verification', kernel: true, hint: 'Test result reports on a test (reality → representation).', source: said(91) },
   { id: 'realises', label: 'realises', category: 'structural', kernel: true, hint: 'Actual code realises a solution-space module or item (current state → solution).', source: said(85) },
@@ -303,7 +317,16 @@ export const INVARIANTS: Invariant[] = [
   { id: 'inv-green-means-done', text: 'If every test result is pass, there are no planned changes. Any fail or missing result must be targeted by a task.', source: said(91, 92) },
   { id: 'inv-test-ladder', text: 'Tests climb a ladder: the module exists (health check) → its API surface → deterministic simulation.', source: said(93, 94, 95) },
   { id: 'inv-module-boundary', text: 'Modules keep boundaries strict enough to be tested by deterministic simulation.', source: said(95) },
+  { id: 'inv-whole-business', text: 'Modules, tests and effects cover every aspect of the business — promotion, sales, marketing, delivery, implementation — not just the tech product.', source: said(103, 104) },
   { id: 'inv-dogfood', text: 'Bropilot must be describable in Bropilot with no special cases.', source: said(10, 46) },
+];
+
+// ── Open questions (decided later, with examples) ──────────────────────────
+export interface OpenQuestion { id: string; text: string; source: Provenance }
+export const OPEN_QUESTIONS: OpenQuestion[] = [
+  { id: 'open-protocol-defaults', text: 'Protocols live in reality. Should the representation carry good default protocols (intent), so reality can be checked against them? Needs examples.', source: said(101, 102) },
+  { id: 'open-goal-space', text: 'Goals (compounds of metrics) sit in the Bets space for now; they may deserve their own place next to outcomes.', source: inferred('Placement is my choice; the brief only says users define them from metrics.') },
+  { id: 'open-business-tests', text: 'What is the "module exists" health check for a sales or marketing module? A live landing page? A measured funnel?', source: said(93, 104) },
 ];
 
 // ── Flows ───────────────────────────────────────────────────────────────────

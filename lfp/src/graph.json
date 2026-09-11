@@ -1303,7 +1303,7 @@
     {
       "id": "feature-marketing",
       "kind": "feature",
-      "title": "Marketing",
+      "title": "Marketing & promotion",
       "status": "committed",
       "props": {
         "stages": "awareness, acquisition"
@@ -2033,6 +2033,179 @@
       "description": "First evidence for H7, from Bropilot's own development on 2026-09-07 → 09-11.",
       "props": {
         "verdict": "supports"
+      }
+    },
+    {
+      "id": "feature-sales",
+      "kind": "feature",
+      "title": "Sales",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          103,
+          104
+        ]
+      },
+      "props": {
+        "stages": "acquisition"
+      }
+    },
+    {
+      "id": "agent-sales",
+      "kind": "agent",
+      "title": "Sales specialist",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          104
+        ]
+      },
+      "props": {
+        "status": "stub"
+      }
+    },
+    {
+      "id": "module-sales",
+      "kind": "module",
+      "title": "Sales (stub)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          103,
+          104
+        ]
+      },
+      "description": "A business domain, not a tech one. Same rules: things, rules, tests, interface."
+    },
+    {
+      "id": "feature-delivery",
+      "kind": "feature",
+      "title": "Delivery & implementation",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          103,
+          104
+        ]
+      },
+      "props": {
+        "stages": "onboarding, use"
+      }
+    },
+    {
+      "id": "agent-delivery",
+      "kind": "agent",
+      "title": "Delivery / implementation lead",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          104
+        ]
+      },
+      "props": {
+        "status": "stub"
+      }
+    },
+    {
+      "id": "module-delivery",
+      "kind": "module",
+      "title": "Delivery & implementation (stub)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          103,
+          104
+        ]
+      },
+      "description": "A business domain, not a tech one. Same rules: things, rules, tests, interface."
+    },
+    {
+      "id": "module-marketing",
+      "kind": "module",
+      "title": "Marketing & promotion (stub)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          104
+        ]
+      },
+      "description": "Funnels, leads, content. A business domain module."
+    },
+    {
+      "id": "goal-self-sustaining",
+      "kind": "goal",
+      "title": "Self-sustaining: users keep committing after launch and bets keep getting verdicts",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          100
+        ]
+      },
+      "description": "A compound of two metrics."
+    },
+    {
+      "id": "metric-reading-commits",
+      "kind": "metric-reading",
+      "title": "Commits on v4 since the reset: 12",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          99
+        ]
+      },
+      "props": {
+        "value": "12",
+        "at": "2026-09-11"
+      }
+    },
+    {
+      "id": "usage-event-briefs",
+      "kind": "usage-event",
+      "title": "7 briefs given through this loop",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          99
+        ]
+      }
+    },
+    {
+      "id": "feedback-provenance",
+      "kind": "feedback",
+      "title": "\"I like the provenance with the specific utterances\"",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          47,
+          99
+        ]
+      }
+    },
+    {
+      "id": "asset-readme",
+      "kind": "asset",
+      "title": "lfp/README.md (how to run and what the screens are)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          104
+        ]
+      },
+      "props": {
+        "form": "guide",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/README.md"
       }
     }
   ],
@@ -3320,6 +3493,108 @@
       "src": "flow-talk-to-tests",
       "dst": "test-page-loads",
       "type": "references"
+    },
+    {
+      "id": "e217",
+      "src": "feature-sales",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e218",
+      "src": "agent-sales",
+      "dst": "feature-sales",
+      "type": "implements"
+    },
+    {
+      "id": "e219",
+      "src": "capability-orchestration",
+      "dst": "agent-sales",
+      "type": "has"
+    },
+    {
+      "id": "e220",
+      "src": "system-bropilot",
+      "dst": "module-sales",
+      "type": "contains"
+    },
+    {
+      "id": "e221",
+      "src": "feature-delivery",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e222",
+      "src": "agent-delivery",
+      "dst": "feature-delivery",
+      "type": "implements"
+    },
+    {
+      "id": "e223",
+      "src": "capability-orchestration",
+      "dst": "agent-delivery",
+      "type": "has"
+    },
+    {
+      "id": "e224",
+      "src": "system-bropilot",
+      "dst": "module-delivery",
+      "type": "contains"
+    },
+    {
+      "id": "e225",
+      "src": "system-bropilot",
+      "dst": "module-marketing",
+      "type": "contains"
+    },
+    {
+      "id": "e226",
+      "src": "module-marketing",
+      "dst": "module-metrics",
+      "type": "triggers"
+    },
+    {
+      "id": "e227",
+      "src": "goal-self-sustaining",
+      "dst": "metric-post-launch-commits",
+      "type": "combines"
+    },
+    {
+      "id": "e228",
+      "src": "goal-self-sustaining",
+      "dst": "metric-verdicts",
+      "type": "combines"
+    },
+    {
+      "id": "e229",
+      "src": "goal-self-sustaining",
+      "dst": "outcome-keeps-improving",
+      "type": "references"
+    },
+    {
+      "id": "e230",
+      "src": "metric-reading-commits",
+      "dst": "metric-post-launch-commits",
+      "type": "measures"
+    },
+    {
+      "id": "e231",
+      "src": "usage-event-briefs",
+      "dst": "flow-talk-to-tests",
+      "type": "measures"
+    },
+    {
+      "id": "e232",
+      "src": "feedback-provenance",
+      "dst": "screen-inspector",
+      "type": "measures"
+    },
+    {
+      "id": "e233",
+      "src": "repository-bropilot",
+      "dst": "asset-readme",
+      "type": "contains"
     }
   ]
 }
