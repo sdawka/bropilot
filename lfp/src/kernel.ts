@@ -120,6 +120,12 @@ export const STATEMENTS: Record<number, string> = {
   102: 'Maybe they can have some good defaults in the representation layer. I\'m not sure. I would need to think about this with examples',
   103: 'we are again narrowing ourselves to purely tech product. We should be thinking about all the aspects of business',
   104: 'promotion, delivery. So sales and marketing and implementation, etcetera',
+  // ── resolving the open questions (2026-09-11) ──
+  105: 'We have a representation of how we want to enact our representation',
+  106: 'maybe PR gates, maybe regular security audits, maybe change logs as blog posts for the marketing page',
+  107: 'This area in a way will become our sort of customized product automation zone',
+  108: 'the goals are more outcomes that we want. It might be for ourselves as the business as well',
+  109: 'a basic existence check is the first usual test',
 };
 
 // ── Layers & spaces ─────────────────────────────────────────────────────────
@@ -176,11 +182,11 @@ export const KINDS: KindDef[] = [
   { id: 'context', label: 'Context', plural: 'Contexts', space: 'problem', icon: '🌍', kernel: true, blurb: 'The situation an audience is in when the problem shows up.', source: said(30) },
   { id: 'usecase', label: 'Use case', plural: 'Use cases', space: 'problem', icon: '🎬', kernel: true, blurb: 'Something an audience is trying to get done.', source: said(30) },
   { id: 'problem', label: 'Problem', plural: 'Problems', space: 'problem', icon: '🧨', kernel: true, blurb: 'What stands in their way today.', source: said(30) },
-  { id: 'outcome', label: 'Outcome', plural: 'Outcomes', space: 'problem', icon: '🌟', kernel: true, blurb: 'The change we want for the audience. Should be measurable.', fields: [{ key: 'metric', label: 'Success metric' }], source: said(15, 30) },
+  { id: 'outcome', label: 'Outcome', plural: 'Outcomes', space: 'problem', icon: '🌟', kernel: true, blurb: 'The change we want for the audience. Should be measurable.', fields: [{ key: 'metric', label: 'Success metric' }, { key: 'for', label: 'For', type: 'select', options: ['audience', 'business'] }], source: said(15, 30, 108) },
   // hypothesis
   { id: 'hypothesis', label: 'Bet', plural: 'Bets', space: 'hypothesis', icon: '🎲', kernel: true, blurb: 'A bet linking what we build to an outcome; some are specific and testable, some are just bets.', fields: [{ key: 'verdict', label: 'Verdict', type: 'select', options: ['open', 'supported', 'refuted'] }], source: said(25, 30, 78, 82) },
   { id: 'assumption', label: 'Assumption', plural: 'Assumptions', space: 'hypothesis', icon: '💭', kernel: true, blurb: 'Taken as true until reality says otherwise.', source: said(30) },
-  { id: 'goal', label: 'Goal', plural: 'Strategic goals', space: 'hypothesis', icon: '🏁', kernel: true, blurb: 'A strategic goal the user defines as a compound or combination of metrics.', source: said(100) },
+  { id: 'goal', label: 'Goal', plural: 'Strategic goals', space: 'problem', icon: '🏁', kernel: true, fields: [{ key: 'for', label: 'For', type: 'select', options: ['audience', 'business'] }], blurb: 'An outcome we want, stated as a compound of metrics; for the audience or for ourselves as the business.', source: said(100, 108) },
   { id: 'metric', label: 'Metric', plural: 'Metrics', space: 'hypothesis', icon: '📏', kernel: true, blurb: 'How an outcome or hypothesis will be measured.', source: inferred('Outcomes and hypothesis validation (S15, S25) need a named measure; the brief never says "metric".') },
   // solution (kernel core; template kinds come as we reach this column)
   { id: 'capability', label: 'Capability', plural: 'Capabilities', space: 'solution', icon: '⚡', kernel: true, blurb: 'A high-level thing the system can do.', source: said(30) },
@@ -196,6 +202,7 @@ export const KINDS: KindDef[] = [
   { id: 'rule', label: 'Rule', plural: 'Rules', space: 'solution', icon: '⚖️', kernel: true, level: 3, fields: [{ key: 'tests', label: 'Tests (pos/neg)' }], blurb: 'Logic about one or more things, from hasMany to expectations. Should be tested both ways.', source: said(31, 64, 65, 66, 67) },
   { id: 'interface', label: 'Interface', plural: 'Interfaces', space: 'solution', icon: '🔌', kernel: true, level: 3, fields: [{ key: 'style', label: 'Style', type: 'select', options: ['rpc', 'rest', 'ui', 'events'] }], blurb: 'The API a module exposes; REST, RPC, UI or events.', source: said(35, 68) },
   { id: 'event', label: 'Event', plural: 'Events', space: 'solution', icon: '⚡', kernel: true, level: 3, blurb: 'Something notable that happened; a past-tense fact in the vocabulary.', source: said(74) },
+  { id: 'protocol', label: 'Protocol', plural: 'Protocols', space: 'solution', icon: '🛡️', kernel: true, level: 3, fields: [{ key: 'cadence', label: 'Cadence' }], blurb: 'How we want to enact the representation: PR gates, regular security audits, changelogs as blog posts. Reality\'s practices realise them. The product automation zone.', source: said(105, 106, 107) },
   { id: 'test', label: 'Test', plural: 'Tests', space: 'solution', icon: '🧪', kernel: true, level: 3, fields: [{ key: 'ladder', label: 'Ladder', type: 'select', options: ['exists', 'surface', 'simulation'] }], blurb: 'The bridge to reality: one per condition in a rule. Ladder: module exists (health check) → API surface → deterministic simulation.', source: said(67, 89, 90, 93, 94, 95) },
   { id: 'screen', label: 'Screen', plural: 'Screens', space: 'solution', icon: '🖼️', kernel: false, blurb: 'A user interface; composed of layouts and components.', source: said(36) },
   { id: 'design-system', label: 'Design system', plural: 'Design system', space: 'solution', icon: '🎨', kernel: false, singular: true, blurb: 'Guides product and marketing material, including tone.', source: said(37) },
@@ -297,7 +304,7 @@ export const LEVELS: LevelDef[] = [
   { level: 0, label: 'Map', blurb: 'Representation (problem, bets, solution) on one side; Reality (current state, planned changes, effects) on the other. Solution links into planned changes; effects confirm or deny the bets.', kinds: [], source: said(79, 80, 81) },
   { level: 1, label: 'Context', blurb: 'The real world as people talk about it: our system as a bubble, the people outside it, other systems.', kinds: ['system', 'audience', 'external'], source: said(56, 57) },
   { level: 2, label: 'Modules', blurb: 'Inside the system: meaningfully different business domains, with their dedicated infra. Arrows are calls or events between them; flows run across them.', kinds: ['module', 'infra'], source: said(58, 60, 61) },
-  { level: 3, label: 'Inside a module', blurb: 'Things (nouns), rules (logic about things and their relationships), events (past-tense facts), the interface it exposes, and the tests that prove the rules. Each points at code.', kinds: ['thing', 'rule', 'event', 'interface', 'test'], source: said(63, 64, 65, 68, 69, 74) },
+  { level: 3, label: 'Inside a module', blurb: 'Things (nouns), rules (logic about things and their relationships), events (past-tense facts), the interface it exposes, and the tests that prove the rules. Each points at code.', kinds: ['thing', 'rule', 'event', 'interface', 'protocol', 'test'], source: said(63, 64, 65, 68, 69, 74, 105) },
 ];
 export const NO_LEVEL_4: Provenance = said(70);
 
@@ -315,18 +322,19 @@ export const INVARIANTS: Invariant[] = [
   { id: 'inv-code-ref', text: 'Every level-3 item may carry props.codeRef, a URL to the file or block on GitHub that implements it.', source: said(69) },
   { id: 'inv-rule-has-test', text: 'Every rule has at least one test per condition; tests are how the representation connects to reality.', source: said(89, 90) },
   { id: 'inv-green-means-done', text: 'If every test result is pass, there are no planned changes. Any fail or missing result must be targeted by a task.', source: said(91, 92) },
-  { id: 'inv-test-ladder', text: 'Tests climb a ladder: the module exists (health check) → its API surface → deterministic simulation.', source: said(93, 94, 95) },
+  { id: 'inv-test-ladder', text: 'Tests climb a ladder: a basic existence check first, for every module including business ones → its API surface → deterministic simulation.', source: said(93, 94, 95, 109) },
+  { id: 'inv-protocol-realised', text: 'Every protocol in the representation is realised by a practice in reality, or its absence is a planned change.', source: said(101, 105) },
   { id: 'inv-module-boundary', text: 'Modules keep boundaries strict enough to be tested by deterministic simulation.', source: said(95) },
   { id: 'inv-whole-business', text: 'Modules, tests and effects cover every aspect of the business — promotion, sales, marketing, delivery, implementation — not just the tech product.', source: said(103, 104) },
   { id: 'inv-dogfood', text: 'Bropilot must be describable in Bropilot with no special cases.', source: said(10, 46) },
 ];
 
 // ── Open questions (decided later, with examples) ──────────────────────────
-export interface OpenQuestion { id: string; text: string; source: Provenance }
+export interface OpenQuestion { id: string; text: string; source: Provenance; resolved?: { text: string; source: Provenance } }
 export const OPEN_QUESTIONS: OpenQuestion[] = [
-  { id: 'open-protocol-defaults', text: 'Protocols live in reality. Should the representation carry good default protocols (intent), so reality can be checked against them? Needs examples.', source: said(101, 102) },
-  { id: 'open-goal-space', text: 'Goals (compounds of metrics) sit in the Bets space for now; they may deserve their own place next to outcomes.', source: inferred('Placement is my choice; the brief only says users define them from metrics.') },
-  { id: 'open-business-tests', text: 'What is the "module exists" health check for a sales or marketing module? A live landing page? A measured funnel?', source: said(93, 104) },
+  { id: 'open-protocol-defaults', text: 'Protocols live in reality. Should the representation carry good default protocols (intent), so reality can be checked against them? Needs examples.', source: said(101, 102), resolved: { text: 'Yes: the `protocol` kind in the solution space is how we want to enact the representation (PR gates, security audits, changelog blog posts); reality\'s practices realise them. This is the product automation zone.', source: said(105, 106, 107) } },
+  { id: 'open-goal-space', text: 'Goals (compounds of metrics) sit in the Bets space for now; they may deserve their own place next to outcomes.', source: inferred('Placement is my choice; the brief only says users define them from metrics.'), resolved: { text: 'Goals are outcomes we want, moved to the problem space next to outcomes; they can be for the audience or for the business itself.', source: said(108) } },
+  { id: 'open-business-tests', text: 'What is the "module exists" health check for a sales or marketing module? A live landing page? A measured funnel?', source: said(93, 104), resolved: { text: 'A basic existence check is the first test for every module, business ones included.', source: said(109) } },
 ];
 
 // ── Flows ───────────────────────────────────────────────────────────────────

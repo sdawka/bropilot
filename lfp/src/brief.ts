@@ -52,6 +52,12 @@ export const BRIEFS: Brief[] = [
     date: '2026-09-11',
     text: `And, yes, in effects, there are metric readings, usage events, user feedback, for sure. And maybe the user will have some compounding or combinations of metrics to define their own strategic goals. As for prior practices, protocols should be baked into the reality layer, Maybe they can have some good defaults in the representation layer. I'm not sure. I would need to think about this with examples. And, also, we are again narrowing ourselves to purely tech product. We should be thinking about all the aspects of business such as promotion, delivery. So sales and marketing and implementation, etcetera.`,
   },
+  {
+    id: 'brief-8',
+    title: 'Resolving the three open questions',
+    date: '2026-09-11',
+    text: `Yes. Actually, that makes sense. We have a representation of how we want to enact our representation, and that involves, just like you said, maybe PR gates, maybe regular security audits, um, maybe change logs as blog posts for the marketing page. This area in a way will become our sort of customized product automation zone. for the second, yeah, the goals are more outcomes that we want. It might be for ourselves as the business as well. And for the third, yes, a basic existence check is the first usual test, I would say.`,
+  },
 ];
 
 /** Exact substrings (case-sensitive) of a brief, one per statement. */
@@ -63,6 +69,7 @@ export const ANCHORS: Record<number, string> = {
   85: 'the current state is a combination of the actual codebase and references to that in the repository', 86: 'planned changes is like the epics in jira', 87: 'dispatch coding agents according to the changes needed', 88: 'with changed tests, we have super targeted coding agent tasks', 89: 'connect to the reality layer through tests', 90: 'for each condition, we have a test', 91: "if all of them are, we don't need changes", 92: 'the plan changes should involve which tests we are targeting', 93: 'the most simplest of tests that the module exists', 94: 'it should use the API surface, whether it\'s RPC or not', 95: 'tested with deterministic simulation testing', 96: 'best practices and protocols that go into the current state',
   97: 'the intended user flow is to talk about the product the same way I\'m doing now with you', 98: 'culminate in changed or added tests, which then would start to get fulfilled',
   99: 'in effects, there are metric readings, usage events, user feedback', 100: 'compounding or combinations of metrics to define their own strategic goals', 101: 'protocols should be baked into the reality layer', 102: 'Maybe they can have some good defaults in the representation layer', 103: 'we are again narrowing ourselves to purely tech product', 104: 'promotion, delivery. So sales and marketing and implementation',
+  105: 'We have a representation of how we want to enact our representation', 106: 'maybe PR gates, maybe regular security audits, um, maybe change logs as blog posts for the marketing page', 107: 'customized product automation zone', 108: 'the goals are more outcomes that we want. It might be for ourselves as the business as well', 109: 'a basic existence check is the first usual test',
 };
 
 const SENTENCE_RE = /[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g;

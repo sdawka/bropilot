@@ -61,8 +61,8 @@ const counts = computed(() => {
       <tbody><tr v-for="i in invariants" :key="i.id"><td class="mono">{{ i.id }}</td><td>{{ i.text }}</td><td><Prov :source="i.source" /></td></tr></tbody>
     </table>
 
-    <h2>Open questions <span class="small">(to decide with examples)</span></h2>
-    <table><tbody><tr v-for="o in OPEN_QUESTIONS" :key="o.id"><td class="mono">{{ o.id }}</td><td>{{ o.text }}</td><td><Prov :source="o.source" /></td></tr></tbody></table>
+    <h2>Open questions <span class="small">(resolved ones keep their decision)</span></h2>
+    <table><tbody><tr v-for="o in OPEN_QUESTIONS" :key="o.id"><td class="mono">{{ o.id }}</td><td><span :class="{ resolved: o.resolved }">{{ o.text }}</span><div v-if="o.resolved" class="decision">✔ {{ o.resolved.text }} <Prov :source="o.resolved.source" /></div></td><td><Prov :source="o.source" /></td></tr></tbody></table>
 
     <h2>Lifecycle stages</h2>
     <p v-if="keep(LIFECYCLE_SOURCE)"><span v-for="s in LIFECYCLE_STAGES" :key="s" class="tag stage">{{ s }}</span> <Prov :source="LIFECYCLE_SOURCE" /></p>
@@ -71,3 +71,8 @@ const counts = computed(() => {
     <ol class="statements"><li v-for="(t, n) in STATEMENTS" :key="n" :value="n">{{ t }}</li></ol>
   </div>
 </template>
+
+<style scoped>
+.resolved { color: var(--muted); text-decoration: line-through; }
+.decision { margin-top: .25rem; color: var(--said); }
+</style>

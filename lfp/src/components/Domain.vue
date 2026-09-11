@@ -54,6 +54,8 @@ const rules = computed(() => selectedModule.value ? edgesOfType('contains').filt
 const events = computed(() => selectedModule.value ? edgesOfType('contains').filter((e) => e.src === selectedModule.value && nodeById(e.dst)?.kind === 'event').map((e) => nodeById(e.dst)!) : []);
 const emitterOf = (eventId: string) => edgesOfType('emits').filter((e) => e.dst === eventId).map((e) => title(e.src));
 const interfaces = computed(() => selectedModule.value ? edgesOfType('exposes').filter((e) => e.src === selectedModule.value && nodeById(e.dst)?.kind === 'interface').map((e) => nodeById(e.dst)!) : []);
+const protocols = computed(() => selectedModule.value ? edgesOfType('contains').filter((e) => e.src === selectedModule.value && nodeById(e.dst)?.kind === 'protocol').map((e) => nodeById(e.dst)!) : []);
+const realisedBy = (id: string) => edgesOfType('realises').filter((e) => e.dst === id).map((e) => title(e.src));
 const tests = computed(() => selectedModule.value ? edgesOfType('contains').filter((e) => e.src === selectedModule.value && nodeById(e.dst)?.kind === 'test').map((e) => nodeById(e.dst)!) : []);
 
 const governsOf = (ruleId: string) => edgesOfType('governs').filter((e) => e.src === ruleId).map((e) => e.dst);
@@ -227,6 +229,16 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
             <p class="small" v-if="emitterOf(ev.id).length">emitted by {{ emitterOf(ev.id).join(', ') }}</p>
             <a v-if="ev.props?.codeRef" :href="ev.props.codeRef" target="_blank" rel="noopener" @click.stop>code ↗</a>
             <Prov :source="ev.source" />
+          </button>
+        </div>
+        <div class="col">
+          <h3>Protocols <span class="small">(S105)</span></h3>
+          <p v-if="!protocols.length" class="small">no protocols for this module</p>
+          <button v-for="pr in protocols" :key="pr.id" class="item-card" :class="[{ selected: state.selectedId === pr.id }]" @click="select(pr.id)">
+            <div class="title">🛡️ {{ pr.title }}</div>
+            <p class="small" v-if="pr.props?.cadence">cadence: {{ pr.props.cadence }}</p>
+            <p class="small" :class="{ warn: !realisedBy(pr.id).length }">{{ realisedBy(pr.id).length ? 'realised by ' + realisedBy(pr.id).join(', ') : 'not yet realised in reality → planned change' }}</p>
+            <Prov :source="pr.source" />
           </button>
         </div>
         <div class="col">
