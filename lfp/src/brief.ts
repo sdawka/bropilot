@@ -40,6 +40,12 @@ export const BRIEFS: Brief[] = [
     date: '2026-09-11',
     text: `Yes. So the current state is a combination of the actual codebase and references to that in the repository, for example. And planned changes is like the epics in jira or something similar. This would also probably have an orchestration layer where we dispatch coding agents according to the changes needed, or the orchestration layer above that is planning the changes would plan them so precisely that with changed tests, we have super targeted coding agent tasks. The end of the representation layer should also connect to the reality layer through tests. So the representation should be specified to such a degree that for each condition, we have a test. And in the reality layer, that test is either fulfilled And if all of them are, we don't need changes. But if none of them are or some of them aren't, then the plan changes should involve which tests we are targeting. This should start with the most simplest of tests that the module exists. For example, with a health check or something. And then it should use the API surface, whether it's RPC or not. Even better is if our modules are always defined with a strict enough boundary that they can be tested with deterministic simulation testing. In the current state other than the code base and infrastructure, we also have best practices and protocols that go into the current state. Maybe that counts as process flows or CI.`,
   },
+  {
+    id: 'brief-6',
+    title: 'The intended user flow, as a bet',
+    date: '2026-09-11',
+    text: `So maybe this is part of our hypothesis as well (meta, for bropilot), but the intended user flow is to talk about the product the same way I'm doing now with you, and that should affect the representation layer and eventually culminate in changed or added tests, which then would start to get fulfilled.`,
+  },
 ];
 
 /** Exact substrings (case-sensitive) of a brief, one per statement. */
@@ -49,6 +55,7 @@ export const ANCHORS: Record<number, string> = {
   71: 'what we have as functions are actually features', 72: 'the agents are a sub items of the agent orchestration solution', 73: 'if we guide the user with standard constraints and procedures', 74: 'In the vocabulary, we probably also have events', 75: 'I want the sidebar to pop out', 76: 'the screens, we literally are building now', 77: 'Design system can stay unpopulated',
   78: 'We can keep separate specific testable versions', 79: 'on the whole, we have, let\'s say, representation and reality', 80: 'the reality layer is more temporal because we have current state, planned changes', 81: 'instead of future state, we actually have effects such as all the measurements', 82: 'They can just be bets that we want to make', 83: 'I want to see more connection between the problems and hypothesis and the solution', 84: 'I want the tree to be more of the focus and the inputs to be something a little more on the side',
   85: 'the current state is a combination of the actual codebase and references to that in the repository', 86: 'planned changes is like the epics in jira', 87: 'dispatch coding agents according to the changes needed', 88: 'with changed tests, we have super targeted coding agent tasks', 89: 'connect to the reality layer through tests', 90: 'for each condition, we have a test', 91: "if all of them are, we don't need changes", 92: 'the plan changes should involve which tests we are targeting', 93: 'the most simplest of tests that the module exists', 94: 'it should use the API surface, whether it\'s RPC or not', 95: 'tested with deterministic simulation testing', 96: 'best practices and protocols that go into the current state',
+  97: 'the intended user flow is to talk about the product the same way I\'m doing now with you', 98: 'culminate in changed or added tests, which then would start to get fulfilled',
 };
 
 const SENTENCE_RE = /[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g;

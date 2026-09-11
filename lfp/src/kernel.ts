@@ -110,6 +110,9 @@ export const STATEMENTS: Record<number, string> = {
   94: 'then it should use the API surface, whether it\'s RPC or not',
   95: 'modules are always defined with a strict enough boundary that they can be tested with deterministic simulation testing',
   96: 'other than the code base and infrastructure, we also have best practices and protocols that go into the current state. Maybe that counts as process flows or CI',
+  // ── the intended user flow, as a bet (2026-09-11) ──
+  97: 'maybe this is part of our hypothesis as well (meta, for bropilot), but the intended user flow is to talk about the product the same way I\'m doing now with you, and that should affect the representation layer',
+  98: 'eventually culminate in changed or added tests, which then would start to get fulfilled',
 };
 
 // ── Layers & spaces ─────────────────────────────────────────────────────────
@@ -200,7 +203,7 @@ export const KINDS: KindDef[] = [
   { id: 'epic', label: 'Epic', plural: 'Epics', space: 'planned', icon: '🗂️', kernel: true, blurb: 'A planned change, Jira-epic sized; exists only because some tests are not fulfilled.', source: said(86, 92) },
   { id: 'task', label: 'Task', plural: 'Tasks', space: 'planned', icon: '🎯', kernel: true, fields: [{ key: 'status', label: 'Status', type: 'select', options: ['queued', 'running', 'done', 'failed'] }], blurb: 'A super-targeted coding-agent task: names the tests it must turn green.', source: said(87, 88) },
   // reality · effects
-  { id: 'evidence', label: 'Evidence', plural: 'Evidence', space: 'effects', icon: '🧾', kernel: true, blurb: 'An observation from reality tied to a hypothesis or metric. STUB.', source: said(24, 25, 40) },
+  { id: 'evidence', label: 'Evidence', plural: 'Evidence', space: 'effects', icon: '🧾', kernel: true, fields: [{ key: 'verdict', label: 'Verdict', type: 'select', options: ['supports', 'refutes', 'mixed'] }], blurb: 'An observation from reality tied to a bet or metric.', source: said(24, 25, 40, 81) },
 ];
 
 export const kindById = Object.fromEntries(KINDS.map((k) => [k.id, k])) as Record<string, KindDef>;
@@ -319,6 +322,8 @@ export const FLOWS: FlowDef[] = [
   { id: 'P1', group: 'Project', title: 'Create project', steps: ['name', 'pick template', 'kernel questions unlocked'], scope: 'core', touches: ['Project', 'Template', 'Question'], source: said(29, 17) },
   { id: 'P3', group: 'Project', title: 'Share / export', steps: ['serialise nodes, edges, commits', 'file or link'], scope: 'core', touches: ['Project', 'Node', 'Edge', 'Commit'], source: said(38) },
   { id: 'P4', group: 'Project', title: 'Import', steps: ['file', 'changeset (add/update)', 'review', 'commit'], scope: 'core', touches: ['Changeset', 'Commit'], source: inferred('Mirror of share.') },
+  { id: 'U1', group: 'Primary', title: 'Talk → representation → tests → fulfilled', steps: ['talk about the product, as in this loop', 'the representation changes (nodes, edges, bets)', 'tests are added or changed', 'reality starts fulfilling them'], scope: 'core', touches: ['Answer', 'Effect', 'Commit', 'Node', 'Action', 'Evidence'], source: said(97, 98) },
+  { id: 'Q9', group: 'Path', title: 'Free talk mapped onto the tree', steps: ['user talks freely', 'AI maps utterances to template questions, sub-questions and threads', 'effects staged as usual'], scope: 'later', touches: ['Question', 'Answer', 'Effect', 'Agent'], source: said(97, 53) },
   { id: 'Q1', group: 'Path', title: 'Answer next question', steps: ['show next unlocked question', 'user answers', 'effects staged'], scope: 'core', touches: ['Question', 'Answer', 'Effect'], source: said(21, 27) },
   { id: 'Q2', group: 'Path', title: 'Jump to a question', steps: ['pick any unlocked question', 'answer'], scope: 'core', touches: ['Question'], source: said(20) },
   { id: 'Q3', group: 'Path', title: 'Re-answer', steps: ['new answer', 'effects update/remove old nodes'], scope: 'core', touches: ['Answer', 'Effect', 'Node'], source: said(19) },

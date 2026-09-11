@@ -2,6 +2,13 @@
 
 Newest first. One entry per loop iteration: what we looked at, what changed, what's next.
 
+## 2026-09-11 — v1.4 (the primary flow, as a bet)
+- **H7** (S97, S98): talking about the product, the way this loop works, changes the representation and culminates in changed or added tests that then get fulfilled. Meta: a bet about Bropilot's own primary flow.
+- **Flow U1** "Talk → representation → tests → fulfilled" is now the first, core flow; seeded as a `flow` node implementing the guided path and commit gate.
+- **First Effects node**: `evidence-lfp-loop` supports H7 (6 briefs → 137 nodes, 6 tests, 4 fulfilled). `evidence` gained a verdict field.
+- Later flow Q9: free talk mapped by AI onto the question tree.
+- Next: still open — the rest of Effects (metric readings, usage, feedback) and whether protocols belong in the representation too.
+
 ## 2026-09-11 — v1.3 (the shape of the reality layer)
 - **Current state** kinds (S85, S96): `repository`, `codebase` (references into the repo, `realises` solution items), `infrastructure`, `practice` (protocol / process flow / CI), `test-result` (pass / fail / missing, `reports` a test).
 - **Planned changes** kinds (S86–S88, S92): `epic`, `task` (super-targeted coding-agent task); both `targets` the tests they must turn green; agents `implements` tasks.

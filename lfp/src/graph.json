@@ -1986,6 +1986,54 @@
           95
         ]
       }
+    },
+    {
+      "id": "hypothesis-h7",
+      "kind": "hypothesis",
+      "title": "H7 Talking about the product, the way this loop works, changes the representation and culminates in changed or added tests that then get fulfilled",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          97,
+          98
+        ]
+      },
+      "description": "Meta: a bet about Bropilot's own primary flow.",
+      "props": {
+        "verdict": "open"
+      }
+    },
+    {
+      "id": "flow-talk-to-tests",
+      "kind": "flow",
+      "title": "Talk → representation → tests → fulfilled",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          97,
+          98
+        ]
+      },
+      "description": "The intended user flow. Talk about the product; the representation changes; tests are added or changed; reality starts fulfilling them."
+    },
+    {
+      "id": "evidence-lfp-loop",
+      "kind": "evidence",
+      "title": "This lfp loop: 6 briefs → 137 nodes, 6 tests, 4 fulfilled, 2 targeted by tasks",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          97,
+          98
+        ]
+      },
+      "description": "First evidence for H7, from Bropilot's own development on 2026-09-07 → 09-11.",
+      "props": {
+        "verdict": "supports"
+      }
     }
   ],
   "edges": [
@@ -3230,6 +3278,48 @@
       "src": "codebase-lfp",
       "dst": "infrastructure-vite",
       "type": "uses"
+    },
+    {
+      "id": "e210",
+      "src": "hypothesis-h7",
+      "dst": "flow-talk-to-tests",
+      "type": "references"
+    },
+    {
+      "id": "e211",
+      "src": "flow-talk-to-tests",
+      "dst": "capability-guided-path",
+      "type": "implements"
+    },
+    {
+      "id": "e212",
+      "src": "flow-talk-to-tests",
+      "dst": "capability-commit-gate",
+      "type": "implements"
+    },
+    {
+      "id": "e213",
+      "src": "hypothesis-h7",
+      "dst": "outcome-keeps-improving",
+      "type": "references"
+    },
+    {
+      "id": "e214",
+      "src": "evidence-lfp-loop",
+      "dst": "hypothesis-h7",
+      "type": "supports"
+    },
+    {
+      "id": "e215",
+      "src": "feature-product",
+      "dst": "flow-talk-to-tests",
+      "type": "has"
+    },
+    {
+      "id": "e216",
+      "src": "flow-talk-to-tests",
+      "dst": "test-page-loads",
+      "type": "references"
     }
   ]
 }
