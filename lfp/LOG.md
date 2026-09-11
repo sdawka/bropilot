@@ -2,6 +2,12 @@
 
 Newest first. One entry per loop iteration: what we looked at, what changed, what's next.
 
+## 2026-09-11 — v1.6 (the three open questions resolved)
+- **Protocols in the representation** (S105–S107): kernel kind `protocol` (solution, level 3) = how we want to enact the representation; reality's `practice` nodes `realises` them; unrealised protocols are planned changes (`inv-protocol-realised`). New module *Automation (the product automation zone)* holds six protocols: PR gate, regular security audit, changelog as blog post, commit-and-push, provenance, dogfood-same-commit. Three are realised by existing practices; three are not, and Domain level 3 says so.
+- **Goals are outcomes** (S108): `goal` moved to the problem space next to outcomes; both carry `for: audience | business`. Seeded a business goal (Bropilot sustains itself).
+- **Existence check first** (S109): confirmed in `inv-test-ladder`; seeded `exists` tests for the marketing, sales and delivery modules (all missing, honestly).
+- Reference keeps resolved open questions struck through with the decision and its quote.
+
 ## 2026-09-11 — v1.5 (effects, protocols, the whole business)
 - **Effects** kinds (S99): `metric-reading`, `usage-event` (product and business events alike: lead captured, deal closed), `feedback`; edge `measures`. **Goal** kind (S100) = a compound of metrics, edge `combines`; placed in Bets for now (open question).
 - **Protocols** stay in reality (S101). Whether the representation carries default protocols is an open question needing examples (S102); `OPEN_QUESTIONS` in kernel.ts, shown on Reference.

@@ -159,7 +159,8 @@
       "kind": "outcome",
       "title": "Ships something coherent end to end",
       "props": {
-        "metric": "first commit executed by agents"
+        "metric": "first commit executed by agents",
+        "for": "audience"
       },
       "status": "committed",
       "source": {
@@ -174,7 +175,8 @@
       "kind": "outcome",
       "title": "Knows what good means and sees progress toward it",
       "props": {
-        "metric": "hypotheses with verdicts"
+        "metric": "hypotheses with verdicts",
+        "for": "audience"
       },
       "status": "committed",
       "source": {
@@ -189,7 +191,8 @@
       "kind": "outcome",
       "title": "System keeps improving after launch",
       "props": {
-        "metric": "commits after first deploy"
+        "metric": "commits after first deploy",
+        "for": "audience"
       },
       "status": "committed",
       "source": {
@@ -2149,7 +2152,10 @@
           100
         ]
       },
-      "description": "A compound of two metrics."
+      "description": "A compound of two metrics.",
+      "props": {
+        "for": "business"
+      }
     },
     {
       "id": "metric-reading-commits",
@@ -2206,6 +2212,221 @@
       "props": {
         "form": "guide",
         "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/README.md"
+      }
+    },
+    {
+      "id": "module-automation",
+      "kind": "module",
+      "title": "Automation (the product automation zone)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          105,
+          107
+        ]
+      },
+      "description": "Protocols for how we enact the representation: gates, audits, publishing. Reality's practices realise them."
+    },
+    {
+      "id": "protocol-pr-gate",
+      "kind": "protocol",
+      "title": "PR gate: build, type-check and smoke must pass before merge",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          106
+        ]
+      },
+      "props": {
+        "cadence": "per PR"
+      }
+    },
+    {
+      "id": "protocol-security-audit",
+      "kind": "protocol",
+      "title": "Regular security audit",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          106
+        ]
+      },
+      "props": {
+        "cadence": "monthly"
+      }
+    },
+    {
+      "id": "protocol-changelog-blog",
+      "kind": "protocol",
+      "title": "Changelog published as a blog post on the marketing page",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          106
+        ]
+      },
+      "props": {
+        "cadence": "per release"
+      }
+    },
+    {
+      "id": "protocol-commit-push",
+      "kind": "protocol",
+      "title": "Commit and push at every step",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          105
+        ]
+      },
+      "props": {
+        "cadence": "per step"
+      }
+    },
+    {
+      "id": "protocol-provenance",
+      "kind": "protocol",
+      "title": "Every kernel item carries provenance to the brief",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          44,
+          105
+        ]
+      },
+      "props": {
+        "cadence": "always"
+      }
+    },
+    {
+      "id": "protocol-dogfood",
+      "kind": "protocol",
+      "title": "A change to how Bropilot works changes its own graph in the same commit",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          10,
+          105
+        ]
+      },
+      "props": {
+        "cadence": "per change"
+      }
+    },
+    {
+      "id": "goal-business-revenue",
+      "kind": "goal",
+      "title": "Bropilot sustains itself: paying users cover its running cost",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          108
+        ]
+      },
+      "description": "A goal for ourselves as the business.",
+      "props": {
+        "for": "business"
+      }
+    },
+    {
+      "id": "test-marketing-exists",
+      "kind": "test",
+      "title": "marketing module exists: a landing page is live",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          93,
+          109
+        ]
+      },
+      "props": {
+        "ladder": "exists"
+      }
+    },
+    {
+      "id": "result-marketing-exists",
+      "kind": "test-result",
+      "title": "missing: marketing module exists: a landing page is live",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      },
+      "props": {
+        "status": "missing"
+      }
+    },
+    {
+      "id": "test-sales-exists",
+      "kind": "test",
+      "title": "sales module exists: a way to buy or book exists",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          93,
+          109
+        ]
+      },
+      "props": {
+        "ladder": "exists"
+      }
+    },
+    {
+      "id": "result-sales-exists",
+      "kind": "test-result",
+      "title": "missing: sales module exists: a way to buy or book exists",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      },
+      "props": {
+        "status": "missing"
+      }
+    },
+    {
+      "id": "test-delivery-exists",
+      "kind": "test",
+      "title": "delivery module exists: an onboarding guide is published",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          93,
+          109
+        ]
+      },
+      "props": {
+        "ladder": "exists"
+      }
+    },
+    {
+      "id": "result-delivery-exists",
+      "kind": "test-result",
+      "title": "missing: delivery module exists: an onboarding guide is published",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      },
+      "props": {
+        "status": "missing"
       }
     }
   ],
@@ -3595,6 +3816,132 @@
       "src": "repository-bropilot",
       "dst": "asset-readme",
       "type": "contains"
+    },
+    {
+      "id": "e234",
+      "src": "system-bropilot",
+      "dst": "module-automation",
+      "type": "contains"
+    },
+    {
+      "id": "e235",
+      "src": "module-automation",
+      "dst": "external-github",
+      "type": "uses"
+    },
+    {
+      "id": "e236",
+      "src": "module-automation",
+      "dst": "protocol-pr-gate",
+      "type": "contains"
+    },
+    {
+      "id": "e237",
+      "src": "practice-smoke-before-commit",
+      "dst": "protocol-pr-gate",
+      "type": "realises"
+    },
+    {
+      "id": "e238",
+      "src": "module-automation",
+      "dst": "protocol-security-audit",
+      "type": "contains"
+    },
+    {
+      "id": "e239",
+      "src": "module-automation",
+      "dst": "protocol-changelog-blog",
+      "type": "contains"
+    },
+    {
+      "id": "e240",
+      "src": "module-automation",
+      "dst": "protocol-commit-push",
+      "type": "contains"
+    },
+    {
+      "id": "e241",
+      "src": "practice-commit-push",
+      "dst": "protocol-commit-push",
+      "type": "realises"
+    },
+    {
+      "id": "e242",
+      "src": "module-automation",
+      "dst": "protocol-provenance",
+      "type": "contains"
+    },
+    {
+      "id": "e243",
+      "src": "practice-provenance",
+      "dst": "protocol-provenance",
+      "type": "realises"
+    },
+    {
+      "id": "e244",
+      "src": "module-automation",
+      "dst": "protocol-dogfood",
+      "type": "contains"
+    },
+    {
+      "id": "e245",
+      "src": "practice-dogfood-same-commit",
+      "dst": "protocol-dogfood",
+      "type": "realises"
+    },
+    {
+      "id": "e246",
+      "src": "protocol-changelog-blog",
+      "dst": "module-marketing",
+      "type": "uses"
+    },
+    {
+      "id": "e247",
+      "src": "goal-business-revenue",
+      "dst": "metric-post-launch-commits",
+      "type": "references"
+    },
+    {
+      "id": "e248",
+      "src": "feature-sales",
+      "dst": "goal-business-revenue",
+      "type": "serves"
+    },
+    {
+      "id": "e249",
+      "src": "module-marketing",
+      "dst": "test-marketing-exists",
+      "type": "contains"
+    },
+    {
+      "id": "e250",
+      "src": "result-marketing-exists",
+      "dst": "test-marketing-exists",
+      "type": "reports"
+    },
+    {
+      "id": "e251",
+      "src": "module-sales",
+      "dst": "test-sales-exists",
+      "type": "contains"
+    },
+    {
+      "id": "e252",
+      "src": "result-sales-exists",
+      "dst": "test-sales-exists",
+      "type": "reports"
+    },
+    {
+      "id": "e253",
+      "src": "module-delivery",
+      "dst": "test-delivery-exists",
+      "type": "contains"
+    },
+    {
+      "id": "e254",
+      "src": "result-delivery-exists",
+      "dst": "test-delivery-exists",
+      "type": "reports"
     }
   ]
 }
