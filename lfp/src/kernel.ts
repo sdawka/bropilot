@@ -89,11 +89,19 @@ export const STATEMENTS: Record<number, string> = {
   75: 'I want the sidebar to pop out and basically change the screen size (width)',
   76: 'the screens, we literally are building now so we can record what we built',
   77: 'Design system can stay unpopulated a little bit',
+  // ── feedback on v1.1 (2026-09-11) ──
+  78: 'We can keep separate specific testable versions, that\'s fine',
+  79: 'on the whole, we have, let\'s say, representation and reality. Within representation, we have the problem space, the hypothesis space, and the solution space',
+  80: 'the solution space then will start to link into the reality layer, but the reality layer is more temporal because we have current state, planned changes, and future state',
+  81: 'instead of future state, we actually have effects such as all the measurements… which then confirm or deny the bets in the hypothesis space',
+  82: 'the hypothesis space doesn\'t need to strictly talk in terms of scientific hypotheses. They can just be bets that we want to make',
+  83: 'In the overview page, I want to see more connection between the problems and hypothesis and the solution',
+  84: 'in the definition page, I want the tree to be more of the focus and the inputs to be something a little more on the side',
 };
 
 // ── Layers & spaces ─────────────────────────────────────────────────────────
 export type Layer = 'representation' | 'reality' | 'orchestration';
-export type SpaceId = 'basics' | 'problem' | 'hypothesis' | 'solution' | 'system' | 'usage' | 'evidence';
+export type SpaceId = 'basics' | 'problem' | 'hypothesis' | 'solution' | 'current' | 'planned' | 'effects';
 
 export interface SpaceDef {
   id: SpaceId;
@@ -109,11 +117,11 @@ export interface SpaceDef {
 export const SPACES: SpaceDef[] = [
   { id: 'basics', label: 'Basics', layer: 'representation', order: 0, settled: false, hue: '#d9a441', blurb: 'Name and purpose. The one-liner.', source: said(29) },
   { id: 'problem', label: 'Problem', layer: 'representation', order: 1, settled: false, hue: '#9b7bea', blurb: 'Who, in what context, with what problems, wanting what outcomes.', source: said(23, 30) },
-  { id: 'hypothesis', label: 'Hypothesis', layer: 'representation', order: 2, settled: false, hue: '#e0699a', blurb: 'What we are betting on and assuming; how we will know.', source: said(23, 25, 30) },
+  { id: 'hypothesis', label: 'Bets', layer: 'representation', order: 2, settled: false, hue: '#e0699a', blurb: 'The bets we are making and what we assume; how we will know. Not necessarily scientific hypotheses.', source: said(23, 25, 30, 82) },
   { id: 'solution', label: 'Solution', layer: 'representation', order: 3, settled: false, hue: '#3fa9e0', blurb: 'Capabilities, features (one per would-be department), agents, journeys, domain, architecture, screens.', source: said(23, 31, 32, 33, 35, 36, 71, 72) },
-  { id: 'system', label: 'System', layer: 'reality', order: 5, settled: false, hue: '#888', blurb: 'The deployed thing as observed. STUB.', source: said(24, 40) },
-  { id: 'usage', label: 'Usage', layer: 'reality', order: 6, settled: false, hue: '#888', blurb: 'Events, sessions, feedback. STUB.', source: said(24, 40) },
-  { id: 'evidence', label: 'Evidence', layer: 'reality', order: 7, settled: false, hue: '#888', blurb: 'Metric readings and hypothesis verdicts. STUB.', source: said(25, 39, 40) },
+  { id: 'current', label: 'Current state', layer: 'reality', order: 5, settled: false, hue: '#8a8f98', blurb: 'What is deployed and running now. STUB.', source: said(24, 80) },
+  { id: 'planned', label: 'Planned changes', layer: 'reality', order: 6, settled: false, hue: '#6f7f99', blurb: 'What the solution space says should change next; dispatched actions. STUB.', source: said(80) },
+  { id: 'effects', label: 'Effects', layer: 'reality', order: 7, settled: false, hue: '#5b8c7a', blurb: 'Measurements, usage, feedback: what confirms or denies the bets. STUB.', source: said(25, 81) },
 ];
 
 export const REPRESENTATION_SPACES = SPACES.filter((s) => s.layer === 'representation');
@@ -128,7 +136,7 @@ export interface KindDef {
   space: SpaceId;
   icon: string;
   kernel: boolean; // immutable if true; templates can only add kinds
-  level?: 1 | 2 | 3; // C4-style level on the Domain page
+  level?: 1 | 2 | 3; // C4-style level on the Domain page (level 0 is the map)
   singular?: boolean;
   fields?: FieldDef[];
   blurb: string;
@@ -147,7 +155,7 @@ export const KINDS: KindDef[] = [
   { id: 'problem', label: 'Problem', plural: 'Problems', space: 'problem', icon: '🧨', kernel: true, blurb: 'What stands in their way today.', source: said(30) },
   { id: 'outcome', label: 'Outcome', plural: 'Outcomes', space: 'problem', icon: '🌟', kernel: true, blurb: 'The change we want for the audience. Should be measurable.', fields: [{ key: 'metric', label: 'Success metric' }], source: said(15, 30) },
   // hypothesis
-  { id: 'hypothesis', label: 'Hypothesis', plural: 'Hypotheses', space: 'hypothesis', icon: '🔬', kernel: true, blurb: 'A falsifiable bet linking what we build to an outcome.', fields: [{ key: 'verdict', label: 'Verdict', type: 'select', options: ['open', 'supported', 'refuted'] }], source: said(25, 30) },
+  { id: 'hypothesis', label: 'Bet', plural: 'Bets', space: 'hypothesis', icon: '🎲', kernel: true, blurb: 'A bet linking what we build to an outcome; some are specific and testable, some are just bets.', fields: [{ key: 'verdict', label: 'Verdict', type: 'select', options: ['open', 'supported', 'refuted'] }], source: said(25, 30, 78, 82) },
   { id: 'assumption', label: 'Assumption', plural: 'Assumptions', space: 'hypothesis', icon: '💭', kernel: true, blurb: 'Taken as true until reality says otherwise.', source: said(30) },
   { id: 'metric', label: 'Metric', plural: 'Metrics', space: 'hypothesis', icon: '📏', kernel: true, blurb: 'How an outcome or hypothesis will be measured.', source: inferred('Outcomes and hypothesis validation (S15, S25) need a named measure; the brief never says "metric".') },
   // solution (kernel core; template kinds come as we reach this column)
@@ -170,7 +178,7 @@ export const KINDS: KindDef[] = [
   // agents (sub-items of the orchestration capability)
   { id: 'agent', label: 'Agent', plural: 'Agents', space: 'solution', icon: '🤖', kernel: true, fields: [{ key: 'status', label: 'Status', type: 'select', options: ['core', 'stub'] }], blurb: 'Executes actions for one or more features; a sub-item of the orchestration capability.', source: said(2, 4, 5, 72) },
   // reality (stub)
-  { id: 'evidence', label: 'Evidence', plural: 'Evidence', space: 'evidence', icon: '🧾', kernel: true, blurb: 'An observation from reality tied to a hypothesis or metric. STUB.', source: said(24, 25, 40) },
+  { id: 'evidence', label: 'Evidence', plural: 'Evidence', space: 'effects', icon: '🧾', kernel: true, blurb: 'An observation from reality tied to a hypothesis or metric. STUB.', source: said(24, 25, 40) },
 ];
 
 export const kindById = Object.fromEntries(KINDS.map((k) => [k.id, k])) as Record<string, KindDef>;
@@ -234,15 +242,16 @@ export const QUESTIONS: QuestionDef[] = [
   { id: 'q-usecase', prompt: 'What are they trying to get done?', help: 'One use case per line.', space: 'problem', produces: 'usecase', unlocksAfter: ['q-audience'], kernel: true, source: said(30) },
   { id: 'q-problem', prompt: 'What gets in their way today?', help: 'One problem per line.', space: 'problem', produces: 'problem', unlocksAfter: ['q-audience'], kernel: true, source: said(30) },
   { id: 'q-outcome', prompt: 'What should be different for them afterwards?', help: 'One outcome per line. Each will get a purpose→motivates edge.', space: 'problem', produces: 'outcome', unlocksAfter: ['q-problem'], kernel: true, source: said(15, 30) },
-  { id: 'q-hypothesis', prompt: 'What are you betting on?', help: 'One falsifiable hypothesis per line.', space: 'hypothesis', produces: 'hypothesis', unlocksAfter: ['q-outcome'], kernel: true, source: said(25, 30) },
+  { id: 'q-hypothesis', prompt: 'What are you betting on?', help: 'One bet per line; make it testable if you can.', space: 'hypothesis', produces: 'hypothesis', unlocksAfter: ['q-outcome'], kernel: true, source: said(25, 30) },
   { id: 'q-assumption', prompt: 'What are you taking for granted?', help: 'One assumption per line.', space: 'hypothesis', produces: 'assumption', unlocksAfter: ['q-outcome'], kernel: true, source: said(30) },
   { id: 'q-metric', prompt: 'How will you know?', help: 'One metric per line.', space: 'hypothesis', produces: 'metric', unlocksAfter: ['q-outcome'], kernel: true, source: inferred('Follows from S15/S25; the brief has no explicit "how will you measure" question.') },
   { id: 'q-capability', prompt: 'What must it be able to do?', help: 'One capability per line.', space: 'solution', produces: 'capability', unlocksAfter: ['q-hypothesis'], kernel: true, source: said(30) },
 ];
 
 // ── Domain levels (C4-style) ────────────────────────────────────────────────
-export interface LevelDef { level: 1 | 2 | 3; label: string; blurb: string; kinds: string[]; source: Provenance }
+export interface LevelDef { level: 0 | 1 | 2 | 3; label: string; blurb: string; kinds: string[]; source: Provenance }
 export const LEVELS: LevelDef[] = [
+  { level: 0, label: 'Map', blurb: 'Representation (problem, bets, solution) on one side; Reality (current state, planned changes, effects) on the other. Solution links into planned changes; effects confirm or deny the bets.', kinds: [], source: said(79, 80, 81) },
   { level: 1, label: 'Context', blurb: 'The real world as people talk about it: our system as a bubble, the people outside it, other systems.', kinds: ['system', 'audience', 'external'], source: said(56, 57) },
   { level: 2, label: 'Modules', blurb: 'Inside the system: meaningfully different business domains, with their dedicated infra. Arrows are calls or events between them; flows run across them.', kinds: ['module', 'infra'], source: said(58, 60, 61) },
   { level: 3, label: 'Inside a module', blurb: 'Things (nouns), rules (logic about things and their relationships), events (past-tense facts), the interface it exposes, and the tests that prove the rules. Each points at code.', kinds: ['thing', 'rule', 'event', 'interface', 'test'], source: said(63, 64, 65, 68, 69, 74) },

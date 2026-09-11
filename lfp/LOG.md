@@ -2,6 +2,15 @@
 
 Newest first. One entry per loop iteration: what we looked at, what changed, what's next.
 
+## 2026-09-11 — v1.2 (feedback on v1.1 applied)
+- H1 stays as the specific testable version next to H6 (S78).
+- **Domain level 0 "Map"** (S79–S81): Representation (problem, bets, solution) on the left, Reality on the right, two arrows between: solution → planned changes, effects → bets (confirm or deny). Reality spaces are now temporal: `current` (Current state), `planned` (Planned changes), `effects` (Effects: measurements, usage, feedback). `system` / `usage` / `evidence` spaces are gone; the `evidence` kind lives in `effects`. Clicking Solution opens the C4 levels; Problem/Bets jump to Overview.
+- **Bets** (S82): the hypothesis space and kind are labelled Bets / Bet (ids unchanged); the question help no longer demands falsifiability.
+- **Overview connections** (S83): every card lists its cross-column links as chips (clickable). Selecting a card spotlights its neighbours in other columns, dims the rest, and draws labelled lines between them.
+- **Definition** (S84): the tree is the wide main pane; the answer box, changeset review and commit history are a sticky 380px side panel.
+- Briefs 3 and 4 (v1 and v1.1 feedback) added verbatim to `brief.ts`; S71–S84 anchor to them. All anchors resolve.
+- Next: react to the Map and the Overview spotlight; then decide the kinds inside Current state and Planned changes.
+
 ## 2026-09-07 — v1.1 (feedback on v1 applied)
 - **Side panels push the page** (S75): inspector, Domain detail pane and Glossary are 400px wide and the view gets a matching right margin while one is open.
 - **Functions are features** (S71, S72): the `function` kind and the `functions` space are gone. The nine former functions are `feature` nodes (kernel kind now, with lifecycle stages); each agent `implements` its feature and is a sub-item (`has`) of the *Agent orchestration* capability. Overview has three columns: problem, hypothesis, solution.

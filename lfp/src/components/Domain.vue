@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { LEVELS, NO_LEVEL_4, kindById, edgeTypeById, said } from '../kernel';
+import { LEVELS, NO_LEVEL_4, SPACES, KINDS, kindById, edgeTypeById, said } from '../kernel';
+const spaceCount = (sid: string) => state.graph.nodes.filter((n) => kindById[n.kind]?.space === sid).length;
+const spaceKinds = (sid: string) => KINDS.filter((k) => k.space === sid).map((k) => k.icon + ' ' + k.plural);
+const goOverview = () => { window.location.hash = 'overview'; };
+const repSpaces = SPACES.filter((s) => s.layer === 'representation' && s.id !== 'basics');
+const realSpaces = SPACES.filter((s) => s.layer === 'reality');
 import { state, nodeById, edgesOf } from '../store';
 import Prov from './Prov.vue';
 
-const level = ref<1 | 2 | 3>(1);
+const level = ref<0 | 1 | 2 | 3>(0);
 const selectedModule = ref<string | null>(null);
 
 const nodesOfKind = (k: string) => state.graph.nodes.filter((n) => n.kind === k);
@@ -12,7 +17,7 @@ const edgesOfType = (t: string) => state.graph.edges.filter((e) => e.type === t)
 const title = (id: string) => nodeById(id)?.title ?? id;
 
 const select = (id: string) => { state.selectedId = state.selectedId === id ? null : id; };
-const goLevel = (l: 1 | 2 | 3) => { level.value = l; if (l === 3 && !selectedModule.value) selectedModule.value = modules.value[0]?.id ?? null; };
+const goLevel = (l: 0 | 1 | 2 | 3) => { level.value = l; if (l === 3 && !selectedModule.value) selectedModule.value = modules.value[0]?.id ?? null; };
 
 // ── Level 1: context ────────────────────────────────────────────────────────
 const systems = computed(() => nodesOfKind('system'));
@@ -100,7 +105,36 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
     </header>
 
     <!-- Level 1: Context -->
-    <section v-if="level === 1" class="l1">
+    <section v-if="level === 0" class="l0">
+      <div class="layer rep">
+        <h3>Representation <Prov :source="said(23, 79)" /></h3>
+        <div class="spaces">
+          <button v-for="s in repSpaces" :key="s.id" class="space-card" :style="{ '--hue': s.hue }" @click="s.id === 'solution' ? goLevel(1) : goOverview()">
+            <b>{{ s.label }}</b> <span class="small">{{ spaceCount(s.id) }} nodes</span>
+            <p class="small">{{ s.blurb }}</p>
+            <p class="small kinds">{{ spaceKinds(s.id).slice(0, 6).join(' · ') }}</p>
+            <span class="small go">{{ s.id === 'solution' ? 'open the C4 levels →' : 'see Overview →' }}</span>
+          </button>
+        </div>
+      </div>
+      <div class="between">
+        <div class="arrow">solution ⟶ planned changes <span class="small">what the representation says should change</span></div>
+        <div class="arrow back">bets ⟵ effects <span class="small">measurements confirm or deny the bets</span></div>
+      </div>
+      <div class="layer real">
+        <h3>Reality <span class="tag stub">stub</span> <Prov :source="said(24, 80, 81)" /></h3>
+        <div class="spaces">
+          <div v-for="s in realSpaces" :key="s.id" class="space-card" :style="{ '--hue': s.hue }">
+            <b>{{ s.label }}</b> <span class="small">{{ spaceCount(s.id) }} nodes</span>
+            <p class="small">{{ s.blurb }}</p>
+            <p class="small kinds">{{ spaceKinds(s.id).join(' · ') || 'kinds to be defined' }}</p>
+          </div>
+        </div>
+        <p class="small">Temporal: what runs now → what is planned → what it produced. Shape only; built later (S40).</p>
+      </div>
+    </section>
+
+    <section v-else-if="level === 1" class="l1">
       <div class="col audiences">
         <h3>Audience</h3>
         <div v-for="a in audiences" :key="a.id" class="person-card" :class="{ selected: state.selectedId === a.id }" @click="select(a.id)">
@@ -267,4 +301,13 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
 .detail .close { position: absolute; right: .6rem; top: .5rem; border: none; font-size: 1.1rem; }
 .detail h3 { margin-top: 1rem; color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; }
 .detail ul { padding-left: 1rem; margin: .2rem 0; font-size: .85rem; }
+.l0 { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: start; }
+.layer { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: .8rem; }
+.layer.real { border-style: dashed; }
+.spaces { display: grid; gap: .6rem; margin-top: .5rem; }
+.space-card { text-align: left; display: block; width: 100%; border-left: 4px solid var(--hue); padding: .6rem .7rem; }
+.space-card .kinds { color: var(--muted); }
+.space-card .go { display: block; margin-top: .3rem; color: var(--kernel); }
+.between { display: flex; flex-direction: column; gap: 1rem; justify-content: center; align-self: center; text-align: center; }
+.arrow { font-weight: 600; } .arrow .small { display: block; font-weight: 400; }
 </style>

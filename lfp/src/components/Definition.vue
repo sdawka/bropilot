@@ -126,7 +126,7 @@ const kindOptions = KINDS.map((k) => ({ id: k.id, label: k.label }));
 
 <template>
   <div class="path definition">
-    <aside class="questions">
+    <section class="questions tree-main">
       <h2>Definition</h2>
       <p class="small note">Roots are the template and don't change. Sub-questions and threads are this project's. AI organises them later (S52, S53, S54).</p>
 
@@ -180,14 +180,14 @@ const kindOptions = KINDS.map((k) => ({ id: k.id, label: k.label }));
           </div>
         </div>
       </div>
-    </aside>
+    </section>
 
-    <main class="answer">
+    <aside class="answer side">
       <template v-if="active?.kind === 'question'">
         <div class="kind-line" :style="{ '--hue': hue(active.question.space) }">{{ active.question.space }} · produces <b>{{ kindById[active.question.produces].label }}</b> · <Prov :source="active.question.source" /></div>
         <h2>{{ active.question.prompt }}</h2>
         <p class="small">{{ active.question.help }}<span v-if="committedAnswerFor(active.question.id)"> Already answered; answering again stages new nodes (re-answer, Q3).</span></p>
-        <textarea v-model="text" rows="6" :placeholder="kindById[active.question.produces].singular ? 'One line' : 'One per line'"></textarea>
+        <textarea v-model="text" rows="4" :placeholder="kindById[active.question.produces].singular ? 'One line' : 'One per line'"></textarea>
         <div class="row"><button class="primary" @click="submit" :disabled="!text.trim() || !!state.staged">Stage effects</button><span class="small" v-if="state.staged">Review the changeset first.</span></div>
       </template>
 
@@ -200,7 +200,7 @@ const kindOptions = KINDS.map((k) => ({ id: k.id, label: k.label }));
             <option v-for="k in kindOptions" :key="k.id" :value="k.id">{{ k.label }}</option>
           </select>
         </p>
-        <textarea v-model="text" rows="6" placeholder="One per line"></textarea>
+        <textarea v-model="text" rows="4" placeholder="One per line"></textarea>
         <div class="row"><button class="primary" @click="submit" :disabled="!text.trim() || !!state.staged">Stage effects</button><span class="small" v-if="state.staged">Review the changeset first.</span></div>
       </template>
 
@@ -221,7 +221,7 @@ const kindOptions = KINDS.map((k) => ({ id: k.id, label: k.label }));
         <p v-if="lastResult" class="small">{{ lastResult }}</p>
         <ol><li v-for="c in [...state.commits].reverse()" :key="c.id"><span class="small">{{ new Date(c.at).toLocaleTimeString() }}</span> · {{ c.effects.length }} effects</li></ol>
       </section>
-    </main>
+    </aside>
   </div>
 </template>
 
@@ -249,4 +249,8 @@ const kindOptions = KINDS.map((k) => ({ id: k.id, label: k.label }));
 .tag.thread { color: var(--inferred); border-color: var(--inferred); border-style: dotted; }
 .remove-btn { flex: none; padding: .1rem .4rem; line-height: 1; color: var(--muted); }
 .remove-btn:hover { color: var(--inferred); border-color: var(--inferred); }
+.path.definition { grid-template-columns: minmax(0, 1fr) 380px; } /* tree first and wide; inputs on the side (S84) */
+.answer.side { position: sticky; top: 4rem; align-self: start; max-height: calc(100vh - 5rem); overflow: auto; }
+.answer.side textarea { min-height: 5rem; }
+.tree-main .q .q-text { font-size: .92rem; }
 </style>
