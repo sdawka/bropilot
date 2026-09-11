@@ -3,6 +3,10 @@ import { computed, ref, watch } from 'vue';
 import { LEVELS, NO_LEVEL_4, SPACES, KINDS, kindById, edgeTypeById, said } from '../kernel';
 const spaceCount = (sid: string) => state.graph.nodes.filter((n) => kindById[n.kind]?.space === sid).length;
 const spaceKinds = (sid: string) => KINDS.filter((k) => k.space === sid).map((k) => k.icon + ' ' + k.plural);
+const resultOf = (testId: string) => { const r = edgesOfType('reports').find((e) => e.dst === testId); return r ? nodeById(r.src) : undefined; };
+const testStats = computed(() => { const st = { pass: 0, fail: 0, missing: 0 }; for (const t of nodesOfKind('test')) { const k = (resultOf(t.id)?.props?.status ?? 'missing') as keyof typeof st; st[k]++; } return st; });
+const verifiedBy = (testId: string) => edgesOfType('verifies').filter((e) => e.src === testId).map((e) => title(e.dst));
+const targetedBy = (testId: string) => edgesOfType('targets').filter((e) => e.dst === testId && nodeById(e.src)?.kind === 'task').map((e) => title(e.src));
 const goOverview = () => { window.location.hash = 'overview'; };
 const repSpaces = SPACES.filter((s) => s.layer === 'representation' && s.id !== 'basics');
 const realSpaces = SPACES.filter((s) => s.layer === 'reality');
@@ -119,7 +123,9 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
       </div>
       <div class="between">
         <div class="arrow">solution ⟶ planned changes <span class="small">what the representation says should change</span></div>
+        <div class="arrow">rules ⟶ tests ⟶ test results <span class="small">one test per condition; reality reports pass / fail (S89–S91)</span></div>
         <div class="arrow back">bets ⟵ effects <span class="small">measurements confirm or deny the bets</span></div>
+        <div class="small">tests: <b>{{ testStats.pass }}</b> pass · <b>{{ testStats.fail }}</b> fail · <b>{{ testStats.missing }}</b> missing → {{ testStats.fail + testStats.missing ? 'planned changes needed' : 'no changes needed' }} (S91)</div>
       </div>
       <div class="layer real">
         <h3>Reality <span class="tag stub">stub</span> <Prov :source="said(24, 80, 81)" /></h3>
@@ -235,9 +241,16 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
         </div>
       </div>
       <div class="tests-footer small">
-        <h3>Tests</h3>
-        <template v-if="tests.length"><span v-for="t in tests" :key="t.id">{{ t.title }}</span></template>
-        <span v-else>no tests yet — fed back from reality (S67) <Prov :source="said(67)" /></span>
+        <h3>Tests <Prov :source="said(89, 90, 93)" /></h3>
+        <template v-if="tests.length">
+          <button v-for="t in tests" :key="t.id" class="test-chip" :class="[resultOf(t.id)?.props?.status ?? 'missing', { selected: state.selectedId === t.id }]" @click="select(t.id)" :title="verifiedBy(t.id).join('; ')">
+            <span class="res">{{ { pass: '✅', fail: '❌', missing: '⬜' }[(resultOf(t.id)?.props?.status ?? 'missing') as 'pass' | 'fail' | 'missing'] }}</span>
+            <span class="ladder">{{ t.props?.ladder }}</span> {{ t.title }}
+            <span v-if="verifiedBy(t.id).length" class="small">· verifies {{ verifiedBy(t.id).length }} rule{{ verifiedBy(t.id).length > 1 ? 's' : '' }}</span>
+            <span v-if="targetedBy(t.id).length" class="small">· targeted by {{ targetedBy(t.id).join(', ') }}</span>
+          </button>
+        </template>
+        <span v-else>no tests yet for this module — start with "the module exists" (S93) <Prov :source="said(67, 93)" /></span>
       </div>
     </section>
 
@@ -294,7 +307,12 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
 .item-card.dim { opacity: .35; }
 .item-card a { display: inline-block; margin-top: .2rem; font-size: .8rem; }
 .empty { font-size: .8rem; color: var(--muted); font-style: italic; }
-.tests-footer { border-top: 1px solid var(--line); padding-top: .5rem; display: flex; gap: .6rem; align-items: center; }
+.tests-footer { border-top: 1px solid var(--line); padding-top: .5rem; display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; }
+.test-chip { display: inline-flex; gap: .35rem; align-items: baseline; font-size: .8rem; text-align: left; }
+.test-chip.missing { border-style: dashed; }
+.test-chip.fail { border-color: var(--inferred); }
+.test-chip.selected { outline: 2px solid var(--ink); }
+.test-chip .ladder { font-size: .65rem; color: var(--kernel); border: 1px solid var(--kernel); border-radius: 4px; padding: 0 .3rem; }
 .tests-footer h3 { color: var(--muted); font-size: .75rem; text-transform: uppercase; margin: 0; }
 
 .detail { position: fixed; right: 1rem; top: 4rem; bottom: 1rem; width: 400px; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1rem; box-shadow: 0 8px 30px rgba(0,0,0,.08); z-index: 4; }

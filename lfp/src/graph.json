@@ -1590,6 +1590,402 @@
           74
         ]
       }
+    },
+    {
+      "id": "repository-bropilot",
+      "kind": "repository",
+      "title": "sdawka/bropilot @ v4",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/tree/v4"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          85
+        ]
+      }
+    },
+    {
+      "id": "codebase-lfp",
+      "kind": "codebase",
+      "title": "lfp/ (the low-fi prototype)",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          85
+        ]
+      }
+    },
+    {
+      "id": "codebase-store",
+      "kind": "codebase",
+      "title": "lfp/src/store.ts",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          85
+        ]
+      }
+    },
+    {
+      "id": "codebase-kernel",
+      "kind": "codebase",
+      "title": "lfp/src/kernel.ts",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/kernel.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          85
+        ]
+      }
+    },
+    {
+      "id": "infrastructure-vite",
+      "kind": "infrastructure",
+      "title": "Vite dev server on :5199",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          96
+        ]
+      }
+    },
+    {
+      "id": "infrastructure-localstorage",
+      "kind": "infrastructure",
+      "title": "Browser localStorage (bropilot:lfp:v1)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          96
+        ]
+      }
+    },
+    {
+      "id": "practice-commit-push",
+      "kind": "practice",
+      "title": "Commit and push to v4 at every step",
+      "status": "committed",
+      "props": {
+        "form": "protocol"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          96
+        ]
+      }
+    },
+    {
+      "id": "practice-smoke-before-commit",
+      "kind": "practice",
+      "title": "Run smoke.mjs before every commit",
+      "status": "committed",
+      "props": {
+        "form": "CI"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          96
+        ]
+      }
+    },
+    {
+      "id": "practice-provenance",
+      "kind": "practice",
+      "title": "Every kernel item carries said/inferred provenance",
+      "status": "committed",
+      "props": {
+        "form": "protocol"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          44,
+          96
+        ]
+      }
+    },
+    {
+      "id": "practice-left-to-right",
+      "kind": "practice",
+      "title": "Enrich spaces left to right",
+      "status": "committed",
+      "props": {
+        "form": "process flow"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          45,
+          96
+        ]
+      }
+    },
+    {
+      "id": "practice-dogfood-same-commit",
+      "kind": "practice",
+      "title": "A change to how Bropilot works changes its own graph in the same commit",
+      "status": "committed",
+      "props": {
+        "form": "protocol"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          10,
+          46
+        ]
+      }
+    },
+    {
+      "id": "test-page-loads",
+      "kind": "test",
+      "title": "lfp page loads and renders the Overview",
+      "status": "committed",
+      "props": {
+        "ladder": "exists",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          93
+        ]
+      }
+    },
+    {
+      "id": "test-store-answer-stages",
+      "kind": "test",
+      "title": "answer() stages one effect per line",
+      "status": "committed",
+      "props": {
+        "ladder": "surface",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          94
+        ]
+      }
+    },
+    {
+      "id": "test-commit-gate",
+      "kind": "test",
+      "title": "nothing becomes committed except through commit()",
+      "status": "committed",
+      "props": {
+        "ladder": "surface",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          90
+        ]
+      }
+    },
+    {
+      "id": "test-undo-whole",
+      "kind": "test",
+      "title": "undo() reverts exactly one commit",
+      "status": "committed",
+      "props": {
+        "ladder": "surface",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          90
+        ]
+      }
+    },
+    {
+      "id": "test-unlock",
+      "kind": "test",
+      "title": "a question unlocks only after its unlocksAfter are answered",
+      "status": "committed",
+      "props": {
+        "ladder": "surface",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          90
+        ]
+      }
+    },
+    {
+      "id": "test-sim-commit-gate",
+      "kind": "test",
+      "title": "simulated random answer/commit/undo sequences never leave a draft committed",
+      "status": "committed",
+      "props": {
+        "ladder": "simulation"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          95
+        ]
+      }
+    },
+    {
+      "id": "result-page-loads",
+      "kind": "test-result",
+      "title": "pass: page loads",
+      "status": "committed",
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      }
+    },
+    {
+      "id": "result-store-answer-stages",
+      "kind": "test-result",
+      "title": "pass: store answer stages",
+      "status": "committed",
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      }
+    },
+    {
+      "id": "result-commit-gate",
+      "kind": "test-result",
+      "title": "pass: commit gate",
+      "status": "committed",
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      }
+    },
+    {
+      "id": "result-undo-whole",
+      "kind": "test-result",
+      "title": "pass: undo whole",
+      "status": "committed",
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      }
+    },
+    {
+      "id": "result-unlock",
+      "kind": "test-result",
+      "title": "missing: unlock",
+      "status": "committed",
+      "props": {
+        "status": "missing"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      }
+    },
+    {
+      "id": "result-sim-commit-gate",
+      "kind": "test-result",
+      "title": "missing: sim commit gate",
+      "status": "committed",
+      "props": {
+        "status": "missing"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      }
+    },
+    {
+      "id": "epic-reality-shape",
+      "kind": "epic",
+      "title": "Give the reality layer its kinds and first tests",
+      "status": "committed",
+      "description": "Exists because two tests are missing.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          86,
+          92
+        ]
+      }
+    },
+    {
+      "id": "task-unlock-test",
+      "kind": "task",
+      "title": "Write the unlock-order test in smoke.mjs",
+      "status": "committed",
+      "props": {
+        "status": "queued"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          88
+        ]
+      }
+    },
+    {
+      "id": "task-sim-harness",
+      "kind": "task",
+      "title": "Build a deterministic simulation harness for the store",
+      "status": "committed",
+      "props": {
+        "status": "queued"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          88,
+          95
+        ]
+      }
     }
   ],
   "edges": [
@@ -2594,6 +2990,246 @@
       "src": "term-event",
       "dst": "event-committed",
       "type": "defines"
+    },
+    {
+      "id": "e170",
+      "src": "repository-bropilot",
+      "dst": "codebase-lfp",
+      "type": "contains"
+    },
+    {
+      "id": "e171",
+      "src": "codebase-lfp",
+      "dst": "codebase-store",
+      "type": "contains"
+    },
+    {
+      "id": "e172",
+      "src": "codebase-lfp",
+      "dst": "codebase-kernel",
+      "type": "contains"
+    },
+    {
+      "id": "e173",
+      "src": "codebase-lfp",
+      "dst": "system-bropilot",
+      "type": "realises"
+    },
+    {
+      "id": "e174",
+      "src": "codebase-store",
+      "dst": "module-representation",
+      "type": "realises"
+    },
+    {
+      "id": "e175",
+      "src": "codebase-store",
+      "dst": "module-orchestration",
+      "type": "realises"
+    },
+    {
+      "id": "e176",
+      "src": "codebase-kernel",
+      "dst": "module-representation",
+      "type": "realises"
+    },
+    {
+      "id": "e177",
+      "src": "infrastructure-localstorage",
+      "dst": "infra-localstorage",
+      "type": "realises"
+    },
+    {
+      "id": "e178",
+      "src": "module-representation",
+      "dst": "test-page-loads",
+      "type": "contains"
+    },
+    {
+      "id": "e179",
+      "src": "module-orchestration",
+      "dst": "test-store-answer-stages",
+      "type": "contains"
+    },
+    {
+      "id": "e180",
+      "src": "test-store-answer-stages",
+      "dst": "rule-effect-provenance",
+      "type": "verifies"
+    },
+    {
+      "id": "e181",
+      "src": "module-orchestration",
+      "dst": "test-commit-gate",
+      "type": "contains"
+    },
+    {
+      "id": "e182",
+      "src": "test-commit-gate",
+      "dst": "rule-commit-gate",
+      "type": "verifies"
+    },
+    {
+      "id": "e183",
+      "src": "module-orchestration",
+      "dst": "test-undo-whole",
+      "type": "contains"
+    },
+    {
+      "id": "e184",
+      "src": "test-undo-whole",
+      "dst": "rule-undo-whole",
+      "type": "verifies"
+    },
+    {
+      "id": "e185",
+      "src": "module-definition",
+      "dst": "test-unlock",
+      "type": "contains"
+    },
+    {
+      "id": "e186",
+      "src": "test-unlock",
+      "dst": "rule-unlock",
+      "type": "verifies"
+    },
+    {
+      "id": "e187",
+      "src": "module-orchestration",
+      "dst": "test-sim-commit-gate",
+      "type": "contains"
+    },
+    {
+      "id": "e188",
+      "src": "test-sim-commit-gate",
+      "dst": "rule-commit-gate",
+      "type": "verifies"
+    },
+    {
+      "id": "e189",
+      "src": "result-page-loads",
+      "dst": "test-page-loads",
+      "type": "reports"
+    },
+    {
+      "id": "e190",
+      "src": "result-store-answer-stages",
+      "dst": "test-store-answer-stages",
+      "type": "reports"
+    },
+    {
+      "id": "e191",
+      "src": "result-commit-gate",
+      "dst": "test-commit-gate",
+      "type": "reports"
+    },
+    {
+      "id": "e192",
+      "src": "result-undo-whole",
+      "dst": "test-undo-whole",
+      "type": "reports"
+    },
+    {
+      "id": "e193",
+      "src": "result-unlock",
+      "dst": "test-unlock",
+      "type": "reports"
+    },
+    {
+      "id": "e194",
+      "src": "result-sim-commit-gate",
+      "dst": "test-sim-commit-gate",
+      "type": "reports"
+    },
+    {
+      "id": "e195",
+      "src": "epic-reality-shape",
+      "dst": "task-unlock-test",
+      "type": "contains"
+    },
+    {
+      "id": "e196",
+      "src": "epic-reality-shape",
+      "dst": "task-sim-harness",
+      "type": "contains"
+    },
+    {
+      "id": "e197",
+      "src": "task-unlock-test",
+      "dst": "test-unlock",
+      "type": "targets"
+    },
+    {
+      "id": "e198",
+      "src": "task-sim-harness",
+      "dst": "test-sim-commit-gate",
+      "type": "targets"
+    },
+    {
+      "id": "e199",
+      "src": "epic-reality-shape",
+      "dst": "test-unlock",
+      "type": "targets"
+    },
+    {
+      "id": "e200",
+      "src": "epic-reality-shape",
+      "dst": "test-sim-commit-gate",
+      "type": "targets"
+    },
+    {
+      "id": "e201",
+      "src": "agent-engineer",
+      "dst": "task-unlock-test",
+      "type": "implements"
+    },
+    {
+      "id": "e202",
+      "src": "agent-engineer",
+      "dst": "task-sim-harness",
+      "type": "implements"
+    },
+    {
+      "id": "e203",
+      "src": "practice-commit-push",
+      "dst": "codebase-lfp",
+      "type": "governs"
+    },
+    {
+      "id": "e204",
+      "src": "practice-smoke-before-commit",
+      "dst": "codebase-lfp",
+      "type": "governs"
+    },
+    {
+      "id": "e205",
+      "src": "practice-provenance",
+      "dst": "codebase-lfp",
+      "type": "governs"
+    },
+    {
+      "id": "e206",
+      "src": "practice-left-to-right",
+      "dst": "codebase-lfp",
+      "type": "governs"
+    },
+    {
+      "id": "e207",
+      "src": "practice-dogfood-same-commit",
+      "dst": "codebase-lfp",
+      "type": "governs"
+    },
+    {
+      "id": "e208",
+      "src": "practice-provenance",
+      "dst": "codebase-kernel",
+      "type": "governs"
+    },
+    {
+      "id": "e209",
+      "src": "codebase-lfp",
+      "dst": "infrastructure-vite",
+      "type": "uses"
     }
   ]
 }

@@ -97,6 +97,19 @@ export const STATEMENTS: Record<number, string> = {
   82: 'the hypothesis space doesn\'t need to strictly talk in terms of scientific hypotheses. They can just be bets that we want to make',
   83: 'In the overview page, I want to see more connection between the problems and hypothesis and the solution',
   84: 'in the definition page, I want the tree to be more of the focus and the inputs to be something a little more on the side',
+  // ── the shape of the reality layer (2026-09-11) ──
+  85: 'the current state is a combination of the actual codebase and references to that in the repository',
+  86: 'planned changes is like the epics in jira or something similar',
+  87: 'an orchestration layer where we dispatch coding agents according to the changes needed',
+  88: 'the orchestration layer above that is planning the changes would plan them so precisely that with changed tests, we have super targeted coding agent tasks',
+  89: 'The end of the representation layer should also connect to the reality layer through tests',
+  90: 'the representation should be specified to such a degree that for each condition, we have a test',
+  91: 'in the reality layer, that test is either fulfilled And if all of them are, we don\'t need changes',
+  92: 'if none of them are or some of them aren\'t, then the plan changes should involve which tests we are targeting',
+  93: 'This should start with the most simplest of tests that the module exists. For example, with a health check',
+  94: 'then it should use the API surface, whether it\'s RPC or not',
+  95: 'modules are always defined with a strict enough boundary that they can be tested with deterministic simulation testing',
+  96: 'other than the code base and infrastructure, we also have best practices and protocols that go into the current state. Maybe that counts as process flows or CI',
 };
 
 // ── Layers & spaces ─────────────────────────────────────────────────────────
@@ -119,8 +132,8 @@ export const SPACES: SpaceDef[] = [
   { id: 'problem', label: 'Problem', layer: 'representation', order: 1, settled: false, hue: '#9b7bea', blurb: 'Who, in what context, with what problems, wanting what outcomes.', source: said(23, 30) },
   { id: 'hypothesis', label: 'Bets', layer: 'representation', order: 2, settled: false, hue: '#e0699a', blurb: 'The bets we are making and what we assume; how we will know. Not necessarily scientific hypotheses.', source: said(23, 25, 30, 82) },
   { id: 'solution', label: 'Solution', layer: 'representation', order: 3, settled: false, hue: '#3fa9e0', blurb: 'Capabilities, features (one per would-be department), agents, journeys, domain, architecture, screens.', source: said(23, 31, 32, 33, 35, 36, 71, 72) },
-  { id: 'current', label: 'Current state', layer: 'reality', order: 5, settled: false, hue: '#8a8f98', blurb: 'What is deployed and running now. STUB.', source: said(24, 80) },
-  { id: 'planned', label: 'Planned changes', layer: 'reality', order: 6, settled: false, hue: '#6f7f99', blurb: 'What the solution space says should change next; dispatched actions. STUB.', source: said(80) },
+  { id: 'current', label: 'Current state', layer: 'reality', order: 5, settled: false, hue: '#8a8f98', blurb: 'Code and references into the repository, infrastructure, practices and protocols, and the current test results.', source: said(24, 80, 85, 96) },
+  { id: 'planned', label: 'Planned changes', layer: 'reality', order: 6, settled: false, hue: '#6f7f99', blurb: 'Epics and the super-targeted coding-agent tasks under them, each naming the tests it must turn green.', source: said(80, 86, 88, 92) },
   { id: 'effects', label: 'Effects', layer: 'reality', order: 7, settled: false, hue: '#5b8c7a', blurb: 'Measurements, usage, feedback: what confirms or denies the bets. STUB.', source: said(25, 81) },
 ];
 
@@ -172,12 +185,21 @@ export const KINDS: KindDef[] = [
   { id: 'rule', label: 'Rule', plural: 'Rules', space: 'solution', icon: '⚖️', kernel: true, level: 3, fields: [{ key: 'tests', label: 'Tests (pos/neg)' }], blurb: 'Logic about one or more things, from hasMany to expectations. Should be tested both ways.', source: said(31, 64, 65, 66, 67) },
   { id: 'interface', label: 'Interface', plural: 'Interfaces', space: 'solution', icon: '🔌', kernel: true, level: 3, fields: [{ key: 'style', label: 'Style', type: 'select', options: ['rpc', 'rest', 'ui', 'events'] }], blurb: 'The API a module exposes; REST, RPC, UI or events.', source: said(35, 68) },
   { id: 'event', label: 'Event', plural: 'Events', space: 'solution', icon: '⚡', kernel: true, level: 3, blurb: 'Something notable that happened; a past-tense fact in the vocabulary.', source: said(74) },
-  { id: 'test', label: 'Test', plural: 'Tests', space: 'solution', icon: '🧪', kernel: false, level: 3, blurb: 'Evidence that a rule holds; count and quality fed back from reality. STUB.', source: said(67) },
+  { id: 'test', label: 'Test', plural: 'Tests', space: 'solution', icon: '🧪', kernel: true, level: 3, fields: [{ key: 'ladder', label: 'Ladder', type: 'select', options: ['exists', 'surface', 'simulation'] }], blurb: 'The bridge to reality: one per condition in a rule. Ladder: module exists (health check) → API surface → deterministic simulation.', source: said(67, 89, 90, 93, 94, 95) },
   { id: 'screen', label: 'Screen', plural: 'Screens', space: 'solution', icon: '🖼️', kernel: false, blurb: 'A user interface; composed of layouts and components.', source: said(36) },
   { id: 'design-system', label: 'Design system', plural: 'Design system', space: 'solution', icon: '🎨', kernel: false, singular: true, blurb: 'Guides product and marketing material, including tone.', source: said(37) },
   // agents (sub-items of the orchestration capability)
   { id: 'agent', label: 'Agent', plural: 'Agents', space: 'solution', icon: '🤖', kernel: true, fields: [{ key: 'status', label: 'Status', type: 'select', options: ['core', 'stub'] }], blurb: 'Executes actions for one or more features; a sub-item of the orchestration capability.', source: said(2, 4, 5, 72) },
-  // reality (stub)
+  // reality · current state (S85, S96)
+  { id: 'repository', label: 'Repository', plural: 'Repositories', space: 'current', icon: '📂', kernel: true, blurb: 'Where the actual code lives; the thing codeRefs point into.', source: said(85) },
+  { id: 'codebase', label: 'Code', plural: 'Code', space: 'current', icon: '💾', kernel: true, blurb: 'A reference into the repository: a module, file or block as it actually exists.', source: said(85) },
+  { id: 'infrastructure', label: 'Infrastructure', plural: 'Infrastructure', space: 'current', icon: '🏗️', kernel: true, blurb: 'What is actually provisioned and running.', source: said(96) },
+  { id: 'practice', label: 'Practice', plural: 'Practices & protocols', space: 'current', icon: '📋', kernel: true, fields: [{ key: 'form', label: 'Form', type: 'select', options: ['protocol', 'process flow', 'CI'] }], blurb: 'Best practices and protocols in force: process flows, CI, conventions.', source: said(96) },
+  { id: 'test-result', label: 'Test result', plural: 'Test results', space: 'current', icon: '✅', kernel: true, fields: [{ key: 'status', label: 'Status', type: 'select', options: ['pass', 'fail', 'missing'] }], blurb: 'Whether a test is fulfilled in reality right now.', source: said(91) },
+  // reality · planned changes (S86–S88, S92)
+  { id: 'epic', label: 'Epic', plural: 'Epics', space: 'planned', icon: '🗂️', kernel: true, blurb: 'A planned change, Jira-epic sized; exists only because some tests are not fulfilled.', source: said(86, 92) },
+  { id: 'task', label: 'Task', plural: 'Tasks', space: 'planned', icon: '🎯', kernel: true, fields: [{ key: 'status', label: 'Status', type: 'select', options: ['queued', 'running', 'done', 'failed'] }], blurb: 'A super-targeted coding-agent task: names the tests it must turn green.', source: said(87, 88) },
+  // reality · effects
   { id: 'evidence', label: 'Evidence', plural: 'Evidence', space: 'effects', icon: '🧾', kernel: true, blurb: 'An observation from reality tied to a hypothesis or metric. STUB.', source: said(24, 25, 40) },
 ];
 
@@ -204,11 +226,15 @@ export const EDGE_TYPES: EdgeTypeDef[] = [
   { id: 'contains', label: 'contains', category: 'structural', kernel: true, hint: 'Composition (screen contains component).', source: said(36) },
   { id: 'exposes', label: 'exposes', category: 'structural', kernel: true, hint: 'Module exposes an interface.', source: said(35, 68) },
   { id: 'emits', label: 'emits', category: 'behavioural', kernel: true, hint: 'Produces an event (interface or rule emits event).', source: inferred('Events (S74) need a producer edge; the brief does not name it.') },
+  { id: 'targets', label: 'targets', category: 'orchestration', kernel: true, hint: 'Task or epic targets the tests it must turn green.', source: said(88, 92) },
+  { id: 'reports', label: 'reports', category: 'verification', kernel: true, hint: 'Test result reports on a test (reality → representation).', source: said(91) },
+  { id: 'realises', label: 'realises', category: 'structural', kernel: true, hint: 'Actual code realises a solution-space module or item (current state → solution).', source: said(85) },
   { id: 'governs', label: 'governs', category: 'behavioural', kernel: true, hint: 'Rule governs a thing (or several: relationship rules).', source: said(65) },
   { id: 'defines', label: 'defines', category: 'dependency', kernel: true, hint: 'Glossary term defines a node.', source: said(31, 59) },
   { id: 'uses', label: 'uses', category: 'dependency', kernel: true, hint: 'Runtime dependency.', source: said(35) },
   { id: 'references', label: 'references', category: 'dependency', kernel: true, hint: 'Weak link of last resort.', source: inferred('Escape hatch so nothing is ever blocked.') },
   { id: 'triggers', label: 'triggers', category: 'behavioural', kernel: true, hint: 'Causal succession.', source: inferred('Needed once flows and events exist (S31).') },
+  { id: 'verifies', label: 'verifies', category: 'verification', kernel: true, hint: 'Test verifies a rule (one per condition).', source: said(67, 90) },
   { id: 'monitors', label: 'monitors', category: 'verification', kernel: true, hint: 'Metric watches an outcome.', source: said(15, 39) },
   { id: 'supports', label: 'supports', category: 'verification', kernel: true, hint: 'Evidence supports a hypothesis. STUB.', source: said(25) },
   { id: 'refutes', label: 'refutes', category: 'verification', kernel: true, hint: 'Evidence refutes a hypothesis. STUB.', source: said(25) },
@@ -270,6 +296,10 @@ export const INVARIANTS: Invariant[] = [
   { id: 'inv-left-to-right', text: 'Spaces are enriched left to right: basics → problem → hypothesis → solution.', source: said(19, 29, 45) },
   { id: 'inv-fixed-vocab', text: 'Once a term is committed in the vocabulary, other nodes should use it verbatim.', source: said(31) },
   { id: 'inv-code-ref', text: 'Every level-3 item may carry props.codeRef, a URL to the file or block on GitHub that implements it.', source: said(69) },
+  { id: 'inv-rule-has-test', text: 'Every rule has at least one test per condition; tests are how the representation connects to reality.', source: said(89, 90) },
+  { id: 'inv-green-means-done', text: 'If every test result is pass, there are no planned changes. Any fail or missing result must be targeted by a task.', source: said(91, 92) },
+  { id: 'inv-test-ladder', text: 'Tests climb a ladder: the module exists (health check) → its API surface → deterministic simulation.', source: said(93, 94, 95) },
+  { id: 'inv-module-boundary', text: 'Modules keep boundaries strict enough to be tested by deterministic simulation.', source: said(95) },
   { id: 'inv-dogfood', text: 'Bropilot must be describable in Bropilot with no special cases.', source: said(10, 46) },
 ];
 
@@ -311,6 +341,8 @@ export const FLOWS: FlowDef[] = [
   { id: 'E3', group: 'Explore', title: 'Inspect provenance', steps: ['node → answer/commit/action that produced it'], scope: 'core', touches: ['Node', 'Answer', 'Commit'], source: said(44) },
   { id: 'R1', group: 'Reality', title: 'Record evidence manually', steps: ['pick hypothesis/metric', 'enter observation', 'supports/refutes edge'], scope: 'stub', touches: ['Evidence', 'Node'], source: said(40) },
   { id: 'R2', group: 'Reality', title: 'Ingest events', steps: ['adapter', 'evidence nodes'], scope: 'later', touches: ['Evidence'], source: said(24, 39) },
+  { id: 'R5', group: 'Reality', title: 'Plan changes from failing tests', steps: ['collect test results', 'all pass → no changes', 'else: epic per cluster of failing tests', 'tasks so targeted each names its tests', 'dispatch coding agents', 'results reported back'], scope: 'stub', touches: ['Commit', 'Action', 'Agent', 'Evidence'], source: said(87, 88, 91, 92) },
+  { id: 'R6', group: 'Reality', title: 'Climb the test ladder for a module', steps: ['health check: module exists', 'API surface tests', 'deterministic simulation'], scope: 'stub', touches: ['Node', 'Edge'], source: said(93, 94, 95) },
   { id: 'R4', group: 'Reality', title: 'Deploy', steps: ['engineer action', 'artefact + deployment node'], scope: 'later', touches: ['Action', 'Agent'], source: said(39) },
 ];
 

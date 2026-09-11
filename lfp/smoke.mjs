@@ -40,6 +40,8 @@ r.domain.things = await p.locator('.item-card').count();
 await p.locator('.item-card .title', { hasText: /^🔷 Node$/ }).first().click(); await p.waitForTimeout(150);
 r.domain.dimmedRulesAfterSelectingNode = await p.locator('.item-card.dim').count();
 r.domain.codeLinks = await p.locator('a[href*="github.com"]').count();
+await p.getByText('Orchestration', { exact: true }).first().click(); await p.waitForTimeout(150);
+r.domain.testChips = await p.locator('.test-chip').count(); r.domain.testsPassed = await p.locator('.test-chip.pass').count();
 await p.screenshot({ path: `${out}/domain-l3.png` });
 // glossary
 await p.locator('button', { hasText: 'Glossary' }).click(); await p.waitForTimeout(200);

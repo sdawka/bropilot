@@ -2,6 +2,14 @@
 
 Newest first. One entry per loop iteration: what we looked at, what changed, what's next.
 
+## 2026-09-11 — v1.3 (the shape of the reality layer)
+- **Current state** kinds (S85, S96): `repository`, `codebase` (references into the repo, `realises` solution items), `infrastructure`, `practice` (protocol / process flow / CI), `test-result` (pass / fail / missing, `reports` a test).
+- **Planned changes** kinds (S86–S88, S92): `epic`, `task` (super-targeted coding-agent task); both `targets` the tests they must turn green; agents `implements` tasks.
+- **Tests are the bridge** (S89–S95): `test` is a kernel kind with a ladder (exists → surface → simulation); tests `verifies` rules. Invariants: every rule has a test per condition; all-pass means no planned changes; the ladder; strict module boundaries for deterministic simulation. Flows R5 (plan changes from failing tests) and R6 (climb the ladder).
+- Domain Map gained the rules → tests → results arrow and a live pass/fail/missing tally that says whether planned changes are needed. Level 3's tests footer shows each test's ladder rung, result, rules verified and the task targeting it.
+- Seeded Bropilot's own reality: repo + 3 code refs, 2 infrastructure items, 5 practices (commit-and-push, smoke before commit, provenance, left-to-right, dogfood-same-commit), 6 tests (4 pass via smoke.mjs, 2 missing), 1 epic with 2 tasks targeting the missing tests. 137 nodes / 207 edges.
+- Next: decide what lives in **Effects** beyond `evidence` (metric readings? usage events? feedback?), and whether practices should also be representable as intent (a `protocol` in solution) so reality can be checked against them.
+
 ## 2026-09-11 — v1.2 (feedback on v1.1 applied)
 - H1 stays as the specific testable version next to H6 (S78).
 - **Domain level 0 "Map"** (S79–S81): Representation (problem, bets, solution) on the left, Reality on the right, two arrows between: solution → planned changes, effects → bets (confirm or deny). Reality spaces are now temporal: `current` (Current state), `planned` (Planned changes), `effects` (Effects: measurements, usage, feedback). `system` / `usage` / `evidence` spaces are gone; the `evidence` kind lives in `effects`. Clicking Solution opens the C4 levels; Problem/Bets jump to Overview.
