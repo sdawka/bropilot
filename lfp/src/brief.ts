@@ -58,6 +58,12 @@ export const BRIEFS: Brief[] = [
     date: '2026-09-11',
     text: `Yes. Actually, that makes sense. We have a representation of how we want to enact our representation, and that involves, just like you said, maybe PR gates, maybe regular security audits, um, maybe change logs as blog posts for the marketing page. This area in a way will become our sort of customized product automation zone. for the second, yeah, the goals are more outcomes that we want. It might be for ourselves as the business as well. And for the third, yes, a basic existence check is the first usual test, I would say.`,
   },
+  {
+    id: 'brief-9',
+    title: 'The magic mirror',
+    date: '2026-09-12',
+    text: `Okay. Now imagine we are making this heavily agent gap with flue. You can put a permanent sidebar on the right side, but imagine there is a separate screen which might be, for example, on my mobile phone or something. This screen should only be as if I was talking to somebody about what is on my main screen. So it should represent the agent, but say maximum one thing at a time like a magic mirror experience. However, it should also be able to point at things on my main screen, such as highlighting relationships or changing tabs or even showing multiple different things in order while talking about them, such as relationships, etcetera. It should also be able to manipulate the data we have, like adding different glossary terms or modifying a hypothesis or what have you. All of that should be possible.`,
+  },
 ];
 
 /** Exact substrings (case-sensitive) of a brief, one per statement. */
@@ -70,6 +76,7 @@ export const ANCHORS: Record<number, string> = {
   97: 'the intended user flow is to talk about the product the same way I\'m doing now with you', 98: 'culminate in changed or added tests, which then would start to get fulfilled',
   99: 'in effects, there are metric readings, usage events, user feedback', 100: 'compounding or combinations of metrics to define their own strategic goals', 101: 'protocols should be baked into the reality layer', 102: 'Maybe they can have some good defaults in the representation layer', 103: 'we are again narrowing ourselves to purely tech product', 104: 'promotion, delivery. So sales and marketing and implementation',
   105: 'We have a representation of how we want to enact our representation', 106: 'maybe PR gates, maybe regular security audits, um, maybe change logs as blog posts for the marketing page', 107: 'customized product automation zone', 108: 'the goals are more outcomes that we want. It might be for ourselves as the business as well', 109: 'a basic existence check is the first usual test',
+  110: 'You can put a permanent sidebar on the right side', 111: 'a separate screen which might be, for example, on my mobile phone', 112: 'as if I was talking to somebody about what is on my main screen', 113: 'say maximum one thing at a time like a magic mirror experience', 114: 'point at things on my main screen, such as highlighting relationships or changing tabs or even showing multiple different things in order', 115: 'manipulate the data we have, like adding different glossary terms or modifying a hypothesis',
 };
 
 const SENTENCE_RE = /[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g;

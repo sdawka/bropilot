@@ -126,6 +126,13 @@ export const STATEMENTS: Record<number, string> = {
   107: 'This area in a way will become our sort of customized product automation zone',
   108: 'the goals are more outcomes that we want. It might be for ourselves as the business as well',
   109: 'a basic existence check is the first usual test',
+  // ── the magic mirror (2026-09-12) ──
+  110: 'imagine we are making this heavily agentic with flue. You can put a permanent sidebar on the right side',
+  111: 'a separate screen which might be, for example, on my mobile phone or something',
+  112: 'This screen should only be as if I was talking to somebody about what is on my main screen',
+  113: 'it should represent the agent, but say maximum one thing at a time like a magic mirror experience',
+  114: 'point at things on my main screen, such as highlighting relationships or changing tabs or even showing multiple different things in order while talking about them',
+  115: 'manipulate the data we have, like adding different glossary terms or modifying a hypothesis or what have you',
 };
 
 // ── Layers & spaces ─────────────────────────────────────────────────────────
@@ -326,6 +333,8 @@ export const INVARIANTS: Invariant[] = [
   { id: 'inv-protocol-realised', text: 'Every protocol in the representation is realised by a practice in reality, or its absence is a planned change.', source: said(101, 105) },
   { id: 'inv-module-boundary', text: 'Modules keep boundaries strict enough to be tested by deterministic simulation.', source: said(95) },
   { id: 'inv-whole-business', text: 'Modules, tests and effects cover every aspect of the business — promotion, sales, marketing, delivery, implementation — not just the tech product.', source: said(103, 104) },
+  { id: 'inv-one-utterance', text: 'The mirror shows at most one utterance (or one question) at a time.', source: said(113) },
+  { id: 'inv-agent-through-gate', text: 'Agent data changes go through the commit gate like everyone else\'s; only glossary edits take the escape hatch.', source: said(27, 115) },
   { id: 'inv-dogfood', text: 'Bropilot must be describable in Bropilot with no special cases.', source: said(10, 46) },
 ];
 
@@ -355,6 +364,7 @@ export const FLOWS: FlowDef[] = [
   { id: 'P4', group: 'Project', title: 'Import', steps: ['file', 'changeset (add/update)', 'review', 'commit'], scope: 'core', touches: ['Changeset', 'Commit'], source: inferred('Mirror of share.') },
   { id: 'U1', group: 'Primary', title: 'Talk → representation → tests → fulfilled', steps: ['talk about the product, as in this loop', 'the representation changes (nodes, edges, bets)', 'tests are added or changed', 'reality starts fulfilling them'], scope: 'core', touches: ['Answer', 'Effect', 'Commit', 'Node', 'Action', 'Evidence'], source: said(97, 98) },
   { id: 'Q9', group: 'Path', title: 'Free talk mapped onto the tree', steps: ['user talks freely', 'AI maps utterances to template questions, sub-questions and threads', 'effects staged as usual'], scope: 'later', touches: ['Question', 'Answer', 'Effect', 'Agent'], source: said(97, 53) },
+  { id: 'U2', group: 'Primary', title: 'Talk on the mirror, watch the main screen', steps: ['mirror or sidebar: pick a tour or type', 'director answers with one utterance', 'main screen navigates, highlights, walks through steps', 'director stages a change → approve on either screen'], scope: 'core', touches: ['Answer', 'Effect', 'Commit', 'Node', 'Edge', 'Agent'], source: said(111, 112, 113, 114, 115) },
   { id: 'Q1', group: 'Path', title: 'Answer next question', steps: ['show next unlocked question', 'user answers', 'effects staged'], scope: 'core', touches: ['Question', 'Answer', 'Effect'], source: said(21, 27) },
   { id: 'Q2', group: 'Path', title: 'Jump to a question', steps: ['pick any unlocked question', 'answer'], scope: 'core', touches: ['Question'], source: said(20) },
   { id: 'Q3', group: 'Path', title: 'Re-answer', steps: ['new answer', 'effects update/remove old nodes'], scope: 'core', touches: ['Answer', 'Effect', 'Node'], source: said(19) },
@@ -398,7 +408,8 @@ export const KERNEL_OBJECTS: KernelObject[] = [
   { id: 'Changeset', definition: 'Effects awaiting review.', attrs: 'effects, warnings', immutable: true, source: said(27) },
   { id: 'Commit', definition: 'An accepted changeset. One undo step, one dispatch.', attrs: 'accepted effects, at', immutable: true, source: said(27) },
   { id: 'Action', definition: 'A unit of agent work dispatched by a commit.', attrs: 'agent, inputs, status, output effects', immutable: true, source: said(2, 27) },
-  { id: 'Agent', definition: 'A grouping of functions that executes actions.', attrs: 'functions, reads, writes', immutable: true, source: said(4, 5) },
+  { id: 'Agent', definition: 'Executes actions for features; the director is the agent the user talks to.', attrs: 'functions, reads, writes', immutable: true, source: said(4, 5, 112) },
+  { id: 'Cue', definition: 'One instruction from the director to the main screen: say, navigate, point, sequence, stage, glossary, ask.', attrs: 't, payload', immutable: true, source: said(113, 114, 115) },
   { id: 'Template', definition: 'A project type: extension kinds, questions, agents, implementation styles.', attrs: 'extends, kinds, questions, agents, styles', immutable: true, source: said(6, 17, 18) },
   { id: 'Evidence', definition: 'An observation from reality. STUB.', attrs: 'source, value, verdict', immutable: true, source: said(24, 25, 40) },
 ];

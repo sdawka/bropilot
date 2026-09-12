@@ -31,6 +31,12 @@ Browser edits (answers, commits) live in `localStorage` (`bropilot:lfp:v1`). "Co
 
 **Provenance in context.** Every said-badge shows, on hover, the quoted sentence with two sentences before and after from the full brief. In the inspector the full brief is one click away with the quote highlighted. `src/brief.ts` holds the briefs verbatim and one exact anchor per statement; the Reference page reports any anchor that no longer resolves.
 
+## Mirror (the agent you talk to)
+- **🪞 Agent** toggles the permanent right sidebar: current utterance, what it is pointing at, tour controls, staged changes to approve, transcript, free text.
+- **Mirror ↗** opens `#mirror` in a second window: the phone view. One thing at a time; it can change tabs, highlight nodes and relationships, walk through several things in order, and stage data changes you approve from either screen.
+- Phone on Wi-Fi: `npm run relay` (prints the URLs) and `npm run dev:lan`; open the mirror URL on the phone. Set the relay on the main screen with **📡 relay…**.
+- Directors speak the Cue protocol in `src/director.ts`. `src/directors/scripted.ts` has the tours; `src/directors/llm.ts` is where Flue plugs in.
+
 ## The loop
 1. Look at one column (start: basics, then problem).
 2. React. I edit `kernel.ts` / `graph.json`. Reload.

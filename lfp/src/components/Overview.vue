@@ -19,29 +19,49 @@ const crossLinks = (id: string) => edgesOf(id)
   .map((e) => { const otherId = e.src === id ? e.dst : e.src; return { e, otherId, out: e.src === id }; })
   .filter((x) => nodeById(x.otherId) && spaceOf(x.otherId) !== spaceOf(id) && spaceOf(x.otherId) !== 'basics');
 const neighbours = computed(() => new Set(state.selectedId ? crossLinks(state.selectedId).map((x) => x.otherId) : []));
-const cardClass = (id: string) => ({ selected: state.selectedId === id, lit: neighbours.value.has(id), dim: !!state.selectedId && state.selectedId !== id && !neighbours.value.has(id) });
+// a highlighted edge's endpoints (director "point" cues) count as lit too
+const edgeById = (id: string) => state.graph.edges.find((e) => e.id === id);
+const isHighlightEndpoint = (id: string) => state.highlight.edges.some((eid) => { const e = edgeById(eid); return !!e && (e.src === id || e.dst === id); });
+const cardClass = (id: string) => {
+  const lit = neighbours.value.has(id) || state.highlight.nodes.includes(id) || isHighlightEndpoint(id);
+  const hasFocus = !!state.selectedId || !!state.highlight.nodes.length || !!state.highlight.edges.length;
+  return { selected: state.selectedId === id, lit, dim: hasFocus && state.selectedId !== id && !lit };
+};
 const linkLabel = (x: { e: { type: string }; out: boolean }) => (x.out ? '' : '← ') + (edgeTypeById[x.e.type]?.label ?? x.e.type) + (x.out ? ' →' : '');
 
-// lines from the selected card to its neighbours, drawn over the board
+// lines from the selected card to its neighbours, plus any director-highlighted edges, drawn over the board
 const wrap = ref<HTMLElement | null>(null);
 const lines = ref<{ x1: number; y1: number; x2: number; y2: number; label: string }[]>([]);
 function drawLines() {
   lines.value = [];
-  const sel = state.selectedId; const host = wrap.value; if (!sel || !host) return;
+  const host = wrap.value; if (!host) return;
   const hr = host.getBoundingClientRect();
   const rect = (id: string) => { const el = host.querySelector(`[data-node-id="${id}"]`); return el ? el.getBoundingClientRect() : null; };
-  const a = rect(sel); if (!a) return;
-  for (const x of crossLinks(sel)) {
-    const b = rect(x.otherId); if (!b) continue;
+  const pushLine = (aId: string, bId: string, label: string) => {
+    const a = rect(aId); const b = rect(bId); if (!a || !b) return;
     const leftToRight = b.left > a.left;
     lines.value.push({
       x1: (leftToRight ? a.right : a.left) - hr.left, y1: a.top + a.height / 2 - hr.top,
       x2: (leftToRight ? b.left : b.right) - hr.left, y2: b.top + b.height / 2 - hr.top,
-      label: edgeTypeById[x.e.type]?.label ?? x.e.type,
+      label,
     });
+  };
+  const sel = state.selectedId;
+  if (sel) for (const x of crossLinks(sel)) pushLine(sel, x.otherId, edgeTypeById[x.e.type]?.label ?? x.e.type);
+  for (const eid of state.highlight.edges) {
+    const e = edgeById(eid); if (!e) continue;
+    pushLine(e.src, e.dst, edgeTypeById[e.type]?.label ?? e.type);
   }
 }
 watch(() => state.selectedId, () => nextTick(drawLines));
+watch(() => state.highlight, () => nextTick(drawLines), { deep: true });
+watch(() => state.highlight.focus, (id) => {
+  if (!id) return;
+  nextTick(() => {
+    const el = wrap.value?.querySelector(`[data-node-id="${id}"]`);
+    (el as HTMLElement | null)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  });
+});
 onMounted(() => { window.addEventListener('resize', drawLines); window.addEventListener('scroll', drawLines, true); });
 onUnmounted(() => { window.removeEventListener('resize', drawLines); window.removeEventListener('scroll', drawLines, true); });
 

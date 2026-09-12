@@ -44,7 +44,7 @@ await p.getByText('Orchestration', { exact: true }).first().click(); await p.wai
 r.domain.testChips = await p.locator('.test-chip').count(); r.domain.testsPassed = await p.locator('.test-chip.pass').count();
 await p.screenshot({ path: `${out}/domain-l3.png` });
 // glossary
-await p.locator('button', { hasText: 'Glossary' }).click(); await p.waitForTimeout(200);
+await p.locator('.glossary-btn').click(); await p.waitForTimeout(200);
 r.glossary = { terms: await p.getByText('Representation layer').count() };
 await p.screenshot({ path: `${out}/glossary.png` });
 // reference anchors

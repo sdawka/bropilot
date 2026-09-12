@@ -2428,6 +2428,393 @@
       "props": {
         "status": "missing"
       }
+    },
+    {
+      "id": "module-director",
+      "kind": "module",
+      "title": "Director (the agent you talk to)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          110,
+          112,
+          113
+        ]
+      },
+      "description": "Speaks the Cue protocol to the main screen; scripted tours now, Flue later."
+    },
+    {
+      "id": "thing-cue",
+      "kind": "thing",
+      "title": "Cue",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          113,
+          114,
+          115
+        ]
+      },
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "thing-tour",
+      "kind": "thing",
+      "title": "Tour (sequence of cue groups)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          114
+        ]
+      },
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "thing-context",
+      "kind": "thing",
+      "title": "Context (what is on the main screen)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          112
+        ]
+      },
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "thing-user-turn",
+      "kind": "thing",
+      "title": "User turn",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          112
+        ]
+      },
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "interface-director-rpc",
+      "kind": "interface",
+      "title": "Director protocol: say / navigate / point / sequence / stage / glossary / ask",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          113,
+          114,
+          115
+        ]
+      },
+      "props": {
+        "style": "events",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "interface-bus",
+      "kind": "interface",
+      "title": "Bus: BroadcastChannel (same machine) or LAN relay (phone)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          111
+        ]
+      },
+      "props": {
+        "style": "events",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/bus.ts"
+      }
+    },
+    {
+      "id": "rule-one-utterance",
+      "kind": "rule",
+      "title": "The mirror shows at most one utterance or question at a time",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          113
+        ]
+      },
+      "props": {
+        "tests": "0 pos / 0 neg",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "rule-agent-through-gate",
+      "kind": "rule",
+      "title": "Agent changes go through the commit gate; only glossary takes the escape hatch",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          27,
+          115
+        ]
+      },
+      "props": {
+        "tests": "0 pos / 0 neg",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "rule-point-is-truthful",
+      "kind": "rule",
+      "title": "What the director points at is what the main screen highlights; the context published back is what is on screen",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          114
+        ]
+      },
+      "props": {
+        "tests": "0 pos / 0 neg",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "event-cue-applied",
+      "kind": "event",
+      "title": "CueApplied",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          114
+        ]
+      },
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "event-user-turn",
+      "kind": "event",
+      "title": "UserTurn",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          112
+        ]
+      },
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "screen-mirror",
+      "kind": "screen",
+      "title": "Mirror (phone: one thing at a time)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          111,
+          112,
+          113
+        ]
+      },
+      "description": "Says one thing, shows what it is pointing at, steps through tours, approves staged changes. Never shows the graph.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Mirror.vue"
+      }
+    },
+    {
+      "id": "screen-agent-sidebar",
+      "kind": "screen",
+      "title": "Agent sidebar (main screen)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          110
+        ]
+      },
+      "description": "Permanent right sidebar: same agent state, plus the transcript.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/AgentSidebar.vue"
+      }
+    },
+    {
+      "id": "test-mirror-exists",
+      "kind": "test",
+      "title": "mirror screen loads and waits for the main screen",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          93,
+          111
+        ]
+      },
+      "props": {
+        "ladder": "exists",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      }
+    },
+    {
+      "id": "result-mirror-exists",
+      "kind": "test-result",
+      "title": "pass: mirror screen loads and waits for the main screen",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      },
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke-mirror.mjs"
+      }
+    },
+    {
+      "id": "test-point-highlights",
+      "kind": "test",
+      "title": "a point cue highlights exactly the named cards on the main screen",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          114
+        ]
+      },
+      "props": {
+        "ladder": "surface",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      }
+    },
+    {
+      "id": "result-point-highlights",
+      "kind": "test-result",
+      "title": "pass: a point cue highlights exactly the named cards on the main screen",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      },
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke-mirror.mjs"
+      }
+    },
+    {
+      "id": "test-stage-reviewable",
+      "kind": "test",
+      "title": "a stage cue produces a reviewable changeset, nothing committed",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          115
+        ]
+      },
+      "props": {
+        "ladder": "surface",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      }
+    },
+    {
+      "id": "result-stage-reviewable",
+      "kind": "test-result",
+      "title": "pass: a stage cue produces a reviewable changeset, nothing committed",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      },
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke-mirror.mjs"
+      }
+    },
+    {
+      "id": "test-one-utterance",
+      "kind": "test",
+      "title": "the mirror never renders two utterances at once",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          113
+        ]
+      },
+      "props": {
+        "ladder": "surface",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      }
+    },
+    {
+      "id": "result-one-utterance",
+      "kind": "test-result",
+      "title": "pass: the mirror never renders two utterances at once",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      },
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke-mirror.mjs"
+      }
+    },
+    {
+      "id": "flow-mirror",
+      "kind": "flow",
+      "title": "Talk on the mirror, watch the main screen",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          111,
+          112,
+          113,
+          114,
+          115
+        ]
+      }
+    },
+    {
+      "id": "hypothesis-h8",
+      "kind": "hypothesis",
+      "title": "H8 A one-thing-at-a-time companion that can point at the main screen and edit the data beats filling in forms",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          112,
+          113,
+          114,
+          115
+        ]
+      },
+      "props": {
+        "verdict": "open"
+      }
     }
   ],
   "edges": [
@@ -3942,6 +4329,276 @@
       "src": "result-delivery-exists",
       "dst": "test-delivery-exists",
       "type": "reports"
+    },
+    {
+      "id": "e255",
+      "src": "system-bropilot",
+      "dst": "module-director",
+      "type": "contains"
+    },
+    {
+      "id": "e256",
+      "src": "module-director",
+      "dst": "module-representation",
+      "type": "uses"
+    },
+    {
+      "id": "e257",
+      "src": "module-director",
+      "dst": "module-orchestration",
+      "type": "uses"
+    },
+    {
+      "id": "e258",
+      "src": "module-director",
+      "dst": "external-flue",
+      "type": "uses"
+    },
+    {
+      "id": "e259",
+      "src": "module-director",
+      "dst": "thing-cue",
+      "type": "contains"
+    },
+    {
+      "id": "e260",
+      "src": "module-director",
+      "dst": "thing-tour",
+      "type": "contains"
+    },
+    {
+      "id": "e261",
+      "src": "module-director",
+      "dst": "thing-context",
+      "type": "contains"
+    },
+    {
+      "id": "e262",
+      "src": "module-director",
+      "dst": "thing-user-turn",
+      "type": "contains"
+    },
+    {
+      "id": "e263",
+      "src": "module-director",
+      "dst": "interface-director-rpc",
+      "type": "exposes"
+    },
+    {
+      "id": "e264",
+      "src": "module-director",
+      "dst": "interface-bus",
+      "type": "exposes"
+    },
+    {
+      "id": "e265",
+      "src": "module-director",
+      "dst": "rule-one-utterance",
+      "type": "contains"
+    },
+    {
+      "id": "e266",
+      "src": "module-director",
+      "dst": "rule-agent-through-gate",
+      "type": "contains"
+    },
+    {
+      "id": "e267",
+      "src": "module-director",
+      "dst": "rule-point-is-truthful",
+      "type": "contains"
+    },
+    {
+      "id": "e268",
+      "src": "rule-one-utterance",
+      "dst": "thing-cue",
+      "type": "governs"
+    },
+    {
+      "id": "e269",
+      "src": "rule-agent-through-gate",
+      "dst": "thing-cue",
+      "type": "governs"
+    },
+    {
+      "id": "e270",
+      "src": "rule-agent-through-gate",
+      "dst": "thing-commit",
+      "type": "governs"
+    },
+    {
+      "id": "e271",
+      "src": "rule-point-is-truthful",
+      "dst": "thing-context",
+      "type": "governs"
+    },
+    {
+      "id": "e272",
+      "src": "rule-point-is-truthful",
+      "dst": "thing-cue",
+      "type": "governs"
+    },
+    {
+      "id": "e273",
+      "src": "module-director",
+      "dst": "event-cue-applied",
+      "type": "contains"
+    },
+    {
+      "id": "e274",
+      "src": "interface-director-rpc",
+      "dst": "event-cue-applied",
+      "type": "emits"
+    },
+    {
+      "id": "e275",
+      "src": "module-director",
+      "dst": "event-user-turn",
+      "type": "contains"
+    },
+    {
+      "id": "e276",
+      "src": "interface-director-rpc",
+      "dst": "event-user-turn",
+      "type": "emits"
+    },
+    {
+      "id": "e277",
+      "src": "module-director",
+      "dst": "screen-mirror",
+      "type": "exposes"
+    },
+    {
+      "id": "e278",
+      "src": "screen-mirror",
+      "dst": "interface-bus",
+      "type": "uses"
+    },
+    {
+      "id": "e279",
+      "src": "module-director",
+      "dst": "screen-agent-sidebar",
+      "type": "exposes"
+    },
+    {
+      "id": "e280",
+      "src": "screen-agent-sidebar",
+      "dst": "interface-bus",
+      "type": "uses"
+    },
+    {
+      "id": "e281",
+      "src": "screen-mirror",
+      "dst": "capability-guided-path",
+      "type": "implements"
+    },
+    {
+      "id": "e282",
+      "src": "screen-agent-sidebar",
+      "dst": "capability-guided-path",
+      "type": "implements"
+    },
+    {
+      "id": "e283",
+      "src": "module-director",
+      "dst": "test-mirror-exists",
+      "type": "contains"
+    },
+    {
+      "id": "e284",
+      "src": "result-mirror-exists",
+      "dst": "test-mirror-exists",
+      "type": "reports"
+    },
+    {
+      "id": "e285",
+      "src": "module-director",
+      "dst": "test-point-highlights",
+      "type": "contains"
+    },
+    {
+      "id": "e286",
+      "src": "test-point-highlights",
+      "dst": "rule-point-is-truthful",
+      "type": "verifies"
+    },
+    {
+      "id": "e287",
+      "src": "result-point-highlights",
+      "dst": "test-point-highlights",
+      "type": "reports"
+    },
+    {
+      "id": "e288",
+      "src": "module-director",
+      "dst": "test-stage-reviewable",
+      "type": "contains"
+    },
+    {
+      "id": "e289",
+      "src": "test-stage-reviewable",
+      "dst": "rule-agent-through-gate",
+      "type": "verifies"
+    },
+    {
+      "id": "e290",
+      "src": "result-stage-reviewable",
+      "dst": "test-stage-reviewable",
+      "type": "reports"
+    },
+    {
+      "id": "e291",
+      "src": "module-director",
+      "dst": "test-one-utterance",
+      "type": "contains"
+    },
+    {
+      "id": "e292",
+      "src": "test-one-utterance",
+      "dst": "rule-one-utterance",
+      "type": "verifies"
+    },
+    {
+      "id": "e293",
+      "src": "result-one-utterance",
+      "dst": "test-one-utterance",
+      "type": "reports"
+    },
+    {
+      "id": "e294",
+      "src": "feature-product",
+      "dst": "flow-mirror",
+      "type": "has"
+    },
+    {
+      "id": "e295",
+      "src": "flow-mirror",
+      "dst": "capability-guided-path",
+      "type": "implements"
+    },
+    {
+      "id": "e296",
+      "src": "flow-mirror",
+      "dst": "screen-mirror",
+      "type": "uses"
+    },
+    {
+      "id": "e297",
+      "src": "hypothesis-h8",
+      "dst": "problem-unstructured-articulation",
+      "type": "references"
+    },
+    {
+      "id": "e298",
+      "src": "hypothesis-h8",
+      "dst": "flow-mirror",
+      "type": "references"
+    },
+    {
+      "id": "e299",
+      "src": "capability-guided-path",
+      "dst": "hypothesis-h8",
+      "type": "references"
     }
   ]
 }

@@ -21,7 +21,17 @@ const edgesOfType = (t: string) => state.graph.edges.filter((e) => e.type === t)
 const title = (id: string) => nodeById(id)?.title ?? id;
 
 const select = (id: string) => { state.selectedId = state.selectedId === id ? null : id; };
-const goLevel = (l: 0 | 1 | 2 | 3) => { level.value = l; if (l === 3 && !selectedModule.value) selectedModule.value = modules.value[0]?.id ?? null; };
+const goLevel = (l: 0 | 1 | 2 | 3) => { level.value = l; if (l === 3 && !selectedModule.value) selectedModule.value = modules.value[0]?.id ?? null; state.domainLevel = l; };
+
+// director points in via state.domainLevel/domainModule; local clicks write back so the context stays truthful
+watch(() => state.domainLevel, (l) => { if (l !== level.value) level.value = l; });
+watch(() => state.domainModule, (m) => { if (m && m !== selectedModule.value) selectedModule.value = m; });
+watch(selectedModule, (m) => { if (m !== state.domainModule) state.domainModule = m; });
+
+// ── director "point" cues: lit cards/chips ──────────────────────────────────
+const edgeById = (id: string) => state.graph.edges.find((e) => e.id === id);
+const isLit = (id: string) => state.highlight.nodes.includes(id) || state.highlight.edges.some((eid) => { const e = edgeById(eid); return !!e && (e.src === id || e.dst === id); });
+const pointedAtEdges = computed(() => state.highlight.edges.map((eid) => edgeById(eid)).filter((e): e is NonNullable<typeof e> => !!e));
 
 // ── Level 1: context ────────────────────────────────────────────────────────
 const systems = computed(() => nodesOfKind('system'));
@@ -145,14 +155,14 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
     <section v-else-if="level === 1" class="l1">
       <div class="col audiences">
         <h3>Audience</h3>
-        <div v-for="a in audiences" :key="a.id" class="person-card" :class="{ selected: state.selectedId === a.id }" @click="select(a.id)">
+        <div v-for="a in audiences" :key="a.id" class="person-card" :class="{ selected: state.selectedId === a.id, lit: isLit(a.id) }" @click="select(a.id)">
           <div class="title">👤 {{ a.title }}</div>
           <p class="small" v-if="a.description">{{ a.description }}</p>
           <ul class="uses-list"><li v-for="e in usesFrom(a.id)" :key="e.id">→ uses {{ title(e.dst) }}</li></ul>
         </div>
       </div>
       <div class="col systems">
-        <div v-for="s in systems" :key="s.id" class="bubble" :class="{ selected: state.selectedId === s.id }" @click="openSystem(s.id)">
+        <div v-for="s in systems" :key="s.id" class="bubble" :class="{ selected: state.selectedId === s.id, lit: isLit(s.id) }" @click="openSystem(s.id)">
           <div class="title">🫧 {{ s.title }}</div>
           <p class="small" v-if="s.description">{{ s.description }}</p>
           <ul class="uses-list"><li v-for="e in usesFrom(s.id)" :key="e.id">→ uses {{ title(e.dst) }}</li></ul>
@@ -161,7 +171,7 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
       </div>
       <div class="col externals">
         <h3>External systems</h3>
-        <div v-for="ex in externals" :key="ex.id" class="dash-card" :class="{ selected: state.selectedId === ex.id }" @click="select(ex.id)">
+        <div v-for="ex in externals" :key="ex.id" class="dash-card" :class="{ selected: state.selectedId === ex.id, lit: isLit(ex.id) }" @click="select(ex.id)">
           <div class="title">🛰️ {{ ex.title }}</div>
           <ul class="uses-list" v-if="usesFrom(ex.id).length"><li v-for="e in usesFrom(ex.id)" :key="e.id">→ uses {{ title(e.dst) }}</li></ul>
         </div>
@@ -173,11 +183,11 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
       <div class="system-container">
         <div class="system-label">{{ systems[0]?.title ?? 'System' }}</div>
         <div class="modules-grid">
-          <div v-for="m in modules" :key="m.id" class="module-card" :class="{ selected: state.selectedId === m.id }" @click="openModule(m.id)">
+          <div v-for="m in modules" :key="m.id" class="module-card" :class="{ selected: state.selectedId === m.id, lit: isLit(m.id) }" @click="openModule(m.id)">
             <div class="title">📦 {{ m.title }}</div>
             <p class="small" v-if="m.description">{{ m.description }}</p>
             <div class="chips" v-if="infraOf(m.id).length">
-              <span class="tag" v-for="i in infraOf(m.id)" :key="i.id">🧱 {{ i.title }}</span>
+              <span class="tag" :class="{ lit: isLit(i.id) }" v-for="i in infraOf(m.id)" :key="i.id">🧱 {{ i.title }}</span>
             </div>
             <div class="counts small">
               {{ countOf(m.id, 'thing', 'contains') }} things · {{ countOf(m.id, 'rule', 'contains') }} rules · {{ countOf(m.id, 'interface', 'exposes') }} interfaces
@@ -202,7 +212,7 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
       <div class="l3-grid">
         <div class="col">
           <h3>Things</h3>
-          <button v-for="t in things" :key="t.id" class="item-card" :class="[{ selected: state.selectedId === t.id, dim: dimThing(t.id) }]" @click="select(t.id)">
+          <button v-for="t in things" :key="t.id" class="item-card" :class="[{ selected: state.selectedId === t.id, dim: dimThing(t.id), lit: isLit(t.id) }]" @click="select(t.id)">
             <div class="title">🔷 {{ t.title }}</div>
             <p class="small" v-if="t.description">{{ t.description }}</p>
             <span class="tag" v-if="termFor(t.id)">📖 {{ title(termFor(t.id)!.src) }}</span>
@@ -213,7 +223,7 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
         </div>
         <div class="col">
           <h3>Rules</h3>
-          <button v-for="r in rules" :key="r.id" class="item-card" :class="[{ selected: state.selectedId === r.id, dim: dimRule(r.id) }]" @click="select(r.id)">
+          <button v-for="r in rules" :key="r.id" class="item-card" :class="[{ selected: state.selectedId === r.id, dim: dimRule(r.id), lit: isLit(r.id) }]" @click="select(r.id)">
             <div class="title">⚖️ {{ r.title }}</div>
             <p class="small" v-if="r.props?.tests">tests: {{ r.props.tests }}</p>
             <a v-if="r.props?.codeRef" :href="r.props.codeRef" target="_blank" rel="noopener" @click.stop>code ↗</a>
@@ -224,7 +234,7 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
         <div class="col">
           <h3>Events <span class="small">(S74)</span></h3>
           <p v-if="!events.length" class="small">no events recorded for this module</p>
-          <button v-for="ev in events" :key="ev.id" class="item-card" :class="[{ selected: state.selectedId === ev.id }]" @click="select(ev.id)">
+          <button v-for="ev in events" :key="ev.id" class="item-card" :class="[{ selected: state.selectedId === ev.id, lit: isLit(ev.id) }]" @click="select(ev.id)">
             <div class="title">⚡ {{ ev.title }}</div>
             <p class="small" v-if="emitterOf(ev.id).length">emitted by {{ emitterOf(ev.id).join(', ') }}</p>
             <a v-if="ev.props?.codeRef" :href="ev.props.codeRef" target="_blank" rel="noopener" @click.stop>code ↗</a>
@@ -234,7 +244,7 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
         <div class="col">
           <h3>Protocols <span class="small">(S105)</span></h3>
           <p v-if="!protocols.length" class="small">no protocols for this module</p>
-          <button v-for="pr in protocols" :key="pr.id" class="item-card" :class="[{ selected: state.selectedId === pr.id }]" @click="select(pr.id)">
+          <button v-for="pr in protocols" :key="pr.id" class="item-card" :class="[{ selected: state.selectedId === pr.id, lit: isLit(pr.id) }]" @click="select(pr.id)">
             <div class="title">🛡️ {{ pr.title }}</div>
             <p class="small" v-if="pr.props?.cadence">cadence: {{ pr.props.cadence }}</p>
             <p class="small" :class="{ warn: !realisedBy(pr.id).length }">{{ realisedBy(pr.id).length ? 'realised by ' + realisedBy(pr.id).join(', ') : 'not yet realised in reality → planned change' }}</p>
@@ -243,7 +253,7 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
         </div>
         <div class="col">
           <h3>Interface</h3>
-          <button v-for="i in interfaces" :key="i.id" class="item-card" :class="{ selected: state.selectedId === i.id }" @click="select(i.id)">
+          <button v-for="i in interfaces" :key="i.id" class="item-card" :class="{ selected: state.selectedId === i.id, lit: isLit(i.id) }" @click="select(i.id)">
             <div class="title">🔌 {{ i.title }}</div>
             <p class="small" v-if="i.props?.style">{{ i.props.style }}</p>
             <a v-if="i.props?.codeRef" :href="i.props.codeRef" target="_blank" rel="noopener" @click.stop>code ↗</a>
@@ -255,7 +265,7 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
       <div class="tests-footer small">
         <h3>Tests <Prov :source="said(89, 90, 93)" /></h3>
         <template v-if="tests.length">
-          <button v-for="t in tests" :key="t.id" class="test-chip" :class="[resultOf(t.id)?.props?.status ?? 'missing', { selected: state.selectedId === t.id }]" @click="select(t.id)" :title="verifiedBy(t.id).join('; ')">
+          <button v-for="t in tests" :key="t.id" class="test-chip" :class="[resultOf(t.id)?.props?.status ?? 'missing', { selected: state.selectedId === t.id, lit: isLit(t.id) }]" @click="select(t.id)" :title="verifiedBy(t.id).join('; ')">
             <span class="res">{{ { pass: '✅', fail: '❌', missing: '⬜' }[(resultOf(t.id)?.props?.status ?? 'missing') as 'pass' | 'fail' | 'missing'] }}</span>
             <span class="ladder">{{ t.props?.ladder }}</span> {{ t.title }}
             <span v-if="verifiedBy(t.id).length" class="small">· verifies {{ verifiedBy(t.id).length }} rule{{ verifiedBy(t.id).length > 1 ? 's' : '' }}</span>
@@ -274,6 +284,10 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
       <a v-if="detail.props?.codeRef" :href="detail.props.codeRef" target="_blank" rel="noopener">code ↗</a>
       <h3>Provenance</h3>
       <Prov :source="detail.source" full />
+      <template v-if="level === 3 && pointedAtEdges.length">
+        <h3>Pointed at</h3>
+        <ul><li v-for="e in pointedAtEdges" :key="e.id">{{ title(e.src) }} —{{ edgeTypeById[e.type]?.label ?? e.type }}→ {{ title(e.dst) }}</li></ul>
+      </template>
       <h3>Edges out ({{ detailOut.length }})</h3>
       <ul><li v-for="e in detailOut" :key="e.id"><em>{{ edgeTypeById[e.type]?.label ?? e.type }}</em> → {{ title(e.dst) }}</li></ul>
       <h3>Edges in ({{ detailIn.length }})</h3>
@@ -299,6 +313,7 @@ const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).fi
 .bubble { border-radius: 999px / 30%; border-width: 2px; text-align: center; padding: 1.2rem 1rem; }
 .dash-card { border-style: dashed; }
 .person-card.selected, .bubble.selected, .dash-card.selected, .module-card.selected, .item-card.selected { outline: 2px solid var(--ink); }
+.person-card.lit, .bubble.lit, .dash-card.lit, .module-card.lit, .item-card.lit, .test-chip.lit, .chips .tag.lit { outline: 2px solid var(--kernel); }
 .title { font-weight: 600; font-size: .92rem; }
 .uses-list { list-style: none; margin: .3rem 0 0; padding: 0; font-size: .78rem; color: var(--muted); }
 .hint { display: block; margin-top: .3rem; }

@@ -2,6 +2,17 @@
 
 Newest first. One entry per loop iteration: what we looked at, what changed, what's next.
 
+## 2026-09-12 — v2.0 (the magic mirror)
+- **Director protocol** (`src/director.ts`, S113–S115): `say · navigate · point · clear · sequence · stage · glossary · ask`. Whoever speaks it has the same powers; it doubles as the tool list for an LLM/Flue director (`src/directors/llm.ts`, stub with `DIRECTOR_TOOLS` + `systemPrompt`).
+- **Bus** (`src/bus.ts`): BroadcastChannel on one machine; `relay.mjs` (`npm run relay`) + `npm run dev:lan` for the phone over Wi-Fi (`#mirror?relay=<lan-ip>`).
+- **Mirror** (`#mirror`, S111–S113): one card = one utterance or one question; "pointing at" caption; Back/Next/Stop for tours; Approve/Discard for staged changes; tour chips; free text. Never shows the graph.
+- **Agent sidebar** (S110): permanent right panel on the main screen with the same state plus the transcript.
+- **Pointing** (S114): Overview lights cards and draws lines for highlighted edges; Domain follows `domainLevel`/`domainModule` and lights cards at all levels; Definition opens a pointed question.
+- **Scripted director** (`src/directors/scripted.ts`): four tours built from the live graph — Walk the Map, Explain a bet, What's not realised (stages an epic + tasks), Add a glossary term (asks, then commits) — plus free-talk keyword lookup with the user's own quote, and `edit bet: …` which stages a reworded bet.
+- Smoke: `smoke-mirror.mjs` drives main + mirror pages over BroadcastChannel: Walk the Map (navigate, point, lines), Add a glossary term (ask → ask → committed), What's not realised (5 effects staged → Approve from the mirror → committed), free talk (points + quotes), one utterance card at all times. The four mirror tests report pass.
+- Fixed on the way: Vue proxies can't cross BroadcastChannel (JSON-clone before post); a pending ask must yield to the next utterance.
+- Dogfood: module *Director*, things Cue/Tour/Context/User turn, interfaces Director protocol + Bus, three rules, two events, screens Mirror + Agent sidebar, four tests (missing until smoke covers them), flow U2, **H8** (a one-thing-at-a-time companion that can point and edit beats forms). Invariants `inv-one-utterance`, `inv-agent-through-gate`.
+
 ## 2026-09-11 — v1.6 (the three open questions resolved)
 - **Protocols in the representation** (S105–S107): kernel kind `protocol` (solution, level 3) = how we want to enact the representation; reality's `practice` nodes `realises` them; unrealised protocols are planned changes (`inv-protocol-realised`). New module *Automation (the product automation zone)* holds six protocols: PR gate, regular security audit, changelog as blog post, commit-and-push, provenance, dogfood-same-commit. Three are realised by existing practices; three are not, and Domain level 3 says so.
 - **Goals are outcomes** (S108): `goal` moved to the problem space next to outcomes; both carry `for: audience | business`. Seeded a business goal (Bropilot sustains itself).

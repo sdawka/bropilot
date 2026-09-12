@@ -46,6 +46,15 @@ export const state = reactive({
   commits: [] as Commit[],
   selectedId: null as string | null,
   hydrated: false,
+  // ── director / mirror state (S110–S115) ──
+  highlight: { nodes: [] as string[], edges: [] as string[], focus: null as string | null },
+  say: null as { id: string; text: string } | null,
+  ask: null as { id: string; text: string; options?: string[] } | null,
+  tour: null as { steps: any[][]; i: number; dwellMs: number; paused: boolean } | null,
+  transcript: [] as { who: 'agent' | 'user'; text: string; at: number }[],
+  domainLevel: 0 as 0 | 1 | 2 | 3,
+  domainModule: null as string | null,
+  definitionQuestion: null as string | null,
 });
 
 function clone<T>(x: T): T { return JSON.parse(JSON.stringify(x)); }

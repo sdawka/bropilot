@@ -73,6 +73,12 @@ const selectNode = (id: string) => {
   expanded.value.add(id); // selecting a node also opens it, so its answers and "+ sub-question / + thread" are reachable
 };
 
+// director points at a question/follow-up id via state.definitionQuestion
+watch(() => state.definitionQuestion, (id) => { if (id) selectNode(id); });
+
+// director "point" cues: a question or follow-up row may also be lit by node id
+const isLit = (id: string) => state.highlight.nodes.includes(id);
+
 const questionsBySpace = computed(() => {
   const m: Record<string, typeof QUESTIONS> = {};
   for (const q of QUESTIONS) (m[q.space] ??= []).push(q);
@@ -135,7 +141,7 @@ const kindOptions = KINDS.map((k) => ({ id: k.id, label: k.label }));
         <div v-for="q in questionsBySpace[sp.id]" :key="q.id" class="tree-node">
           <button
             class="q"
-            :class="[stateOf(q.id), { active: active?.kind === 'question' && active.question.id === q.id }]"
+            :class="[stateOf(q.id), { active: active?.kind === 'question' && active.question.id === q.id, lit: isLit(q.id) }]"
             :disabled="stateOf(q.id) === 'locked'"
             :style="{ '--hue': hue(q.space) }"
             @click="selectNode(q.id)"
@@ -157,7 +163,7 @@ const kindOptions = KINDS.map((k) => ({ id: k.id, label: k.label }));
             <div v-for="row in visibleDescendants(q.id)" :key="row.followup.id" class="followup-row" :style="{ marginLeft: (row.depth - 1) * 1.1 + 'rem' }">
               <button
                 class="q followup"
-                :class="[row.followup.kind, { active: active?.kind === 'followup' && active.followup.id === row.followup.id }]"
+                :class="[row.followup.kind, { active: active?.kind === 'followup' && active.followup.id === row.followup.id, lit: isLit(row.followup.id) }]"
                 @click="selectNode(row.followup.id)"
               >
                 <span class="chevron" @click.stop="toggleExpand(row.followup.id)">{{ isExpanded(row.followup.id) ? '▾' : '▸' }}</span>
@@ -249,6 +255,7 @@ const kindOptions = KINDS.map((k) => ({ id: k.id, label: k.label }));
 .tag.thread { color: var(--inferred); border-color: var(--inferred); border-style: dotted; }
 .remove-btn { flex: none; padding: .1rem .4rem; line-height: 1; color: var(--muted); }
 .remove-btn:hover { color: var(--inferred); border-color: var(--inferred); }
+.q.lit { outline: 2px solid var(--kernel); }
 .path.definition { grid-template-columns: minmax(0, 1fr) 380px; } /* tree first and wide; inputs on the side (S84) */
 .answer.side { position: sticky; top: 4rem; align-self: start; max-height: calc(100vh - 5rem); overflow: auto; }
 .answer.side textarea { min-height: 5rem; }
