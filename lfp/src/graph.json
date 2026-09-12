@@ -1,0 +1,4604 @@
+{
+  "nodes": [
+    {
+      "id": "name-bropilot",
+      "kind": "name",
+      "title": "Bropilot",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          10
+        ]
+      }
+    },
+    {
+      "id": "purpose-self-sustaining",
+      "kind": "purpose",
+      "title": "Help people build self-sustaining software systems without having held every startup role",
+      "description": "A system is self-sustaining when it has a stated real-world effect, a way to measure it, and a loop that keeps improving it.",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          11,
+          13,
+          15
+        ]
+      }
+    },
+    {
+      "id": "audience-untrained-builder",
+      "kind": "audience",
+      "title": "Untrained builder",
+      "description": "Has an idea and can operate an AI coding tool; hasn't done PM, marketing, UX research, design or strategy rigorously.",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          13
+        ]
+      }
+    },
+    {
+      "id": "audience-trained-unstructured",
+      "kind": "audience",
+      "title": "Trained but unstructured builder",
+      "description": "Knows the roles, still benefits from being held to a structure.",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          20
+        ]
+      }
+    },
+    {
+      "id": "audience-agent-team",
+      "kind": "audience",
+      "title": "The agent team",
+      "description": "Consumes the representation to act.",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          35
+        ]
+      }
+    },
+    {
+      "id": "context-hazy-idea",
+      "kind": "context",
+      "title": "Talking an idea out as one hazy mess",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          19
+        ]
+      }
+    },
+    {
+      "id": "usecase-describe-system",
+      "kind": "usecase",
+      "title": "Describe the system I want to build",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          10,
+          21
+        ]
+      }
+    },
+    {
+      "id": "usecase-share-system",
+      "kind": "usecase",
+      "title": "Share a system with others",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          38
+        ]
+      }
+    },
+    {
+      "id": "problem-no-constraints",
+      "kind": "problem",
+      "title": "Vibe-coding tools have no constraints or template",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          16
+        ]
+      }
+    },
+    {
+      "id": "problem-unstructured-articulation",
+      "kind": "problem",
+      "title": "Knowing the next question to ask is the scarce skill",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          19,
+          20
+        ]
+      }
+    },
+    {
+      "id": "problem-no-real-world-effect",
+      "kind": "problem",
+      "title": "Products ship without a stated real-world effect",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          9
+        ]
+      }
+    },
+    {
+      "id": "problem-functions-neglected",
+      "kind": "problem",
+      "title": "Non-product functions are left to chance",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          7,
+          26
+        ]
+      }
+    },
+    {
+      "id": "outcome-ships-coherent",
+      "kind": "outcome",
+      "title": "Ships something coherent end to end",
+      "props": {
+        "metric": "first commit executed by agents",
+        "for": "audience"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          14
+        ]
+      }
+    },
+    {
+      "id": "outcome-knows-good",
+      "kind": "outcome",
+      "title": "Knows what good means and sees progress toward it",
+      "props": {
+        "metric": "hypotheses with verdicts",
+        "for": "audience"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          15
+        ]
+      }
+    },
+    {
+      "id": "outcome-keeps-improving",
+      "kind": "outcome",
+      "title": "System keeps improving after launch",
+      "props": {
+        "metric": "commits after first deploy",
+        "for": "audience"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          11,
+          15
+        ]
+      }
+    },
+    {
+      "id": "hypothesis-h1",
+      "kind": "hypothesis",
+      "title": "H1 Structured questions beat free chat for spec quality",
+      "props": {
+        "verdict": "open"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          14,
+          21
+        ]
+      }
+    },
+    {
+      "id": "hypothesis-h2",
+      "kind": "hypothesis",
+      "title": "H2 A committed representation executed by agents beats hand-driving an IDE agent",
+      "props": {
+        "verdict": "open"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      }
+    },
+    {
+      "id": "hypothesis-h3",
+      "kind": "hypothesis",
+      "title": "H3 An explicit reality loop causes real iteration",
+      "props": {
+        "verdict": "open"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          24,
+          25,
+          26
+        ]
+      }
+    },
+    {
+      "id": "hypothesis-h4",
+      "kind": "hypothesis",
+      "title": "H4 One ontology holds web app, course and info product",
+      "props": {
+        "verdict": "open"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          6,
+          17
+        ]
+      }
+    },
+    {
+      "id": "hypothesis-h5",
+      "kind": "hypothesis",
+      "title": "H5 Bropilot can describe itself with no special cases",
+      "props": {
+        "verdict": "open"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          10
+        ]
+      }
+    },
+    {
+      "id": "assumption-agents-capable",
+      "kind": "assumption",
+      "title": "Agents can act on a spec with limited supervision",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          27
+        ]
+      }
+    },
+    {
+      "id": "assumption-accept-constraints",
+      "kind": "assumption",
+      "title": "Users accept constraints in exchange for guidance",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          14
+        ]
+      }
+    },
+    {
+      "id": "assumption-representation-source",
+      "kind": "assumption",
+      "title": "The representation can stay the source of truth",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          22
+        ]
+      }
+    },
+    {
+      "id": "metric-first-commit",
+      "kind": "metric",
+      "title": "Time to first agent-executed commit",
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "reason": "Measure for outcome 'ships coherent'."
+      }
+    },
+    {
+      "id": "metric-verdicts",
+      "kind": "metric",
+      "title": "Share of hypotheses with a verdict",
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "reason": "Measure for outcome 'knows good'."
+      }
+    },
+    {
+      "id": "metric-post-launch-commits",
+      "kind": "metric",
+      "title": "Commits after first deploy",
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "reason": "Measure for outcome 'keeps improving'."
+      }
+    },
+    {
+      "id": "capability-guided-path",
+      "kind": "capability",
+      "title": "Guided articulation path",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          21
+        ]
+      }
+    },
+    {
+      "id": "capability-commit-gate",
+      "kind": "capability",
+      "title": "Effect preview and commit gate",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      }
+    },
+    {
+      "id": "capability-orchestration",
+      "kind": "capability",
+      "title": "Agent orchestration",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          27
+        ]
+      }
+    },
+    {
+      "id": "capability-templates",
+      "kind": "capability",
+      "title": "Templates and implementation styles",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          6,
+          17,
+          18
+        ]
+      }
+    },
+    {
+      "id": "capability-share",
+      "kind": "capability",
+      "title": "Share and export a system",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          38
+        ]
+      }
+    },
+    {
+      "id": "capability-reality",
+      "kind": "capability",
+      "title": "Reality observation (stub)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          24,
+          40
+        ]
+      }
+    },
+    {
+      "id": "capability-self-improve",
+      "kind": "capability",
+      "title": "Self-improvement (stub)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          28
+        ]
+      }
+    },
+    {
+      "id": "agent-strategist",
+      "kind": "agent",
+      "title": "Strategist",
+      "props": {
+        "status": "core"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          4
+        ]
+      }
+    },
+    {
+      "id": "agent-product-manager",
+      "kind": "agent",
+      "title": "Product manager",
+      "props": {
+        "status": "core"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          4
+        ]
+      }
+    },
+    {
+      "id": "agent-engineer",
+      "kind": "agent",
+      "title": "Engineer",
+      "props": {
+        "status": "core"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "reason": "Someone has to write the code; not named in the brief's list."
+      }
+    },
+    {
+      "id": "agent-domain-modeller",
+      "kind": "agent",
+      "title": "Domain modeller",
+      "props": {
+        "status": "stub"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "reason": "Owns vocabulary and rules (S31)."
+      }
+    },
+    {
+      "id": "agent-ux-researcher",
+      "kind": "agent",
+      "title": "UX researcher",
+      "props": {
+        "status": "stub"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          4
+        ]
+      }
+    },
+    {
+      "id": "agent-designer",
+      "kind": "agent",
+      "title": "Designer",
+      "props": {
+        "status": "stub"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          4,
+          37
+        ]
+      }
+    },
+    {
+      "id": "agent-marketer",
+      "kind": "agent",
+      "title": "Marketing specialist",
+      "props": {
+        "status": "stub"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          4,
+          34
+        ]
+      }
+    },
+    {
+      "id": "agent-educator",
+      "kind": "agent",
+      "title": "Educator / support",
+      "props": {
+        "status": "stub"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          7
+        ]
+      }
+    },
+    {
+      "id": "agent-meta",
+      "kind": "agent",
+      "title": "Meta (watches Bropilot itself)",
+      "props": {
+        "status": "stub"
+      },
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          28
+        ]
+      }
+    },
+    {
+      "id": "summary-bropilot",
+      "kind": "summary",
+      "title": "Bropilot turns a hazy idea into a committed representation that an agent team can act on. You answer structured questions; each answer stages effects on a knowledge graph; you commit; agents build, deploy and measure; reality feeds back. Built to describe itself.",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          49,
+          50
+        ]
+      }
+    },
+    {
+      "id": "system-bropilot",
+      "kind": "system",
+      "title": "Bropilot",
+      "status": "committed",
+      "description": "The whole system as one bubble. Web app + local agent runtime; not meaningfully separate yet.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          56
+        ]
+      }
+    },
+    {
+      "id": "external-github",
+      "kind": "external",
+      "title": "GitHub",
+      "status": "committed",
+      "description": "Where code lives and where level-3 items point.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          39,
+          69
+        ]
+      }
+    },
+    {
+      "id": "external-flue",
+      "kind": "external",
+      "title": "Flue (agent runtime)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          3,
+          39
+        ]
+      }
+    },
+    {
+      "id": "external-llm",
+      "kind": "external",
+      "title": "LLM provider",
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "reason": "Agents need a model; the brief never names one."
+      }
+    },
+    {
+      "id": "external-deploy",
+      "kind": "external",
+      "title": "Cloudflare Workers",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          39
+        ]
+      }
+    },
+    {
+      "id": "module-representation",
+      "kind": "module",
+      "title": "Representation",
+      "status": "committed",
+      "description": "The graph: nodes, edges, kinds, spaces, glossary. Source of truth.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          23,
+          60
+        ]
+      }
+    },
+    {
+      "id": "module-definition",
+      "kind": "module",
+      "title": "Definition",
+      "status": "committed",
+      "description": "The question tree, answers and threads that grow the representation.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          21,
+          51,
+          52
+        ]
+      }
+    },
+    {
+      "id": "module-orchestration",
+      "kind": "module",
+      "title": "Orchestration",
+      "status": "committed",
+      "description": "Effects, changesets, commits, actions, agents.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          27
+        ]
+      }
+    },
+    {
+      "id": "module-reality",
+      "kind": "module",
+      "title": "Reality (stub)",
+      "status": "committed",
+      "description": "Deployed system, usage, evidence. Shape only.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          24,
+          40,
+          60
+        ]
+      }
+    },
+    {
+      "id": "module-metrics",
+      "kind": "module",
+      "title": "Metrics collection (stub)",
+      "status": "committed",
+      "description": "Turns reality into evidence: metric readings, test counts, verdicts.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          60,
+          67
+        ]
+      }
+    },
+    {
+      "id": "infra-localstorage",
+      "kind": "infra",
+      "title": "localStorage (bropilot:lfp:v1)",
+      "status": "committed",
+      "description": "Where the lfp persists graph, answers, commits.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          61
+        ]
+      }
+    },
+    {
+      "id": "thing-node",
+      "kind": "thing",
+      "title": "Node",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          43
+        ]
+      }
+    },
+    {
+      "id": "thing-edge",
+      "kind": "thing",
+      "title": "Edge",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          43
+        ]
+      }
+    },
+    {
+      "id": "thing-kind",
+      "kind": "thing",
+      "title": "Kind",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/kernel.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          6,
+          43
+        ]
+      }
+    },
+    {
+      "id": "thing-space",
+      "kind": "thing",
+      "title": "Space",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/kernel.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          23,
+          45
+        ]
+      }
+    },
+    {
+      "id": "thing-term",
+      "kind": "thing",
+      "title": "Term",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/kernel.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          31,
+          59
+        ]
+      }
+    },
+    {
+      "id": "thing-question",
+      "kind": "thing",
+      "title": "Question",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/kernel.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          21
+        ]
+      }
+    },
+    {
+      "id": "thing-answer",
+      "kind": "thing",
+      "title": "Answer",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          21
+        ]
+      }
+    },
+    {
+      "id": "thing-thread",
+      "kind": "thing",
+      "title": "Thread",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          52,
+          53
+        ]
+      }
+    },
+    {
+      "id": "thing-effect",
+      "kind": "thing",
+      "title": "Effect",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          21,
+          27
+        ]
+      }
+    },
+    {
+      "id": "thing-changeset",
+      "kind": "thing",
+      "title": "Changeset",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      }
+    },
+    {
+      "id": "thing-commit",
+      "kind": "thing",
+      "title": "Commit",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      }
+    },
+    {
+      "id": "thing-action",
+      "kind": "thing",
+      "title": "Action",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          27
+        ]
+      }
+    },
+    {
+      "id": "thing-agent",
+      "kind": "thing",
+      "title": "Agent",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          4,
+          5
+        ]
+      }
+    },
+    {
+      "id": "thing-evidence",
+      "kind": "thing",
+      "title": "Evidence",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          24,
+          25,
+          40
+        ]
+      }
+    },
+    {
+      "id": "thing-metric-reading",
+      "kind": "thing",
+      "title": "Metric reading",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          67
+        ]
+      }
+    },
+    {
+      "id": "term-representation-layer",
+      "kind": "term",
+      "title": "Representation layer",
+      "status": "committed",
+      "description": "Everything descriptive: problem, hypothesis, solution spaces. The source.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          23
+        ]
+      }
+    },
+    {
+      "id": "term-reality-layer",
+      "kind": "term",
+      "title": "Reality layer",
+      "status": "committed",
+      "description": "The coded, deployed, used system and what it emits.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          24
+        ]
+      }
+    },
+    {
+      "id": "term-effect",
+      "kind": "term",
+      "title": "Effect",
+      "status": "committed",
+      "description": "One staged change derived from an answer or an action.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          21,
+          27
+        ]
+      }
+    },
+    {
+      "id": "term-commit",
+      "kind": "term",
+      "title": "Commit",
+      "status": "committed",
+      "description": "Accepting a changeset; the only way things become real in the representation.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      }
+    },
+    {
+      "id": "term-thing",
+      "kind": "term",
+      "title": "Thing",
+      "status": "committed",
+      "description": "An entity in domain language; a noun.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          64
+        ]
+      }
+    },
+    {
+      "id": "term-rule",
+      "kind": "term",
+      "title": "Rule",
+      "status": "committed",
+      "description": "Logic about one or more things.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          64,
+          65
+        ]
+      }
+    },
+    {
+      "id": "term-space",
+      "kind": "term",
+      "title": "Space",
+      "status": "committed",
+      "description": "A column of the representation, enriched left to right.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          45
+        ]
+      }
+    },
+    {
+      "id": "rule-commit-gate",
+      "kind": "rule",
+      "title": "A node or edge becomes committed only through a Commit",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts",
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      }
+    },
+    {
+      "id": "rule-effect-provenance",
+      "kind": "rule",
+      "title": "Every Effect traces to exactly one Answer or Action",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts",
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "inferred",
+        "reason": "Structural rule I added; not in the brief."
+      }
+    },
+    {
+      "id": "rule-unlock",
+      "kind": "rule",
+      "title": "A Question unlocks only when all unlocksAfter have a committed Answer",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts",
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          20,
+          21
+        ]
+      }
+    },
+    {
+      "id": "rule-undo-whole",
+      "kind": "rule",
+      "title": "Undo reverts one whole Commit",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts",
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "inferred",
+        "reason": "Structural rule I added; not in the brief."
+      }
+    },
+    {
+      "id": "rule-kernel-additive",
+      "kind": "rule",
+      "title": "Templates add Kinds; they never remove kernel Kinds",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/kernel.ts",
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          6,
+          43
+        ]
+      }
+    },
+    {
+      "id": "rule-node-has-kind",
+      "kind": "rule",
+      "title": "Every Node has exactly one Kind; a Kind belongs to one Space",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/kernel.ts",
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          43
+        ]
+      }
+    },
+    {
+      "id": "rule-thread-parent",
+      "kind": "rule",
+      "title": "A Thread belongs to one Question; sub-questions are project-specific",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts",
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          52,
+          53
+        ]
+      }
+    },
+    {
+      "id": "rule-fixed-vocab",
+      "kind": "rule",
+      "title": "Committed Terms are used verbatim by other nodes",
+      "status": "committed",
+      "props": {
+        "tests": "0 pos / 0 neg"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          31
+        ]
+      }
+    },
+    {
+      "id": "interface-store-rpc",
+      "kind": "interface",
+      "title": "Store RPC: answer / commit / undo / exportJson",
+      "status": "committed",
+      "props": {
+        "style": "rpc",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          35
+        ]
+      }
+    },
+    {
+      "id": "interface-agent-actions",
+      "kind": "interface",
+      "title": "Action queue for agents (stub)",
+      "status": "committed",
+      "props": {
+        "style": "events"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          35
+        ]
+      }
+    },
+    {
+      "id": "feature-strategy",
+      "kind": "feature",
+      "title": "Strategy",
+      "status": "committed",
+      "props": {
+        "stages": "all"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          71,
+          72
+        ]
+      }
+    },
+    {
+      "id": "feature-product",
+      "kind": "feature",
+      "title": "Product management",
+      "status": "committed",
+      "props": {
+        "stages": "build, use"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          71,
+          72
+        ]
+      }
+    },
+    {
+      "id": "feature-engineering",
+      "kind": "feature",
+      "title": "Engineering & deploy",
+      "status": "committed",
+      "props": {
+        "stages": "build, use"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          71,
+          72
+        ]
+      }
+    },
+    {
+      "id": "feature-domain-modelling",
+      "kind": "feature",
+      "title": "Domain modelling",
+      "status": "committed",
+      "props": {
+        "stages": "build"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          71,
+          72
+        ]
+      }
+    },
+    {
+      "id": "feature-ux-research",
+      "kind": "feature",
+      "title": "UX research",
+      "status": "committed",
+      "props": {
+        "stages": "use, support, retention"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          71,
+          72
+        ]
+      }
+    },
+    {
+      "id": "feature-design",
+      "kind": "feature",
+      "title": "Design & tone",
+      "status": "committed",
+      "props": {
+        "stages": "build, awareness"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          71,
+          72
+        ]
+      }
+    },
+    {
+      "id": "feature-marketing",
+      "kind": "feature",
+      "title": "Marketing & promotion",
+      "status": "committed",
+      "props": {
+        "stages": "awareness, acquisition"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          71,
+          72
+        ]
+      }
+    },
+    {
+      "id": "feature-education",
+      "kind": "feature",
+      "title": "Education & support",
+      "status": "committed",
+      "props": {
+        "stages": "onboarding, support"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          71,
+          72
+        ]
+      }
+    },
+    {
+      "id": "feature-meta",
+      "kind": "feature",
+      "title": "Observe Bropilot itself",
+      "status": "committed",
+      "props": {
+        "stages": "all"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          71,
+          72
+        ]
+      }
+    },
+    {
+      "id": "problem-no-experience",
+      "kind": "problem",
+      "title": "The user hasn't spent years in every department of a startup",
+      "status": "committed",
+      "description": "The main problem. It subfields into every function a startup would have a department for; each becomes a feature here.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          13,
+          72
+        ]
+      }
+    },
+    {
+      "id": "hypothesis-h6",
+      "kind": "hypothesis",
+      "title": "H6 Guiding with standard constraints and procedures, asking for simple choices and offering options, gives baseline quality and greatly reduces the user's burden",
+      "status": "committed",
+      "props": {
+        "verdict": "open"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          73
+        ]
+      }
+    },
+    {
+      "id": "screen-overview",
+      "kind": "screen",
+      "title": "Overview",
+      "status": "committed",
+      "description": "The representation, space by space; basics collapsed in a header.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Overview.vue"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          55
+        ]
+      }
+    },
+    {
+      "id": "screen-definition",
+      "kind": "screen",
+      "title": "Definition",
+      "status": "committed",
+      "description": "Question tree: template roots, project sub-questions and threads; stage, review, commit, undo.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Definition.vue"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          51,
+          55
+        ]
+      }
+    },
+    {
+      "id": "screen-domain",
+      "kind": "screen",
+      "title": "Domain",
+      "status": "committed",
+      "description": "C4-style levels: context, modules, inside a module.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Domain.vue"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          55,
+          56
+        ]
+      }
+    },
+    {
+      "id": "screen-flows",
+      "kind": "screen",
+      "title": "Flows",
+      "status": "committed",
+      "description": "All flows and the kernel objects they touch.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Flows.vue"
+      },
+      "source": {
+        "kind": "inferred",
+        "reason": "A screen we built; not named in the brief."
+      }
+    },
+    {
+      "id": "screen-reference",
+      "kind": "screen",
+      "title": "Reference",
+      "status": "committed",
+      "description": "Bropilot's kernel as tables; said/inferred filter; statement bank.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Kernel.vue"
+      },
+      "source": {
+        "kind": "inferred",
+        "reason": "A screen we built; not named in the brief."
+      }
+    },
+    {
+      "id": "screen-glossary",
+      "kind": "screen",
+      "title": "Glossary drawer",
+      "status": "committed",
+      "description": "Always reachable; add, edit, delete terms; commits immediately.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Glossary.vue"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          59
+        ]
+      }
+    },
+    {
+      "id": "screen-inspector",
+      "kind": "screen",
+      "title": "Inspector panel",
+      "status": "committed",
+      "description": "Node details, edges, provenance in context, applicable kernel rules.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Inspector.vue"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          47,
+          48
+        ]
+      }
+    },
+    {
+      "id": "event-answer-given",
+      "kind": "event",
+      "title": "AnswerGiven",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          21
+        ]
+      }
+    },
+    {
+      "id": "event-followup-added",
+      "kind": "event",
+      "title": "FollowUpAdded",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          52,
+          53
+        ]
+      }
+    },
+    {
+      "id": "event-effects-staged",
+      "kind": "event",
+      "title": "EffectsStaged",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          21,
+          27
+        ]
+      }
+    },
+    {
+      "id": "event-committed",
+      "kind": "event",
+      "title": "Committed",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      }
+    },
+    {
+      "id": "event-undone",
+      "kind": "event",
+      "title": "Undone",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "inferred",
+        "reason": "Mirror of commit; not in the brief."
+      }
+    },
+    {
+      "id": "event-term-edited",
+      "kind": "event",
+      "title": "TermEdited",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          59
+        ]
+      }
+    },
+    {
+      "id": "term-event",
+      "kind": "term",
+      "title": "Event",
+      "status": "committed",
+      "description": "Something notable that happened; a past-tense fact in the domain.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          74
+        ]
+      }
+    },
+    {
+      "id": "repository-bropilot",
+      "kind": "repository",
+      "title": "sdawka/bropilot @ v4",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/tree/v4"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          85
+        ]
+      }
+    },
+    {
+      "id": "codebase-lfp",
+      "kind": "codebase",
+      "title": "lfp/ (the low-fi prototype)",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          85
+        ]
+      }
+    },
+    {
+      "id": "codebase-store",
+      "kind": "codebase",
+      "title": "lfp/src/store.ts",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          85
+        ]
+      }
+    },
+    {
+      "id": "codebase-kernel",
+      "kind": "codebase",
+      "title": "lfp/src/kernel.ts",
+      "status": "committed",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/kernel.ts"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          85
+        ]
+      }
+    },
+    {
+      "id": "infrastructure-vite",
+      "kind": "infrastructure",
+      "title": "Vite dev server on :5199",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          96
+        ]
+      }
+    },
+    {
+      "id": "infrastructure-localstorage",
+      "kind": "infrastructure",
+      "title": "Browser localStorage (bropilot:lfp:v1)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          96
+        ]
+      }
+    },
+    {
+      "id": "practice-commit-push",
+      "kind": "practice",
+      "title": "Commit and push to v4 at every step",
+      "status": "committed",
+      "props": {
+        "form": "protocol"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          96
+        ]
+      }
+    },
+    {
+      "id": "practice-smoke-before-commit",
+      "kind": "practice",
+      "title": "Run smoke.mjs before every commit",
+      "status": "committed",
+      "props": {
+        "form": "CI"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          96
+        ]
+      }
+    },
+    {
+      "id": "practice-provenance",
+      "kind": "practice",
+      "title": "Every kernel item carries said/inferred provenance",
+      "status": "committed",
+      "props": {
+        "form": "protocol"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          44,
+          96
+        ]
+      }
+    },
+    {
+      "id": "practice-left-to-right",
+      "kind": "practice",
+      "title": "Enrich spaces left to right",
+      "status": "committed",
+      "props": {
+        "form": "process flow"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          45,
+          96
+        ]
+      }
+    },
+    {
+      "id": "practice-dogfood-same-commit",
+      "kind": "practice",
+      "title": "A change to how Bropilot works changes its own graph in the same commit",
+      "status": "committed",
+      "props": {
+        "form": "protocol"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          10,
+          46
+        ]
+      }
+    },
+    {
+      "id": "test-page-loads",
+      "kind": "test",
+      "title": "lfp page loads and renders the Overview",
+      "status": "committed",
+      "props": {
+        "ladder": "exists",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          93
+        ]
+      }
+    },
+    {
+      "id": "test-store-answer-stages",
+      "kind": "test",
+      "title": "answer() stages one effect per line",
+      "status": "committed",
+      "props": {
+        "ladder": "surface",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          94
+        ]
+      }
+    },
+    {
+      "id": "test-commit-gate",
+      "kind": "test",
+      "title": "nothing becomes committed except through commit()",
+      "status": "committed",
+      "props": {
+        "ladder": "surface",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          90
+        ]
+      }
+    },
+    {
+      "id": "test-undo-whole",
+      "kind": "test",
+      "title": "undo() reverts exactly one commit",
+      "status": "committed",
+      "props": {
+        "ladder": "surface",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          90
+        ]
+      }
+    },
+    {
+      "id": "test-unlock",
+      "kind": "test",
+      "title": "a question unlocks only after its unlocksAfter are answered",
+      "status": "committed",
+      "props": {
+        "ladder": "surface",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          90
+        ]
+      }
+    },
+    {
+      "id": "test-sim-commit-gate",
+      "kind": "test",
+      "title": "simulated random answer/commit/undo sequences never leave a draft committed",
+      "status": "committed",
+      "props": {
+        "ladder": "simulation"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          95
+        ]
+      }
+    },
+    {
+      "id": "result-page-loads",
+      "kind": "test-result",
+      "title": "pass: page loads",
+      "status": "committed",
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      }
+    },
+    {
+      "id": "result-store-answer-stages",
+      "kind": "test-result",
+      "title": "pass: store answer stages",
+      "status": "committed",
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      }
+    },
+    {
+      "id": "result-commit-gate",
+      "kind": "test-result",
+      "title": "pass: commit gate",
+      "status": "committed",
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      }
+    },
+    {
+      "id": "result-undo-whole",
+      "kind": "test-result",
+      "title": "pass: undo whole",
+      "status": "committed",
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      }
+    },
+    {
+      "id": "result-unlock",
+      "kind": "test-result",
+      "title": "missing: unlock",
+      "status": "committed",
+      "props": {
+        "status": "missing"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      }
+    },
+    {
+      "id": "result-sim-commit-gate",
+      "kind": "test-result",
+      "title": "missing: sim commit gate",
+      "status": "committed",
+      "props": {
+        "status": "missing"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      }
+    },
+    {
+      "id": "epic-reality-shape",
+      "kind": "epic",
+      "title": "Give the reality layer its kinds and first tests",
+      "status": "committed",
+      "description": "Exists because two tests are missing.",
+      "source": {
+        "kind": "said",
+        "statements": [
+          86,
+          92
+        ]
+      }
+    },
+    {
+      "id": "task-unlock-test",
+      "kind": "task",
+      "title": "Write the unlock-order test in smoke.mjs",
+      "status": "committed",
+      "props": {
+        "status": "queued"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          88
+        ]
+      }
+    },
+    {
+      "id": "task-sim-harness",
+      "kind": "task",
+      "title": "Build a deterministic simulation harness for the store",
+      "status": "committed",
+      "props": {
+        "status": "queued"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          88,
+          95
+        ]
+      }
+    },
+    {
+      "id": "hypothesis-h7",
+      "kind": "hypothesis",
+      "title": "H7 Talking about the product, the way this loop works, changes the representation and culminates in changed or added tests that then get fulfilled",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          97,
+          98
+        ]
+      },
+      "description": "Meta: a bet about Bropilot's own primary flow.",
+      "props": {
+        "verdict": "open"
+      }
+    },
+    {
+      "id": "flow-talk-to-tests",
+      "kind": "flow",
+      "title": "Talk → representation → tests → fulfilled",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          97,
+          98
+        ]
+      },
+      "description": "The intended user flow. Talk about the product; the representation changes; tests are added or changed; reality starts fulfilling them."
+    },
+    {
+      "id": "evidence-lfp-loop",
+      "kind": "evidence",
+      "title": "This lfp loop: 6 briefs → 137 nodes, 6 tests, 4 fulfilled, 2 targeted by tasks",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          97,
+          98
+        ]
+      },
+      "description": "First evidence for H7, from Bropilot's own development on 2026-09-07 → 09-11.",
+      "props": {
+        "verdict": "supports"
+      }
+    },
+    {
+      "id": "feature-sales",
+      "kind": "feature",
+      "title": "Sales",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          103,
+          104
+        ]
+      },
+      "props": {
+        "stages": "acquisition"
+      }
+    },
+    {
+      "id": "agent-sales",
+      "kind": "agent",
+      "title": "Sales specialist",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          104
+        ]
+      },
+      "props": {
+        "status": "stub"
+      }
+    },
+    {
+      "id": "module-sales",
+      "kind": "module",
+      "title": "Sales (stub)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          103,
+          104
+        ]
+      },
+      "description": "A business domain, not a tech one. Same rules: things, rules, tests, interface."
+    },
+    {
+      "id": "feature-delivery",
+      "kind": "feature",
+      "title": "Delivery & implementation",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          103,
+          104
+        ]
+      },
+      "props": {
+        "stages": "onboarding, use"
+      }
+    },
+    {
+      "id": "agent-delivery",
+      "kind": "agent",
+      "title": "Delivery / implementation lead",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          104
+        ]
+      },
+      "props": {
+        "status": "stub"
+      }
+    },
+    {
+      "id": "module-delivery",
+      "kind": "module",
+      "title": "Delivery & implementation (stub)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          103,
+          104
+        ]
+      },
+      "description": "A business domain, not a tech one. Same rules: things, rules, tests, interface."
+    },
+    {
+      "id": "module-marketing",
+      "kind": "module",
+      "title": "Marketing & promotion (stub)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          104
+        ]
+      },
+      "description": "Funnels, leads, content. A business domain module."
+    },
+    {
+      "id": "goal-self-sustaining",
+      "kind": "goal",
+      "title": "Self-sustaining: users keep committing after launch and bets keep getting verdicts",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          100
+        ]
+      },
+      "description": "A compound of two metrics.",
+      "props": {
+        "for": "business"
+      }
+    },
+    {
+      "id": "metric-reading-commits",
+      "kind": "metric-reading",
+      "title": "Commits on v4 since the reset: 12",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          99
+        ]
+      },
+      "props": {
+        "value": "12",
+        "at": "2026-09-11"
+      }
+    },
+    {
+      "id": "usage-event-briefs",
+      "kind": "usage-event",
+      "title": "7 briefs given through this loop",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          99
+        ]
+      }
+    },
+    {
+      "id": "feedback-provenance",
+      "kind": "feedback",
+      "title": "\"I like the provenance with the specific utterances\"",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          47,
+          99
+        ]
+      }
+    },
+    {
+      "id": "asset-readme",
+      "kind": "asset",
+      "title": "lfp/README.md (how to run and what the screens are)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          104
+        ]
+      },
+      "props": {
+        "form": "guide",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/README.md"
+      }
+    },
+    {
+      "id": "module-automation",
+      "kind": "module",
+      "title": "Automation (the product automation zone)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          105,
+          107
+        ]
+      },
+      "description": "Protocols for how we enact the representation: gates, audits, publishing. Reality's practices realise them."
+    },
+    {
+      "id": "protocol-pr-gate",
+      "kind": "protocol",
+      "title": "PR gate: build, type-check and smoke must pass before merge",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          106
+        ]
+      },
+      "props": {
+        "cadence": "per PR"
+      }
+    },
+    {
+      "id": "protocol-security-audit",
+      "kind": "protocol",
+      "title": "Regular security audit",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          106
+        ]
+      },
+      "props": {
+        "cadence": "monthly"
+      }
+    },
+    {
+      "id": "protocol-changelog-blog",
+      "kind": "protocol",
+      "title": "Changelog published as a blog post on the marketing page",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          106
+        ]
+      },
+      "props": {
+        "cadence": "per release"
+      }
+    },
+    {
+      "id": "protocol-commit-push",
+      "kind": "protocol",
+      "title": "Commit and push at every step",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          105
+        ]
+      },
+      "props": {
+        "cadence": "per step"
+      }
+    },
+    {
+      "id": "protocol-provenance",
+      "kind": "protocol",
+      "title": "Every kernel item carries provenance to the brief",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          44,
+          105
+        ]
+      },
+      "props": {
+        "cadence": "always"
+      }
+    },
+    {
+      "id": "protocol-dogfood",
+      "kind": "protocol",
+      "title": "A change to how Bropilot works changes its own graph in the same commit",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          10,
+          105
+        ]
+      },
+      "props": {
+        "cadence": "per change"
+      }
+    },
+    {
+      "id": "goal-business-revenue",
+      "kind": "goal",
+      "title": "Bropilot sustains itself: paying users cover its running cost",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          108
+        ]
+      },
+      "description": "A goal for ourselves as the business.",
+      "props": {
+        "for": "business"
+      }
+    },
+    {
+      "id": "test-marketing-exists",
+      "kind": "test",
+      "title": "marketing module exists: a landing page is live",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          93,
+          109
+        ]
+      },
+      "props": {
+        "ladder": "exists"
+      }
+    },
+    {
+      "id": "result-marketing-exists",
+      "kind": "test-result",
+      "title": "missing: marketing module exists: a landing page is live",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      },
+      "props": {
+        "status": "missing"
+      }
+    },
+    {
+      "id": "test-sales-exists",
+      "kind": "test",
+      "title": "sales module exists: a way to buy or book exists",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          93,
+          109
+        ]
+      },
+      "props": {
+        "ladder": "exists"
+      }
+    },
+    {
+      "id": "result-sales-exists",
+      "kind": "test-result",
+      "title": "missing: sales module exists: a way to buy or book exists",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      },
+      "props": {
+        "status": "missing"
+      }
+    },
+    {
+      "id": "test-delivery-exists",
+      "kind": "test",
+      "title": "delivery module exists: an onboarding guide is published",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          93,
+          109
+        ]
+      },
+      "props": {
+        "ladder": "exists"
+      }
+    },
+    {
+      "id": "result-delivery-exists",
+      "kind": "test-result",
+      "title": "missing: delivery module exists: an onboarding guide is published",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      },
+      "props": {
+        "status": "missing"
+      }
+    },
+    {
+      "id": "module-director",
+      "kind": "module",
+      "title": "Director (the agent you talk to)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          110,
+          112,
+          113
+        ]
+      },
+      "description": "Speaks the Cue protocol to the main screen; scripted tours now, Flue later."
+    },
+    {
+      "id": "thing-cue",
+      "kind": "thing",
+      "title": "Cue",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          113,
+          114,
+          115
+        ]
+      },
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "thing-tour",
+      "kind": "thing",
+      "title": "Tour (sequence of cue groups)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          114
+        ]
+      },
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "thing-context",
+      "kind": "thing",
+      "title": "Context (what is on the main screen)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          112
+        ]
+      },
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "thing-user-turn",
+      "kind": "thing",
+      "title": "User turn",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          112
+        ]
+      },
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "interface-director-rpc",
+      "kind": "interface",
+      "title": "Director protocol: say / navigate / point / sequence / stage / glossary / ask",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          113,
+          114,
+          115
+        ]
+      },
+      "props": {
+        "style": "events",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "interface-bus",
+      "kind": "interface",
+      "title": "Bus: BroadcastChannel (same machine) or LAN relay (phone)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          111
+        ]
+      },
+      "props": {
+        "style": "events",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/bus.ts"
+      }
+    },
+    {
+      "id": "rule-one-utterance",
+      "kind": "rule",
+      "title": "The mirror shows at most one utterance or question at a time",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          113
+        ]
+      },
+      "props": {
+        "tests": "0 pos / 0 neg",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "rule-agent-through-gate",
+      "kind": "rule",
+      "title": "Agent changes go through the commit gate; only glossary takes the escape hatch",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          27,
+          115
+        ]
+      },
+      "props": {
+        "tests": "0 pos / 0 neg",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "rule-point-is-truthful",
+      "kind": "rule",
+      "title": "What the director points at is what the main screen highlights; the context published back is what is on screen",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          114
+        ]
+      },
+      "props": {
+        "tests": "0 pos / 0 neg",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "event-cue-applied",
+      "kind": "event",
+      "title": "CueApplied",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          114
+        ]
+      },
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "event-user-turn",
+      "kind": "event",
+      "title": "UserTurn",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          112
+        ]
+      },
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+      }
+    },
+    {
+      "id": "screen-mirror",
+      "kind": "screen",
+      "title": "Mirror (phone: one thing at a time)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          111,
+          112,
+          113
+        ]
+      },
+      "description": "Says one thing, shows what it is pointing at, steps through tours, approves staged changes. Never shows the graph.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/Mirror.vue"
+      }
+    },
+    {
+      "id": "screen-agent-sidebar",
+      "kind": "screen",
+      "title": "Agent sidebar (main screen)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          110
+        ]
+      },
+      "description": "Permanent right sidebar: same agent state, plus the transcript.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/AgentSidebar.vue"
+      }
+    },
+    {
+      "id": "test-mirror-exists",
+      "kind": "test",
+      "title": "mirror screen loads and waits for the main screen",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          93,
+          111
+        ]
+      },
+      "props": {
+        "ladder": "exists",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      }
+    },
+    {
+      "id": "result-mirror-exists",
+      "kind": "test-result",
+      "title": "pass: mirror screen loads and waits for the main screen",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      },
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke-mirror.mjs"
+      }
+    },
+    {
+      "id": "test-point-highlights",
+      "kind": "test",
+      "title": "a point cue highlights exactly the named cards on the main screen",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          114
+        ]
+      },
+      "props": {
+        "ladder": "surface",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      }
+    },
+    {
+      "id": "result-point-highlights",
+      "kind": "test-result",
+      "title": "pass: a point cue highlights exactly the named cards on the main screen",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      },
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke-mirror.mjs"
+      }
+    },
+    {
+      "id": "test-stage-reviewable",
+      "kind": "test",
+      "title": "a stage cue produces a reviewable changeset, nothing committed",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          115
+        ]
+      },
+      "props": {
+        "ladder": "surface",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      }
+    },
+    {
+      "id": "result-stage-reviewable",
+      "kind": "test-result",
+      "title": "pass: a stage cue produces a reviewable changeset, nothing committed",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      },
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke-mirror.mjs"
+      }
+    },
+    {
+      "id": "test-one-utterance",
+      "kind": "test",
+      "title": "the mirror never renders two utterances at once",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          113
+        ]
+      },
+      "props": {
+        "ladder": "surface",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+      }
+    },
+    {
+      "id": "result-one-utterance",
+      "kind": "test-result",
+      "title": "pass: the mirror never renders two utterances at once",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          91
+        ]
+      },
+      "props": {
+        "status": "pass",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke-mirror.mjs"
+      }
+    },
+    {
+      "id": "flow-mirror",
+      "kind": "flow",
+      "title": "Talk on the mirror, watch the main screen",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          111,
+          112,
+          113,
+          114,
+          115
+        ]
+      }
+    },
+    {
+      "id": "hypothesis-h8",
+      "kind": "hypothesis",
+      "title": "H8 A one-thing-at-a-time companion that can point at the main screen and edit the data beats filling in forms",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          112,
+          113,
+          114,
+          115
+        ]
+      },
+      "props": {
+        "verdict": "open"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "src": "purpose-self-sustaining",
+      "dst": "outcome-ships-coherent",
+      "type": "motivates"
+    },
+    {
+      "id": "e2",
+      "src": "purpose-self-sustaining",
+      "dst": "outcome-knows-good",
+      "type": "motivates"
+    },
+    {
+      "id": "e3",
+      "src": "purpose-self-sustaining",
+      "dst": "outcome-keeps-improving",
+      "type": "motivates"
+    },
+    {
+      "id": "e4",
+      "src": "audience-untrained-builder",
+      "dst": "problem-no-constraints",
+      "type": "has"
+    },
+    {
+      "id": "e5",
+      "src": "audience-untrained-builder",
+      "dst": "problem-unstructured-articulation",
+      "type": "has"
+    },
+    {
+      "id": "e6",
+      "src": "audience-untrained-builder",
+      "dst": "problem-functions-neglected",
+      "type": "has"
+    },
+    {
+      "id": "e7",
+      "src": "audience-trained-unstructured",
+      "dst": "problem-unstructured-articulation",
+      "type": "has"
+    },
+    {
+      "id": "e8",
+      "src": "audience-trained-unstructured",
+      "dst": "problem-no-real-world-effect",
+      "type": "has"
+    },
+    {
+      "id": "e9",
+      "src": "audience-untrained-builder",
+      "dst": "context-hazy-idea",
+      "type": "has"
+    },
+    {
+      "id": "e10",
+      "src": "audience-untrained-builder",
+      "dst": "usecase-describe-system",
+      "type": "has"
+    },
+    {
+      "id": "e11",
+      "src": "audience-untrained-builder",
+      "dst": "usecase-share-system",
+      "type": "has"
+    },
+    {
+      "id": "e12",
+      "src": "metric-first-commit",
+      "dst": "outcome-ships-coherent",
+      "type": "monitors"
+    },
+    {
+      "id": "e13",
+      "src": "metric-verdicts",
+      "dst": "outcome-knows-good",
+      "type": "monitors"
+    },
+    {
+      "id": "e14",
+      "src": "metric-post-launch-commits",
+      "dst": "outcome-keeps-improving",
+      "type": "monitors"
+    },
+    {
+      "id": "e15",
+      "src": "hypothesis-h1",
+      "dst": "outcome-ships-coherent",
+      "type": "references"
+    },
+    {
+      "id": "e16",
+      "src": "hypothesis-h2",
+      "dst": "outcome-ships-coherent",
+      "type": "references"
+    },
+    {
+      "id": "e17",
+      "src": "hypothesis-h3",
+      "dst": "outcome-keeps-improving",
+      "type": "references"
+    },
+    {
+      "id": "e18",
+      "src": "hypothesis-h4",
+      "dst": "capability-templates",
+      "type": "references"
+    },
+    {
+      "id": "e19",
+      "src": "hypothesis-h5",
+      "dst": "outcome-knows-good",
+      "type": "references"
+    },
+    {
+      "id": "e20",
+      "src": "capability-guided-path",
+      "dst": "audience-untrained-builder",
+      "type": "serves"
+    },
+    {
+      "id": "e21",
+      "src": "capability-guided-path",
+      "dst": "problem-unstructured-articulation",
+      "type": "satisfies"
+    },
+    {
+      "id": "e22",
+      "src": "capability-guided-path",
+      "dst": "problem-no-constraints",
+      "type": "satisfies"
+    },
+    {
+      "id": "e23",
+      "src": "capability-commit-gate",
+      "dst": "audience-trained-unstructured",
+      "type": "serves"
+    },
+    {
+      "id": "e24",
+      "src": "capability-orchestration",
+      "dst": "audience-agent-team",
+      "type": "serves"
+    },
+    {
+      "id": "e25",
+      "src": "capability-orchestration",
+      "dst": "problem-functions-neglected",
+      "type": "satisfies"
+    },
+    {
+      "id": "e26",
+      "src": "capability-templates",
+      "dst": "problem-no-constraints",
+      "type": "satisfies"
+    },
+    {
+      "id": "e27",
+      "src": "capability-share",
+      "dst": "usecase-share-system",
+      "type": "satisfies"
+    },
+    {
+      "id": "e28",
+      "src": "capability-reality",
+      "dst": "problem-no-real-world-effect",
+      "type": "satisfies"
+    },
+    {
+      "id": "e29",
+      "src": "capability-self-improve",
+      "dst": "outcome-keeps-improving",
+      "type": "serves"
+    },
+    {
+      "id": "e30",
+      "src": "audience-untrained-builder",
+      "dst": "system-bropilot",
+      "type": "uses"
+    },
+    {
+      "id": "e31",
+      "src": "audience-trained-unstructured",
+      "dst": "system-bropilot",
+      "type": "uses"
+    },
+    {
+      "id": "e32",
+      "src": "system-bropilot",
+      "dst": "external-github",
+      "type": "uses"
+    },
+    {
+      "id": "e33",
+      "src": "system-bropilot",
+      "dst": "external-flue",
+      "type": "uses"
+    },
+    {
+      "id": "e34",
+      "src": "external-flue",
+      "dst": "external-llm",
+      "type": "uses"
+    },
+    {
+      "id": "e35",
+      "src": "system-bropilot",
+      "dst": "external-deploy",
+      "type": "uses"
+    },
+    {
+      "id": "e36",
+      "src": "audience-agent-team",
+      "dst": "external-flue",
+      "type": "uses"
+    },
+    {
+      "id": "e37",
+      "src": "system-bropilot",
+      "dst": "module-representation",
+      "type": "contains"
+    },
+    {
+      "id": "e38",
+      "src": "system-bropilot",
+      "dst": "module-definition",
+      "type": "contains"
+    },
+    {
+      "id": "e39",
+      "src": "system-bropilot",
+      "dst": "module-orchestration",
+      "type": "contains"
+    },
+    {
+      "id": "e40",
+      "src": "system-bropilot",
+      "dst": "module-reality",
+      "type": "contains"
+    },
+    {
+      "id": "e41",
+      "src": "system-bropilot",
+      "dst": "module-metrics",
+      "type": "contains"
+    },
+    {
+      "id": "e42",
+      "src": "module-representation",
+      "dst": "infra-localstorage",
+      "type": "contains"
+    },
+    {
+      "id": "e43",
+      "src": "module-definition",
+      "dst": "module-orchestration",
+      "type": "triggers"
+    },
+    {
+      "id": "e44",
+      "src": "module-orchestration",
+      "dst": "module-representation",
+      "type": "uses"
+    },
+    {
+      "id": "e45",
+      "src": "module-reality",
+      "dst": "module-metrics",
+      "type": "triggers"
+    },
+    {
+      "id": "e46",
+      "src": "module-metrics",
+      "dst": "module-representation",
+      "type": "uses"
+    },
+    {
+      "id": "e47",
+      "src": "module-orchestration",
+      "dst": "external-flue",
+      "type": "uses"
+    },
+    {
+      "id": "e48",
+      "src": "module-orchestration",
+      "dst": "external-github",
+      "type": "uses"
+    },
+    {
+      "id": "e49",
+      "src": "module-representation",
+      "dst": "thing-node",
+      "type": "contains"
+    },
+    {
+      "id": "e50",
+      "src": "module-representation",
+      "dst": "thing-edge",
+      "type": "contains"
+    },
+    {
+      "id": "e51",
+      "src": "module-representation",
+      "dst": "thing-kind",
+      "type": "contains"
+    },
+    {
+      "id": "e52",
+      "src": "module-representation",
+      "dst": "thing-space",
+      "type": "contains"
+    },
+    {
+      "id": "e53",
+      "src": "module-representation",
+      "dst": "thing-term",
+      "type": "contains"
+    },
+    {
+      "id": "e54",
+      "src": "module-definition",
+      "dst": "thing-question",
+      "type": "contains"
+    },
+    {
+      "id": "e55",
+      "src": "module-definition",
+      "dst": "thing-answer",
+      "type": "contains"
+    },
+    {
+      "id": "e56",
+      "src": "module-definition",
+      "dst": "thing-thread",
+      "type": "contains"
+    },
+    {
+      "id": "e57",
+      "src": "module-orchestration",
+      "dst": "thing-effect",
+      "type": "contains"
+    },
+    {
+      "id": "e58",
+      "src": "module-orchestration",
+      "dst": "thing-changeset",
+      "type": "contains"
+    },
+    {
+      "id": "e59",
+      "src": "module-orchestration",
+      "dst": "thing-commit",
+      "type": "contains"
+    },
+    {
+      "id": "e60",
+      "src": "module-orchestration",
+      "dst": "thing-action",
+      "type": "contains"
+    },
+    {
+      "id": "e61",
+      "src": "module-orchestration",
+      "dst": "thing-agent",
+      "type": "contains"
+    },
+    {
+      "id": "e62",
+      "src": "module-reality",
+      "dst": "thing-evidence",
+      "type": "contains"
+    },
+    {
+      "id": "e63",
+      "src": "module-metrics",
+      "dst": "thing-metric-reading",
+      "type": "contains"
+    },
+    {
+      "id": "e64",
+      "src": "term-effect",
+      "dst": "thing-effect",
+      "type": "defines"
+    },
+    {
+      "id": "e65",
+      "src": "term-commit",
+      "dst": "thing-commit",
+      "type": "defines"
+    },
+    {
+      "id": "e66",
+      "src": "term-thing",
+      "dst": "thing-node",
+      "type": "defines"
+    },
+    {
+      "id": "e67",
+      "src": "term-space",
+      "dst": "thing-space",
+      "type": "defines"
+    },
+    {
+      "id": "e68",
+      "src": "rule-commit-gate",
+      "dst": "thing-node",
+      "type": "governs"
+    },
+    {
+      "id": "e69",
+      "src": "rule-commit-gate",
+      "dst": "thing-edge",
+      "type": "governs"
+    },
+    {
+      "id": "e70",
+      "src": "rule-commit-gate",
+      "dst": "thing-commit",
+      "type": "governs"
+    },
+    {
+      "id": "e71",
+      "src": "module-representation",
+      "dst": "rule-commit-gate",
+      "type": "contains"
+    },
+    {
+      "id": "e72",
+      "src": "rule-effect-provenance",
+      "dst": "thing-effect",
+      "type": "governs"
+    },
+    {
+      "id": "e73",
+      "src": "rule-effect-provenance",
+      "dst": "thing-answer",
+      "type": "governs"
+    },
+    {
+      "id": "e74",
+      "src": "rule-effect-provenance",
+      "dst": "thing-action",
+      "type": "governs"
+    },
+    {
+      "id": "e75",
+      "src": "module-orchestration",
+      "dst": "rule-effect-provenance",
+      "type": "contains"
+    },
+    {
+      "id": "e76",
+      "src": "rule-unlock",
+      "dst": "thing-question",
+      "type": "governs"
+    },
+    {
+      "id": "e77",
+      "src": "rule-unlock",
+      "dst": "thing-answer",
+      "type": "governs"
+    },
+    {
+      "id": "e78",
+      "src": "module-definition",
+      "dst": "rule-unlock",
+      "type": "contains"
+    },
+    {
+      "id": "e79",
+      "src": "rule-undo-whole",
+      "dst": "thing-commit",
+      "type": "governs"
+    },
+    {
+      "id": "e80",
+      "src": "module-orchestration",
+      "dst": "rule-undo-whole",
+      "type": "contains"
+    },
+    {
+      "id": "e81",
+      "src": "rule-kernel-additive",
+      "dst": "thing-kind",
+      "type": "governs"
+    },
+    {
+      "id": "e82",
+      "src": "module-representation",
+      "dst": "rule-kernel-additive",
+      "type": "contains"
+    },
+    {
+      "id": "e83",
+      "src": "rule-node-has-kind",
+      "dst": "thing-node",
+      "type": "governs"
+    },
+    {
+      "id": "e84",
+      "src": "rule-node-has-kind",
+      "dst": "thing-kind",
+      "type": "governs"
+    },
+    {
+      "id": "e85",
+      "src": "rule-node-has-kind",
+      "dst": "thing-space",
+      "type": "governs"
+    },
+    {
+      "id": "e86",
+      "src": "module-representation",
+      "dst": "rule-node-has-kind",
+      "type": "contains"
+    },
+    {
+      "id": "e87",
+      "src": "rule-thread-parent",
+      "dst": "thing-thread",
+      "type": "governs"
+    },
+    {
+      "id": "e88",
+      "src": "rule-thread-parent",
+      "dst": "thing-question",
+      "type": "governs"
+    },
+    {
+      "id": "e89",
+      "src": "module-definition",
+      "dst": "rule-thread-parent",
+      "type": "contains"
+    },
+    {
+      "id": "e90",
+      "src": "rule-fixed-vocab",
+      "dst": "thing-term",
+      "type": "governs"
+    },
+    {
+      "id": "e91",
+      "src": "rule-fixed-vocab",
+      "dst": "thing-node",
+      "type": "governs"
+    },
+    {
+      "id": "e92",
+      "src": "module-representation",
+      "dst": "rule-fixed-vocab",
+      "type": "contains"
+    },
+    {
+      "id": "e93",
+      "src": "module-representation",
+      "dst": "interface-store-rpc",
+      "type": "exposes"
+    },
+    {
+      "id": "e96",
+      "src": "module-orchestration",
+      "dst": "interface-agent-actions",
+      "type": "exposes"
+    },
+    {
+      "id": "e97",
+      "src": "agent-strategist",
+      "dst": "feature-strategy",
+      "type": "implements"
+    },
+    {
+      "id": "e98",
+      "src": "agent-product-manager",
+      "dst": "feature-product",
+      "type": "implements"
+    },
+    {
+      "id": "e99",
+      "src": "agent-engineer",
+      "dst": "feature-engineering",
+      "type": "implements"
+    },
+    {
+      "id": "e100",
+      "src": "agent-domain-modeller",
+      "dst": "feature-domain-modelling",
+      "type": "implements"
+    },
+    {
+      "id": "e101",
+      "src": "agent-ux-researcher",
+      "dst": "feature-ux-research",
+      "type": "implements"
+    },
+    {
+      "id": "e102",
+      "src": "agent-designer",
+      "dst": "feature-design",
+      "type": "implements"
+    },
+    {
+      "id": "e103",
+      "src": "agent-marketer",
+      "dst": "feature-marketing",
+      "type": "implements"
+    },
+    {
+      "id": "e104",
+      "src": "agent-educator",
+      "dst": "feature-education",
+      "type": "implements"
+    },
+    {
+      "id": "e105",
+      "src": "agent-meta",
+      "dst": "feature-meta",
+      "type": "implements"
+    },
+    {
+      "id": "e106",
+      "src": "assumption-agents-capable",
+      "dst": "hypothesis-h2",
+      "type": "references"
+    },
+    {
+      "id": "e107",
+      "src": "assumption-accept-constraints",
+      "dst": "hypothesis-h1",
+      "type": "references"
+    },
+    {
+      "id": "e108",
+      "src": "assumption-representation-source",
+      "dst": "hypothesis-h3",
+      "type": "references"
+    },
+    {
+      "id": "e109",
+      "src": "term-representation-layer",
+      "dst": "module-representation",
+      "type": "defines"
+    },
+    {
+      "id": "e110",
+      "src": "term-reality-layer",
+      "dst": "module-reality",
+      "type": "defines"
+    },
+    {
+      "id": "e111",
+      "src": "capability-orchestration",
+      "dst": "agent-strategist",
+      "type": "has"
+    },
+    {
+      "id": "e112",
+      "src": "capability-orchestration",
+      "dst": "agent-product-manager",
+      "type": "has"
+    },
+    {
+      "id": "e113",
+      "src": "capability-orchestration",
+      "dst": "agent-engineer",
+      "type": "has"
+    },
+    {
+      "id": "e114",
+      "src": "capability-orchestration",
+      "dst": "agent-domain-modeller",
+      "type": "has"
+    },
+    {
+      "id": "e115",
+      "src": "capability-orchestration",
+      "dst": "agent-ux-researcher",
+      "type": "has"
+    },
+    {
+      "id": "e116",
+      "src": "capability-orchestration",
+      "dst": "agent-designer",
+      "type": "has"
+    },
+    {
+      "id": "e117",
+      "src": "capability-orchestration",
+      "dst": "agent-marketer",
+      "type": "has"
+    },
+    {
+      "id": "e118",
+      "src": "capability-orchestration",
+      "dst": "agent-educator",
+      "type": "has"
+    },
+    {
+      "id": "e119",
+      "src": "capability-orchestration",
+      "dst": "agent-meta",
+      "type": "has"
+    },
+    {
+      "id": "e120",
+      "src": "problem-no-experience",
+      "dst": "problem-no-constraints",
+      "type": "has"
+    },
+    {
+      "id": "e121",
+      "src": "problem-no-experience",
+      "dst": "problem-unstructured-articulation",
+      "type": "has"
+    },
+    {
+      "id": "e122",
+      "src": "problem-no-experience",
+      "dst": "problem-no-real-world-effect",
+      "type": "has"
+    },
+    {
+      "id": "e123",
+      "src": "problem-no-experience",
+      "dst": "problem-functions-neglected",
+      "type": "has"
+    },
+    {
+      "id": "e124",
+      "src": "audience-untrained-builder",
+      "dst": "problem-no-experience",
+      "type": "has"
+    },
+    {
+      "id": "e125",
+      "src": "feature-strategy",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e126",
+      "src": "feature-product",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e127",
+      "src": "feature-engineering",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e128",
+      "src": "feature-domain-modelling",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e129",
+      "src": "feature-ux-research",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e130",
+      "src": "feature-design",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e131",
+      "src": "feature-marketing",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e132",
+      "src": "feature-education",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e133",
+      "src": "feature-meta",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e134",
+      "src": "hypothesis-h6",
+      "dst": "problem-no-experience",
+      "type": "references"
+    },
+    {
+      "id": "e135",
+      "src": "capability-guided-path",
+      "dst": "hypothesis-h6",
+      "type": "references"
+    },
+    {
+      "id": "e136",
+      "src": "capability-orchestration",
+      "dst": "hypothesis-h6",
+      "type": "references"
+    },
+    {
+      "id": "e137",
+      "src": "assumption-accept-constraints",
+      "dst": "hypothesis-h6",
+      "type": "references"
+    },
+    {
+      "id": "e138",
+      "src": "module-representation",
+      "dst": "screen-overview",
+      "type": "exposes"
+    },
+    {
+      "id": "e139",
+      "src": "screen-overview",
+      "dst": "interface-store-rpc",
+      "type": "uses"
+    },
+    {
+      "id": "e140",
+      "src": "module-definition",
+      "dst": "screen-definition",
+      "type": "exposes"
+    },
+    {
+      "id": "e141",
+      "src": "screen-definition",
+      "dst": "interface-store-rpc",
+      "type": "uses"
+    },
+    {
+      "id": "e142",
+      "src": "module-representation",
+      "dst": "screen-domain",
+      "type": "exposes"
+    },
+    {
+      "id": "e143",
+      "src": "screen-domain",
+      "dst": "interface-store-rpc",
+      "type": "uses"
+    },
+    {
+      "id": "e144",
+      "src": "module-orchestration",
+      "dst": "screen-flows",
+      "type": "exposes"
+    },
+    {
+      "id": "e145",
+      "src": "screen-flows",
+      "dst": "interface-store-rpc",
+      "type": "uses"
+    },
+    {
+      "id": "e146",
+      "src": "module-representation",
+      "dst": "screen-reference",
+      "type": "exposes"
+    },
+    {
+      "id": "e147",
+      "src": "screen-reference",
+      "dst": "interface-store-rpc",
+      "type": "uses"
+    },
+    {
+      "id": "e148",
+      "src": "module-representation",
+      "dst": "screen-glossary",
+      "type": "exposes"
+    },
+    {
+      "id": "e149",
+      "src": "screen-glossary",
+      "dst": "interface-store-rpc",
+      "type": "uses"
+    },
+    {
+      "id": "e150",
+      "src": "module-representation",
+      "dst": "screen-inspector",
+      "type": "exposes"
+    },
+    {
+      "id": "e151",
+      "src": "screen-inspector",
+      "dst": "interface-store-rpc",
+      "type": "uses"
+    },
+    {
+      "id": "e152",
+      "src": "screen-definition",
+      "dst": "capability-guided-path",
+      "type": "implements"
+    },
+    {
+      "id": "e153",
+      "src": "screen-definition",
+      "dst": "capability-commit-gate",
+      "type": "implements"
+    },
+    {
+      "id": "e154",
+      "src": "screen-glossary",
+      "dst": "capability-share",
+      "type": "references"
+    },
+    {
+      "id": "e155",
+      "src": "module-definition",
+      "dst": "event-answer-given",
+      "type": "contains"
+    },
+    {
+      "id": "e156",
+      "src": "module-definition",
+      "dst": "event-followup-added",
+      "type": "contains"
+    },
+    {
+      "id": "e157",
+      "src": "module-orchestration",
+      "dst": "event-effects-staged",
+      "type": "contains"
+    },
+    {
+      "id": "e158",
+      "src": "module-orchestration",
+      "dst": "event-committed",
+      "type": "contains"
+    },
+    {
+      "id": "e159",
+      "src": "module-orchestration",
+      "dst": "event-undone",
+      "type": "contains"
+    },
+    {
+      "id": "e160",
+      "src": "module-representation",
+      "dst": "event-term-edited",
+      "type": "contains"
+    },
+    {
+      "id": "e161",
+      "src": "interface-store-rpc",
+      "dst": "event-answer-given",
+      "type": "emits"
+    },
+    {
+      "id": "e162",
+      "src": "interface-store-rpc",
+      "dst": "event-effects-staged",
+      "type": "emits"
+    },
+    {
+      "id": "e163",
+      "src": "interface-store-rpc",
+      "dst": "event-committed",
+      "type": "emits"
+    },
+    {
+      "id": "e164",
+      "src": "interface-store-rpc",
+      "dst": "event-undone",
+      "type": "emits"
+    },
+    {
+      "id": "e165",
+      "src": "interface-store-rpc",
+      "dst": "event-followup-added",
+      "type": "emits"
+    },
+    {
+      "id": "e166",
+      "src": "interface-store-rpc",
+      "dst": "event-term-edited",
+      "type": "emits"
+    },
+    {
+      "id": "e167",
+      "src": "event-answer-given",
+      "dst": "event-effects-staged",
+      "type": "triggers"
+    },
+    {
+      "id": "e168",
+      "src": "event-committed",
+      "dst": "thing-commit",
+      "type": "references"
+    },
+    {
+      "id": "e169",
+      "src": "term-event",
+      "dst": "event-committed",
+      "type": "defines"
+    },
+    {
+      "id": "e170",
+      "src": "repository-bropilot",
+      "dst": "codebase-lfp",
+      "type": "contains"
+    },
+    {
+      "id": "e171",
+      "src": "codebase-lfp",
+      "dst": "codebase-store",
+      "type": "contains"
+    },
+    {
+      "id": "e172",
+      "src": "codebase-lfp",
+      "dst": "codebase-kernel",
+      "type": "contains"
+    },
+    {
+      "id": "e173",
+      "src": "codebase-lfp",
+      "dst": "system-bropilot",
+      "type": "realises"
+    },
+    {
+      "id": "e174",
+      "src": "codebase-store",
+      "dst": "module-representation",
+      "type": "realises"
+    },
+    {
+      "id": "e175",
+      "src": "codebase-store",
+      "dst": "module-orchestration",
+      "type": "realises"
+    },
+    {
+      "id": "e176",
+      "src": "codebase-kernel",
+      "dst": "module-representation",
+      "type": "realises"
+    },
+    {
+      "id": "e177",
+      "src": "infrastructure-localstorage",
+      "dst": "infra-localstorage",
+      "type": "realises"
+    },
+    {
+      "id": "e178",
+      "src": "module-representation",
+      "dst": "test-page-loads",
+      "type": "contains"
+    },
+    {
+      "id": "e179",
+      "src": "module-orchestration",
+      "dst": "test-store-answer-stages",
+      "type": "contains"
+    },
+    {
+      "id": "e180",
+      "src": "test-store-answer-stages",
+      "dst": "rule-effect-provenance",
+      "type": "verifies"
+    },
+    {
+      "id": "e181",
+      "src": "module-orchestration",
+      "dst": "test-commit-gate",
+      "type": "contains"
+    },
+    {
+      "id": "e182",
+      "src": "test-commit-gate",
+      "dst": "rule-commit-gate",
+      "type": "verifies"
+    },
+    {
+      "id": "e183",
+      "src": "module-orchestration",
+      "dst": "test-undo-whole",
+      "type": "contains"
+    },
+    {
+      "id": "e184",
+      "src": "test-undo-whole",
+      "dst": "rule-undo-whole",
+      "type": "verifies"
+    },
+    {
+      "id": "e185",
+      "src": "module-definition",
+      "dst": "test-unlock",
+      "type": "contains"
+    },
+    {
+      "id": "e186",
+      "src": "test-unlock",
+      "dst": "rule-unlock",
+      "type": "verifies"
+    },
+    {
+      "id": "e187",
+      "src": "module-orchestration",
+      "dst": "test-sim-commit-gate",
+      "type": "contains"
+    },
+    {
+      "id": "e188",
+      "src": "test-sim-commit-gate",
+      "dst": "rule-commit-gate",
+      "type": "verifies"
+    },
+    {
+      "id": "e189",
+      "src": "result-page-loads",
+      "dst": "test-page-loads",
+      "type": "reports"
+    },
+    {
+      "id": "e190",
+      "src": "result-store-answer-stages",
+      "dst": "test-store-answer-stages",
+      "type": "reports"
+    },
+    {
+      "id": "e191",
+      "src": "result-commit-gate",
+      "dst": "test-commit-gate",
+      "type": "reports"
+    },
+    {
+      "id": "e192",
+      "src": "result-undo-whole",
+      "dst": "test-undo-whole",
+      "type": "reports"
+    },
+    {
+      "id": "e193",
+      "src": "result-unlock",
+      "dst": "test-unlock",
+      "type": "reports"
+    },
+    {
+      "id": "e194",
+      "src": "result-sim-commit-gate",
+      "dst": "test-sim-commit-gate",
+      "type": "reports"
+    },
+    {
+      "id": "e195",
+      "src": "epic-reality-shape",
+      "dst": "task-unlock-test",
+      "type": "contains"
+    },
+    {
+      "id": "e196",
+      "src": "epic-reality-shape",
+      "dst": "task-sim-harness",
+      "type": "contains"
+    },
+    {
+      "id": "e197",
+      "src": "task-unlock-test",
+      "dst": "test-unlock",
+      "type": "targets"
+    },
+    {
+      "id": "e198",
+      "src": "task-sim-harness",
+      "dst": "test-sim-commit-gate",
+      "type": "targets"
+    },
+    {
+      "id": "e199",
+      "src": "epic-reality-shape",
+      "dst": "test-unlock",
+      "type": "targets"
+    },
+    {
+      "id": "e200",
+      "src": "epic-reality-shape",
+      "dst": "test-sim-commit-gate",
+      "type": "targets"
+    },
+    {
+      "id": "e201",
+      "src": "agent-engineer",
+      "dst": "task-unlock-test",
+      "type": "implements"
+    },
+    {
+      "id": "e202",
+      "src": "agent-engineer",
+      "dst": "task-sim-harness",
+      "type": "implements"
+    },
+    {
+      "id": "e203",
+      "src": "practice-commit-push",
+      "dst": "codebase-lfp",
+      "type": "governs"
+    },
+    {
+      "id": "e204",
+      "src": "practice-smoke-before-commit",
+      "dst": "codebase-lfp",
+      "type": "governs"
+    },
+    {
+      "id": "e205",
+      "src": "practice-provenance",
+      "dst": "codebase-lfp",
+      "type": "governs"
+    },
+    {
+      "id": "e206",
+      "src": "practice-left-to-right",
+      "dst": "codebase-lfp",
+      "type": "governs"
+    },
+    {
+      "id": "e207",
+      "src": "practice-dogfood-same-commit",
+      "dst": "codebase-lfp",
+      "type": "governs"
+    },
+    {
+      "id": "e208",
+      "src": "practice-provenance",
+      "dst": "codebase-kernel",
+      "type": "governs"
+    },
+    {
+      "id": "e209",
+      "src": "codebase-lfp",
+      "dst": "infrastructure-vite",
+      "type": "uses"
+    },
+    {
+      "id": "e210",
+      "src": "hypothesis-h7",
+      "dst": "flow-talk-to-tests",
+      "type": "references"
+    },
+    {
+      "id": "e211",
+      "src": "flow-talk-to-tests",
+      "dst": "capability-guided-path",
+      "type": "implements"
+    },
+    {
+      "id": "e212",
+      "src": "flow-talk-to-tests",
+      "dst": "capability-commit-gate",
+      "type": "implements"
+    },
+    {
+      "id": "e213",
+      "src": "hypothesis-h7",
+      "dst": "outcome-keeps-improving",
+      "type": "references"
+    },
+    {
+      "id": "e214",
+      "src": "evidence-lfp-loop",
+      "dst": "hypothesis-h7",
+      "type": "supports"
+    },
+    {
+      "id": "e215",
+      "src": "feature-product",
+      "dst": "flow-talk-to-tests",
+      "type": "has"
+    },
+    {
+      "id": "e216",
+      "src": "flow-talk-to-tests",
+      "dst": "test-page-loads",
+      "type": "references"
+    },
+    {
+      "id": "e217",
+      "src": "feature-sales",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e218",
+      "src": "agent-sales",
+      "dst": "feature-sales",
+      "type": "implements"
+    },
+    {
+      "id": "e219",
+      "src": "capability-orchestration",
+      "dst": "agent-sales",
+      "type": "has"
+    },
+    {
+      "id": "e220",
+      "src": "system-bropilot",
+      "dst": "module-sales",
+      "type": "contains"
+    },
+    {
+      "id": "e221",
+      "src": "feature-delivery",
+      "dst": "problem-no-experience",
+      "type": "satisfies"
+    },
+    {
+      "id": "e222",
+      "src": "agent-delivery",
+      "dst": "feature-delivery",
+      "type": "implements"
+    },
+    {
+      "id": "e223",
+      "src": "capability-orchestration",
+      "dst": "agent-delivery",
+      "type": "has"
+    },
+    {
+      "id": "e224",
+      "src": "system-bropilot",
+      "dst": "module-delivery",
+      "type": "contains"
+    },
+    {
+      "id": "e225",
+      "src": "system-bropilot",
+      "dst": "module-marketing",
+      "type": "contains"
+    },
+    {
+      "id": "e226",
+      "src": "module-marketing",
+      "dst": "module-metrics",
+      "type": "triggers"
+    },
+    {
+      "id": "e227",
+      "src": "goal-self-sustaining",
+      "dst": "metric-post-launch-commits",
+      "type": "combines"
+    },
+    {
+      "id": "e228",
+      "src": "goal-self-sustaining",
+      "dst": "metric-verdicts",
+      "type": "combines"
+    },
+    {
+      "id": "e229",
+      "src": "goal-self-sustaining",
+      "dst": "outcome-keeps-improving",
+      "type": "references"
+    },
+    {
+      "id": "e230",
+      "src": "metric-reading-commits",
+      "dst": "metric-post-launch-commits",
+      "type": "measures"
+    },
+    {
+      "id": "e231",
+      "src": "usage-event-briefs",
+      "dst": "flow-talk-to-tests",
+      "type": "measures"
+    },
+    {
+      "id": "e232",
+      "src": "feedback-provenance",
+      "dst": "screen-inspector",
+      "type": "measures"
+    },
+    {
+      "id": "e233",
+      "src": "repository-bropilot",
+      "dst": "asset-readme",
+      "type": "contains"
+    },
+    {
+      "id": "e234",
+      "src": "system-bropilot",
+      "dst": "module-automation",
+      "type": "contains"
+    },
+    {
+      "id": "e235",
+      "src": "module-automation",
+      "dst": "external-github",
+      "type": "uses"
+    },
+    {
+      "id": "e236",
+      "src": "module-automation",
+      "dst": "protocol-pr-gate",
+      "type": "contains"
+    },
+    {
+      "id": "e237",
+      "src": "practice-smoke-before-commit",
+      "dst": "protocol-pr-gate",
+      "type": "realises"
+    },
+    {
+      "id": "e238",
+      "src": "module-automation",
+      "dst": "protocol-security-audit",
+      "type": "contains"
+    },
+    {
+      "id": "e239",
+      "src": "module-automation",
+      "dst": "protocol-changelog-blog",
+      "type": "contains"
+    },
+    {
+      "id": "e240",
+      "src": "module-automation",
+      "dst": "protocol-commit-push",
+      "type": "contains"
+    },
+    {
+      "id": "e241",
+      "src": "practice-commit-push",
+      "dst": "protocol-commit-push",
+      "type": "realises"
+    },
+    {
+      "id": "e242",
+      "src": "module-automation",
+      "dst": "protocol-provenance",
+      "type": "contains"
+    },
+    {
+      "id": "e243",
+      "src": "practice-provenance",
+      "dst": "protocol-provenance",
+      "type": "realises"
+    },
+    {
+      "id": "e244",
+      "src": "module-automation",
+      "dst": "protocol-dogfood",
+      "type": "contains"
+    },
+    {
+      "id": "e245",
+      "src": "practice-dogfood-same-commit",
+      "dst": "protocol-dogfood",
+      "type": "realises"
+    },
+    {
+      "id": "e246",
+      "src": "protocol-changelog-blog",
+      "dst": "module-marketing",
+      "type": "uses"
+    },
+    {
+      "id": "e247",
+      "src": "goal-business-revenue",
+      "dst": "metric-post-launch-commits",
+      "type": "references"
+    },
+    {
+      "id": "e248",
+      "src": "feature-sales",
+      "dst": "goal-business-revenue",
+      "type": "serves"
+    },
+    {
+      "id": "e249",
+      "src": "module-marketing",
+      "dst": "test-marketing-exists",
+      "type": "contains"
+    },
+    {
+      "id": "e250",
+      "src": "result-marketing-exists",
+      "dst": "test-marketing-exists",
+      "type": "reports"
+    },
+    {
+      "id": "e251",
+      "src": "module-sales",
+      "dst": "test-sales-exists",
+      "type": "contains"
+    },
+    {
+      "id": "e252",
+      "src": "result-sales-exists",
+      "dst": "test-sales-exists",
+      "type": "reports"
+    },
+    {
+      "id": "e253",
+      "src": "module-delivery",
+      "dst": "test-delivery-exists",
+      "type": "contains"
+    },
+    {
+      "id": "e254",
+      "src": "result-delivery-exists",
+      "dst": "test-delivery-exists",
+      "type": "reports"
+    },
+    {
+      "id": "e255",
+      "src": "system-bropilot",
+      "dst": "module-director",
+      "type": "contains"
+    },
+    {
+      "id": "e256",
+      "src": "module-director",
+      "dst": "module-representation",
+      "type": "uses"
+    },
+    {
+      "id": "e257",
+      "src": "module-director",
+      "dst": "module-orchestration",
+      "type": "uses"
+    },
+    {
+      "id": "e258",
+      "src": "module-director",
+      "dst": "external-flue",
+      "type": "uses"
+    },
+    {
+      "id": "e259",
+      "src": "module-director",
+      "dst": "thing-cue",
+      "type": "contains"
+    },
+    {
+      "id": "e260",
+      "src": "module-director",
+      "dst": "thing-tour",
+      "type": "contains"
+    },
+    {
+      "id": "e261",
+      "src": "module-director",
+      "dst": "thing-context",
+      "type": "contains"
+    },
+    {
+      "id": "e262",
+      "src": "module-director",
+      "dst": "thing-user-turn",
+      "type": "contains"
+    },
+    {
+      "id": "e263",
+      "src": "module-director",
+      "dst": "interface-director-rpc",
+      "type": "exposes"
+    },
+    {
+      "id": "e264",
+      "src": "module-director",
+      "dst": "interface-bus",
+      "type": "exposes"
+    },
+    {
+      "id": "e265",
+      "src": "module-director",
+      "dst": "rule-one-utterance",
+      "type": "contains"
+    },
+    {
+      "id": "e266",
+      "src": "module-director",
+      "dst": "rule-agent-through-gate",
+      "type": "contains"
+    },
+    {
+      "id": "e267",
+      "src": "module-director",
+      "dst": "rule-point-is-truthful",
+      "type": "contains"
+    },
+    {
+      "id": "e268",
+      "src": "rule-one-utterance",
+      "dst": "thing-cue",
+      "type": "governs"
+    },
+    {
+      "id": "e269",
+      "src": "rule-agent-through-gate",
+      "dst": "thing-cue",
+      "type": "governs"
+    },
+    {
+      "id": "e270",
+      "src": "rule-agent-through-gate",
+      "dst": "thing-commit",
+      "type": "governs"
+    },
+    {
+      "id": "e271",
+      "src": "rule-point-is-truthful",
+      "dst": "thing-context",
+      "type": "governs"
+    },
+    {
+      "id": "e272",
+      "src": "rule-point-is-truthful",
+      "dst": "thing-cue",
+      "type": "governs"
+    },
+    {
+      "id": "e273",
+      "src": "module-director",
+      "dst": "event-cue-applied",
+      "type": "contains"
+    },
+    {
+      "id": "e274",
+      "src": "interface-director-rpc",
+      "dst": "event-cue-applied",
+      "type": "emits"
+    },
+    {
+      "id": "e275",
+      "src": "module-director",
+      "dst": "event-user-turn",
+      "type": "contains"
+    },
+    {
+      "id": "e276",
+      "src": "interface-director-rpc",
+      "dst": "event-user-turn",
+      "type": "emits"
+    },
+    {
+      "id": "e277",
+      "src": "module-director",
+      "dst": "screen-mirror",
+      "type": "exposes"
+    },
+    {
+      "id": "e278",
+      "src": "screen-mirror",
+      "dst": "interface-bus",
+      "type": "uses"
+    },
+    {
+      "id": "e279",
+      "src": "module-director",
+      "dst": "screen-agent-sidebar",
+      "type": "exposes"
+    },
+    {
+      "id": "e280",
+      "src": "screen-agent-sidebar",
+      "dst": "interface-bus",
+      "type": "uses"
+    },
+    {
+      "id": "e281",
+      "src": "screen-mirror",
+      "dst": "capability-guided-path",
+      "type": "implements"
+    },
+    {
+      "id": "e282",
+      "src": "screen-agent-sidebar",
+      "dst": "capability-guided-path",
+      "type": "implements"
+    },
+    {
+      "id": "e283",
+      "src": "module-director",
+      "dst": "test-mirror-exists",
+      "type": "contains"
+    },
+    {
+      "id": "e284",
+      "src": "result-mirror-exists",
+      "dst": "test-mirror-exists",
+      "type": "reports"
+    },
+    {
+      "id": "e285",
+      "src": "module-director",
+      "dst": "test-point-highlights",
+      "type": "contains"
+    },
+    {
+      "id": "e286",
+      "src": "test-point-highlights",
+      "dst": "rule-point-is-truthful",
+      "type": "verifies"
+    },
+    {
+      "id": "e287",
+      "src": "result-point-highlights",
+      "dst": "test-point-highlights",
+      "type": "reports"
+    },
+    {
+      "id": "e288",
+      "src": "module-director",
+      "dst": "test-stage-reviewable",
+      "type": "contains"
+    },
+    {
+      "id": "e289",
+      "src": "test-stage-reviewable",
+      "dst": "rule-agent-through-gate",
+      "type": "verifies"
+    },
+    {
+      "id": "e290",
+      "src": "result-stage-reviewable",
+      "dst": "test-stage-reviewable",
+      "type": "reports"
+    },
+    {
+      "id": "e291",
+      "src": "module-director",
+      "dst": "test-one-utterance",
+      "type": "contains"
+    },
+    {
+      "id": "e292",
+      "src": "test-one-utterance",
+      "dst": "rule-one-utterance",
+      "type": "verifies"
+    },
+    {
+      "id": "e293",
+      "src": "result-one-utterance",
+      "dst": "test-one-utterance",
+      "type": "reports"
+    },
+    {
+      "id": "e294",
+      "src": "feature-product",
+      "dst": "flow-mirror",
+      "type": "has"
+    },
+    {
+      "id": "e295",
+      "src": "flow-mirror",
+      "dst": "capability-guided-path",
+      "type": "implements"
+    },
+    {
+      "id": "e296",
+      "src": "flow-mirror",
+      "dst": "screen-mirror",
+      "type": "uses"
+    },
+    {
+      "id": "e297",
+      "src": "hypothesis-h8",
+      "dst": "problem-unstructured-articulation",
+      "type": "references"
+    },
+    {
+      "id": "e298",
+      "src": "hypothesis-h8",
+      "dst": "flow-mirror",
+      "type": "references"
+    },
+    {
+      "id": "e299",
+      "src": "capability-guided-path",
+      "dst": "hypothesis-h8",
+      "type": "references"
+    }
+  ]
+}
