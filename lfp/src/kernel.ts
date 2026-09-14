@@ -341,8 +341,8 @@ export interface LevelDef { level: 0 | 1 | 2 | 3; label: string; blurb: string; 
 const kindsAtLevel = (n: 0 | 1 | 2 | 3) => KINDS.filter((k) => k.level === n).map((k) => k.id);
 export const LEVELS: LevelDef[] = [
   { level: 0, label: 'Map', blurb: 'Representation (problem, bets, solution) on one side; Reality (current state, planned changes, effects) on the other. Solution links into planned changes; effects confirm or deny the bets.', kinds: kindsAtLevel(0), source: said(79, 80, 81) },
-  { level: 1, label: 'Context', blurb: 'The real world as people talk about it: our system as a bubble, the people outside it, other systems.', kinds: kindsAtLevel(1), source: said(56, 57) },
-  { level: 2, label: 'Deployment', blurb: 'The deployables (client, servers, caches, stores, queues) a system runs on, from the user\'s client device to the servers and back, plus the modules each one hosts.', kinds: kindsAtLevel(2), source: said(58, 60, 61, 139) },
+  { level: 1, label: 'Deployment', blurb: 'The real world as people talk about it: our system as a bubble, the people outside it, other systems.', kinds: kindsAtLevel(1), source: said(56, 57) },
+  { level: 2, label: 'Modules', blurb: 'The deployables (client, servers, caches, stores, queues) a system runs on, from the user\'s client device to the servers and back, plus the modules each one hosts.', kinds: kindsAtLevel(2), source: said(58, 60, 61, 139) },
   { level: 3, label: 'Cell', blurb: 'Inside a module: the interface\'s ports (molecules in/out), circuits through domain entities, the data model behind, events, and the tests that prove the rules. Each points at code.', kinds: kindsAtLevel(3), source: said(63, 64, 65, 68, 69, 74, 105, 134, 135, 136) },
 ];
 export const NO_LEVEL_4: Provenance = said(70);

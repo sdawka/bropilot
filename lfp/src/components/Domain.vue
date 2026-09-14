@@ -5,14 +5,15 @@ const spaceCount = (sid: string) => state.graph.nodes.filter((n) => kindById[n.k
 const spaceKinds = (sid: string) => KINDS.filter((k) => k.space === sid).map((k) => k.icon + ' ' + k.plural);
 const resultOf = (testId: string) => { const r = edgesOfType('reports').find((e) => e.dst === testId); return r ? nodeById(r.src) : undefined; };
 const testStats = computed(() => { const st = { pass: 0, fail: 0, missing: 0 }; for (const t of nodesOfKind('test')) { const k = (resultOf(t.id)?.props?.status ?? 'missing') as keyof typeof st; st[k]++; } return st; });
-const verifiedBy = (testId: string) => edgesOfType('verifies').filter((e) => e.src === testId).map((e) => title(e.dst));
-const targetedBy = (testId: string) => edgesOfType('targets').filter((e) => e.dst === testId && nodeById(e.src)?.kind === 'task').map((e) => title(e.src));
 const goOverview = () => { window.location.hash = 'overview'; };
 const repSpaces = SPACES.filter((s) => s.layer === 'representation' && s.id !== 'basics');
 const realSpaces = SPACES.filter((s) => s.layer === 'reality');
 import { state, nodeById, edgesOf, type ScreenItem } from '../store';
 import { useScreen } from '../screen';
 import Prov from './Prov.vue';
+import Deployment from './arch/Deployment.vue';
+import Cell from './arch/Cell.vue';
+import { cellLayout } from './arch/layout';
 
 const level = ref<0 | 1 | 2 | 3>(0);
 const selectedModule = ref<string | null>(null);
@@ -34,13 +35,11 @@ const edgeById = (id: string) => state.graph.edges.find((e) => e.id === id);
 const isLit = (id: string) => state.highlight.nodes.includes(id) || state.highlight.edges.some((eid) => { const e = edgeById(eid); return !!e && (e.src === id || e.dst === id); });
 const pointedAtEdges = computed(() => state.highlight.edges.map((eid) => edgeById(eid)).filter((e): e is NonNullable<typeof e> => !!e));
 
-// ── Level 1: context ────────────────────────────────────────────────────────
+// ── Level 1: deployment ───────────────────────────────────────────────────────
 const systems = computed(() => nodesOfKind('system'));
 const audiences = computed(() => nodesOfKind('audience'));
+const infras = computed(() => nodesOfKind('infra'));
 const externals = computed(() => nodesOfKind('external'));
-const usesFrom = (id: string) => edgesOfType('uses').filter((e) => e.src === id);
-
-function openSystem(id: string) { select(id); goLevel(2); }
 
 // ── Level 2: modules ─────────────────────────────────────────────────────────
 const modules = computed(() => nodesOfKind('module'));
@@ -57,35 +56,11 @@ const moduleToExternalEdges = computed(() =>
 
 function openModule(id: string) { selectedModule.value = id; select(id); goLevel(3); }
 
-// ── Level 3: inside a module ─────────────────────────────────────────────────
+// ── Level 3: inside a module (Cell diagram) ──────────────────────────────────
 watch(modules, (m) => { if (!selectedModule.value && m.length) selectedModule.value = m[0].id; }, { immediate: true });
 
-const things = computed(() => selectedModule.value ? edgesOfType('contains').filter((e) => e.src === selectedModule.value && nodeById(e.dst)?.kind === 'thing').map((e) => nodeById(e.dst)!) : []);
-const rules = computed(() => selectedModule.value ? edgesOfType('contains').filter((e) => e.src === selectedModule.value && nodeById(e.dst)?.kind === 'rule').map((e) => nodeById(e.dst)!) : []);
-const events = computed(() => selectedModule.value ? edgesOfType('contains').filter((e) => e.src === selectedModule.value && nodeById(e.dst)?.kind === 'event').map((e) => nodeById(e.dst)!) : []);
-const emitterOf = (eventId: string) => edgesOfType('emits').filter((e) => e.dst === eventId).map((e) => title(e.src));
-const interfaces = computed(() => selectedModule.value ? edgesOfType('exposes').filter((e) => e.src === selectedModule.value && nodeById(e.dst)?.kind === 'interface').map((e) => nodeById(e.dst)!) : []);
-const protocols = computed(() => selectedModule.value ? edgesOfType('contains').filter((e) => e.src === selectedModule.value && nodeById(e.dst)?.kind === 'protocol').map((e) => nodeById(e.dst)!) : []);
-const realisedBy = (id: string) => edgesOfType('realises').filter((e) => e.dst === id).map((e) => title(e.src));
-const tests = computed(() => selectedModule.value ? edgesOfType('contains').filter((e) => e.src === selectedModule.value && nodeById(e.dst)?.kind === 'test').map((e) => nodeById(e.dst)!) : []);
-
-const governsOf = (ruleId: string) => edgesOfType('governs').filter((e) => e.src === ruleId).map((e) => e.dst);
-const termFor = (thingId: string) => edgesOfType('defines').find((e) => e.dst === thingId);
-
-const selectedThingOrRule = computed(() => {
-  const n = state.selectedId ? nodeById(state.selectedId) : undefined;
-  return n && (n.kind === 'thing' || n.kind === 'rule') ? n : undefined;
-});
-function dimRule(ruleId: string) {
-  const sel = selectedThingOrRule.value;
-  if (!sel || sel.kind !== 'thing') return false;
-  return !governsOf(ruleId).includes(sel.id);
-}
-function dimThing(thingId: string) {
-  const sel = selectedThingOrRule.value;
-  if (!sel || sel.kind !== 'rule') return false;
-  return !governsOf(sel.id).includes(thingId);
-}
+// mirrors what Cell.vue renders for this module, for screen reporting (describe-screen etc.)
+const cellItems = computed(() => selectedModule.value ? cellLayout(state.graph, selectedModule.value) : undefined);
 
 // ── breadcrumb ────────────────────────────────────────────────────────────
 const breadcrumb = computed(() => {
@@ -110,16 +85,15 @@ useScreen((): ScreenItem[] => {
     return [...repSpaces, ...realSpaces].map((s) => ({ id: s.id, kind: 'space', title: s.label }));
   }
   if (level.value === 1) {
-    return [...systems.value, ...audiences.value, ...externals.value].map((n) => ({ id: n.id, kind: n.kind, title: n.title }));
+    return [...systems.value, ...audiences.value, ...infras.value, ...externals.value].map((n) => ({ id: n.id, kind: n.kind, title: n.title }));
   }
   if (level.value === 2) {
     return modules.value.map((n) => ({ id: n.id, kind: n.kind, title: n.title }));
   }
   const mod = selectedModule.value ? nodeById(selectedModule.value) : undefined;
   const items: ScreenItem[] = mod ? [{ id: mod.id, kind: mod.kind, title: mod.title }] : [];
-  for (const n of [...things.value, ...rules.value, ...events.value, ...protocols.value, ...interfaces.value, ...tests.value]) {
-    items.push({ id: n.id, kind: n.kind, title: n.title });
-  }
+  const c = cellItems.value;
+  if (c) for (const n of [...c.interfaces, ...c.rules, ...c.things, ...c.events]) items.push({ id: n.id, kind: n.kind, title: n.title });
   return items;
 });
 </script>
@@ -173,29 +147,7 @@ useScreen((): ScreenItem[] => {
     </section>
 
     <section v-else-if="level === 1" class="l1">
-      <div class="col audiences">
-        <h3>Audience</h3>
-        <div v-for="a in audiences" :key="a.id" class="person-card" :data-node-id="a.id" :class="{ selected: state.selectedId === a.id, lit: isLit(a.id) }" @click="select(a.id)">
-          <div class="title">👤 {{ a.title }}</div>
-          <p class="small" v-if="a.description">{{ a.description }}</p>
-          <ul class="uses-list"><li v-for="e in usesFrom(a.id)" :key="e.id">→ uses {{ title(e.dst) }}</li></ul>
-        </div>
-      </div>
-      <div class="col systems">
-        <div v-for="s in systems" :key="s.id" class="bubble" :data-node-id="s.id" :class="{ selected: state.selectedId === s.id, lit: isLit(s.id) }" @click="openSystem(s.id)">
-          <div class="title">🫧 {{ s.title }}</div>
-          <p class="small" v-if="s.description">{{ s.description }}</p>
-          <ul class="uses-list"><li v-for="e in usesFrom(s.id)" :key="e.id">→ uses {{ title(e.dst) }}</li></ul>
-          <span class="small hint">click to see modules</span>
-        </div>
-      </div>
-      <div class="col externals">
-        <h3>External systems</h3>
-        <div v-for="ex in externals" :key="ex.id" class="dash-card" :data-node-id="ex.id" :class="{ selected: state.selectedId === ex.id, lit: isLit(ex.id) }" @click="select(ex.id)">
-          <div class="title">🛰️ {{ ex.title }}</div>
-          <ul class="uses-list" v-if="usesFrom(ex.id).length"><li v-for="e in usesFrom(ex.id)" :key="e.id">→ uses {{ title(e.dst) }}</li></ul>
-        </div>
-      </div>
+      <Deployment />
     </section>
 
     <!-- Level 2: Modules -->
@@ -229,71 +181,7 @@ useScreen((): ScreenItem[] => {
       <div class="module-chips">
         <button v-for="m in modules" :key="m.id" class="mod-chip" :class="{ active: selectedModule === m.id }" @click="selectedModule = m.id">{{ m.title }}</button>
       </div>
-      <div class="l3-grid">
-        <div class="col">
-          <h3>Things</h3>
-          <button v-for="t in things" :key="t.id" class="item-card" :data-node-id="t.id" :class="[{ selected: state.selectedId === t.id, dim: dimThing(t.id), lit: isLit(t.id) }]" @click="select(t.id)">
-            <div class="title">🔷 {{ t.title }}</div>
-            <p class="small" v-if="t.description">{{ t.description }}</p>
-            <span class="tag" v-if="termFor(t.id)">📖 {{ title(termFor(t.id)!.src) }}</span>
-            <a v-if="t.props?.codeRef" :href="t.props.codeRef" target="_blank" rel="noopener" @click.stop>code ↗</a>
-            <Prov :source="t.source" />
-          </button>
-          <p v-if="!things.length" class="empty">No things in this module.</p>
-        </div>
-        <div class="col">
-          <h3>Rules</h3>
-          <button v-for="r in rules" :key="r.id" class="item-card" :data-node-id="r.id" :class="[{ selected: state.selectedId === r.id, dim: dimRule(r.id), lit: isLit(r.id) }]" @click="select(r.id)">
-            <div class="title">⚖️ {{ r.title }}</div>
-            <p class="small" v-if="r.props?.tests">tests: {{ r.props.tests }}</p>
-            <a v-if="r.props?.codeRef" :href="r.props.codeRef" target="_blank" rel="noopener" @click.stop>code ↗</a>
-            <Prov :source="r.source" />
-          </button>
-          <p v-if="!rules.length" class="empty">No rules in this module.</p>
-        </div>
-        <div class="col">
-          <h3>Events <span class="small">(S74)</span></h3>
-          <p v-if="!events.length" class="small">no events recorded for this module</p>
-          <button v-for="ev in events" :key="ev.id" class="item-card" :data-node-id="ev.id" :class="[{ selected: state.selectedId === ev.id, lit: isLit(ev.id) }]" @click="select(ev.id)">
-            <div class="title">⚡ {{ ev.title }}</div>
-            <p class="small" v-if="emitterOf(ev.id).length">emitted by {{ emitterOf(ev.id).join(', ') }}</p>
-            <a v-if="ev.props?.codeRef" :href="ev.props.codeRef" target="_blank" rel="noopener" @click.stop>code ↗</a>
-            <Prov :source="ev.source" />
-          </button>
-        </div>
-        <div class="col">
-          <h3>Protocols <span class="small">(S105)</span></h3>
-          <p v-if="!protocols.length" class="small">no protocols for this module</p>
-          <button v-for="pr in protocols" :key="pr.id" class="item-card" :data-node-id="pr.id" :class="[{ selected: state.selectedId === pr.id, lit: isLit(pr.id) }]" @click="select(pr.id)">
-            <div class="title">🛡️ {{ pr.title }}</div>
-            <p class="small" v-if="pr.props?.cadence">cadence: {{ pr.props.cadence }}</p>
-            <p class="small" :class="{ warn: !realisedBy(pr.id).length }">{{ realisedBy(pr.id).length ? 'realised by ' + realisedBy(pr.id).join(', ') : 'not yet realised in reality → planned change' }}</p>
-            <Prov :source="pr.source" />
-          </button>
-        </div>
-        <div class="col">
-          <h3>Interface</h3>
-          <button v-for="i in interfaces" :key="i.id" class="item-card" :data-node-id="i.id" :class="{ selected: state.selectedId === i.id, lit: isLit(i.id) }" @click="select(i.id)">
-            <div class="title">🔌 {{ i.title }}</div>
-            <p class="small" v-if="i.props?.style">{{ i.props.style }}</p>
-            <a v-if="i.props?.codeRef" :href="i.props.codeRef" target="_blank" rel="noopener" @click.stop>code ↗</a>
-            <Prov :source="i.source" />
-          </button>
-          <p v-if="!interfaces.length" class="empty">No interface exposed.</p>
-        </div>
-      </div>
-      <div class="tests-footer small">
-        <h3>Tests <Prov :source="said(89, 90, 93)" /></h3>
-        <template v-if="tests.length">
-          <button v-for="t in tests" :key="t.id" class="test-chip" :data-node-id="t.id" :class="[resultOf(t.id)?.props?.status ?? 'missing', { selected: state.selectedId === t.id, lit: isLit(t.id) }]" @click="select(t.id)" :title="verifiedBy(t.id).join('; ')">
-            <span class="res">{{ { pass: '✅', fail: '❌', missing: '⬜' }[(resultOf(t.id)?.props?.status ?? 'missing') as 'pass' | 'fail' | 'missing'] }}</span>
-            <span class="ladder">{{ t.props?.ladder }}</span> {{ t.title }}
-            <span v-if="verifiedBy(t.id).length" class="small">· verifies {{ verifiedBy(t.id).length }} rule{{ verifiedBy(t.id).length > 1 ? 's' : '' }}</span>
-            <span v-if="targetedBy(t.id).length" class="small">· targeted by {{ targetedBy(t.id).join(', ') }}</span>
-          </button>
-        </template>
-        <span v-else>no tests yet for this module — start with "the module exists" (S93) <Prov :source="said(67, 93)" /></span>
-      </div>
+      <Cell v-if="selectedModule" :module-id="selectedModule" />
     </section>
 
     <aside class="detail" v-if="detail">
@@ -326,8 +214,7 @@ useScreen((): ScreenItem[] => {
 .level-tab.active { outline: 2px solid var(--ink); background: var(--bg); }
 .no-l4 { margin: 0; }
 
-.l1 { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 1rem; align-items: start; }
-.l1 .col h3 { color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .4rem; }
+.l1 { display: block; }
 .person-card, .bubble, .dash-card, .module-card, .item-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: .6rem .7rem; margin-bottom: .6rem; cursor: pointer; }
 .person-card { border-radius: 10px 10px 4px 10px; }
 .bubble { border-radius: 999px / 30%; border-width: 2px; text-align: center; padding: 1.2rem 1rem; }
