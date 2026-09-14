@@ -4,7 +4,7 @@
 
 | id | version | purpose | context needs | feedback | provenance |
 | --- | --- | --- | --- | --- | --- |
-| describe-screen | 0.1 | Names what is visible on the active view and points at the matching cards. | screen, selection | Makes sense / Doesn't make sense | said S119, S120 |
+| describe-screen | 0.1 | Names what is visible on the active view and points at the matching cards. | screen, selection, graph | Makes sense / Doesn't make sense | said S119, S120 |
 | next-decision | 0.1 | Ranks the next unanswered question and open gaps, and surfaces the single most important one. | next, gaps | Makes sense / Doesn't make sense / Bad question | said S116, S117 |
 | answer-to-effects | 0.1 | Turns free-text answer content into staged add/update node and edge effects. | next, graph | Makes sense / Doesn't make sense | said S21, S27 |
 | propose-followup | 0.1 | Given a question or node, proposes one sub-question or follow-up thread. | selection, next | Makes sense / Doesn't make sense / Bad question | said S52, S53, S54 |
@@ -19,14 +19,20 @@
 Names what is visible on the active view and points at the matching cards.
 
 - **Version:** 0.1
-- **Context needs:** screen, selection
+- **Context needs:** screen, selection, graph
 - **Output:** One utterance describing the active view, plus a point cue at the items it names.
 - **Feedback options:** Makes sense, Doesn't make sense
 
 **Prompt:**
 
 ```
-(prompt pending)
+The user said: {{input}}
+Here is the current screen and graph context:
+{{context}}
+
+If the text names a node (by title, or close to it), point at that node and its immediate neighbours, then explain it in one or two sentences: what it is, why it exists, what it connects to. Quote the user's own words if you have them.
+If the text names nothing in the graph, say so plainly and suggest a node name, "edit bet: …", or a tour instead.
+If the text is empty, just describe what the active screen is currently showing (counts by kind are enough).
 ```
 
 ## next-decision
@@ -41,7 +47,10 @@ Ranks the next unanswered question and open gaps, and surfaces the single most i
 **Prompt:**
 
 ```
-(prompt pending)
+Context:
+{{context}}
+
+Pick exactly one thing to surface next: the next unlocked, unanswered question if there is one, otherwise the single most important open gap. Ask about it in one sentence, say why it matters, and offer "Answer it" / "Skip" as options. Never surface more than one item.
 ```
 
 ## answer-to-effects
@@ -56,7 +65,11 @@ Turns free-text answer content into staged add/update node and edge effects.
 **Prompt:**
 
 ```
-(prompt pending)
+The user's answer: {{input}}
+Context (the question being answered, and the current graph):
+{{context}}
+
+Split the answer into one node per distinct idea (one per non-empty line for a plural kind; the whole answer as one node/update for a singular kind). Keep the user's own wording as the title. Skip anything that already exists under that kind — warn instead of duplicating. Never touch the graph directly: only produce the effects to stage.
 ```
 
 ## propose-followup
@@ -71,7 +84,10 @@ Given a question or node, proposes one sub-question or follow-up thread.
 **Prompt:**
 
 ```
-(prompt pending)
+Parent (a selected node, or the next open question):
+{{context}}
+
+Propose exactly one concrete sub-question that would make the parent more specific or testable — a request for an example, a number, or a name, not another open-ended question. One sentence.
 ```
 
 ## explain-node
@@ -86,7 +102,12 @@ Explains a selected node in context: why it exists, what it connects to, its ver
 **Prompt:**
 
 ```
-(prompt pending)
+Selected node and its neighbours:
+{{context}}
+User text (if this was a text command, e.g. "edit bet: …"): {{input}}
+
+Walk the node: what it is, why it exists (its edges to problems/causes), what depends on or is satisfied by it, and any verdict/evidence it carries. Point at each group of neighbours before describing it. Two sentences per step, at most.
+If the user asked to reword it, ask for the new wording first, then stage the rename — never edit without asking.
 ```
 
 ## walk-map
@@ -101,7 +122,10 @@ Tours the level-0 Map: problem, bets, solution, then the reality-side test loop.
 **Prompt:**
 
 ```
-(prompt pending)
+Graph summary:
+{{context}}
+
+Walk the level-0 Map in this fixed order: (1) what the Map shows (representation vs. reality, joined by tests), (2) the main problem, (3) the bets, (4) the capabilities and which problems they satisfy, (5) how many tests are unfulfilled on the reality side. One or two sentences per step; point at what you're naming before you say it.
 ```
 
 ## find-gaps
@@ -116,7 +140,10 @@ Runs the gap checks (nodes with no edges; bets with no metric) and reports them.
 **Prompt:**
 
 ```
-(prompt pending)
+Graph:
+{{context}}
+
+Report every open gap in one line each: nodes with no edges at all, and bets (hypotheses) with no linked metric. Name up to three examples per gap type. If there are none, say the graph has no gaps right now.
 ```
 
 ## unrealised-to-tasks
@@ -131,7 +158,10 @@ Finds protocols with no realising practice and stages an epic plus one task each
 **Prompt:**
 
 ```
-(prompt pending)
+Protocols and which practices realise them:
+{{context}}
+
+Find every protocol with no realising practice. If there are none, say so and stop. Otherwise propose one epic ("Realise N unrealised protocols") containing one task per missing protocol ("Put "<protocol>" into practice"), and stage it — never commit directly. Name every missing protocol in the summary.
 ```
 
 ## define-term
@@ -146,5 +176,8 @@ Two-step glossary flow: asks for a term, then its definition, then commits it.
 **Prompt:**
 
 ```
-(prompt pending)
+Conversation so far: {{context}}
+Latest user text: {{input}}
+
+This is a two-step flow. If no term has been collected yet, ask for the term (a word or phrase) and nothing else. Once you have a term, ask for its definition in one sentence. Once you have both, commit the glossary upsert immediately — this is the one flow allowed to skip the stage/approve step — and tell the user it's done and undoable.
 ```
