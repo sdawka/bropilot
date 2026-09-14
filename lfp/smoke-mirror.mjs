@@ -46,6 +46,8 @@ await mirror.locator('[data-testid=talk-input]').fill('Effect preview and commit
 r.freeTalk = { mainHash: await main.evaluate(() => location.hash), says: (await mirror.locator('body').innerText()).includes('Capability: Effect preview'), lit: await main.locator('.card.lit').count() };
 // one utterance at a time: exactly one utterance card on the mirror
 r.utteranceCards = await mirror.locator('[data-testid=talk-utterance]').count();
+// the mirror is `bare`: it shows the utterance but never the feedback buttons (main-screen-only, S128-S131)
+r.mirrorFeedback = { hidden: await mirror.locator('[data-testid=talk-feedback]').count(), mainHasFeedback: await main.locator('[data-testid=talk-feedback]').count() > 0 };
 await mirror.screenshot({ path: `${out}/mirror-phone-2.png` });
 // Talk panel on main shows the same transcript
 r.mainPanel = { present: await main.locator('[data-testid=talk-panel]').count() > 0, hasTranscript: (await main.locator('body').innerText()).includes('Effect preview and commit gate') };
