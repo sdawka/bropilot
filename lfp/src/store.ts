@@ -137,8 +137,10 @@ export function committedAnswerFor(qid: string) {
 export const isUnlocked = (qid: string) => QUESTIONS.find((q) => q.id === qid)!.unlocksAfter.every(committedAnswerFor);
 export const nextQuestion = computed(() => QUESTIONS.find((q) => isUnlocked(q.id) && !committedAnswerFor(q.id)) ?? null);
 
-/** Low-fi effect mapping: singular kinds → one add/update; otherwise one node per non-empty line. */
-function stageFor(kindId: string, content: string, answerId: string) {
+/** Low-fi effect mapping: singular kinds → one add/update; otherwise one node per non-empty line.
+ * Pure (no state mutation) so AI functions (`ai/functions/answer-to-effects.ts`) can reuse it as
+ * their stub's core logic and renumber the effect ids against their own `callId`. */
+export function stageFor(kindId: string, content: string, answerId: string): Changeset {
   const kind = kindById[kindId];
   const taken = new Set(state.graph.nodes.map((n) => n.id));
   const effects: Effect[] = []; const warnings: string[] = [];
@@ -160,15 +162,15 @@ function stageFor(kindId: string, content: string, answerId: string) {
     }
   }
   if (!effects.length) warnings.push('Nothing to stage.');
-  state.staged = { effects, warnings };
-  persist();
+  return { effects, warnings };
 }
 
 export function answer(questionId: string, content: string) {
   const q = QUESTIONS.find((q) => q.id === questionId)!;
   const a: Answer = { id: `a-${Date.now()}`, questionId, content, at: Date.now() };
   state.answers.push(a);
-  stageFor(q.produces, content, a.id);
+  state.staged = stageFor(q.produces, content, a.id);
+  persist();
 }
 
 // ── follow-ups: sub-questions and threads (project-specific, under template questions) ──
@@ -186,7 +188,8 @@ export function answerFollowUp(followUpId: string, content: string) {
   const f = state.followups.find((f) => f.id === followUpId)!;
   const a: Answer = { id: `a-${Date.now()}`, questionId: followUpId, content, at: Date.now() };
   state.answers.push(a); f.answerIds.push(a.id);
-  stageFor(f.produces, content, a.id);
+  state.staged = stageFor(f.produces, content, a.id);
+  persist();
 }
 export function removeFollowUp(id: string) {
   const kill = new Set<string>(); const walk = (x: string) => { kill.add(x); followUpsOf(x).forEach((c) => walk(c.id)); }; walk(id);
