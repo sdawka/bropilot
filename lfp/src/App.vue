@@ -8,9 +8,9 @@ import Kernel from './components/Kernel.vue';
 import Glossary from './components/Glossary.vue';
 import Mirror from './components/Mirror.vue';
 import TalkPanel from './components/TalkPanel.vue';
-import { state, hydrate, resetToSeed, exportJson } from './store';
+import { state, hydrate, resetToSeed, exportJson, nextQuestion } from './store';
 import { startDirectorHost, handleUser, topics } from './directors/index';
-import { currentContext } from './director';
+import { currentContext, applyCue } from './director';
 import { relayHost, setRelayHost, bus } from './bus';
 
 type View = 'overview' | 'definition' | 'domain' | 'flows' | 'kernel' | 'mirror';
@@ -31,6 +31,9 @@ onMounted(() => {
   hydrate();
   window.addEventListener('hashchange', () => { const v = resolve(hashView()); if (v && view.value !== v) { view.value = v; state.selectedId = null; } });
   if (!isMirror.value) startDirectorHost();
+  // Dev-only test hook: lets smoke.mjs drive the Director protocol directly (e.g. applyCue({t:'answer', ...}))
+  // for flows the ScriptedDirector's freeTalk keyword matcher doesn't cover. Never shipped (import.meta.env.DEV).
+  if (import.meta.env.DEV) (window as any).__lfp = { applyCue, state, nextQuestion };
 });
 
 watchEffect(() => {

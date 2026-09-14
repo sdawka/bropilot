@@ -10,8 +10,8 @@ const r = {};
 process.on('uncaughtException', (e) => { r.errors = errors; r.failedAt = String(e.message).split('\n')[0]; console.log(JSON.stringify(r, null, 1)); process.exit(1); });
 await main.goto('http://localhost:5199/#overview'); await main.evaluate(() => localStorage.clear()); await main.reload(); await main.waitForSelector('.card');
 await mirror.goto('http://localhost:5199/#mirror'); await mirror.waitForTimeout(600);
-r.mirror = { hasTopBar: await mirror.locator('.top').count(), text: (await mirror.locator('body').innerText()).slice(0, 200) };
-// tour: Walk the Map, started from the mirror
+r.mirror = { hasTopBar: await mirror.locator('.top').count(), talkPanel: await mirror.locator('[data-testid=talk-panel]').count(), text: (await mirror.locator('body').innerText()).slice(0, 200) };
+// tour: Walk the Map, started from the mirror via a topic chip
 await mirror.getByText('Walk the Map').first().click(); await mirror.waitForTimeout(500);
 r.afterStart = { mainHash: await main.evaluate(() => location.hash), mainHasMap: await main.getByText('Planned changes').count() > 0, mirrorSays: (await mirror.locator('body').innerText()).includes('This is the Map') };
 await mirror.getByRole('button', { name: /next/i }).first().click(); await mirror.waitForTimeout(600);
@@ -20,24 +20,33 @@ await mirror.getByRole('button', { name: /next/i }).first().click(); await mirro
 r.afterNext2 = { lit: await main.locator('.card.lit').count(), lines: await main.locator('.links line').count() };
 await main.screenshot({ path: `${out}/mirror-main.png` }); await mirror.screenshot({ path: `${out}/mirror-phone.png` });
 await mirror.getByRole('button', { name: /stop/i }).first().click(); await mirror.waitForTimeout(300);
-// add a glossary term via ask → answer → answer
+// add a glossary term via the mirror composer: ask → answer → answer
 await mirror.getByText('Add a glossary term').first().click(); await mirror.waitForTimeout(400);
 r.ask1 = (await mirror.locator('body').innerText()).includes('What term');
-await mirror.locator('input[type=text], input:not([type]), textarea').last().fill('Magic mirror'); await mirror.getByRole('button', { name: /send/i }).click(); await mirror.waitForTimeout(400);
+await mirror.locator('[data-testid=talk-input]').fill('Magic mirror'); await mirror.locator('[data-testid=talk-send]').click(); await mirror.waitForTimeout(400);
 r.ask2 = (await mirror.locator('body').innerText()).includes('define');
-await mirror.locator('input[type=text], input:not([type]), textarea').last().fill('The one-thing-at-a-time companion screen.'); await mirror.getByRole('button', { name: /send/i }).click(); await mirror.waitForTimeout(500);
+await mirror.locator('[data-testid=talk-input]').fill('The one-thing-at-a-time companion screen.'); await mirror.locator('[data-testid=talk-send]').click(); await mirror.waitForTimeout(500);
 r.termAdded = await main.evaluate(() => JSON.parse(localStorage.getItem('bropilot:lfp:v1')).graph.nodes.some((n) => n.kind === 'term' && n.title === 'Magic mirror'));
-// unrealised → staged → approve from the mirror
-await mirror.getByText("What's not realised").first().click(); await mirror.waitForTimeout(600);
-r.unrealised = { mainHash: await main.evaluate(() => location.hash), staged: (await mirror.locator('body').innerText()).match(/\d+ change/)?.[0] ?? null, mainStaged: await main.locator('.top', { hasText: 'changeset staged' }).count() };
-await mirror.getByRole('button', { name: /approve/i }).first().click(); await mirror.waitForTimeout(500);
-r.approved = { epics: await main.evaluate(() => JSON.parse(localStorage.getItem('bropilot:lfp:v1')).graph.nodes.filter((n) => n.kind === 'epic').length), commits: await main.evaluate(() => JSON.parse(localStorage.getItem('bropilot:lfp:v1')).commits.length), mirrorSays: (await mirror.locator('body').innerText()).includes('Committed') };
+// stage something on the main screen directly (via the dev __lfp hook), then approve from the mirror — proves the mirror's Approve commits on the main screen.
+// NOTE: with the seed graph, ctx.next is always null (every kernel question's produced kind already has
+// committed nodes), so there is no "next root question" — answer a fresh follow-up instead.
+const nodesBefore = await main.evaluate(() => window.__lfp.state.graph.nodes.length);
+const qid = await main.evaluate(() => {
+  window.__lfp.applyCue({ t: 'followup', parentId: 'q-audience', prompt: 'smoke-mirror: which of them pays?', kind: 'sub' });
+  return window.__lfp.state.followups.at(-1).id;
+});
+await main.evaluate((id) => window.__lfp.applyCue({ t: 'answer', questionId: id, content: 'Small teams with a budget' }), qid);
+await mirror.waitForTimeout(400);
+r.staged = { qid, mirrorShowsStaged: (await mirror.locator('[data-testid=talk-now]').innerText()).match(/\d+ change/)?.[0] ?? null, mainStaged: await main.locator('.top', { hasText: 'changeset staged' }).count() };
+await mirror.locator('[data-testid=talk-approve]').first().click(); await mirror.waitForTimeout(500);
+const nodesAfter = await main.evaluate(() => window.__lfp.state.graph.nodes.length);
+r.approved = { nodesAdded: nodesAfter - nodesBefore, commits: await main.evaluate(() => JSON.parse(localStorage.getItem('bropilot:lfp:v1')).commits.length) };
 // free talk about a node
-await mirror.locator('input[type=text], input:not([type]), textarea').last().fill('Effect preview and commit gate'); await mirror.getByRole('button', { name: /send/i }).click(); await mirror.waitForTimeout(600);
+await mirror.locator('[data-testid=talk-input]').fill('Effect preview and commit gate'); await mirror.locator('[data-testid=talk-send]').click(); await mirror.waitForTimeout(600);
 r.freeTalk = { mainHash: await main.evaluate(() => location.hash), says: (await mirror.locator('body').innerText()).includes('Capability: Effect preview'), lit: await main.locator('.card.lit').count() };
 // one utterance at a time: exactly one utterance card on the mirror
-r.utteranceCards = await mirror.locator('[class*=utter], [class*=say], .card').count();
+r.utteranceCards = await mirror.locator('[data-testid=talk-utterance]').count();
 await mirror.screenshot({ path: `${out}/mirror-phone-2.png` });
-// sidebar on main shows the same state
-r.sidebar = { present: await main.locator('[class*=agent]').count() > 0, hasTranscript: (await main.locator('body').innerText()).includes('Effect preview and commit gate') };
+// Talk panel on main shows the same transcript
+r.mainPanel = { present: await main.locator('[data-testid=talk-panel]').count() > 0, hasTranscript: (await main.locator('body').innerText()).includes('Effect preview and commit gate') };
 r.errors = errors; console.log(JSON.stringify(r, null, 1)); await b.close();
