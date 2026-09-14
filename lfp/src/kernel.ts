@@ -133,6 +133,18 @@ export const STATEMENTS: Record<number, string> = {
   113: 'it should represent the agent, but say maximum one thing at a time like a magic mirror experience',
   114: 'point at things on my main screen, such as highlighting relationships or changing tabs or even showing multiple different things in order while talking about them',
   115: 'manipulate the data we have, like adding different glossary terms or modifying a hypothesis or what have you',
+  // ── the Talk panel (2026-09-14) ──
+  116: 'give more of the feeling of being a series of questions with downstream effects',
+  117: 'the primary interaction mode because the AI will surface what\'s the most important undecided things or next thing to focus on',
+  118: 'centralize the interaction mode as a talk about it kinda panel',
+  119: 'this panel should be aware of which tab is currently active and what\'s on the screen',
+  120: 'the ability to talk about what is on the screen and maybe even highlight different cards and stuff',
+  121: 'plan how to centralize our architecture this way because the back end flow also matters',
+  122: 'we are prototyping here. architecture matters but can be simplistic, UI is barebones',
+  123: 'Flue is the agent, now',
+  124: 'the panel is the primary input — commentary and pointer',
+  125: 'read mode when the panel is closed',
+  126: 'the panel and the mirror are two channels to the same functionality',
 };
 
 // ── Layers & spaces ─────────────────────────────────────────────────────────
@@ -390,6 +402,8 @@ export const FLOWS: FlowDef[] = [
   { id: 'R5', group: 'Reality', title: 'Plan changes from failing tests', steps: ['collect test results', 'all pass → no changes', 'else: epic per cluster of failing tests', 'tasks so targeted each names its tests', 'dispatch coding agents', 'results reported back'], scope: 'stub', touches: ['Commit', 'Action', 'Agent', 'Evidence'], source: said(87, 88, 91, 92) },
   { id: 'R6', group: 'Reality', title: 'Climb the test ladder for a module', steps: ['health check: module exists', 'API surface tests', 'deterministic simulation'], scope: 'stub', touches: ['Node', 'Edge'], source: said(93, 94, 95) },
   { id: 'R4', group: 'Reality', title: 'Deploy', steps: ['engineer action', 'artefact + deployment node'], scope: 'later', touches: ['Action', 'Agent'], source: said(39) },
+  { id: 'T2', group: 'Talk', title: 'Answer through the panel', steps: ['panel shows the next question or gap', 'user types an answer in the composer', 'director stages effects', 'approve on the panel commits, or discard'], scope: 'core', touches: ['Question', 'Answer', 'Effect', 'Agent'], source: said(116, 117, 121) },
+  { id: 'T3', group: 'Talk', title: 'Ask what\'s on screen', steps: ['user asks the panel what they are looking at', 'director reads screen.items for the active view', 'points at the relevant cards while answering'], scope: 'core', touches: ['Agent', 'Node'], source: said(119, 120) },
 ];
 
 // ── Kernel objects (orchestration + meta) shown on the Kernel page ──────────

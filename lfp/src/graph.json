@@ -1208,6 +1208,24 @@
       }
     },
     {
+      "id": "interface-agent-bus",
+      "kind": "interface",
+      "title": "Agent bus: hello / cue / ack / snapshot over the bus",
+      "status": "committed",
+      "description": "The Flue agent server joins the same bus as the main screen and every mirror, one 'agent' client for the whole server, driving the screen through cue tools.",
+      "props": {
+        "style": "events",
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/agent/server.mjs"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          3,
+          123
+        ]
+      }
+    },
+    {
       "id": "feature-strategy",
       "kind": "feature",
       "title": "Strategy",
@@ -2638,19 +2656,22 @@
       }
     },
     {
-      "id": "screen-agent-sidebar",
+      "id": "screen-talk-panel",
       "kind": "screen",
-      "title": "Agent sidebar (main screen)",
+      "title": "Talk panel (docked on the main screen)",
       "status": "committed",
       "source": {
         "kind": "said",
         "statements": [
-          110
+          110,
+          118,
+          119,
+          120
         ]
       },
-      "description": "Permanent right sidebar: same agent state, plus the transcript.",
+      "description": "The primary interaction: aware of the active tab and what is on screen, talks about it, points at cards, and is the one way to answer, edit, approve, discard or undo. Read mode when closed.",
       "props": {
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/AgentSidebar.vue"
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/components/TalkPanel.vue"
       }
     },
     {
@@ -4476,13 +4497,13 @@
     },
     {
       "id": "e279",
-      "src": "module-director",
-      "dst": "screen-agent-sidebar",
+      "src": "module-definition",
+      "dst": "screen-talk-panel",
       "type": "exposes"
     },
     {
       "id": "e280",
-      "src": "screen-agent-sidebar",
+      "src": "screen-talk-panel",
       "dst": "interface-bus",
       "type": "uses"
     },
@@ -4494,7 +4515,7 @@
     },
     {
       "id": "e282",
-      "src": "screen-agent-sidebar",
+      "src": "screen-talk-panel",
       "dst": "capability-guided-path",
       "type": "implements"
     },
@@ -4599,6 +4620,24 @@
       "src": "capability-guided-path",
       "dst": "hypothesis-h8",
       "type": "references"
+    },
+    {
+      "id": "e300",
+      "src": "module-orchestration",
+      "dst": "interface-agent-bus",
+      "type": "exposes"
+    },
+    {
+      "id": "e301",
+      "src": "interface-agent-bus",
+      "dst": "external-flue",
+      "type": "uses"
+    },
+    {
+      "id": "e302",
+      "src": "screen-talk-panel",
+      "dst": "interface-agent-bus",
+      "type": "uses"
     }
   ]
 }
