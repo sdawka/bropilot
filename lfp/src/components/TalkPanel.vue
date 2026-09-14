@@ -1,11 +1,29 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { state } from '../store';
+import { ref, computed } from 'vue';
+import { state, rateCall } from '../store';
 import type { Context, UserTurn } from '../director';
+import { aiFunctionById } from '../ai/registry';
 
 const props = defineProps<{ ctx: Context | null; send: (t: UserTurn) => void; bare?: boolean }>();
 
 const text = ref('');
+
+/** The AI call that produced the current utterance (say/ask), if any (S128–S131). */
+const utteranceCall = computed(() => {
+  if (props.bare || !props.ctx) return null;
+  const id = props.ctx.say?.id ?? props.ctx.ask?.id;
+  if (!id) return null;
+  return state.aiCalls.find((c) => c.cueIds.includes(id)) ?? null;
+});
+/** The AI call that staged the current changeset, if any. */
+const stagedCall = computed(() => {
+  if (props.bare || !props.ctx?.staged) return null;
+  const ids = props.ctx.staged.ids;
+  if (!ids.length) return null;
+  return state.aiCalls.find((c) => ids.some((id) => c.cueIds.includes(id))) ?? null;
+});
+const metaFor = (fn: string) => aiFunctionById[fn];
+function rate(callId: string, value: string) { rateCall(callId, value); }
 
 function sendText() {
   const t = text.value.trim();
@@ -42,12 +60,27 @@ function close() { state.panelOpen = false; }
         <p>{{ ctx.say.text }}</p>
       </div>
 
+      <div class="feedback" data-testid="talk-feedback" v-if="utteranceCall">
+        <p class="small tracking" data-testid="talk-tracking">{{ utteranceCall.fn }} · {{ utteranceCall.version }} · {{ utteranceCall.runtime }}</p>
+        <p class="small" v-if="utteranceCall.rating">{{ metaFor(utteranceCall.fn)?.feedback.find((f) => f.value === utteranceCall!.rating!.value)?.label ?? utteranceCall.rating.value }}</p>
+        <div class="row" v-else>
+          <button v-for="f in metaFor(utteranceCall.fn)?.feedback ?? []" :key="f.value" :data-testid="`talk-feedback-${f.value}`" @click="rate(utteranceCall!.id, f.value)">{{ f.label }}</button>
+        </div>
+      </div>
+
       <p class="small pointing" v-if="ctx.pointing.length">pointing at: {{ ctx.pointing.join(', ') }}</p>
 
       <div class="now" data-testid="talk-now">
         <template v-if="ctx.staged">
           <p class="small">{{ ctx.staged.count }} change{{ ctx.staged.count === 1 ? '' : 's' }} staged — {{ ctx.staged.note }}</p>
           <ul class="effects"><li v-for="(e, i) in ctx.staged.effects" :key="i" class="small">{{ e }}</li></ul>
+          <div class="feedback" data-testid="talk-feedback" v-if="stagedCall">
+            <p class="small tracking" data-testid="talk-tracking">{{ stagedCall.fn }} · {{ stagedCall.version }} · {{ stagedCall.runtime }}</p>
+            <p class="small" v-if="stagedCall.rating">{{ metaFor(stagedCall.fn)?.feedback.find((f) => f.value === stagedCall!.rating!.value)?.label ?? stagedCall.rating.value }}</p>
+            <div class="row" v-else>
+              <button v-for="f in metaFor(stagedCall.fn)?.feedback ?? []" :key="f.value" :data-testid="`talk-feedback-${f.value}`" @click="rate(stagedCall!.id, f.value)">{{ f.label }}</button>
+            </div>
+          </div>
           <div class="row">
             <button class="primary" data-testid="talk-approve" @click="control('approve')">Approve</button>
             <button data-testid="talk-discard" @click="control('discard')">Discard</button>
@@ -105,6 +138,10 @@ function close() { state.panelOpen = false; }
 .options { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
 
 .pointing { margin: 0; }
+
+.feedback { display: flex; flex-direction: column; gap: .3rem; }
+.feedback .tracking { color: var(--muted); }
+.feedback .row { flex-wrap: wrap; }
 
 .now { display: flex; flex-direction: column; gap: .4rem; background: #fbeee4; border-radius: 8px; padding: .5rem .7rem; }
 .now p { margin: 0; }
