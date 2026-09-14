@@ -2,11 +2,12 @@
 // Whoever speaks it (a scripted tour today, a Flue agent tomorrow) has the same powers. It doubles as the LLM tool list.
 
 import {
-  state, nodeById, edgesOf, upsertTerm, removeNodeDirect, persist, describe, nextQuestion,
+  state, nodeById, upsertTerm, removeNodeDirect, persist, describe, nextQuestion,
   answer, answerFollowUp, addFollowUp, commit, discardStaged, undo,
   type Effect, type FollowUp,
 } from './store';
 import { QUESTIONS } from './kernel';
+import { computeGaps } from './ai/functions/find-gaps.ts';
 
 export type View = 'overview' | 'definition' | 'domain' | 'flows' | 'kernel';
 
@@ -149,17 +150,6 @@ export function tourStep(delta: 1 | -1) {
 }
 export function stopTour() { if (dwellTimer) clearTimeout(dwellTimer); dwellTimer = null; state.tour = null; }
 export function pauseTour() { const t = state.tour; if (t) { t.paused = true; if (dwellTimer) clearTimeout(dwellTimer); } }
-
-/** Exactly two gap checks, kept to one line each (Cut on purpose: nothing more). */
-function computeGaps(): string[] {
-  const out: string[] = [];
-  const noEdges = state.graph.nodes.filter((n) => !state.graph.edges.some((e) => e.src === n.id || e.dst === n.id));
-  if (noEdges.length) out.push(`${noEdges.length} node${noEdges.length === 1 ? '' : 's'} with no edges: ${noEdges.slice(0, 3).map((n) => n.title).join(', ')}`);
-  const hyps = state.graph.nodes.filter((n) => n.kind === 'hypothesis');
-  const noMetric = hyps.filter((h) => !edgesOf(h.id).some((e) => nodeById(e.src === h.id ? e.dst : e.src)?.kind === 'metric'));
-  if (noMetric.length) out.push(`${noMetric.length} bet${noMetric.length === 1 ? '' : 's'} with no metric: ${noMetric.slice(0, 3).map((n) => n.title).join(', ')}`);
-  return out;
-}
 
 // ── context the main screen publishes ───────────────────────────────────────
 export function currentContext(topics: { id: string; label: string }[], transport: string): Context {

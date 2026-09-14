@@ -8,7 +8,14 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { cueTools } from './tools.ts';
 
-const PROMPT = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'prompt.md'), 'utf8');
+// prompt.md is generated (Stage 1-E, from src/ai/registry.ts's AI_FUNCTIONS); a missing file
+// (fresh checkout before the first `npm run docs`) should never crash the agent server.
+let PROMPT = '';
+try {
+  PROMPT = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'prompt.md'), 'utf8');
+} catch {
+  PROMPT = '';
+}
 
 // Set by server.mjs whenever a `snapshot` / `context` bus message arrives. Read fresh on every
 // render, per Flue's re-render-every-turn contract (see building-agents.md).
