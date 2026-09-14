@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { REPRESENTATION_SPACES, KINDS, kindById, edgeTypeById } from '../kernel';
-import { state, dogfood, edgesOf, nodeById } from '../store';
+import { state, dogfood, edgesOf, nodeById, type ScreenItem } from '../store';
+import { useScreen } from '../screen';
 import Prov from './Prov.vue';
 import Inspector from './Inspector.vue';
 
@@ -55,13 +56,6 @@ function drawLines() {
 }
 watch(() => state.selectedId, () => nextTick(drawLines));
 watch(() => state.highlight, () => nextTick(drawLines), { deep: true });
-watch(() => state.highlight.focus, (id) => {
-  if (!id) return;
-  nextTick(() => {
-    const el = wrap.value?.querySelector(`[data-node-id="${id}"]`);
-    (el as HTMLElement | null)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  });
-});
 onMounted(() => { window.addEventListener('resize', drawLines); window.addEventListener('scroll', drawLines, true); });
 onUnmounted(() => { window.removeEventListener('resize', drawLines); window.removeEventListener('scroll', drawLines, true); });
 
@@ -78,6 +72,22 @@ const columns = computed(() => REPRESENTATION_SPACES.filter((sp) => sp.id !== 'b
 const domainKinds = computed(() => kindsIn('solution').filter((k) => k.level));
 const nonDomainKinds = (space: string) => kindsIn(space).filter((k) => !k.level);
 const domainCounts = computed(() => domainKinds.value.map((k) => ({ kind: k, count: byKind.value[k.id]?.length ?? 0 })));
+
+// report what's actually rendered: non-basics columns, plus basics cards when shown
+useScreen((): ScreenItem[] => {
+  const items: ScreenItem[] = [];
+  for (const sp of columns.value) {
+    for (const k of nonDomainKinds(sp.id)) {
+      for (const n of byKind.value[k.id] ?? []) items.push({ id: n.id, kind: n.kind, title: n.title });
+    }
+  }
+  if (showBasics.value) {
+    for (const k of basicsKinds.value) {
+      for (const n of byKind.value[k.id] ?? []) items.push({ id: n.id, kind: n.kind, title: n.title });
+    }
+  }
+  return items;
+});
 </script>
 
 <template>
@@ -105,7 +115,7 @@ const domainCounts = computed(() => domainKinds.value.map((k) => ({ kind: k, cou
           <span class="tags"><span class="tag" :class="k.kernel ? 'kernel' : 'ext'">{{ k.kernel ? 'kernel' : 'template' }}</span><Prov :source="k.source" /></span>
         </h3>
         <p v-if="!byKind[k.id]?.length" class="empty">{{ k.blurb }}</p>
-        <button v-for="n in byKind[k.id]" :key="n.id" class="card" :class="[n.status, { selected: state.selectedId === n.id }]" @click="select(n.id)">
+        <button v-for="n in byKind[k.id]" :key="n.id" class="card" :data-node-id="n.id" :class="[n.status, cardClass(n.id)]" @click="select(n.id)">
           <span class="title">{{ n.title }}</span>
           <span class="meta"><span class="status">{{ n.status }}</span><Prov :source="n.source" /></span>
         </button>
