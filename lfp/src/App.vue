@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watchEffect } from 'vue';
 import Overview from './components/Overview.vue';
 import Definition from './components/Definition.vue';
 import Domain from './components/Domain.vue';
@@ -7,10 +7,11 @@ import Flows from './components/Flows.vue';
 import Kernel from './components/Kernel.vue';
 import Glossary from './components/Glossary.vue';
 import Mirror from './components/Mirror.vue';
-import AgentSidebar from './components/AgentSidebar.vue';
+import TalkPanel from './components/TalkPanel.vue';
 import { state, hydrate, resetToSeed, exportJson } from './store';
-import { startDirectorHost } from './directors/index';
-import { relayHost, setRelayHost } from './bus';
+import { startDirectorHost, handleUser, topics } from './directors/index';
+import { currentContext } from './director';
+import { relayHost, setRelayHost, bus } from './bus';
 
 type View = 'overview' | 'definition' | 'domain' | 'flows' | 'kernel' | 'mirror';
 const views: { id: View; label: string; title: string }[] = [
@@ -32,8 +33,14 @@ onMounted(() => {
   if (!isMirror.value) startDirectorHost();
 });
 
+watchEffect(() => {
+  state.screen.view = view.value;
+  state.screen.params = { level: String(state.domainLevel), module: state.domainModule ?? '', question: state.definitionQuestion ?? '' };
+});
+
+const localCtx = computed(() => currentContext(topics(), bus().label));
+
 const glossaryOpen = ref(false);
-const agentOpen = ref(true);
 const copied = ref(false);
 const relay = ref(relayHost());
 async function copyExport() { await navigator.clipboard.writeText(exportJson()); copied.value = true; setTimeout(() => (copied.value = false), 1500); }
@@ -43,7 +50,7 @@ function configureRelay() {
   const host = prompt('Relay host (LAN IP of this machine, printed by `npm run relay`). Empty = same-machine BroadcastChannel.', relay.value ?? '');
   if (host === null) return; setRelayHost(host.trim()); relay.value = host.trim(); location.reload();
 }
-const panelOpen = computed(() => !!state.selectedId || glossaryOpen.value || agentOpen.value);
+const pushLayout = computed(() => !!state.selectedId || glossaryOpen.value || state.panelOpen);
 </script>
 
 <template>
@@ -55,21 +62,21 @@ const panelOpen = computed(() => !!state.selectedId || glossaryOpen.value || age
       <div class="actions">
         <span class="small" v-if="state.staged">1 changeset staged</span>
         <button class="glossary-btn" @click="glossaryOpen = !glossaryOpen" title="Always here (S59)">📖 Glossary</button>
-        <button :class="{ active: agentOpen }" @click="agentOpen = !agentOpen" title="The agent sidebar (S110)">🪞 Agent</button>
+        <button :class="{ active: state.panelOpen }" @click="state.panelOpen = !state.panelOpen" title="The talk panel (S110)">🪞 Talk</button>
         <button @click="openMirror" title="Open the magic-mirror screen in a new window (S111–S113)">Mirror ↗</button>
         <button @click="configureRelay" :title="relay ? `Relay: ${relay}` : 'No relay: same-machine BroadcastChannel'">{{ relay ? `📡 ${relay}` : '📡 relay…' }}</button>
         <button @click="copyExport">{{ copied ? 'Copied' : 'Copy graph JSON' }}</button>
         <button @click="reset">Reset to seed</button>
       </div>
     </header>
-    <div class="view" :class="{ 'panel-open': panelOpen }" v-if="state.hydrated">
+    <div class="view" :class="{ 'panel-open': pushLayout }" v-if="state.hydrated">
       <Overview v-if="view === 'overview'" />
       <Definition v-else-if="view === 'definition'" />
       <Domain v-else-if="view === 'domain'" />
       <Flows v-else-if="view === 'flows'" />
       <Kernel v-else />
     </div>
-    <AgentSidebar :open="agentOpen" @close="agentOpen = false" />
+    <TalkPanel :ctx="localCtx" :send="handleUser" />
     <Glossary :open="glossaryOpen" @close="glossaryOpen = false" />
   </template>
 </template>
