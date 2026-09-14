@@ -1,12 +1,9 @@
 // Bropilot v4 kernel — the source of truth for the lfp.
 // Everything here carries provenance back to the brief (STATEMENTS) or is flagged as inferred.
 
-export type Provenance =
-  | { kind: 'said'; statements: number[] }
-  | { kind: 'inferred'; reason: string };
-
-export const said = (...s: number[]): Provenance => ({ kind: 'said', statements: s });
-export const inferred = (reason: string): Provenance => ({ kind: 'inferred', reason });
+export { type Provenance, said, inferred } from './provenance.ts';
+import { said, inferred, type Provenance } from './provenance.ts';
+import { AI_FUNCTIONS } from './ai/registry.ts';
 
 // ── Statement bank (verbatim / near-verbatim from the 2026-09-07 brief) ──────
 export const STATEMENTS: Record<number, string> = {
@@ -145,6 +142,25 @@ export const STATEMENTS: Record<number, string> = {
   124: 'the panel is the primary input — commentary and pointer',
   125: 'read mode when the panel is closed',
   126: 'the panel and the mirror are two channels to the same functionality',
+  // ── AI functions, architecture diagrams, consolidation (2026-09-14, second brief) ──
+  127: "we don't care about it actually working now. You can stub the AI responses",
+  128: 'all of the AI functions are cleanly separated so that we can improve their prompts, what context they need',
+  129: 'track the efficacy of whatever these AI functions are… some kind of feedback mechanism',
+  130: 'a button like, makes sense. Doesn\'t make sense. Bad question',
+  131: 'additional columns on the response that it comes from that lets us know',
+  132: 'right now, we should mainly be documenting and architecting. The prototype is just for visualizing and having a more tangible planning experience',
+  133: 'missing a sort of architecture diagram on the various levels. Use vue flow or something for this',
+  134: 'a cell diagram where the API of every module… the channels through which molecules… enter the cell or exit… here are payloads',
+  135: 'within the cell, we see some circuitry. We see dedicated boxes for domain entities',
+  136: 'for each API, there\'s a unique circuit that loops through the inside of the cell',
+  137: 'the domain entities are touched by various circuits',
+  138: 'we also have the actual data model layer hidden at the back',
+  139: 'the level above… the various infrastructure deployables, such as the cache… or multiple services… connecting starting from the user\'s client device… to our servers and back',
+  140: 'all of these architecture diagrams should also represent information flow',
+  141: 'the flows from the other space of the overview should correspond to flows here so that if I wanna see one flow in particular, everything else is grayed out',
+  142: 'consolidate as much as possible so that things are represented from common sources of truth',
+  143: 'docs: declare once in kernel, render in-app + emit markdown',
+  144: 'AI functions run in the browser, runtime-swappable',
 };
 
 // ── Layers & spaces ─────────────────────────────────────────────────────────
@@ -197,7 +213,7 @@ export const KINDS: KindDef[] = [
   { id: 'purpose', label: 'Purpose', plural: 'Purpose', space: 'basics', icon: '🎯', kernel: true, singular: true, blurb: 'Why it exists; the real-world effect and value it is for.', source: said(9, 29) },
   { id: 'summary', label: 'Summary', plural: 'Summary', space: 'basics', icon: '📝', kernel: true, singular: true, blurb: 'A paragraph for picking this project out of a list.', source: said(49, 50) },
   // problem
-  { id: 'audience', label: 'Audience', plural: 'Audience', space: 'problem', icon: '👤', kernel: true, blurb: 'A type of person or agent the system is for.', source: said(30) },
+  { id: 'audience', label: 'Audience', plural: 'Audience', space: 'problem', icon: '👤', kernel: true, level: 1, blurb: 'A type of person or agent the system is for.', source: said(30) },
   { id: 'context', label: 'Context', plural: 'Contexts', space: 'problem', icon: '🌍', kernel: true, blurb: 'The situation an audience is in when the problem shows up.', source: said(30) },
   { id: 'usecase', label: 'Use case', plural: 'Use cases', space: 'problem', icon: '🎬', kernel: true, blurb: 'Something an audience is trying to get done.', source: said(30) },
   { id: 'problem', label: 'Problem', plural: 'Problems', space: 'problem', icon: '🧨', kernel: true, blurb: 'What stands in their way today.', source: said(30) },
@@ -210,16 +226,16 @@ export const KINDS: KindDef[] = [
   // solution (kernel core; template kinds come as we reach this column)
   { id: 'capability', label: 'Capability', plural: 'Capabilities', space: 'solution', icon: '⚡', kernel: true, blurb: 'A high-level thing the system can do.', source: said(30) },
   { id: 'feature', label: 'Feature', plural: 'Features', space: 'solution', icon: '🎁', kernel: true, fields: [{ key: 'stages', label: 'Lifecycle stages' }], blurb: 'A value grouping, described by journeys and flows. What a startup would have a department for becomes a feature here.', source: said(32, 71, 72) },
-  { id: 'flow', label: 'Flow', plural: 'Journeys & flows', space: 'solution', icon: '🧭', kernel: false, blurb: 'A happy path through the system.', source: said(31, 32) },
+  { id: 'flow', label: 'Flow', plural: 'Journeys & flows', space: 'solution', icon: '🧭', kernel: false, fields: [{ key: 'group', label: 'Group' }, { key: 'scope', label: 'Scope', type: 'select', options: ['core', 'stub', 'later'] }, { key: 'steps', label: 'Steps (one per line)' }], blurb: 'A happy path through the system; touches architecture via uses edges. Corresponds across Overview and the architecture diagrams — selecting one dims everything else, everywhere.', source: said(31, 32, 140, 141) },
   { id: 'term', label: 'Term', plural: 'Vocabulary', space: 'solution', icon: '📖', kernel: false, blurb: 'A fixed word of the domain.', source: said(31) },
   // domain, C4-style levels
   { id: 'system', label: 'System', plural: 'Systems', space: 'solution', icon: '🫧', kernel: true, level: 1, blurb: 'The system itself as one bubble, or a meaningfully separate part of it (web vs mobile).', source: said(56, 57) },
   { id: 'external', label: 'External system', plural: 'External systems', space: 'solution', icon: '🛰️', kernel: true, level: 1, blurb: 'Another system ours talks to.', source: said(56) },
   { id: 'module', label: 'Module', plural: 'Modules', space: 'solution', icon: '📦', kernel: true, level: 2, blurb: 'A business domain / bounded context. Always exposes an interface.', source: said(33, 35, 58, 60) },
-  { id: 'infra', label: 'Infra', plural: 'Infra', space: 'solution', icon: '🧱', kernel: false, level: 2, blurb: 'Dedicated infrastructure (cache, durable object) shown inside its module.', source: said(61) },
+  { id: 'infra', label: 'Infra', plural: 'Infra', space: 'solution', icon: '🧱', kernel: false, level: 2, fields: [{ key: 'role', label: 'Role', type: 'select', options: ['client', 'server', 'store', 'cache', 'queue'] }], blurb: 'A deployable: dedicated infrastructure (cache, durable object, client, server, store, queue). Shown inside its module (contains) and, at the deployment level, by its role.', source: said(61, 139) },
   { id: 'thing', label: 'Thing', plural: 'Things', space: 'solution', icon: '🔷', kernel: true, level: 3, blurb: 'An entity in domain language; a noun.', source: said(64) },
   { id: 'rule', label: 'Rule', plural: 'Rules', space: 'solution', icon: '⚖️', kernel: true, level: 3, fields: [{ key: 'tests', label: 'Tests (pos/neg)' }], blurb: 'Logic about one or more things, from hasMany to expectations. Should be tested both ways.', source: said(31, 64, 65, 66, 67) },
-  { id: 'interface', label: 'Interface', plural: 'Interfaces', space: 'solution', icon: '🔌', kernel: true, level: 3, fields: [{ key: 'style', label: 'Style', type: 'select', options: ['rpc', 'rest', 'ui', 'events'] }], blurb: 'The API a module exposes; REST, RPC, UI or events.', source: said(35, 68) },
+  { id: 'interface', label: 'Interface', plural: 'Interfaces', space: 'solution', icon: '🔌', kernel: true, level: 3, fields: [{ key: 'style', label: 'Style', type: 'select', options: ['rpc', 'rest', 'ui', 'events'] }, { key: 'in', label: 'In (payload entering)' }, { key: 'out', label: 'Out (payload leaving)' }], blurb: 'The API a module exposes; REST, RPC, UI or events. Molecules — payloads — enter as `in` and leave as `out`, through a `carries` edge to the things they are or derive from.', source: said(35, 68, 134) },
   { id: 'event', label: 'Event', plural: 'Events', space: 'solution', icon: '⚡', kernel: true, level: 3, blurb: 'Something notable that happened; a past-tense fact in the vocabulary.', source: said(74) },
   { id: 'protocol', label: 'Protocol', plural: 'Protocols', space: 'solution', icon: '🛡️', kernel: true, level: 3, fields: [{ key: 'cadence', label: 'Cadence' }], blurb: 'How we want to enact the representation: PR gates, regular security audits, changelogs as blog posts. Reality\'s practices realise them. The product automation zone.', source: said(105, 106, 107) },
   { id: 'test', label: 'Test', plural: 'Tests', space: 'solution', icon: '🧪', kernel: true, level: 3, fields: [{ key: 'ladder', label: 'Ladder', type: 'select', options: ['exists', 'surface', 'simulation'] }], blurb: 'The bridge to reality: one per condition in a rule. Ladder: module exists (health check) → API surface → deterministic simulation.', source: said(67, 89, 90, 93, 94, 95) },
@@ -227,6 +243,7 @@ export const KINDS: KindDef[] = [
   { id: 'design-system', label: 'Design system', plural: 'Design system', space: 'solution', icon: '🎨', kernel: false, singular: true, blurb: 'Guides product and marketing material, including tone.', source: said(37) },
   // agents (sub-items of the orchestration capability)
   { id: 'agent', label: 'Agent', plural: 'Agents', space: 'solution', icon: '🤖', kernel: true, fields: [{ key: 'status', label: 'Status', type: 'select', options: ['core', 'stub'] }], blurb: 'Executes actions for one or more features; a sub-item of the orchestration capability.', source: said(2, 4, 5, 72) },
+  { id: 'ai-function', label: 'AI function', plural: 'AI functions', space: 'solution', icon: '🧠', kernel: true, level: 3, fields: [{ key: 'version', label: 'Version' }, { key: 'runtime', label: 'Runtime', type: 'select', options: ['stub', 'flue'] }], blurb: 'A named place the AI acts: its own prompt, declared context needs, output shape, a deterministic stub, and a feedback mechanism to measure efficacy.', source: said(127, 128, 129, 144) },
   // reality · current state (S85, S96)
   { id: 'repository', label: 'Repository', plural: 'Repositories', space: 'current', icon: '📂', kernel: true, blurb: 'Where the actual code lives; the thing codeRefs point into.', source: said(85) },
   { id: 'codebase', label: 'Code', plural: 'Code', space: 'current', icon: '💾', kernel: true, blurb: 'A reference into the repository: a module, file or block as it actually exists.', source: said(85) },
@@ -282,6 +299,8 @@ export const EDGE_TYPES: EdgeTypeDef[] = [
   { id: 'supports', label: 'supports', category: 'verification', kernel: true, hint: 'Evidence supports a hypothesis. STUB.', source: said(25) },
   { id: 'refutes', label: 'refutes', category: 'verification', kernel: true, hint: 'Evidence refutes a hypothesis. STUB.', source: said(25) },
   { id: 'in-stage', label: 'in stage', category: 'orchestration', kernel: true, hint: 'Tags any node with a lifecycle stage.', source: said(7) },
+  { id: 'carries', label: 'carries', category: 'structural', kernel: true, hint: 'Interface carries a payload that is or derives from this thing ("molecules" entering/leaving through the interface\'s in/out).', source: said(134, 137) },
+  { id: 'hosts', label: 'hosts', category: 'structural', kernel: true, hint: 'Deployable (infra) hosts a module, at the deployment level. Additional to `contains` (module → infra), which the Modules grid still reads — do not repurpose that one.', source: said(139) },
 ];
 
 export const edgeTypeById = Object.fromEntries(EDGE_TYPES.map((e) => [e.id, e])) as Record<string, EdgeTypeDef>;
@@ -319,11 +338,12 @@ export const QUESTIONS: QuestionDef[] = [
 
 // ── Domain levels (C4-style) ────────────────────────────────────────────────
 export interface LevelDef { level: 0 | 1 | 2 | 3; label: string; blurb: string; kinds: string[]; source: Provenance }
+const kindsAtLevel = (n: 0 | 1 | 2 | 3) => KINDS.filter((k) => k.level === n).map((k) => k.id);
 export const LEVELS: LevelDef[] = [
-  { level: 0, label: 'Map', blurb: 'Representation (problem, bets, solution) on one side; Reality (current state, planned changes, effects) on the other. Solution links into planned changes; effects confirm or deny the bets.', kinds: [], source: said(79, 80, 81) },
-  { level: 1, label: 'Context', blurb: 'The real world as people talk about it: our system as a bubble, the people outside it, other systems.', kinds: ['system', 'audience', 'external'], source: said(56, 57) },
-  { level: 2, label: 'Modules', blurb: 'Inside the system: meaningfully different business domains, with their dedicated infra. Arrows are calls or events between them; flows run across them.', kinds: ['module', 'infra'], source: said(58, 60, 61) },
-  { level: 3, label: 'Inside a module', blurb: 'Things (nouns), rules (logic about things and their relationships), events (past-tense facts), the interface it exposes, and the tests that prove the rules. Each points at code.', kinds: ['thing', 'rule', 'event', 'interface', 'protocol', 'test'], source: said(63, 64, 65, 68, 69, 74, 105) },
+  { level: 0, label: 'Map', blurb: 'Representation (problem, bets, solution) on one side; Reality (current state, planned changes, effects) on the other. Solution links into planned changes; effects confirm or deny the bets.', kinds: kindsAtLevel(0), source: said(79, 80, 81) },
+  { level: 1, label: 'Context', blurb: 'The real world as people talk about it: our system as a bubble, the people outside it, other systems.', kinds: kindsAtLevel(1), source: said(56, 57) },
+  { level: 2, label: 'Deployment', blurb: 'The deployables (client, servers, caches, stores, queues) a system runs on, from the user\'s client device to the servers and back, plus the modules each one hosts.', kinds: kindsAtLevel(2), source: said(58, 60, 61, 139) },
+  { level: 3, label: 'Cell', blurb: 'Inside a module: the interface\'s ports (molecules in/out), circuits through domain entities, the data model behind, events, and the tests that prove the rules. Each points at code.', kinds: kindsAtLevel(3), source: said(63, 64, 65, 68, 69, 74, 105, 134, 135, 136) },
 ];
 export const NO_LEVEL_4: Provenance = said(70);
 
@@ -358,81 +378,14 @@ export const OPEN_QUESTIONS: OpenQuestion[] = [
   { id: 'open-business-tests', text: 'What is the "module exists" health check for a sales or marketing module? A live landing page? A measured funnel?', source: said(93, 104), resolved: { text: 'A basic existence check is the first test for every module, business ones included.', source: said(109) } },
 ];
 
-// ── Flows ───────────────────────────────────────────────────────────────────
-export type FlowScope = 'core' | 'stub' | 'later';
-export interface FlowDef {
-  id: string;
-  group: string;
-  title: string;
-  steps: string[];
-  scope: FlowScope;
-  touches: string[]; // kernel object names (free text ids for highlighting)
-  source: Provenance;
-}
+// ── Kernel digest (for an agent prompt / docs) ──────────────────────────────
 
-export const FLOWS: FlowDef[] = [
-  { id: 'P1', group: 'Project', title: 'Create project', steps: ['name', 'pick template', 'kernel questions unlocked'], scope: 'core', touches: ['Project', 'Template', 'Question'], source: said(29, 17) },
-  { id: 'P3', group: 'Project', title: 'Share / export', steps: ['serialise nodes, edges, commits', 'file or link'], scope: 'core', touches: ['Project', 'Node', 'Edge', 'Commit'], source: said(38) },
-  { id: 'P4', group: 'Project', title: 'Import', steps: ['file', 'changeset (add/update)', 'review', 'commit'], scope: 'core', touches: ['Changeset', 'Commit'], source: inferred('Mirror of share.') },
-  { id: 'U1', group: 'Primary', title: 'Talk → representation → tests → fulfilled', steps: ['talk about the product, as in this loop', 'the representation changes (nodes, edges, bets)', 'tests are added or changed', 'reality starts fulfilling them'], scope: 'core', touches: ['Answer', 'Effect', 'Commit', 'Node', 'Action', 'Evidence'], source: said(97, 98) },
-  { id: 'Q9', group: 'Path', title: 'Free talk mapped onto the tree', steps: ['user talks freely', 'AI maps utterances to template questions, sub-questions and threads', 'effects staged as usual'], scope: 'later', touches: ['Question', 'Answer', 'Effect', 'Agent'], source: said(97, 53) },
-  { id: 'U2', group: 'Primary', title: 'Talk on the mirror, watch the main screen', steps: ['mirror or sidebar: pick a tour or type', 'director answers with one utterance', 'main screen navigates, highlights, walks through steps', 'director stages a change → approve on either screen'], scope: 'core', touches: ['Answer', 'Effect', 'Commit', 'Node', 'Edge', 'Agent'], source: said(111, 112, 113, 114, 115) },
-  { id: 'Q1', group: 'Path', title: 'Answer next question', steps: ['show next unlocked question', 'user answers', 'effects staged'], scope: 'core', touches: ['Question', 'Answer', 'Effect'], source: said(21, 27) },
-  { id: 'Q2', group: 'Path', title: 'Jump to a question', steps: ['pick any unlocked question', 'answer'], scope: 'core', touches: ['Question'], source: said(20) },
-  { id: 'Q3', group: 'Path', title: 'Re-answer', steps: ['new answer', 'effects update/remove old nodes'], scope: 'core', touches: ['Answer', 'Effect', 'Node'], source: said(19) },
-  { id: 'Q5', group: 'Path', title: 'Direct edit (escape hatch)', steps: ['edit node in board', 'treated as an answer', 'effects staged'], scope: 'core', touches: ['Node', 'Answer', 'Effect'], source: inferred('Author has the knowledge (S20) and will want to bypass the path.') },
-  { id: 'Q7', group: 'Path', title: 'Add a sub-question or thread', steps: ['expand a template question', 'add a project-specific sub-question or a follow-up thread', 'answer it → effects staged'], scope: 'core', touches: ['Question', 'Answer', 'Effect'], source: said(52, 53, 54) },
-  { id: 'Q8', group: 'Path', title: 'AI organises the tree', steps: ['follow-ups clustered into threads and subtrees'], scope: 'later', touches: ['Question', 'Agent'], source: said(53, 54) },
-  { id: 'G1', group: 'Glossary', title: 'Edit the glossary', steps: ['open glossary from any page', 'add / edit / delete a term', 'commits immediately (escape hatch)'], scope: 'core', touches: ['Node', 'Commit', 'Kind'], source: said(59) },
-  { id: 'T1', group: 'Template', title: 'Declare a template', steps: ['pick base template', 'declare extension kinds (with space), edge types, questions, agents', 'kernel kinds untouched'], scope: 'later', touches: ['Template', 'Kind', 'Space', 'Layer', 'Question', 'Agent'], source: said(6, 17, 18, 43) },
-  { id: 'D1', group: 'Domain', title: 'Walk the C4 levels', steps: ['context: system, people, other systems', 'modules with infra', 'inside a module: things, rules, interface, tests', 'jump to code on GitHub'], scope: 'core', touches: ['Node', 'Edge', 'Kind'], source: said(56, 58, 63, 69) },
-  { id: 'Q6', group: 'Path', title: 'Question from evidence', steps: ['evidence refutes hypothesis', 'new question unlocked'], scope: 'stub', touches: ['Evidence', 'Question'], source: said(25, 26) },
-  { id: 'C1', group: 'Commit', title: 'Review changeset', steps: ['effects grouped by space', 'toggle each', 'warnings on top'], scope: 'core', touches: ['Changeset', 'Effect'], source: said(27) },
-  { id: 'C2', group: 'Commit', title: 'Commit', steps: ['apply accepted effects', 'nodes → committed', 'dispatch actions'], scope: 'core', touches: ['Commit', 'Action'], source: said(27) },
-  { id: 'C4', group: 'Commit', title: 'Undo commit', steps: ['revert all its effects'], scope: 'core', touches: ['Commit'], source: inferred('Safety net for the commit gate.') },
-  { id: 'C5', group: 'Commit', title: 'Review agent output', steps: ['action done', 'its effects appear as a changeset', 'review & commit'], scope: 'core', touches: ['Action', 'Changeset'], source: said(27) },
-  { id: 'O1', group: 'Orchestration', title: 'Dispatch action', steps: ['commit', 'action queued for owning agent'], scope: 'core', touches: ['Commit', 'Action', 'Agent'], source: said(2, 27) },
-  { id: 'O2', group: 'Orchestration', title: 'Agent executes', steps: ['reads inputs', 'produces effects and/or artefacts'], scope: 'core', touches: ['Agent', 'Action', 'Effect'], source: said(2, 3) },
-  { id: 'O5', group: 'Orchestration', title: 'Meta-agent proposal', steps: ['usage observed', 'insight + action on Bropilot\'s own project', 'review & commit'], scope: 'stub', touches: ['Agent', 'Evidence', 'Action'], source: said(28) },
-  { id: 'E1', group: 'Explore', title: 'Browse by space', steps: ['board columns left to right'], scope: 'core', touches: ['Space', 'Node'], source: said(45) },
-  { id: 'E2', group: 'Explore', title: 'Browse graph', steps: ['node-link explorer'], scope: 'later', touches: ['Node', 'Edge'], source: said(41) },
-  { id: 'E3', group: 'Explore', title: 'Inspect provenance', steps: ['node → answer/commit/action that produced it'], scope: 'core', touches: ['Node', 'Answer', 'Commit'], source: said(44) },
-  { id: 'R1', group: 'Reality', title: 'Record evidence manually', steps: ['pick hypothesis/metric', 'enter observation', 'supports/refutes edge'], scope: 'stub', touches: ['Evidence', 'Node'], source: said(40) },
-  { id: 'R2', group: 'Reality', title: 'Ingest events', steps: ['adapter', 'evidence nodes'], scope: 'later', touches: ['Evidence'], source: said(24, 39) },
-  { id: 'R5', group: 'Reality', title: 'Plan changes from failing tests', steps: ['collect test results', 'all pass → no changes', 'else: epic per cluster of failing tests', 'tasks so targeted each names its tests', 'dispatch coding agents', 'results reported back'], scope: 'stub', touches: ['Commit', 'Action', 'Agent', 'Evidence'], source: said(87, 88, 91, 92) },
-  { id: 'R6', group: 'Reality', title: 'Climb the test ladder for a module', steps: ['health check: module exists', 'API surface tests', 'deterministic simulation'], scope: 'stub', touches: ['Node', 'Edge'], source: said(93, 94, 95) },
-  { id: 'R4', group: 'Reality', title: 'Deploy', steps: ['engineer action', 'artefact + deployment node'], scope: 'later', touches: ['Action', 'Agent'], source: said(39) },
-  { id: 'T2', group: 'Talk', title: 'Answer through the panel', steps: ['panel shows the next question or gap', 'user types an answer in the composer', 'director stages effects', 'approve on the panel commits, or discard'], scope: 'core', touches: ['Question', 'Answer', 'Effect', 'Agent'], source: said(116, 117, 121) },
-  { id: 'T3', group: 'Talk', title: 'Ask what\'s on screen', steps: ['user asks the panel what they are looking at', 'director reads screen.items for the active view', 'points at the relevant cards while answering'], scope: 'core', touches: ['Agent', 'Node'], source: said(119, 120) },
-];
-
-// ── Kernel objects (orchestration + meta) shown on the Kernel page ──────────
-export interface KernelObject { id: string; definition: string; attrs: string; immutable: boolean; source: Provenance }
-
-/** Plain-text digest of the kernel for an agent prompt: kinds, edge types, questions, invariants. Kept short. */
+/** Plain-text digest of the kernel for an agent prompt: kinds, edge types, questions, invariants, AI functions. Kept short. */
 export function kernelDigest(): string {
   const kinds = KINDS.map((k) => `${k.id} (${k.space}${k.level ? `, L${k.level}` : ''}): ${k.blurb}`).join('\n');
   const edges = EDGE_TYPES.map((e) => `${e.id}: ${e.hint}`).join('\n');
   const questions = QUESTIONS.map((q) => `${q.id} → ${q.produces} [unlocks after: ${q.unlocksAfter.join(', ') || 'none'}]: ${q.prompt}`).join('\n');
   const invariants = INVARIANTS.map((i) => `- ${i.text}`).join('\n');
-  return `Kinds:\n${kinds}\nEdge types:\n${edges}\nQuestions:\n${questions}\nInvariants:\n${invariants}`;
+  const aiFunctions = AI_FUNCTIONS.map((f) => `${f.id} (v${f.version}, needs: ${f.context.needs.join(', ')}): ${f.purpose}`).join('\n');
+  return `Kinds:\n${kinds}\nEdge types:\n${edges}\nQuestions:\n${questions}\nInvariants:\n${invariants}\nAI functions:\n${aiFunctions}`;
 }
-
-export const KERNEL_OBJECTS: KernelObject[] = [
-  { id: 'Project', definition: 'One system being built. Root of everything.', attrs: 'name, template', immutable: true, source: said(2) },
-  { id: 'Layer', definition: 'representation | reality | orchestration', attrs: '—', immutable: true, source: said(23, 24) },
-  { id: 'Space', definition: 'A partition of a layer; the board columns.', attrs: 'layer, order, settled', immutable: true, source: said(23, 45) },
-  { id: 'Node', definition: 'The atom of knowledge.', attrs: 'id, kind, title, description, props, status', immutable: true, source: inferred('Graph representation carried over as the natural form.') },
-  { id: 'Edge', definition: 'Directed typed link.', attrs: 'src, dst, type, status', immutable: true, source: said(43) },
-  { id: 'Kind', definition: 'What a node is; kernel or template-declared.', attrs: 'space, fields, kernel', immutable: true, source: said(6, 43) },
-  { id: 'Question', definition: 'A prompt on the path; unlocks after others; produces kinds.', attrs: 'prompt, unlocksAfter, produces', immutable: true, source: said(21) },
-  { id: 'Answer', definition: 'Raw user input to a question. Immutable once given.', attrs: 'question, content, at', immutable: true, source: inferred('Immutability is my choice so provenance never changes under a node.') },
-  { id: 'Effect', definition: 'One staged change: add/update/remove a node or edge, or propose an action.', attrs: 'op, target, payload, source', immutable: true, source: said(21, 27) },
-  { id: 'Changeset', definition: 'Effects awaiting review.', attrs: 'effects, warnings', immutable: true, source: said(27) },
-  { id: 'Commit', definition: 'An accepted changeset. One undo step, one dispatch.', attrs: 'accepted effects, at', immutable: true, source: said(27) },
-  { id: 'Action', definition: 'A unit of agent work dispatched by a commit.', attrs: 'agent, inputs, status, output effects', immutable: true, source: said(2, 27) },
-  { id: 'Agent', definition: 'Executes actions for features; the director is the agent the user talks to.', attrs: 'functions, reads, writes', immutable: true, source: said(4, 5, 112) },
-  { id: 'Cue', definition: 'One instruction from the director to the main screen: say, navigate, point, sequence, stage, glossary, ask.', attrs: 't, payload', immutable: true, source: said(113, 114, 115) },
-  { id: 'Template', definition: 'A project type: extension kinds, questions, agents, implementation styles.', attrs: 'extends, kinds, questions, agents, styles', immutable: true, source: said(6, 17, 18) },
-  { id: 'Evidence', definition: 'An observation from reality. STUB.', attrs: 'source, value, verdict', immutable: true, source: said(24, 25, 40) },
-];

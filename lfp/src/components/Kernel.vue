@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { SPACES, KINDS, EDGE_TYPES, QUESTIONS, INVARIANTS, KERNEL_OBJECTS, LIFECYCLE_STAGES, LIFECYCLE_SOURCE, STATEMENTS, OPEN_QUESTIONS, type Provenance } from '../kernel';
+import { SPACES, KINDS, EDGE_TYPES, QUESTIONS, INVARIANTS, LIFECYCLE_STAGES, LIFECYCLE_SOURCE, STATEMENTS, OPEN_QUESTIONS, type Provenance } from '../kernel';
 import Prov from './Prov.vue';
 import { unanchored, BRIEFS } from '../brief';
 const missingAnchors = unanchored();
 
 const onlyInferred = ref(false);
 const keep = (s: Provenance) => !onlyInferred.value || s.kind === 'inferred';
-const objects = computed(() => KERNEL_OBJECTS.filter((o) => keep(o.source)));
 const spaces = computed(() => SPACES.filter((o) => keep(o.source)));
 const kinds = computed(() => KINDS.filter((o) => keep(o.source)));
 const edges = computed(() => EDGE_TYPES.filter((o) => keep(o.source)));
 const questions = computed(() => QUESTIONS.filter((o) => keep(o.source)));
 const invariants = computed(() => INVARIANTS.filter((o) => keep(o.source)));
 const counts = computed(() => {
-  const all = [...KERNEL_OBJECTS, ...SPACES, ...KINDS, ...EDGE_TYPES, ...QUESTIONS, ...INVARIANTS].map((x) => x.source);
+  const all = [...SPACES, ...KINDS, ...EDGE_TYPES, ...QUESTIONS, ...INVARIANTS].map((x) => x.source);
   return { said: all.filter((s) => s.kind === 'said').length, inferred: all.filter((s) => s.kind === 'inferred').length };
 });
 </script>
@@ -25,12 +24,6 @@ const counts = computed(() => {
       <label><input type="checkbox" v-model="onlyInferred" /> show only <b>inferred</b> items (to challenge)</label>
       <span class="small">{{ counts.said }} said · {{ counts.inferred }} inferred</span>
     </div>
-
-    <h2>Kernel objects <span class="small">(immutable; the domain of Bropilot itself)</span></h2>
-    <table>
-      <thead><tr><th>Object</th><th>Definition</th><th>Attributes</th><th>Source</th></tr></thead>
-      <tbody><tr v-for="o in objects" :key="o.id"><td><b>{{ o.id }}</b></td><td>{{ o.definition }}</td><td class="mono">{{ o.attrs }}</td><td><Prov :source="o.source" /></td></tr></tbody>
-    </table>
 
     <h2>Layers &amp; spaces</h2>
     <table>

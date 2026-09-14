@@ -37,7 +37,7 @@ export interface Context {
   ask: Ask | null;
   pointing: string[]; // titles of highlighted nodes
   tour: { i: number; n: number; paused: boolean } | null;
-  staged: { count: number; note: string; effects: string[] } | null;
+  staged: { count: number; note: string; effects: string[]; ids: string[] } | null;
   topics: { id: string; label: string }[]; // tour starters the director offers
   graph: { nodes: number; edges: number };
   transport: string;
@@ -176,7 +176,7 @@ export function currentContext(topics: { id: string; label: string }[], transpor
       .map((id) => nodeById(id)?.title ?? state.screen.items.find((it) => it.id === id)?.title ?? id)
       .slice(0, 6),
     tour: state.tour ? { i: state.tour.i, n: state.tour.steps.length, paused: state.tour.paused } : null,
-    staged: state.staged ? { count: state.staged.effects.length, note: state.staged.warnings[0] ?? '', effects: state.staged.effects.map(describe) } : null,
+    staged: state.staged ? { count: state.staged.effects.length, note: state.staged.warnings[0] ?? '', effects: state.staged.effects.map(describe), ids: state.staged.effects.map((e) => e.id) } : null,
     topics,
     graph: { nodes: state.graph.nodes.length, edges: state.graph.edges.length },
     transport,

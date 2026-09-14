@@ -724,7 +724,8 @@
       "status": "committed",
       "description": "Where the lfp persists graph, answers, commits.",
       "props": {
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts",
+        "role": "store"
       },
       "source": {
         "kind": "said",
@@ -1182,7 +1183,9 @@
       "status": "committed",
       "props": {
         "style": "rpc",
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts"
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/store.ts",
+        "in": "answer(questionId, content); commit(acceptedIds); undo()",
+        "out": "staged Changeset; committed graph diff"
       },
       "source": {
         "kind": "said",
@@ -1197,7 +1200,9 @@
       "title": "Action queue for agents (stub)",
       "status": "committed",
       "props": {
-        "style": "events"
+        "style": "events",
+        "in": "Action (agent, inputs)",
+        "out": "Action status + output Effects"
       },
       "source": {
         "kind": "said",
@@ -1215,7 +1220,9 @@
       "description": "The Flue agent server joins the same bus as the main screen and every mirror, one 'agent' client for the whole server, driving the screen through cue tools.",
       "props": {
         "style": "events",
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/agent/server.mjs"
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/agent/server.mjs",
+        "in": "hello, cue, ack",
+        "out": "snapshot, cue"
       },
       "source": {
         "kind": "said",
@@ -2037,7 +2044,12 @@
           98
         ]
       },
-      "description": "The intended user flow. Talk about the product; the representation changes; tests are added or changed; reality starts fulfilling them."
+      "description": "The intended user flow. Talk about the product; the representation changes; tests are added or changed; reality starts fulfilling them.",
+      "props": {
+        "group": "Primary",
+        "scope": "core",
+        "steps": "talk about the product, as in this loop\nthe representation changes (nodes, edges, bets)\ntests are added or changed\nreality starts fulfilling them"
+      }
     },
     {
       "id": "evidence-lfp-loop",
@@ -2539,7 +2551,9 @@
       },
       "props": {
         "style": "events",
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts",
+        "in": "UserTurn (text, choice, control, topic)",
+        "out": "Cue[] (say, navigate, point, sequence, stage, glossary, ask)"
       }
     },
     {
@@ -2555,7 +2569,9 @@
       },
       "props": {
         "style": "events",
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/bus.ts"
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/bus.ts",
+        "in": "Cue / Context messages (same machine or LAN)",
+        "out": "Cue / Context messages"
       }
     },
     {
@@ -2817,6 +2833,11 @@
           114,
           115
         ]
+      },
+      "props": {
+        "group": "Primary",
+        "scope": "core",
+        "steps": "mirror or sidebar: pick a tour or type\ndirector answers with one utterance\nmain screen navigates, highlights, walks through steps\ndirector stages a change → approve on either screen"
       }
     },
     {
@@ -2835,6 +2856,804 @@
       },
       "props": {
         "verdict": "open"
+      }
+    },
+    {
+      "id": "thing-project",
+      "kind": "thing",
+      "title": "Project",
+      "description": "One system being built. Root of everything.",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          2
+        ]
+      }
+    },
+    {
+      "id": "thing-layer",
+      "kind": "thing",
+      "title": "Layer",
+      "description": "representation | reality | orchestration.",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          23,
+          24
+        ]
+      }
+    },
+    {
+      "id": "thing-template",
+      "kind": "thing",
+      "title": "Template",
+      "description": "A project type: extension kinds, questions, agents, implementation styles.",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          6,
+          17,
+          18
+        ]
+      }
+    },
+    {
+      "id": "flow-create-project",
+      "kind": "flow",
+      "title": "Create project",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          29,
+          17
+        ]
+      },
+      "props": {
+        "group": "Project",
+        "scope": "core",
+        "steps": "name\npick template\nkernel questions unlocked"
+      }
+    },
+    {
+      "id": "flow-share-export",
+      "kind": "flow",
+      "title": "Share / export",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          38
+        ]
+      },
+      "props": {
+        "group": "Project",
+        "scope": "core",
+        "steps": "serialise nodes, edges, commits\nfile or link"
+      }
+    },
+    {
+      "id": "flow-import",
+      "kind": "flow",
+      "title": "Import",
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "reason": "Mirror of share."
+      },
+      "props": {
+        "group": "Project",
+        "scope": "core",
+        "steps": "file\nchangeset (add/update)\nreview\ncommit"
+      }
+    },
+    {
+      "id": "flow-free-talk-mapped-onto-the-tree",
+      "kind": "flow",
+      "title": "Free talk mapped onto the tree",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          97,
+          53
+        ]
+      },
+      "props": {
+        "group": "Path",
+        "scope": "later",
+        "steps": "user talks freely\nAI maps utterances to template questions, sub-questions and threads\neffects staged as usual"
+      }
+    },
+    {
+      "id": "flow-answer-next-question",
+      "kind": "flow",
+      "title": "Answer next question",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          21,
+          27
+        ]
+      },
+      "props": {
+        "group": "Path",
+        "scope": "core",
+        "steps": "show next unlocked question\nuser answers\neffects staged"
+      }
+    },
+    {
+      "id": "flow-jump-to-a-question",
+      "kind": "flow",
+      "title": "Jump to a question",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          20
+        ]
+      },
+      "props": {
+        "group": "Path",
+        "scope": "core",
+        "steps": "pick any unlocked question\nanswer"
+      }
+    },
+    {
+      "id": "flow-re-answer",
+      "kind": "flow",
+      "title": "Re-answer",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          19
+        ]
+      },
+      "props": {
+        "group": "Path",
+        "scope": "core",
+        "steps": "new answer\neffects update/remove old nodes"
+      }
+    },
+    {
+      "id": "flow-direct-edit-escape-hatch",
+      "kind": "flow",
+      "title": "Direct edit (escape hatch)",
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "reason": "Author has the knowledge (S20) and will want to bypass the path."
+      },
+      "props": {
+        "group": "Path",
+        "scope": "core",
+        "steps": "edit node in board\ntreated as an answer\neffects staged"
+      }
+    },
+    {
+      "id": "flow-add-a-sub-question-or-thread",
+      "kind": "flow",
+      "title": "Add a sub-question or thread",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          52,
+          53,
+          54
+        ]
+      },
+      "props": {
+        "group": "Path",
+        "scope": "core",
+        "steps": "expand a template question\nadd a project-specific sub-question or a follow-up thread\nanswer it → effects staged"
+      }
+    },
+    {
+      "id": "flow-ai-organises-the-tree",
+      "kind": "flow",
+      "title": "AI organises the tree",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          53,
+          54
+        ]
+      },
+      "props": {
+        "group": "Path",
+        "scope": "later",
+        "steps": "follow-ups clustered into threads and subtrees"
+      }
+    },
+    {
+      "id": "flow-edit-the-glossary",
+      "kind": "flow",
+      "title": "Edit the glossary",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          59
+        ]
+      },
+      "props": {
+        "group": "Glossary",
+        "scope": "core",
+        "steps": "open glossary from any page\nadd / edit / delete a term\ncommits immediately (escape hatch)"
+      }
+    },
+    {
+      "id": "flow-declare-a-template",
+      "kind": "flow",
+      "title": "Declare a template",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          6,
+          17,
+          18,
+          43
+        ]
+      },
+      "props": {
+        "group": "Template",
+        "scope": "later",
+        "steps": "pick base template\ndeclare extension kinds (with space), edge types, questions, agents\nkernel kinds untouched"
+      }
+    },
+    {
+      "id": "flow-walk-the-c4-levels",
+      "kind": "flow",
+      "title": "Walk the C4 levels",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          56,
+          58,
+          63,
+          69
+        ]
+      },
+      "props": {
+        "group": "Domain",
+        "scope": "core",
+        "steps": "context: system, people, other systems\nmodules with infra\ninside a module: things, rules, interface, tests\njump to code on GitHub"
+      }
+    },
+    {
+      "id": "flow-question-from-evidence",
+      "kind": "flow",
+      "title": "Question from evidence",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          25,
+          26
+        ]
+      },
+      "props": {
+        "group": "Path",
+        "scope": "stub",
+        "steps": "evidence refutes hypothesis\nnew question unlocked"
+      }
+    },
+    {
+      "id": "flow-review-changeset",
+      "kind": "flow",
+      "title": "Review changeset",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      },
+      "props": {
+        "group": "Commit",
+        "scope": "core",
+        "steps": "effects grouped by space\ntoggle each\nwarnings on top"
+      }
+    },
+    {
+      "id": "flow-commit",
+      "kind": "flow",
+      "title": "Commit",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      },
+      "props": {
+        "group": "Commit",
+        "scope": "core",
+        "steps": "apply accepted effects\nnodes → committed\ndispatch actions"
+      }
+    },
+    {
+      "id": "flow-undo-commit",
+      "kind": "flow",
+      "title": "Undo commit",
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "reason": "Safety net for the commit gate."
+      },
+      "props": {
+        "group": "Commit",
+        "scope": "core",
+        "steps": "revert all its effects"
+      }
+    },
+    {
+      "id": "flow-review-agent-output",
+      "kind": "flow",
+      "title": "Review agent output",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          27
+        ]
+      },
+      "props": {
+        "group": "Commit",
+        "scope": "core",
+        "steps": "action done\nits effects appear as a changeset\nreview & commit"
+      }
+    },
+    {
+      "id": "flow-dispatch-action",
+      "kind": "flow",
+      "title": "Dispatch action",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          27
+        ]
+      },
+      "props": {
+        "group": "Orchestration",
+        "scope": "core",
+        "steps": "commit\naction queued for owning agent"
+      }
+    },
+    {
+      "id": "flow-agent-executes",
+      "kind": "flow",
+      "title": "Agent executes",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          2,
+          3
+        ]
+      },
+      "props": {
+        "group": "Orchestration",
+        "scope": "core",
+        "steps": "reads inputs\nproduces effects and/or artefacts"
+      }
+    },
+    {
+      "id": "flow-meta-agent-proposal",
+      "kind": "flow",
+      "title": "Meta-agent proposal",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          28
+        ]
+      },
+      "props": {
+        "group": "Orchestration",
+        "scope": "stub",
+        "steps": "usage observed\ninsight + action on Bropilot's own project\nreview & commit"
+      }
+    },
+    {
+      "id": "flow-browse-by-space",
+      "kind": "flow",
+      "title": "Browse by space",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          45
+        ]
+      },
+      "props": {
+        "group": "Explore",
+        "scope": "core",
+        "steps": "board columns left to right"
+      }
+    },
+    {
+      "id": "flow-browse-graph",
+      "kind": "flow",
+      "title": "Browse graph",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          41
+        ]
+      },
+      "props": {
+        "group": "Explore",
+        "scope": "later",
+        "steps": "node-link explorer"
+      }
+    },
+    {
+      "id": "flow-inspect-provenance",
+      "kind": "flow",
+      "title": "Inspect provenance",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          44
+        ]
+      },
+      "props": {
+        "group": "Explore",
+        "scope": "core",
+        "steps": "node → answer/commit/action that produced it"
+      }
+    },
+    {
+      "id": "flow-record-evidence-manually",
+      "kind": "flow",
+      "title": "Record evidence manually",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          40
+        ]
+      },
+      "props": {
+        "group": "Reality",
+        "scope": "stub",
+        "steps": "pick hypothesis/metric\nenter observation\nsupports/refutes edge"
+      }
+    },
+    {
+      "id": "flow-ingest-events",
+      "kind": "flow",
+      "title": "Ingest events",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          24,
+          39
+        ]
+      },
+      "props": {
+        "group": "Reality",
+        "scope": "later",
+        "steps": "adapter\nevidence nodes"
+      }
+    },
+    {
+      "id": "flow-plan-changes-from-failing-tests",
+      "kind": "flow",
+      "title": "Plan changes from failing tests",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          87,
+          88,
+          91,
+          92
+        ]
+      },
+      "props": {
+        "group": "Reality",
+        "scope": "stub",
+        "steps": "collect test results\nall pass → no changes\nelse: epic per cluster of failing tests\ntasks so targeted each names its tests\ndispatch coding agents\nresults reported back"
+      }
+    },
+    {
+      "id": "flow-climb-the-test-ladder-for-a-module",
+      "kind": "flow",
+      "title": "Climb the test ladder for a module",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          93,
+          94,
+          95
+        ]
+      },
+      "props": {
+        "group": "Reality",
+        "scope": "stub",
+        "steps": "health check: module exists\nAPI surface tests\ndeterministic simulation"
+      }
+    },
+    {
+      "id": "flow-deploy",
+      "kind": "flow",
+      "title": "Deploy",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          39
+        ]
+      },
+      "props": {
+        "group": "Reality",
+        "scope": "later",
+        "steps": "engineer action\nartefact + deployment node"
+      }
+    },
+    {
+      "id": "flow-answer-through-the-panel",
+      "kind": "flow",
+      "title": "Answer through the panel",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          116,
+          117,
+          121
+        ]
+      },
+      "props": {
+        "group": "Talk",
+        "scope": "core",
+        "steps": "panel shows the next question or gap\nuser types an answer in the composer\ndirector stages effects\napprove on the panel commits, or discard"
+      }
+    },
+    {
+      "id": "flow-ask-what-s-on-screen",
+      "kind": "flow",
+      "title": "Ask what's on screen",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          119,
+          120
+        ]
+      },
+      "props": {
+        "group": "Talk",
+        "scope": "core",
+        "steps": "user asks the panel what they are looking at\ndirector reads screen.items for the active view\npoints at the relevant cards while answering"
+      }
+    },
+    {
+      "id": "infra-browser-spa",
+      "kind": "infra",
+      "title": "Browser SPA (the lfp)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          39,
+          139
+        ]
+      },
+      "props": {
+        "role": "client"
+      }
+    },
+    {
+      "id": "infra-agent-server",
+      "kind": "infra",
+      "title": "Agent server",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          39,
+          139
+        ]
+      },
+      "props": {
+        "role": "server"
+      }
+    },
+    {
+      "id": "infra-relay-ws",
+      "kind": "infra",
+      "title": "Bus relay (WS/LAN)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          110,
+          111,
+          139
+        ]
+      },
+      "props": {
+        "role": "server"
+      }
+    },
+    {
+      "id": "ai-function-describe-screen",
+      "kind": "ai-function",
+      "title": "Describe screen",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          127,
+          128,
+          129
+        ]
+      },
+      "props": {
+        "version": "0.1",
+        "runtime": "stub"
+      }
+    },
+    {
+      "id": "ai-function-next-decision",
+      "kind": "ai-function",
+      "title": "Next decision",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          127,
+          128,
+          129
+        ]
+      },
+      "props": {
+        "version": "0.1",
+        "runtime": "stub"
+      }
+    },
+    {
+      "id": "ai-function-answer-to-effects",
+      "kind": "ai-function",
+      "title": "Answer to effects",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          127,
+          128,
+          129
+        ]
+      },
+      "props": {
+        "version": "0.1",
+        "runtime": "stub"
+      }
+    },
+    {
+      "id": "ai-function-propose-followup",
+      "kind": "ai-function",
+      "title": "Propose follow-up",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          127,
+          128,
+          129
+        ]
+      },
+      "props": {
+        "version": "0.1",
+        "runtime": "stub"
+      }
+    },
+    {
+      "id": "ai-function-explain-node",
+      "kind": "ai-function",
+      "title": "Explain node",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          127,
+          128,
+          129
+        ]
+      },
+      "props": {
+        "version": "0.1",
+        "runtime": "stub"
+      }
+    },
+    {
+      "id": "ai-function-walk-map",
+      "kind": "ai-function",
+      "title": "Walk map",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          127,
+          128,
+          129
+        ]
+      },
+      "props": {
+        "version": "0.1",
+        "runtime": "stub"
+      }
+    },
+    {
+      "id": "ai-function-find-gaps",
+      "kind": "ai-function",
+      "title": "Find gaps",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          127,
+          128,
+          129
+        ]
+      },
+      "props": {
+        "version": "0.1",
+        "runtime": "stub"
+      }
+    },
+    {
+      "id": "ai-function-unrealised-to-tasks",
+      "kind": "ai-function",
+      "title": "Unrealised to tasks",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          127,
+          128,
+          129
+        ]
+      },
+      "props": {
+        "version": "0.1",
+        "runtime": "stub"
+      }
+    },
+    {
+      "id": "ai-function-define-term",
+      "kind": "ai-function",
+      "title": "Define term",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          127,
+          128,
+          129
+        ]
+      },
+      "props": {
+        "version": "0.1",
+        "runtime": "stub"
       }
     }
   ],
@@ -4637,6 +5456,852 @@
       "id": "e302",
       "src": "screen-talk-panel",
       "dst": "interface-agent-bus",
+      "type": "uses"
+    },
+    {
+      "id": "e303",
+      "src": "module-representation",
+      "dst": "thing-project",
+      "type": "contains"
+    },
+    {
+      "id": "e304",
+      "src": "module-representation",
+      "dst": "thing-layer",
+      "type": "contains"
+    },
+    {
+      "id": "e305",
+      "src": "module-representation",
+      "dst": "thing-template",
+      "type": "contains"
+    },
+    {
+      "id": "e306",
+      "src": "flow-create-project",
+      "dst": "thing-project",
+      "type": "uses"
+    },
+    {
+      "id": "e307",
+      "src": "flow-create-project",
+      "dst": "thing-template",
+      "type": "uses"
+    },
+    {
+      "id": "e308",
+      "src": "flow-create-project",
+      "dst": "thing-question",
+      "type": "uses"
+    },
+    {
+      "id": "e309",
+      "src": "flow-share-export",
+      "dst": "thing-project",
+      "type": "uses"
+    },
+    {
+      "id": "e310",
+      "src": "flow-share-export",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e311",
+      "src": "flow-share-export",
+      "dst": "thing-edge",
+      "type": "uses"
+    },
+    {
+      "id": "e312",
+      "src": "flow-share-export",
+      "dst": "thing-commit",
+      "type": "uses"
+    },
+    {
+      "id": "e313",
+      "src": "flow-import",
+      "dst": "thing-changeset",
+      "type": "uses"
+    },
+    {
+      "id": "e314",
+      "src": "flow-import",
+      "dst": "thing-commit",
+      "type": "uses"
+    },
+    {
+      "id": "e315",
+      "src": "flow-talk-to-tests",
+      "dst": "thing-answer",
+      "type": "uses"
+    },
+    {
+      "id": "e316",
+      "src": "flow-talk-to-tests",
+      "dst": "thing-effect",
+      "type": "uses"
+    },
+    {
+      "id": "e317",
+      "src": "flow-talk-to-tests",
+      "dst": "thing-commit",
+      "type": "uses"
+    },
+    {
+      "id": "e318",
+      "src": "flow-talk-to-tests",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e319",
+      "src": "flow-talk-to-tests",
+      "dst": "thing-action",
+      "type": "uses"
+    },
+    {
+      "id": "e320",
+      "src": "flow-talk-to-tests",
+      "dst": "thing-evidence",
+      "type": "uses"
+    },
+    {
+      "id": "e321",
+      "src": "flow-free-talk-mapped-onto-the-tree",
+      "dst": "thing-question",
+      "type": "uses"
+    },
+    {
+      "id": "e322",
+      "src": "flow-free-talk-mapped-onto-the-tree",
+      "dst": "thing-answer",
+      "type": "uses"
+    },
+    {
+      "id": "e323",
+      "src": "flow-free-talk-mapped-onto-the-tree",
+      "dst": "thing-effect",
+      "type": "uses"
+    },
+    {
+      "id": "e324",
+      "src": "flow-free-talk-mapped-onto-the-tree",
+      "dst": "thing-agent",
+      "type": "uses"
+    },
+    {
+      "id": "e325",
+      "src": "flow-mirror",
+      "dst": "thing-answer",
+      "type": "uses"
+    },
+    {
+      "id": "e326",
+      "src": "flow-mirror",
+      "dst": "thing-effect",
+      "type": "uses"
+    },
+    {
+      "id": "e327",
+      "src": "flow-mirror",
+      "dst": "thing-commit",
+      "type": "uses"
+    },
+    {
+      "id": "e328",
+      "src": "flow-mirror",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e329",
+      "src": "flow-mirror",
+      "dst": "thing-edge",
+      "type": "uses"
+    },
+    {
+      "id": "e330",
+      "src": "flow-mirror",
+      "dst": "thing-agent",
+      "type": "uses"
+    },
+    {
+      "id": "e331",
+      "src": "flow-answer-next-question",
+      "dst": "thing-question",
+      "type": "uses"
+    },
+    {
+      "id": "e332",
+      "src": "flow-answer-next-question",
+      "dst": "thing-answer",
+      "type": "uses"
+    },
+    {
+      "id": "e333",
+      "src": "flow-answer-next-question",
+      "dst": "thing-effect",
+      "type": "uses"
+    },
+    {
+      "id": "e334",
+      "src": "flow-jump-to-a-question",
+      "dst": "thing-question",
+      "type": "uses"
+    },
+    {
+      "id": "e335",
+      "src": "flow-re-answer",
+      "dst": "thing-answer",
+      "type": "uses"
+    },
+    {
+      "id": "e336",
+      "src": "flow-re-answer",
+      "dst": "thing-effect",
+      "type": "uses"
+    },
+    {
+      "id": "e337",
+      "src": "flow-re-answer",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e338",
+      "src": "flow-direct-edit-escape-hatch",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e339",
+      "src": "flow-direct-edit-escape-hatch",
+      "dst": "thing-answer",
+      "type": "uses"
+    },
+    {
+      "id": "e340",
+      "src": "flow-direct-edit-escape-hatch",
+      "dst": "thing-effect",
+      "type": "uses"
+    },
+    {
+      "id": "e341",
+      "src": "flow-add-a-sub-question-or-thread",
+      "dst": "thing-question",
+      "type": "uses"
+    },
+    {
+      "id": "e342",
+      "src": "flow-add-a-sub-question-or-thread",
+      "dst": "thing-answer",
+      "type": "uses"
+    },
+    {
+      "id": "e343",
+      "src": "flow-add-a-sub-question-or-thread",
+      "dst": "thing-effect",
+      "type": "uses"
+    },
+    {
+      "id": "e344",
+      "src": "flow-ai-organises-the-tree",
+      "dst": "thing-question",
+      "type": "uses"
+    },
+    {
+      "id": "e345",
+      "src": "flow-ai-organises-the-tree",
+      "dst": "thing-agent",
+      "type": "uses"
+    },
+    {
+      "id": "e346",
+      "src": "flow-edit-the-glossary",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e347",
+      "src": "flow-edit-the-glossary",
+      "dst": "thing-commit",
+      "type": "uses"
+    },
+    {
+      "id": "e348",
+      "src": "flow-edit-the-glossary",
+      "dst": "thing-kind",
+      "type": "uses"
+    },
+    {
+      "id": "e349",
+      "src": "flow-declare-a-template",
+      "dst": "thing-template",
+      "type": "uses"
+    },
+    {
+      "id": "e350",
+      "src": "flow-declare-a-template",
+      "dst": "thing-kind",
+      "type": "uses"
+    },
+    {
+      "id": "e351",
+      "src": "flow-declare-a-template",
+      "dst": "thing-space",
+      "type": "uses"
+    },
+    {
+      "id": "e352",
+      "src": "flow-declare-a-template",
+      "dst": "thing-layer",
+      "type": "uses"
+    },
+    {
+      "id": "e353",
+      "src": "flow-declare-a-template",
+      "dst": "thing-question",
+      "type": "uses"
+    },
+    {
+      "id": "e354",
+      "src": "flow-declare-a-template",
+      "dst": "thing-agent",
+      "type": "uses"
+    },
+    {
+      "id": "e355",
+      "src": "flow-walk-the-c4-levels",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e356",
+      "src": "flow-walk-the-c4-levels",
+      "dst": "thing-edge",
+      "type": "uses"
+    },
+    {
+      "id": "e357",
+      "src": "flow-walk-the-c4-levels",
+      "dst": "thing-kind",
+      "type": "uses"
+    },
+    {
+      "id": "e358",
+      "src": "flow-question-from-evidence",
+      "dst": "thing-evidence",
+      "type": "uses"
+    },
+    {
+      "id": "e359",
+      "src": "flow-question-from-evidence",
+      "dst": "thing-question",
+      "type": "uses"
+    },
+    {
+      "id": "e360",
+      "src": "flow-review-changeset",
+      "dst": "thing-changeset",
+      "type": "uses"
+    },
+    {
+      "id": "e361",
+      "src": "flow-review-changeset",
+      "dst": "thing-effect",
+      "type": "uses"
+    },
+    {
+      "id": "e362",
+      "src": "flow-commit",
+      "dst": "thing-commit",
+      "type": "uses"
+    },
+    {
+      "id": "e363",
+      "src": "flow-commit",
+      "dst": "thing-action",
+      "type": "uses"
+    },
+    {
+      "id": "e364",
+      "src": "flow-undo-commit",
+      "dst": "thing-commit",
+      "type": "uses"
+    },
+    {
+      "id": "e365",
+      "src": "flow-review-agent-output",
+      "dst": "thing-action",
+      "type": "uses"
+    },
+    {
+      "id": "e366",
+      "src": "flow-review-agent-output",
+      "dst": "thing-changeset",
+      "type": "uses"
+    },
+    {
+      "id": "e367",
+      "src": "flow-dispatch-action",
+      "dst": "thing-commit",
+      "type": "uses"
+    },
+    {
+      "id": "e368",
+      "src": "flow-dispatch-action",
+      "dst": "thing-action",
+      "type": "uses"
+    },
+    {
+      "id": "e369",
+      "src": "flow-dispatch-action",
+      "dst": "thing-agent",
+      "type": "uses"
+    },
+    {
+      "id": "e370",
+      "src": "flow-agent-executes",
+      "dst": "thing-agent",
+      "type": "uses"
+    },
+    {
+      "id": "e371",
+      "src": "flow-agent-executes",
+      "dst": "thing-action",
+      "type": "uses"
+    },
+    {
+      "id": "e372",
+      "src": "flow-agent-executes",
+      "dst": "thing-effect",
+      "type": "uses"
+    },
+    {
+      "id": "e373",
+      "src": "flow-meta-agent-proposal",
+      "dst": "thing-agent",
+      "type": "uses"
+    },
+    {
+      "id": "e374",
+      "src": "flow-meta-agent-proposal",
+      "dst": "thing-evidence",
+      "type": "uses"
+    },
+    {
+      "id": "e375",
+      "src": "flow-meta-agent-proposal",
+      "dst": "thing-action",
+      "type": "uses"
+    },
+    {
+      "id": "e376",
+      "src": "flow-browse-by-space",
+      "dst": "thing-space",
+      "type": "uses"
+    },
+    {
+      "id": "e377",
+      "src": "flow-browse-by-space",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e378",
+      "src": "flow-browse-graph",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e379",
+      "src": "flow-browse-graph",
+      "dst": "thing-edge",
+      "type": "uses"
+    },
+    {
+      "id": "e380",
+      "src": "flow-inspect-provenance",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e381",
+      "src": "flow-inspect-provenance",
+      "dst": "thing-answer",
+      "type": "uses"
+    },
+    {
+      "id": "e382",
+      "src": "flow-inspect-provenance",
+      "dst": "thing-commit",
+      "type": "uses"
+    },
+    {
+      "id": "e383",
+      "src": "flow-record-evidence-manually",
+      "dst": "thing-evidence",
+      "type": "uses"
+    },
+    {
+      "id": "e384",
+      "src": "flow-record-evidence-manually",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e385",
+      "src": "flow-ingest-events",
+      "dst": "thing-evidence",
+      "type": "uses"
+    },
+    {
+      "id": "e386",
+      "src": "flow-plan-changes-from-failing-tests",
+      "dst": "thing-commit",
+      "type": "uses"
+    },
+    {
+      "id": "e387",
+      "src": "flow-plan-changes-from-failing-tests",
+      "dst": "thing-action",
+      "type": "uses"
+    },
+    {
+      "id": "e388",
+      "src": "flow-plan-changes-from-failing-tests",
+      "dst": "thing-agent",
+      "type": "uses"
+    },
+    {
+      "id": "e389",
+      "src": "flow-plan-changes-from-failing-tests",
+      "dst": "thing-evidence",
+      "type": "uses"
+    },
+    {
+      "id": "e390",
+      "src": "flow-climb-the-test-ladder-for-a-module",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e391",
+      "src": "flow-climb-the-test-ladder-for-a-module",
+      "dst": "thing-edge",
+      "type": "uses"
+    },
+    {
+      "id": "e392",
+      "src": "flow-deploy",
+      "dst": "thing-action",
+      "type": "uses"
+    },
+    {
+      "id": "e393",
+      "src": "flow-deploy",
+      "dst": "thing-agent",
+      "type": "uses"
+    },
+    {
+      "id": "e394",
+      "src": "flow-answer-through-the-panel",
+      "dst": "thing-question",
+      "type": "uses"
+    },
+    {
+      "id": "e395",
+      "src": "flow-answer-through-the-panel",
+      "dst": "thing-answer",
+      "type": "uses"
+    },
+    {
+      "id": "e396",
+      "src": "flow-answer-through-the-panel",
+      "dst": "thing-effect",
+      "type": "uses"
+    },
+    {
+      "id": "e397",
+      "src": "flow-answer-through-the-panel",
+      "dst": "thing-agent",
+      "type": "uses"
+    },
+    {
+      "id": "e398",
+      "src": "flow-ask-what-s-on-screen",
+      "dst": "thing-agent",
+      "type": "uses"
+    },
+    {
+      "id": "e399",
+      "src": "flow-ask-what-s-on-screen",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e400",
+      "src": "infra-browser-spa",
+      "dst": "module-representation",
+      "type": "hosts"
+    },
+    {
+      "id": "e401",
+      "src": "infra-browser-spa",
+      "dst": "module-definition",
+      "type": "hosts"
+    },
+    {
+      "id": "e402",
+      "src": "infra-browser-spa",
+      "dst": "module-director",
+      "type": "hosts"
+    },
+    {
+      "id": "e403",
+      "src": "infra-browser-spa",
+      "dst": "module-reality",
+      "type": "hosts"
+    },
+    {
+      "id": "e404",
+      "src": "infra-browser-spa",
+      "dst": "module-metrics",
+      "type": "hosts"
+    },
+    {
+      "id": "e405",
+      "src": "infra-agent-server",
+      "dst": "module-orchestration",
+      "type": "hosts"
+    },
+    {
+      "id": "e406",
+      "src": "infra-agent-server",
+      "dst": "external-flue",
+      "type": "uses"
+    },
+    {
+      "id": "e407",
+      "src": "infra-agent-server",
+      "dst": "external-llm",
+      "type": "uses"
+    },
+    {
+      "id": "e408",
+      "src": "infra-browser-spa",
+      "dst": "infra-relay-ws",
+      "type": "uses"
+    },
+    {
+      "id": "e409",
+      "src": "infra-agent-server",
+      "dst": "infra-relay-ws",
+      "type": "uses"
+    },
+    {
+      "id": "e410",
+      "src": "infra-browser-spa",
+      "dst": "infra-localstorage",
+      "type": "uses"
+    },
+    {
+      "id": "e411",
+      "src": "interface-store-rpc",
+      "dst": "thing-effect",
+      "type": "carries"
+    },
+    {
+      "id": "e412",
+      "src": "interface-store-rpc",
+      "dst": "thing-changeset",
+      "type": "carries"
+    },
+    {
+      "id": "e413",
+      "src": "interface-agent-actions",
+      "dst": "thing-action",
+      "type": "carries"
+    },
+    {
+      "id": "e414",
+      "src": "interface-agent-actions",
+      "dst": "thing-effect",
+      "type": "carries"
+    },
+    {
+      "id": "e415",
+      "src": "interface-agent-bus",
+      "dst": "thing-cue",
+      "type": "carries"
+    },
+    {
+      "id": "e416",
+      "src": "interface-agent-bus",
+      "dst": "thing-context",
+      "type": "carries"
+    },
+    {
+      "id": "e417",
+      "src": "interface-director-rpc",
+      "dst": "thing-cue",
+      "type": "carries"
+    },
+    {
+      "id": "e418",
+      "src": "interface-director-rpc",
+      "dst": "thing-user-turn",
+      "type": "carries"
+    },
+    {
+      "id": "e419",
+      "src": "interface-bus",
+      "dst": "thing-cue",
+      "type": "carries"
+    },
+    {
+      "id": "e420",
+      "src": "interface-bus",
+      "dst": "thing-context",
+      "type": "carries"
+    },
+    {
+      "id": "e421",
+      "src": "module-director",
+      "dst": "ai-function-describe-screen",
+      "type": "contains"
+    },
+    {
+      "id": "e422",
+      "src": "ai-function-describe-screen",
+      "dst": "thing-context",
+      "type": "uses"
+    },
+    {
+      "id": "e423",
+      "src": "module-director",
+      "dst": "ai-function-next-decision",
+      "type": "contains"
+    },
+    {
+      "id": "e424",
+      "src": "ai-function-next-decision",
+      "dst": "thing-question",
+      "type": "uses"
+    },
+    {
+      "id": "e425",
+      "src": "ai-function-next-decision",
+      "dst": "thing-context",
+      "type": "uses"
+    },
+    {
+      "id": "e426",
+      "src": "module-director",
+      "dst": "ai-function-answer-to-effects",
+      "type": "contains"
+    },
+    {
+      "id": "e427",
+      "src": "ai-function-answer-to-effects",
+      "dst": "thing-effect",
+      "type": "uses"
+    },
+    {
+      "id": "e428",
+      "src": "ai-function-answer-to-effects",
+      "dst": "thing-answer",
+      "type": "uses"
+    },
+    {
+      "id": "e429",
+      "src": "module-director",
+      "dst": "ai-function-propose-followup",
+      "type": "contains"
+    },
+    {
+      "id": "e430",
+      "src": "ai-function-propose-followup",
+      "dst": "thing-question",
+      "type": "uses"
+    },
+    {
+      "id": "e431",
+      "src": "module-director",
+      "dst": "ai-function-explain-node",
+      "type": "contains"
+    },
+    {
+      "id": "e432",
+      "src": "ai-function-explain-node",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e433",
+      "src": "module-director",
+      "dst": "ai-function-walk-map",
+      "type": "contains"
+    },
+    {
+      "id": "e434",
+      "src": "ai-function-walk-map",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e435",
+      "src": "ai-function-walk-map",
+      "dst": "thing-edge",
+      "type": "uses"
+    },
+    {
+      "id": "e436",
+      "src": "module-director",
+      "dst": "ai-function-find-gaps",
+      "type": "contains"
+    },
+    {
+      "id": "e437",
+      "src": "ai-function-find-gaps",
+      "dst": "thing-node",
+      "type": "uses"
+    },
+    {
+      "id": "e438",
+      "src": "ai-function-find-gaps",
+      "dst": "thing-edge",
+      "type": "uses"
+    },
+    {
+      "id": "e439",
+      "src": "module-director",
+      "dst": "ai-function-unrealised-to-tasks",
+      "type": "contains"
+    },
+    {
+      "id": "e440",
+      "src": "ai-function-unrealised-to-tasks",
+      "dst": "thing-effect",
+      "type": "uses"
+    },
+    {
+      "id": "e441",
+      "src": "ai-function-unrealised-to-tasks",
+      "dst": "thing-action",
+      "type": "uses"
+    },
+    {
+      "id": "e442",
+      "src": "module-director",
+      "dst": "ai-function-define-term",
+      "type": "contains"
+    },
+    {
+      "id": "e443",
+      "src": "ai-function-define-term",
+      "dst": "thing-term",
       "type": "uses"
     }
   ]

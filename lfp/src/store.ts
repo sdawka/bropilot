@@ -21,6 +21,19 @@ export interface Graph { nodes: Node[]; edges: Edge[] }
 export interface ScreenItem { id: string; kind: string; title: string; group?: string }
 
 export interface Answer { id: string; questionId: string; content: string; at: number }
+/** One recorded call to an AI function (S128, S129, S131): tracking columns + optional efficacy feedback. */
+export interface AICall {
+  id: string;
+  fn: string;
+  version: string;
+  runtime: 'stub' | 'flue';
+  at: number;
+  contextDigest: string; // short human-readable summary of the context slice the fn received
+  input: string; // user text / trigger
+  output: string; // what it produced (utterance text or effect descriptions)
+  cueIds: string[]; // say/ask ids and/or effect ids it produced
+  rating?: { value: string; note?: string; at: number };
+}
 export type Effect =
   | { id: string; op: 'add-node'; node: Node; answerId: string }
   | { id: string; op: 'update-node'; nodeId: string; patch: Partial<Node>; answerId: string }
@@ -54,7 +67,9 @@ export const state = reactive({
   say: null as { id: string; text: string } | null,
   ask: null as { id: string; text: string; options?: string[] } | null,
   tour: null as { steps: any[][]; i: number; dwellMs: number; paused: boolean } | null,
-  transcript: [] as { who: 'agent' | 'user'; text: string; at: number }[],
+  transcript: [] as { who: 'agent' | 'user'; text: string; at: number; callId?: string }[],
+  aiCalls: [] as AICall[],
+  aiRuntime: 'stub' as 'stub' | 'flue', // not persisted: runtime choice is per-session
   domainLevel: 0 as 0 | 1 | 2 | 3,
   domainModule: null as string | null,
   definitionQuestion: null as string | null,
@@ -70,7 +85,7 @@ export function hydrate() {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const s = JSON.parse(raw);
-      state.graph = s.graph; state.answers = s.answers ?? []; state.commits = s.commits ?? []; state.staged = s.staged ?? null; state.followups = s.followups ?? [];
+      state.graph = s.graph; state.answers = s.answers ?? []; state.commits = s.commits ?? []; state.staged = s.staged ?? null; state.followups = s.followups ?? []; state.aiCalls = s.aiCalls ?? [];
     } else {
       state.graph = clone(seed as Graph);
     }
@@ -79,12 +94,20 @@ export function hydrate() {
 }
 
 export function persist() {
-  const { graph, answers, commits, staged, followups } = state;
-  localStorage.setItem(KEY, JSON.stringify({ graph, answers, commits, staged, followups }));
+  const { graph, answers, commits, staged, followups, aiCalls } = state;
+  localStorage.setItem(KEY, JSON.stringify({ graph, answers, commits, staged, followups, aiCalls }));
 }
 
 export function resetToSeed() {
-  state.graph = clone(seed as Graph); state.answers = []; state.commits = []; state.staged = null; state.selectedId = null; state.followups = [];
+  state.graph = clone(seed as Graph); state.answers = []; state.commits = []; state.staged = null; state.selectedId = null; state.followups = []; state.aiCalls = [];
+  persist();
+}
+
+/** Record efficacy feedback ("makes sense / doesn't / bad question") on a recorded AI call (S129, S130). */
+export function rateCall(id: string, value: string, note?: string) {
+  const c = state.aiCalls.find((c) => c.id === id);
+  if (!c) return;
+  c.rating = { value, note, at: Date.now() };
   persist();
 }
 
