@@ -395,6 +395,15 @@ export const FLOWS: FlowDef[] = [
 // ── Kernel objects (orchestration + meta) shown on the Kernel page ──────────
 export interface KernelObject { id: string; definition: string; attrs: string; immutable: boolean; source: Provenance }
 
+/** Plain-text digest of the kernel for an agent prompt: kinds, edge types, questions, invariants. Kept short. */
+export function kernelDigest(): string {
+  const kinds = KINDS.map((k) => `${k.id} (${k.space}${k.level ? `, L${k.level}` : ''}): ${k.blurb}`).join('\n');
+  const edges = EDGE_TYPES.map((e) => `${e.id}: ${e.hint}`).join('\n');
+  const questions = QUESTIONS.map((q) => `${q.id} → ${q.produces} [unlocks after: ${q.unlocksAfter.join(', ') || 'none'}]: ${q.prompt}`).join('\n');
+  const invariants = INVARIANTS.map((i) => `- ${i.text}`).join('\n');
+  return `Kinds:\n${kinds}\nEdge types:\n${edges}\nQuestions:\n${questions}\nInvariants:\n${invariants}`;
+}
+
 export const KERNEL_OBJECTS: KernelObject[] = [
   { id: 'Project', definition: 'One system being built. Root of everything.', attrs: 'name, template', immutable: true, source: said(2) },
   { id: 'Layer', definition: 'representation | reality | orchestration', attrs: '—', immutable: true, source: said(23, 24) },

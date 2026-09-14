@@ -2,17 +2,30 @@
 // Two transports behind one interface: BroadcastChannel (same machine) and a LAN WebSocket relay (phone).
 
 import type { Cue, Context, UserTurn } from './director';
+import type { Graph } from './store';
 
 export type BusMessage =
-  | { kind: 'cue'; cue: Cue; from: string }
+  | { kind: 'cue'; cue: Cue; msgId?: string; from: string }
   | { kind: 'context'; ctx: Context; from: string }
   | { kind: 'user'; turn: UserTurn; from: string }
-  | { kind: 'hello'; role: 'main' | 'mirror'; from: string };
+  | { kind: 'hello'; role: 'main' | 'mirror' | 'agent'; from: string }
+  | { kind: 'ack'; msgId: string; ctx: Context; from: string }
+  | { kind: 'snapshot'; graph: Graph; kernel: string; from: string };
 
 export interface Transport { send(m: BusMessage): void; onMessage(fn: (m: BusMessage) => void): void; close(): void; readonly label: string }
 
 const CHANNEL = 'bropilot:director';
-export const clientId = `${Math.random().toString(36).slice(2, 8)}`;
+export const clientId = (() => {
+  const KEY = 'bropilot:clientId';
+  try {
+    let id = sessionStorage.getItem(KEY);
+    if (!id) { id = Math.random().toString(36).slice(2, 8); sessionStorage.setItem(KEY, id); }
+    return id;
+  } catch { return Math.random().toString(36).slice(2, 8); }
+})();
+
+/** The `from` id of the last agent client that said hello, if any (directors/index.ts targets its cue acks/snapshots there). */
+export let agentId: string | null = null;
 
 class BroadcastTransport implements Transport {
   label = 'broadcast';
@@ -54,7 +67,11 @@ export function bus(): Transport {
   if (transport) return transport;
   const host = relayHost();
   transport = host ? new RelayTransport(host) : new BroadcastTransport();
-  transport.onMessage((m) => { if (m.from !== clientId) subscribers.forEach((fn) => fn(m)); });
+  transport.onMessage((m) => {
+    if (m.from === clientId) return;
+    if (m.kind === 'hello' && m.role === 'agent') agentId = m.from;
+    subscribers.forEach((fn) => fn(m));
+  });
   return transport;
 }
 type Outgoing = { [K in BusMessage['kind']]: Omit<Extract<BusMessage, { kind: K }>, 'from'> }[BusMessage['kind']];

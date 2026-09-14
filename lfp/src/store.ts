@@ -17,6 +17,9 @@ export interface Node {
 export interface Edge { id: string; src: string; dst: string; type: string; status?: Status; answerId?: string }
 export interface Graph { nodes: Node[]; edges: Edge[] }
 
+/** One card/row currently rendered on screen, reported by the active view via `useScreen`. */
+export interface ScreenItem { id: string; kind: string; title: string; group?: string }
+
 export interface Answer { id: string; questionId: string; content: string; at: number }
 export type Effect =
   | { id: string; op: 'add-node'; node: Node; answerId: string }
@@ -55,6 +58,9 @@ export const state = reactive({
   domainLevel: 0 as 0 | 1 | 2 | 3,
   domainModule: null as string | null,
   definitionQuestion: null as string | null,
+  // ── screen awareness (S110-115): what the active view is showing, for the Talk panel ──
+  screen: { view: '', params: {} as Record<string, string>, items: [] as ScreenItem[] },
+  panelOpen: true,
 });
 
 function clone<T>(x: T): T { return JSON.parse(JSON.stringify(x)); }
@@ -187,6 +193,15 @@ export function upsertTerm(title: string, description: string, id?: string) {
 export function removeNodeDirect(id: string) { directCommit([{ id: 'ef-0', op: 'remove-node', nodeId: id, answerId: 'direct' }], `remove ${id}`); }
 
 export function discardStaged() { state.staged = null; persist(); }
+
+/** One-line human description of a staged effect (moved here from Definition.vue so the Talk panel/Context can use it too). */
+export function describe(e: Effect): string {
+  if (e.op === 'add-node') return `add ${kindById[e.node.kind]?.label ?? e.node.kind} "${e.node.title}"`;
+  if (e.op === 'update-node') return `update ${nodeById(e.nodeId)?.title ?? e.nodeId} → "${e.patch.title}"`;
+  if (e.op === 'remove-node') return `remove ${e.nodeId}`;
+  if (e.op === 'add-edge') return `edge ${nodeById(e.edge.src)?.title ?? e.edge.src} —${e.edge.type}→ ${e.edge.dst}`;
+  return (e as Effect).op;
+}
 
 export function commit(acceptedIds: Set<string>) {
   if (!state.staged) return;

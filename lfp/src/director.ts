@@ -1,7 +1,12 @@
 // The Director protocol: everything an agent can do to the main screen, as a small typed vocabulary.
 // Whoever speaks it (a scripted tour today, a Flue agent tomorrow) has the same powers. It doubles as the LLM tool list.
 
-import { state, nodeById, upsertTerm, removeNodeDirect, persist, type Effect } from './store';
+import {
+  state, nodeById, edgesOf, upsertTerm, removeNodeDirect, persist, describe, nextQuestion,
+  answer, answerFollowUp, addFollowUp, commit, discardStaged, undo,
+  type Effect, type FollowUp,
+} from './store';
+import { QUESTIONS } from './kernel';
 
 export type View = 'overview' | 'definition' | 'domain' | 'flows' | 'kernel';
 
@@ -13,7 +18,12 @@ export type Cue =
   | { t: 'sequence'; steps: Cue[][]; dwellMs?: number }
   | { t: 'stage'; effects: Effect[]; note: string }
   | { t: 'glossary'; op: 'upsert' | 'remove'; title: string; description?: string; id?: string }
-  | { t: 'ask'; text: string; options?: string[]; id: string };
+  | { t: 'ask'; text: string; options?: string[]; id: string }
+  | { t: 'answer'; questionId: string; content: string }
+  | { t: 'followup'; parentId: string; prompt: string; kind: FollowUp['kind']; produces?: string }
+  | { t: 'commit'; accept?: string[] }
+  | { t: 'discard' }
+  | { t: 'undo' };
 
 export interface Ask { id: string; text: string; options?: string[] }
 export interface Tour { steps: Cue[][]; i: number; dwellMs: number; paused: boolean }
@@ -27,16 +37,20 @@ export interface Context {
   ask: Ask | null;
   pointing: string[]; // titles of highlighted nodes
   tour: { i: number; n: number; paused: boolean } | null;
-  staged: { count: number; note: string } | null;
+  staged: { count: number; note: string; effects: string[] } | null;
   topics: { id: string; label: string }[]; // tour starters the director offers
   graph: { nodes: number; edges: number };
   transport: string;
+  screen: { view: string; params: Record<string, string>; items: ScreenItemLite[] }; // what the active view is rendering, capped at 80
+  next: { questionId: string; prompt: string; produces: string; unlocks: string[] } | null;
+  gaps: string[]; // exactly two checks: nodes with no edges, hypotheses with no metric
 }
+type ScreenItemLite = { id: string; kind: string; title: string; group?: string };
 
 export type UserTurn =
   | { text: string }
   | { choice: string; forAsk: string }
-  | { control: 'next' | 'back' | 'stop' | 'approve' | 'discard' }
+  | { control: 'next' | 'back' | 'stop' | 'approve' | 'discard' | 'undo' }
   | { topic: string };
 
 export interface Director {
@@ -67,6 +81,7 @@ export function applyCue(cue: Cue) {
     case 'point':
       state.highlight = { nodes: cue.nodes ?? [], edges: cue.edges ?? [], focus: cue.focus ?? null };
       state.selectedId = cue.focus ?? state.selectedId;
+      if (cue.focus) document.querySelector(`[data-node-id="${cue.focus}"]`)?.scrollIntoView({ block: 'center' });
       break;
     case 'clear':
       state.highlight = { nodes: [], edges: [], focus: null };
@@ -91,6 +106,31 @@ export function applyCue(cue: Cue) {
       state.say = { id: cue.id, text: cue.text };
       state.transcript.push({ who: 'agent', text: cue.text, at: Date.now() });
       break;
+    case 'answer': {
+      const isRoot = QUESTIONS.some((q) => q.id === cue.questionId);
+      if (isRoot) answer(cue.questionId, cue.content); else answerFollowUp(cue.questionId, cue.content);
+      state.transcript.push({ who: 'agent', text: `Answered ${cue.questionId}: "${cue.content}"`, at: Date.now() });
+      break;
+    }
+    case 'followup': {
+      const f = addFollowUp(cue.parentId, cue.prompt, cue.kind, cue.produces);
+      state.transcript.push({ who: 'agent', text: `Added ${cue.kind} "${cue.prompt}" (${f.id}) under ${cue.parentId}`, at: Date.now() });
+      break;
+    }
+    case 'commit': {
+      const ids = new Set(cue.accept ?? (state.staged?.effects.map((e) => e.id) ?? []));
+      const r = commit(ids);
+      state.transcript.push({ who: 'agent', text: `Committed ${r?.applied ?? 0} change${r?.applied === 1 ? '' : 's'}.`, at: Date.now() });
+      break;
+    }
+    case 'discard':
+      discardStaged();
+      state.transcript.push({ who: 'agent', text: 'Discarded. Nothing changed.', at: Date.now() });
+      break;
+    case 'undo':
+      undo();
+      state.transcript.push({ who: 'agent', text: 'Undone.', at: Date.now() });
+      break;
   }
   listeners.forEach((fn) => fn(cue));
 }
@@ -110,20 +150,38 @@ export function tourStep(delta: 1 | -1) {
 export function stopTour() { if (dwellTimer) clearTimeout(dwellTimer); dwellTimer = null; state.tour = null; }
 export function pauseTour() { const t = state.tour; if (t) { t.paused = true; if (dwellTimer) clearTimeout(dwellTimer); } }
 
+/** Exactly two gap checks, kept to one line each (Cut on purpose: nothing more). */
+function computeGaps(): string[] {
+  const out: string[] = [];
+  const noEdges = state.graph.nodes.filter((n) => !state.graph.edges.some((e) => e.src === n.id || e.dst === n.id));
+  if (noEdges.length) out.push(`${noEdges.length} node${noEdges.length === 1 ? '' : 's'} with no edges: ${noEdges.slice(0, 3).map((n) => n.title).join(', ')}`);
+  const hyps = state.graph.nodes.filter((n) => n.kind === 'hypothesis');
+  const noMetric = hyps.filter((h) => !edgesOf(h.id).some((e) => nodeById(e.src === h.id ? e.dst : e.src)?.kind === 'metric'));
+  if (noMetric.length) out.push(`${noMetric.length} bet${noMetric.length === 1 ? '' : 's'} with no metric: ${noMetric.slice(0, 3).map((n) => n.title).join(', ')}`);
+  return out;
+}
+
 // ── context the main screen publishes ───────────────────────────────────────
 export function currentContext(topics: { id: string; label: string }[], transport: string): Context {
   const [view, qs] = location.hash.slice(1).split('?');
+  const nq = nextQuestion.value;
   return {
     view: view || 'overview',
     params: Object.fromEntries(new URLSearchParams(qs ?? '')),
     selectedId: state.selectedId,
     say: state.say,
     ask: state.ask,
-    pointing: [...(state.highlight.focus ? [state.highlight.focus] : []), ...state.highlight.nodes].filter((v, i, a) => a.indexOf(v) === i).map((id) => nodeById(id)?.title ?? id).slice(0, 6),
+    pointing: [...(state.highlight.focus ? [state.highlight.focus] : []), ...state.highlight.nodes]
+      .filter((v, i, a) => a.indexOf(v) === i)
+      .map((id) => nodeById(id)?.title ?? state.screen.items.find((it) => it.id === id)?.title ?? id)
+      .slice(0, 6),
     tour: state.tour ? { i: state.tour.i, n: state.tour.steps.length, paused: state.tour.paused } : null,
-    staged: state.staged ? { count: state.staged.effects.length, note: state.staged.warnings[0] ?? '' } : null,
+    staged: state.staged ? { count: state.staged.effects.length, note: state.staged.warnings[0] ?? '', effects: state.staged.effects.map(describe) } : null,
     topics,
     graph: { nodes: state.graph.nodes.length, edges: state.graph.edges.length },
     transport,
+    screen: { view: state.screen.view, params: state.screen.params, items: state.screen.items.slice(0, 80) },
+    next: nq ? { questionId: nq.id, prompt: nq.prompt, produces: nq.produces, unlocks: QUESTIONS.filter((q) => q.unlocksAfter.includes(nq.id)).map((q) => q.id) } : null,
+    gaps: computeGaps(),
   };
 }
