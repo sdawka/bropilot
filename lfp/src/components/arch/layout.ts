@@ -1,5 +1,7 @@
 // Pure layout functions for the Vue Flow architecture diagrams (Domain level 1 Deployment, level 3 Cell).
 // No store/global-state imports: callers pass the graph slice in, get plain Vue Flow node/edge shapes back.
+// All nodes get explicit width/height (both as a top-level field, for Vue Flow's own sizing, and mirrored
+// into `style`) so rows/columns computed from those sizes never overlap regardless of content length.
 import type { Graph, Node as GNode } from '../../store';
 
 export interface FlowNode {
@@ -10,6 +12,8 @@ export interface FlowNode {
   parentNode?: string;
   extent?: 'parent';
   style?: Record<string, string>;
+  width?: number;
+  height?: number;
   draggable?: boolean;
 }
 export interface FlowEdge {
@@ -31,8 +35,18 @@ export const governsOf = (g: Graph, ruleId: string) => outEdges(g, 'governs', ru
 /** who emits a given event ("emits" edges into it). */
 export const emitterOf = (g: Graph, eventId: string) => inEdges(g, 'emits', eventId).map((e) => e.src);
 
+function sized(n: FlowNode, w: number, h: number): FlowNode {
+  return { ...n, width: w, height: h, style: { ...n.style, width: `${w}px`, height: `${h}px` } };
+}
+
 // ── Deployment (level 1) ─────────────────────────────────────────────────────
-const COL_X: Record<string, number> = { audience: 0, client: 320, mid: 640, store: 960, external: 1280 };
+const CARD_W = 200;
+const CARD_H = 56;
+const CHIP_ROW_H = 22;
+const GAP_X = 48; // ≥ 40px between columns
+const GAP_Y = 24;
+const COLS = ['audience', 'client', 'mid', 'store', 'external'] as const;
+const COL_X: Record<string, number> = Object.fromEntries(COLS.map((c, i) => [c, i * (CARD_W + GAP_X)]));
 
 export function deploymentLayout(g: Graph) {
   const nodes = g.nodes;
@@ -40,24 +54,23 @@ export function deploymentLayout(g: Graph) {
   const flowNodes: FlowNode[] = [];
   const flowEdges: FlowEdge[] = [];
   const yAt: Record<string, number> = {};
-  const nextY = (col: string) => { const y = yAt[col] ?? 20; yAt[col] = y + 150; return y; };
+  const placeAt = (col: string, h: number) => { const y = yAt[col] ?? 8; yAt[col] = y + h + GAP_Y; return y; };
 
   const hostsOf = (infraId: string) =>
     edges.filter((e) => e.type === 'hosts' && e.src === infraId).map((e) => byId(g)[e.dst]?.title ?? e.dst);
 
   for (const a of nodes.filter((n) => n.kind === 'audience')) {
-    flowNodes.push({ id: a.id, type: 'card', position: { x: COL_X.audience, y: nextY('audience') }, data: { label: a.title, kind: 'audience', role: 'audience' } });
+    flowNodes.push(sized({ id: a.id, type: 'card', position: { x: COL_X.audience, y: placeAt('audience', CARD_H) }, data: { label: a.title, kind: 'audience', role: 'audience' } }, CARD_W, CARD_H));
   }
   for (const inf of nodes.filter((n) => n.kind === 'infra')) {
     const role = (inf.props?.role ?? 'server') as string;
     const col = role === 'client' ? 'client' : role === 'store' ? 'store' : 'mid';
-    flowNodes.push({
-      id: inf.id, type: 'card', position: { x: COL_X[col], y: nextY(col) },
-      data: { label: inf.title, kind: 'infra', role, hosted: hostsOf(inf.id) },
-    });
+    const hosted = hostsOf(inf.id);
+    const h = CARD_H + (hosted.length ? Math.ceil(hosted.length / 2) * CHIP_ROW_H + 8 : 0);
+    flowNodes.push(sized({ id: inf.id, type: 'card', position: { x: COL_X[col], y: placeAt(col, h) }, data: { label: inf.title, kind: 'infra', role, hosted } }, CARD_W, h));
   }
   for (const ext of nodes.filter((n) => n.kind === 'external')) {
-    flowNodes.push({ id: ext.id, type: 'card', position: { x: COL_X.external, y: nextY('external') }, data: { label: ext.title, kind: 'external', role: 'external' } });
+    flowNodes.push(sized({ id: ext.id, type: 'card', position: { x: COL_X.external, y: placeAt('external', CARD_H) }, data: { label: ext.title, kind: 'external', role: 'external' } }, CARD_W, CARD_H));
   }
 
   const placed = new Set(flowNodes.map((n) => n.id));
@@ -101,6 +114,26 @@ export function circuitsFor(g: Graph, interfaces: GNode[], rules: GNode[], thing
   return circuits;
 }
 
+// grid-pack `count` fixed-size cells starting at (originX, originY), wrapping after `cols` columns.
+function gridCells(count: number, cols: number, cellW: number, cellH: number, gap: number, originX: number, originY: number) {
+  const positions: { x: number; y: number }[] = [];
+  for (let i = 0; i < count; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    positions.push({ x: originX + col * (cellW + gap), y: originY + row * (cellH + gap) });
+  }
+  const rows = Math.ceil(count / cols) || 1;
+  return { positions, width: cols * cellW + (cols - 1) * gap, height: rows * cellH + (rows - 1) * gap, rows };
+}
+
+const RULE_W = 180, RULE_H = 44;
+const THING_W = 170, THING_H = 40;
+const EVENT_W = 150, EVENT_H = 36;
+const IFACE_W = 160, IFACE_H = 40;
+const CELL_GAP = 16;
+const RULE_COLS = 3;
+const THING_COLS = 4;
+
 export function cellLayout(g: Graph, moduleId: string) {
   const idx = byId(g);
   const mod = idx[moduleId];
@@ -117,40 +150,46 @@ export function cellLayout(g: Graph, moduleId: string) {
   const circuits = circuitsFor(g, interfaces, rules, things, events);
 
   const membraneId = `membrane-${moduleId}`;
-  const ruleRows = Math.ceil(rules.length / 3) || 1;
-  const thingRows = Math.ceil(things.length / 4) || 1;
-  const RULES_TOP = 110;
-  const RULES_H = ruleRows * 80;
-  const THINGS_TOP = RULES_TOP + RULES_H + 60;
-  const THINGS_H = thingRows * 70;
-  const W = Math.max(1200, 260 * Math.max(3, events.length + 1));
-  const H = THINGS_TOP + THINGS_H + 80;
-  const nodes: FlowNode[] = [
-    { id: membraneId, type: 'membrane', position: { x: 0, y: 0 }, data: { label: mod?.title ?? moduleId, moduleId }, style: { width: `${W}px`, height: `${H}px` }, draggable: false },
-  ];
 
   // interface ports: only-in / only-out → handle on the membrane itself (rendered by Cell.vue's membrane template).
   // both in+out → a distinct child "iface" node on the left, plus an out-port handle on the membrane's right edge.
   const bothIfaces = interfaces.filter((i) => i.props?.in && i.props?.out);
   const inOnly = interfaces.filter((i) => i.props?.in && !i.props?.out);
   const outOnly = interfaces.filter((i) => !i.props?.in && i.props?.out);
+
+  const MARGIN = 40;
+  const ifaceColW = bothIfaces.length ? IFACE_W + CELL_GAP * 2 : MARGIN;
+  const eventColW = events.length ? EVENT_W + CELL_GAP * 2 : MARGIN;
+
+  const rulesTop = MARGIN + 30; // room for the membrane title
+  const rulesGrid = gridCells(rules.length, RULE_COLS, RULE_W, RULE_H, CELL_GAP, ifaceColW, rulesTop);
+  const thingsTop = rulesTop + rulesGrid.height + CELL_GAP * 2;
+  const thingsGrid = gridCells(things.length, THING_COLS, THING_W, THING_H, CELL_GAP, ifaceColW, thingsTop);
+
+  const bandWidth = Math.max(rulesGrid.width, thingsGrid.width, 1);
+  const W = ifaceColW + bandWidth + eventColW;
+  const H = thingsTop + thingsGrid.height + MARGIN;
+
+  const nodes: FlowNode[] = [
+    sized({ id: membraneId, type: 'membrane', position: { x: 0, y: 0 }, data: { label: mod?.title ?? moduleId, moduleId }, draggable: false }, W, H),
+  ];
+
   bothIfaces.forEach((i, n) => {
-    nodes.push({ id: `iface-${i.id}`, type: 'iface', parentNode: membraneId, extent: 'parent', position: { x: 20, y: RULES_TOP + n * 80 }, data: { label: i.title, ifaceId: i.id, side: 'in' } });
+    nodes.push(sized({ id: `iface-${i.id}`, type: 'iface', parentNode: membraneId, extent: 'parent', position: { x: MARGIN - 20, y: rulesTop + n * (IFACE_H + CELL_GAP) }, data: { label: i.title, ifaceId: i.id, side: 'in' } }, IFACE_W, IFACE_H));
   });
-  const ifaceColStart = bothIfaces.length ? 220 : 60;
 
   if (stores.length) {
-    nodes.push({ id: `store-${moduleId}`, type: 'store', parentNode: membraneId, extent: 'parent', position: { x: 40, y: THINGS_TOP - 20 }, style: { width: `${W - 120}px`, height: `${THINGS_H + 40}px` }, data: { label: stores.map((s) => s.title).join(', ') }, draggable: false });
+    nodes.push(sized({ id: `store-${moduleId}`, type: 'store', parentNode: membraneId, extent: 'parent', position: { x: ifaceColW - CELL_GAP, y: thingsTop - CELL_GAP }, data: { label: stores.map((s) => s.title).join(', ') }, draggable: false }, bandWidth + CELL_GAP * 2, thingsGrid.height + CELL_GAP * 2));
   }
 
   rules.forEach((r, n) => {
-    nodes.push({ id: r.id, type: 'rule', parentNode: membraneId, extent: 'parent', position: { x: ifaceColStart + (n % 3) * 280, y: RULES_TOP + Math.floor(n / 3) * 80 }, data: { label: r.title, nodeId: r.id } });
+    nodes.push(sized({ id: r.id, type: 'rule', parentNode: membraneId, extent: 'parent', position: rulesGrid.positions[n], data: { label: r.title, nodeId: r.id } }, RULE_W, RULE_H));
   });
   things.forEach((t, n) => {
-    nodes.push({ id: t.id, type: 'thing', parentNode: membraneId, extent: 'parent', position: { x: 60 + (n % 4) * 220, y: THINGS_TOP + Math.floor(n / 4) * 70 }, data: { label: t.title, nodeId: t.id } });
+    nodes.push(sized({ id: t.id, type: 'thing', parentNode: membraneId, extent: 'parent', position: thingsGrid.positions[n], data: { label: t.title, nodeId: t.id } }, THING_W, THING_H));
   });
   events.forEach((e, n) => {
-    nodes.push({ id: e.id, type: 'event', parentNode: membraneId, extent: 'parent', position: { x: W - 190, y: RULES_TOP + n * 80 }, data: { label: e.title, nodeId: e.id } });
+    nodes.push(sized({ id: e.id, type: 'event', parentNode: membraneId, extent: 'parent', position: { x: W - eventColW + CELL_GAP, y: rulesTop + n * (EVENT_H + CELL_GAP) }, data: { label: e.title, nodeId: e.id } }, EVENT_W, EVENT_H));
   });
 
   const edges: FlowEdge[] = [];
@@ -166,7 +205,7 @@ export function cellLayout(g: Graph, moduleId: string) {
     const chainStarts: string[] = c.ruleIds.length ? c.ruleIds : c.thingIds;
     for (const rid of c.ruleIds) {
       edges.push({ id: `circuit-${c.ifaceId}-port-${rid}`, source: inSource, sourceHandle: inHandle, target: rid, data: { circuit: c.ifaceId, class: cls } });
-      for (const tid of c.thingIds.filter((tid) => governsOfIds(g, rid).includes(tid))) {
+      for (const tid of c.thingIds.filter((tid) => governsOf(g, rid).includes(tid))) {
         edges.push({ id: `circuit-${c.ifaceId}-${rid}-${tid}`, source: rid, target: tid, data: { circuit: c.ifaceId, class: cls } });
       }
     }
@@ -187,5 +226,3 @@ export function cellLayout(g: Graph, moduleId: string) {
 
   return { nodes, edges, interfaces, rules, things, events, stores, circuits, inOnly, outOnly, bothIfaces, membraneId, size: { W, H } };
 }
-
-function governsOfIds(g: Graph, ruleId: string) { return governsOf(g, ruleId); }

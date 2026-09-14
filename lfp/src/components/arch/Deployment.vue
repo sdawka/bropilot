@@ -48,13 +48,15 @@ function select(id: string) { state.selectedId = state.selectedId === id ? null 
 
 <style scoped>
 .arch-deployment { height: 640px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
-.dep-card { min-width: 190px; border: 1px solid var(--line); border-radius: 8px; padding: .5rem .6rem; background: var(--panel); cursor: pointer; }
+.dep-card { box-sizing: border-box; width: 100%; height: 100%; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; padding: .4rem .55rem; background: var(--panel); cursor: pointer; }
 .dep-card.role-audience { border-radius: 10px 10px 4px 10px; }
 .dep-card.role-client { border-color: var(--kernel); }
 .dep-card.role-store, .dep-card.role-cache, .dep-card.role-queue { border-style: dashed; }
 .dep-card.role-external { border-style: dotted; }
-.dep-title { font-weight: 600; font-size: .85rem; }
-.dep-hosted { list-style: none; margin: .3rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: .2rem; }
+.dep-title { font-weight: 600; font-size: .82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dep-hosted { list-style: none; margin: .3rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: .2rem; max-height: 44px; overflow: hidden; }
+.dep-hosted .tag { font-size: .6rem; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:deep(.vue-flow__node) { overflow: visible; }
 :deep(.vue-flow__node.dim) { opacity: .25; }
 :deep(.vue-flow__edge.dim) { opacity: .15; }
 </style>

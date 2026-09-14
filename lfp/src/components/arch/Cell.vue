@@ -108,13 +108,14 @@ watch(() => props.moduleId, () => fitView(), { flush: 'post' });
 .membrane { width: 100%; height: 100%; border: 3px solid var(--kernel); border-radius: 40px; background: rgba(58,63,143,.04); position: relative; }
 .membrane-title { position: absolute; top: -.9rem; left: 1rem; background: var(--bg); padding: 0 .5rem; font-weight: 600; font-size: .85rem; }
 .port { width: 12px; height: 12px; background: var(--kernel); border: 2px solid var(--panel); cursor: pointer; }
-.iface-node { background: var(--panel); border: 2px solid var(--kernel); border-radius: 8px; padding: .3rem .5rem; font-size: .8rem; cursor: pointer; }
+.iface-node { box-sizing: border-box; width: 100%; height: 100%; display: flex; align-items: center; gap: .25rem; overflow: hidden; background: var(--panel); border: 2px solid var(--kernel); border-radius: 8px; padding: 0 .5rem; font-size: .78rem; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
 .iface-node.selected { outline: 2px solid var(--ink); }
-.store-band { width: 100%; height: 100%; background: repeating-linear-gradient(45deg, #eee, #eee 8px, #f6f5f1 8px, #f6f5f1 16px); border: 1px dashed var(--muted); border-radius: 8px; display: flex; align-items: flex-start; padding: .3rem .5rem; font-size: .75rem; color: var(--muted); }
-.cell-item { border: 1px solid var(--line); border-radius: 6px; padding: .25rem .5rem; font-size: .78rem; background: var(--panel); cursor: pointer; white-space: nowrap; }
+.store-band { box-sizing: border-box; width: 100%; height: 100%; background: repeating-linear-gradient(45deg, #eee, #eee 8px, #f6f5f1 8px, #f6f5f1 16px); border: 1px dashed var(--muted); border-radius: 8px; display: flex; align-items: flex-start; overflow: hidden; padding: .3rem .5rem; font-size: .7rem; color: var(--muted); }
+.cell-item { box-sizing: border-box; width: 100%; height: 100%; display: flex; align-items: center; gap: .2rem; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; padding: 0 .45rem; font-size: .74rem; background: var(--panel); cursor: pointer; white-space: nowrap; text-overflow: ellipsis; }
 .cell-item.rule { border-color: var(--said); }
 .cell-item.event { border-color: var(--inferred); }
 .cell-item.selected { outline: 2px solid var(--ink); }
+:deep(.vue-flow__node) { overflow: visible; }
 :deep(.vue-flow__node.dim), :deep(.vue-flow__handle.dim) { opacity: .2; }
 :deep(.vue-flow__edge.dim) { opacity: .12; }
 :deep(.vue-flow__edge.circuit-0 .vue-flow__edge-path) { stroke: #2f7d4f; }
