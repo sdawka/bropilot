@@ -12,6 +12,7 @@ import { state, hydrate, resetToSeed, exportJson, nextQuestion } from './store';
 import { startDirectorHost, handleUser, topics } from './directors/index';
 import { currentContext, applyCue } from './director';
 import { relayHost, setRelayHost, bus } from './bus';
+import { AI_FUNCTIONS } from './ai/registry';
 
 type View = 'overview' | 'definition' | 'domain' | 'flows' | 'kernel' | 'mirror';
 const views: { id: View; label: string; title: string }[] = [
@@ -33,7 +34,7 @@ onMounted(() => {
   if (!isMirror.value) startDirectorHost();
   // Dev-only test hook: lets smoke.mjs drive the Director protocol directly (e.g. applyCue({t:'answer', ...}))
   // for flows the ScriptedDirector's freeTalk keyword matcher doesn't cover. Never shipped (import.meta.env.DEV).
-  if (import.meta.env.DEV) (window as any).__lfp = { applyCue, state, nextQuestion };
+  if (import.meta.env.DEV) (window as any).__lfp = { applyCue, state, nextQuestion, aiFunctionIds: AI_FUNCTIONS.map((f) => f.id) };
 });
 
 watchEffect(() => {

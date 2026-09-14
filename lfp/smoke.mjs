@@ -1,5 +1,6 @@
 // Smoke test for the lfp. Usage: BIN=<chromium binary> OUT=<dir> node smoke.mjs   (dev server on :5199)
 import { chromium } from 'playwright';
+import { execSync } from 'node:child_process';
 const out = process.env.OUT ?? '/tmp';
 const b = await chromium.launch({ executablePath: process.env.BIN }); const p = await b.newPage({ viewport: { width: 1500, height: 950 } });
 const errors = []; p.on('pageerror', (e) => errors.push(e.message)); p.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
@@ -50,39 +51,77 @@ const nodesAfterUndo = await p.evaluate(() => window.__lfp.state.graph.nodes.len
 r.definition.nodesRestoredByUndo = nodesAfterUndo === nodesBefore;
 await p.screenshot({ path: `${out}/definition.png` });
 
-// domain
+// AI functions: "what next" through the Talk panel composer → an ask/say utterance, tracked as an
+// AICall, rated via the feedback buttons, and the rating persists across a reload (S128–S131).
+await p.locator('[data-testid=talk-input]').fill('what next'); await p.locator('[data-testid=talk-send]').click();
+await p.waitForSelector('[data-testid=talk-feedback]');
+r.aiFeedback = { utteranceShown: await p.locator('[data-testid=talk-utterance]').count(), trackingText: await p.locator('[data-testid=talk-tracking]').first().innerText() };
+await p.locator('[data-testid=talk-feedback-makes-sense]').first().click(); await p.waitForTimeout(150);
+r.aiFeedback.ratedInStore = await p.evaluate(() => window.__lfp.state.aiCalls[0]?.rating?.value);
+await p.reload(); await p.waitForSelector('[data-testid=talk-panel]');
+r.aiFeedback.ratedAfterReload = await p.evaluate(() => window.__lfp.state.aiCalls[0]?.rating?.value);
+
+// Reference (#kernel): AI-functions table, calls table, efficacy summary
+await p.goto('http://localhost:5199/#kernel'); await p.waitForSelector('table');
+r.anchors = (await p.locator('body').innerText()).includes('every statement anchors');
+r.kernel = {
+  aiFunctionRows: await p.locator('[data-testid=ref-ai-functions] tbody tr').count(),
+  aiCallRows: await p.locator('[data-testid=ref-ai-calls] tbody tr').count(),
+  aiEfficacyRows: await p.locator('[data-testid=ref-ai-efficacy] tbody tr').count(),
+};
+
+// dogfood: every registry AI function has a matching ai-function graph node
+r.dogfood = await p.evaluate(() => {
+  const ids = window.__lfp.aiFunctionIds.slice().sort();
+  const nodeIds = window.__lfp.state.graph.nodes.filter((n) => n.kind === 'ai-function').map((n) => n.id.replace(/^ai-function-/, '')).sort();
+  return { registryIds: ids, graphIds: nodeIds, match: JSON.stringify(ids) === JSON.stringify(nodeIds) };
+});
+
+// domain — Map | Deployment | Modules | Cell
 await p.goto('http://localhost:5199/#domain'); await p.waitForTimeout(300);
 r.domain = { l0: (await p.locator('body').innerText()).includes('Planned changes') };
 await p.screenshot({ path: `${out}/domain-l0.png` });
-await p.getByText('1. Context').first().click(); await p.waitForTimeout(150);
-r.domain.l1Text = (await p.locator('body').innerText()).includes('GitHub');
+
+await p.locator('.level-tab').nth(1).click(); await p.waitForSelector('[data-testid=arch-deployment]'); await p.waitForTimeout(200);
+r.domain.deploymentRoles = await p.locator('[data-testid=arch-deployment] [data-role]').count();
 await p.screenshot({ path: `${out}/domain-l1.png` });
-await p.getByText('2. Modules').first().click(); await p.waitForTimeout(150); await p.screenshot({ path: `${out}/domain-l2.png` });
+
+await p.locator('.level-tab').nth(2).click(); await p.waitForTimeout(150);
 r.domain.modules = await p.getByText('Representation', { exact: true }).count();
 r.domain.screenItemsAreModules = await p.evaluate(() => window.__lfp.state.screen.items.some((i) => i.id.startsWith('module-')));
-await p.getByText('Inside a module').first().click(); await p.waitForTimeout(150);
-r.domain.things = await p.locator('.item-card').count();
-await p.locator('.item-card .title', { hasText: /^🔷 Node$/ }).first().click(); await p.waitForTimeout(150);
-r.domain.dimmedRulesAfterSelectingNode = await p.locator('.item-card.dim').count();
-r.domain.codeLinks = await p.locator('a[href*="github.com"]').count();
-await p.getByText('Orchestration', { exact: true }).first().click(); await p.waitForTimeout(150);
-r.domain.testChips = await p.locator('.test-chip').count(); r.domain.testsPassed = await p.locator('.test-chip.pass').count();
+await p.screenshot({ path: `${out}/domain-l2.png` });
+
+await p.locator('.level-tab').nth(3).click(); await p.waitForSelector('[data-testid=arch-cell]'); await p.waitForTimeout(300);
+r.domain.cellHandles = await p.locator('[data-testid=arch-cell] .vue-flow__handle').count();
+r.domain.cellCircuits = await p.locator('[data-testid=arch-cell] [data-circuit]').count();
 await p.screenshot({ path: `${out}/domain-l3.png` });
 
-// flows — a `point` cue lights up the flow card
+// flows — a flow's `uses` edges spotlight its touched nodes everywhere: Flows itself, Overview cards, Cell nodes
 await p.goto('http://localhost:5199/#flows'); await p.waitForSelector('.flow'); await p.waitForTimeout(150);
-const flowId = await p.evaluate(() => document.querySelector('.flow')?.getAttribute('data-node-id'));
-await p.evaluate((id) => window.__lfp.applyCue({ t: 'point', nodes: [id], focus: id }), flowId);
-await p.waitForTimeout(150);
+const flowId = 'flow-talk-to-tests';
+await p.locator(`.flow[data-node-id="${flowId}"]`).click(); await p.waitForTimeout(150);
 r.flows = { flowId, lit: await p.locator(`.flow[data-node-id="${flowId}"].lit`).count() };
 await p.screenshot({ path: `${out}/flows.png` });
+
+await p.goto('http://localhost:5199/#overview'); await p.waitForSelector('.card'); await p.waitForTimeout(150);
+r.flows.overviewDim = await p.locator('.card.dim').count();
+
+await p.goto('http://localhost:5199/#domain'); await p.waitForTimeout(200);
+await p.locator('.level-tab').nth(3).click(); await p.waitForSelector('[data-testid=arch-cell]'); await p.waitForTimeout(300);
+r.flows.cellDim = await p.locator('[data-testid=arch-cell] .dim').count();
 
 // glossary read
 await p.locator('.glossary-btn').click(); await p.waitForTimeout(200);
 r.glossary = { terms: await p.getByText('Representation layer').count() };
 await p.screenshot({ path: `${out}/glossary.png` });
 
-// reference anchors
-await p.goto('http://localhost:5199/#kernel'); await p.waitForSelector('table'); r.anchors = (await p.locator('body').innerText()).includes('every statement anchors');
+// docs drift gate: `npm run docs` must be a no-op once docs/ and agent/prompt.md are committed
+try {
+  execSync('npm run docs', { cwd: process.cwd(), stdio: 'pipe' });
+  execSync('git diff --quiet -- docs agent/prompt.md', { cwd: process.cwd(), stdio: 'pipe' });
+  r.docsDrift = 'clean';
+} catch (e) {
+  r.docsDrift = `DIRTY: ${e.message.split('\n')[0]}`;
+}
 
 r.errors = errors; console.log(JSON.stringify(r, null, 1)); await b.close();
