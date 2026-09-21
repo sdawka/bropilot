@@ -8,7 +8,7 @@ export interface ProposeFollowupIn { parentId?: string }
 export interface ProposeFollowupOut { parentId: string; label: string; prompt: string }
 
 function stub(input: ProposeFollowupIn, ctx: Context): ProposeFollowupOut {
-  const parentId = input.parentId ?? ctx.selectedId ?? ctx.next?.questionId ?? '';
+  const parentId = input.parentId ?? ctx.selectedId ?? ctx.next?.id ?? '';
   const label = nodeById(parentId)?.title ?? ctx.next?.prompt ?? parentId;
   return { parentId, label, prompt: `What is a concrete example of ${label}?` };
 }
@@ -19,7 +19,7 @@ function toCues(out: ProposeFollowupOut, _callId: string): Cue[] {
 }
 
 export const proposeFollowup: AIFunctionImpl<ProposeFollowupIn, ProposeFollowupOut> = {
-  context: { digest: (ctx) => `selection=${ctx.selectedId ?? 'none'} next=${ctx.next?.questionId ?? 'none'}` },
+  context: { digest: (ctx) => `selection=${ctx.selectedId ?? 'none'} next=${ctx.next?.id ?? 'none'}` },
   stub,
   toCues,
 };

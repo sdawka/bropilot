@@ -328,5 +328,16 @@ Architecture-relevant invariants from the kernel (see the app's Reference tab fo
 - The mirror shows at most one utterance (or one question) at a time.
 - Agent data changes go through the commit gate like everyone else's; only glossary edits take the escape hatch.
 - Bropilot must be describable in Bropilot with no special cases.
+- Edits are effects too, not just new nodes: an update-node effect goes through the same commit gate as an add-node one.
+- Rules exist at the meta level as well as the node level: relations between nodes are governed by kernel rules (edge shape, needs), same as nodes encode domain rules.
+- Every edge fits the declared from/to kinds of its edge type.
+- A kind's `needs` are structural expectations on its instances: at least `min` edges of the named type and direction.
+- A codebase test ties an expectation of the representation to reality: every test verifies a rule.
+- The meta level is tested too: where the kernel is not followed, the check raises a question or clarification request for the user, never a silent auto-repair.
+- There is one test kind; `resultSource` (code, metric, manual) varies, not the kind.
+- Staleness on edit is transitive, with an early cutoff: a neighbour revalidated unchanged clears its edges and stops the spread; a neighbour that was itself edited cascades again.
+- A rule's condition is one line of its description text (or its title, if it has none).
+- A suspect edge stays surfaced until the node it touches is revalidated.
+- A task is done only after its full suite is green and a reviewer agent verdict, not on green tests alone.
 
-_42 kinds, 25 edge types, 4 levels, 17 invariants, 12 kernel questions — see the Reference tab for the live versions._
+_42 kinds, 25 edge types, 4 levels, 28 invariants, 12 kernel questions — see the Reference tab for the live versions._

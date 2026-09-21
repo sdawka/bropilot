@@ -13,6 +13,8 @@
 | find-gaps | 0.1 | Runs the gap checks (nodes with no edges; bets with no metric) and reports them. | gaps, graph | Makes sense / Doesn't make sense | said S83 |
 | unrealised-to-tasks | 0.1 | Finds protocols with no realising practice and stages an epic plus one task each. | graph | Makes sense / Doesn't make sense / Bad question | said S101, S105, S107 |
 | define-term | 0.1 | Two-step glossary flow: asks for a term, then its definition, then commits it. | selection | Makes sense / Doesn't make sense | said S59 |
+| review-change | 0.1 | Checks that a task's change serves the intent of the rule, not just the test it targets. | selection, graph | Makes sense / Doesn't make sense / Bad question | said S152 |
+| raise-question | 0.1 | Raises a clarification question from an agent about a task, blocking it until answered. | selection, next | Makes sense / Doesn't make sense / Bad question | said S148 |
 
 ## describe-screen
 
@@ -180,4 +182,34 @@ Conversation so far: {{context}}
 Latest user text: {{input}}
 
 This is a two-step flow. If no term has been collected yet, ask for the term (a word or phrase) and nothing else. Once you have a term, ask for its definition in one sentence. Once you have both, commit the glossary upsert immediately — this is the one flow allowed to skip the stage/approve step — and tell the user it's done and undoable.
+```
+
+## review-change
+
+Checks that a task's change serves the intent of the rule, not just the test it targets.
+
+- **Version:** 0.1
+- **Context needs:** selection, graph
+- **Output:** A verdict on the task: serves-intent, overfits, or unclear, with a one-line reason.
+- **Feedback options:** Makes sense, Doesn't make sense, Bad question
+
+**Prompt:**
+
+```
+Filled in stage 1-A.
+```
+
+## raise-question
+
+Raises a clarification question from an agent about a task, blocking it until answered.
+
+- **Version:** 0.1
+- **Context needs:** selection, next
+- **Output:** A raise cue: a follow-up question under the matching template question, and the task marked blocked.
+- **Feedback options:** Makes sense, Doesn't make sense, Bad question
+
+**Prompt:**
+
+```
+Filled in stage 1-A.
 ```

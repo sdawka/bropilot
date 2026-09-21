@@ -9,7 +9,7 @@ type NoneOut = { op: 'none' };
 export type NextDecisionOut = NextOut | GapOut | NoneOut;
 
 function stub(_input: undefined, ctx: Context): NextDecisionOut {
-  if (ctx.next) return { op: 'next', questionId: ctx.next.questionId, prompt: ctx.next.prompt };
+  if (ctx.next) return { op: 'next', questionId: ctx.next.id, prompt: ctx.next.prompt };
   if (ctx.gaps.length) return { op: 'gap', text: ctx.gaps[0] };
   return { op: 'none' };
 }
@@ -25,7 +25,7 @@ function toCues(out: NextDecisionOut, callId: string): Cue[] {
 }
 
 export const nextDecision: AIFunctionImpl<undefined, NextDecisionOut> = {
-  context: { digest: (ctx) => `next=${ctx.next?.questionId ?? 'none'} gaps=${ctx.gaps.length}` },
+  context: { digest: (ctx) => `next=${ctx.next?.id ?? 'none'} gaps=${ctx.gaps.length}` },
   stub,
   toCues,
 };

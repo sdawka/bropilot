@@ -14,6 +14,8 @@ import { walkMap } from './functions/walk-map.ts';
 import { findGaps } from './functions/find-gaps.ts';
 import { unrealisedToTasks } from './functions/unrealised-to-tasks.ts';
 import { defineTerm } from './functions/define-term.ts';
+import { reviewChange } from './functions/review-change.ts';
+import { raiseQuestion } from './functions/raise-question.ts';
 
 const impls: Record<string, AIFunctionImpl<any, any>> = {
   'describe-screen': describeScreen,
@@ -25,6 +27,8 @@ const impls: Record<string, AIFunctionImpl<any, any>> = {
   'find-gaps': findGaps,
   'unrealised-to-tasks': unrealisedToTasks,
   'define-term': defineTerm,
+  'review-change': reviewChange,
+  'raise-question': raiseQuestion,
 };
 
 const metaIds = AI_FUNCTION_META.map((f) => f.id).sort();

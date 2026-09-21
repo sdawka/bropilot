@@ -180,3 +180,31 @@ This is a two-step flow. If no term has been collected yet, ask for the term (a 
 ```
 
 **Output:** A glossary upsert cue, committed immediately (the escape hatch).
+
+### review-change
+
+**Purpose:** Checks that a task's change serves the intent of the rule, not just the test it targets.
+
+**Context needs:** selection, graph
+
+**Prompt:**
+
+```
+Filled in stage 1-A.
+```
+
+**Output:** A verdict on the task: serves-intent, overfits, or unclear, with a one-line reason.
+
+### raise-question
+
+**Purpose:** Raises a clarification question from an agent about a task, blocking it until answered.
+
+**Context needs:** selection, next
+
+**Prompt:**
+
+```
+Filled in stage 1-A.
+```
+
+**Output:** A raise cue: a follow-up question under the matching template question, and the task marked blocked.

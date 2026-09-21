@@ -106,6 +106,26 @@ export const AI_FUNCTIONS: AIFunctionMeta[] = [
     feedback: states,
     source: said(59),
   },
+  {
+    id: 'review-change',
+    version: '0.1',
+    purpose: "Checks that a task's change serves the intent of the rule, not just the test it targets.",
+    context: { needs: ['selection', 'graph'] },
+    prompt: `Filled in stage 1-A.`,
+    output: 'A verdict on the task: serves-intent, overfits, or unclear, with a one-line reason.',
+    feedback: decides,
+    source: said(152),
+  },
+  {
+    id: 'raise-question',
+    version: '0.1',
+    purpose: 'Raises a clarification question from an agent about a task, blocking it until answered.',
+    context: { needs: ['selection', 'next'] },
+    prompt: `Filled in stage 1-A.`,
+    output: 'A raise cue: a follow-up question under the matching template question, and the task marked blocked.',
+    feedback: decides,
+    source: said(148),
+  },
 ];
 
 export const aiFunctionById = Object.fromEntries(AI_FUNCTIONS.map((f) => [f.id, f])) as Record<string, AIFunctionMeta>;
