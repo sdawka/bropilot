@@ -161,6 +161,16 @@ export const STATEMENTS: Record<number, string> = {
   142: 'consolidate as much as possible so that things are represented from common sources of truth',
   143: 'docs: declare once in kernel, render in-app + emit markdown',
   144: 'AI functions run in the browser, runtime-swappable',
+  // ── three layers, edits, and the reviewer (2026-09-21) ──
+  145: 'somtimes it will be edits instead of new nodes',
+  146: 'rules on the meta level of the relations between nodes as well as the nodes encoding rules',
+  147: 'Tests in a codebase test-suite sense are more for tying expectations of representation to reality',
+  148: 'Tests of the meta level being followed are also needed where agents surface questions and clarification requests to the user',
+  149: 'one test kind, result source varies',
+  150: 'Staleness on edit: transitive with early cutoff',
+  151: 'A condition is one line of the rule text',
+  152: 'After the suite is green the task needs a reviewer agent',
+  153: 'orchestrate sonnet and haiku agents to implement these',
 };
 
 // ── Layers & spaces ─────────────────────────────────────────────────────────
@@ -193,6 +203,11 @@ export const REPRESENTATION_SPACES = SPACES.filter((s) => s.layer === 'represent
 // ── Kinds ───────────────────────────────────────────────────────────────────
 export interface FieldDef { key: string; label: string; type?: 'text' | 'select'; options?: string[] }
 
+/** A structural requirement a kind's instances should meet: at least `min` edges of `edge` in
+ * direction `dir`. `ask` is the question raised when unmet ("{title}" is replaced with the node's
+ * title); `produces` names the kind the fix would most likely create or link to (v4.1, checks.ts). */
+export interface NeedDef { edge: string; dir: 'out' | 'in'; min: number; ask: string; produces?: string }
+
 export interface KindDef {
   id: string;
   label: string;
@@ -203,6 +218,7 @@ export interface KindDef {
   level?: 1 | 2 | 3; // C4-style level on the Domain page (level 0 is the map)
   singular?: boolean;
   fields?: FieldDef[];
+  needs?: NeedDef[];
   blurb: string;
   source: Provenance;
 }
@@ -219,7 +235,7 @@ export const KINDS: KindDef[] = [
   { id: 'problem', label: 'Problem', plural: 'Problems', space: 'problem', icon: '🧨', kernel: true, blurb: 'What stands in their way today.', source: said(30) },
   { id: 'outcome', label: 'Outcome', plural: 'Outcomes', space: 'problem', icon: '🌟', kernel: true, blurb: 'The change we want for the audience. Should be measurable.', fields: [{ key: 'metric', label: 'Success metric' }, { key: 'for', label: 'For', type: 'select', options: ['audience', 'business'] }], source: said(15, 30, 108) },
   // hypothesis
-  { id: 'hypothesis', label: 'Bet', plural: 'Bets', space: 'hypothesis', icon: '🎲', kernel: true, blurb: 'A bet linking what we build to an outcome; some are specific and testable, some are just bets.', fields: [{ key: 'verdict', label: 'Verdict', type: 'select', options: ['open', 'supported', 'refuted'] }], source: said(25, 30, 78, 82) },
+  { id: 'hypothesis', label: 'Bet', plural: 'Bets', space: 'hypothesis', icon: '🎲', kernel: true, blurb: 'A bet linking what we build to an outcome; some are specific and testable, some are just bets.', fields: [{ key: 'verdict', label: 'Verdict', type: 'select', options: ['open', 'supported', 'refuted'] }], needs: [{ edge: 'references', dir: 'out', min: 1, ask: 'How would you know "{title}" holds? Name one metric.', produces: 'metric' }], source: said(25, 30, 78, 82) },
   { id: 'assumption', label: 'Assumption', plural: 'Assumptions', space: 'hypothesis', icon: '💭', kernel: true, blurb: 'Taken as true until reality says otherwise.', source: said(30) },
   { id: 'goal', label: 'Goal', plural: 'Strategic goals', space: 'problem', icon: '🏁', kernel: true, fields: [{ key: 'for', label: 'For', type: 'select', options: ['audience', 'business'] }], blurb: 'An outcome we want, stated as a compound of metrics; for the audience or for ourselves as the business.', source: said(100, 108) },
   { id: 'metric', label: 'Metric', plural: 'Metrics', space: 'hypothesis', icon: '📏', kernel: true, blurb: 'How an outcome or hypothesis will be measured.', source: inferred('Outcomes and hypothesis validation (S15, S25) need a named measure; the brief never says "metric".') },
@@ -231,14 +247,14 @@ export const KINDS: KindDef[] = [
   // domain, C4-style levels
   { id: 'system', label: 'System', plural: 'Systems', space: 'solution', icon: '🫧', kernel: true, level: 1, blurb: 'The system itself as one bubble, or a meaningfully separate part of it (web vs mobile).', source: said(56, 57) },
   { id: 'external', label: 'External system', plural: 'External systems', space: 'solution', icon: '🛰️', kernel: true, level: 1, blurb: 'Another system ours talks to.', source: said(56) },
-  { id: 'module', label: 'Module', plural: 'Modules', space: 'solution', icon: '📦', kernel: true, level: 2, blurb: 'A business domain / bounded context. Always exposes an interface.', source: said(33, 35, 58, 60) },
+  { id: 'module', label: 'Module', plural: 'Modules', space: 'solution', icon: '📦', kernel: true, level: 2, blurb: 'A business domain / bounded context. Always exposes an interface.', needs: [{ edge: 'exposes', dir: 'out', min: 1, ask: 'What does "{title}" expose to the rest of the system? Name its interface.', produces: 'interface' }], source: said(33, 35, 58, 60) },
   { id: 'infra', label: 'Infra', plural: 'Infra', space: 'solution', icon: '🧱', kernel: false, level: 2, fields: [{ key: 'role', label: 'Role', type: 'select', options: ['client', 'server', 'store', 'cache', 'queue'] }], blurb: 'A deployable: dedicated infrastructure (cache, durable object, client, server, store, queue). Shown inside its module (contains) and, at the deployment level, by its role.', source: said(61, 139) },
   { id: 'thing', label: 'Thing', plural: 'Things', space: 'solution', icon: '🔷', kernel: true, level: 3, blurb: 'An entity in domain language; a noun.', source: said(64) },
-  { id: 'rule', label: 'Rule', plural: 'Rules', space: 'solution', icon: '⚖️', kernel: true, level: 3, fields: [{ key: 'tests', label: 'Tests (pos/neg)' }], blurb: 'Logic about one or more things, from hasMany to expectations. Should be tested both ways.', source: said(31, 64, 65, 66, 67) },
+  { id: 'rule', label: 'Rule', plural: 'Rules', space: 'solution', icon: '⚖️', kernel: true, level: 3, fields: [{ key: 'tests', label: 'Tests (pos/neg)' }], needs: [{ edge: 'verifies', dir: 'in', min: 1, ask: 'How would we know "{title}" holds? One test per line, naming the condition.', produces: 'test' }], blurb: 'Logic about one or more things, from hasMany to expectations. Should be tested both ways.', source: said(31, 64, 65, 66, 67) },
   { id: 'interface', label: 'Interface', plural: 'Interfaces', space: 'solution', icon: '🔌', kernel: true, level: 3, fields: [{ key: 'style', label: 'Style', type: 'select', options: ['rpc', 'rest', 'ui', 'events'] }, { key: 'in', label: 'In (payload entering)' }, { key: 'out', label: 'Out (payload leaving)' }], blurb: 'The API a module exposes; REST, RPC, UI or events. Molecules — payloads — enter as `in` and leave as `out`, through a `carries` edge to the things they are or derive from.', source: said(35, 68, 134) },
   { id: 'event', label: 'Event', plural: 'Events', space: 'solution', icon: '⚡', kernel: true, level: 3, blurb: 'Something notable that happened; a past-tense fact in the vocabulary.', source: said(74) },
-  { id: 'protocol', label: 'Protocol', plural: 'Protocols', space: 'solution', icon: '🛡️', kernel: true, level: 3, fields: [{ key: 'cadence', label: 'Cadence' }], blurb: 'How we want to enact the representation: PR gates, regular security audits, changelogs as blog posts. Reality\'s practices realise them. The product automation zone.', source: said(105, 106, 107) },
-  { id: 'test', label: 'Test', plural: 'Tests', space: 'solution', icon: '🧪', kernel: true, level: 3, fields: [{ key: 'ladder', label: 'Ladder', type: 'select', options: ['exists', 'surface', 'simulation'] }], blurb: 'The bridge to reality: one per condition in a rule. Ladder: module exists (health check) → API surface → deterministic simulation.', source: said(67, 89, 90, 93, 94, 95) },
+  { id: 'protocol', label: 'Protocol', plural: 'Protocols', space: 'solution', icon: '🛡️', kernel: true, level: 3, fields: [{ key: 'cadence', label: 'Cadence' }], needs: [{ edge: 'realises', dir: 'in', min: 1, ask: 'What practice realises "{title}" today, or is this a planned change?', produces: 'practice' }], blurb: 'How we want to enact the representation: PR gates, regular security audits, changelogs as blog posts. Reality\'s practices realise them. The product automation zone.', source: said(105, 106, 107) },
+  { id: 'test', label: 'Test', plural: 'Tests', space: 'solution', icon: '🧪', kernel: true, level: 3, fields: [{ key: 'ladder', label: 'Ladder', type: 'select', options: ['exists', 'surface', 'simulation'] }, { key: 'resultSource', label: 'Result source', type: 'select', options: ['code', 'metric', 'manual'] }, { key: 'condition', label: 'Condition (one line of the rule it verifies)' }], needs: [{ edge: 'verifies', dir: 'out', min: 1, ask: 'Which rule does "{title}" verify?', produces: 'rule' }], blurb: 'The bridge to reality: one per condition in a rule. Ladder: module exists (health check) → API surface → deterministic simulation. One kind of test; `resultSource` varies.', source: said(67, 89, 90, 93, 94, 95, 149) },
   { id: 'screen', label: 'Screen', plural: 'Screens', space: 'solution', icon: '🖼️', kernel: false, blurb: 'A user interface; composed of layouts and components.', source: said(36) },
   { id: 'design-system', label: 'Design system', plural: 'Design system', space: 'solution', icon: '🎨', kernel: false, singular: true, blurb: 'Guides product and marketing material, including tone.', source: said(37) },
   // agents (sub-items of the orchestration capability)
@@ -250,10 +266,10 @@ export const KINDS: KindDef[] = [
   { id: 'infrastructure', label: 'Infrastructure', plural: 'Infrastructure', space: 'current', icon: '🏗️', kernel: true, blurb: 'What is actually provisioned and running.', source: said(96) },
   { id: 'practice', label: 'Practice', plural: 'Practices & protocols', space: 'current', icon: '📋', kernel: true, fields: [{ key: 'form', label: 'Form', type: 'select', options: ['protocol', 'process flow', 'CI'] }], blurb: 'Best practices and protocols in force: process flows, CI, conventions.', source: said(96) },
   { id: 'asset', label: 'Asset', plural: 'Assets', space: 'current', icon: '🗃️', kernel: true, fields: [{ key: 'form', label: 'Form' }], blurb: 'A non-code artefact in force: landing page, pitch deck, price list, contract template, onboarding guide.', source: said(103, 104) },
-  { id: 'test-result', label: 'Test result', plural: 'Test results', space: 'current', icon: '✅', kernel: true, fields: [{ key: 'status', label: 'Status', type: 'select', options: ['pass', 'fail', 'missing'] }], blurb: 'Whether a test is fulfilled in reality right now.', source: said(91) },
+  { id: 'test-result', label: 'Test result', plural: 'Test results', space: 'current', icon: '✅', kernel: true, fields: [{ key: 'status', label: 'Status', type: 'select', options: ['pass', 'fail', 'missing'] }, { key: 'value', label: 'Value' }, { key: 'threshold', label: 'Threshold' }, { key: 'confidence', label: 'Confidence' }], blurb: 'Whether a test is fulfilled in reality right now. Business-level tests report a metric value against a threshold; code tests report pass/fail.', source: said(91) },
   // reality · planned changes (S86–S88, S92)
   { id: 'epic', label: 'Epic', plural: 'Epics', space: 'planned', icon: '🗂️', kernel: true, blurb: 'A planned change, Jira-epic sized; exists only because some tests are not fulfilled.', source: said(86, 92) },
-  { id: 'task', label: 'Task', plural: 'Tasks', space: 'planned', icon: '🎯', kernel: true, fields: [{ key: 'status', label: 'Status', type: 'select', options: ['queued', 'running', 'done', 'failed'] }], blurb: 'A super-targeted coding-agent task: names the tests it must turn green.', source: said(87, 88) },
+  { id: 'task', label: 'Task', plural: 'Tasks', space: 'planned', icon: '🎯', kernel: true, fields: [{ key: 'status', label: 'Status', type: 'select', options: ['queued', 'running', 'blocked', 'done', 'verified'] }], needs: [{ edge: 'targets', dir: 'out', min: 1, ask: 'Which test(s) must "{title}" turn green?', produces: 'test' }], blurb: 'A super-targeted coding-agent task: names the tests it must turn green. Done only after the full suite is green and a reviewer agent verdict.', source: said(87, 88, 152) },
   // reality · effects (S99)
   { id: 'metric-reading', label: 'Metric reading', plural: 'Metric readings', space: 'effects', icon: '📈', kernel: true, fields: [{ key: 'value', label: 'Value' }, { key: 'at', label: 'When' }], blurb: 'A value of a metric at a time; business metrics as much as product ones.', source: said(99) },
   { id: 'usage-event', label: 'Usage event', plural: 'Usage events', space: 'effects', icon: '👣', kernel: true, blurb: 'Something a user or customer did: a click, a signup, a lead captured, a deal closed, an invoice paid.', source: said(99, 104) },
@@ -272,35 +288,41 @@ export interface EdgeTypeDef {
   category: EdgeCategory;
   kernel: boolean;
   hint: string;
+  /** Kind ids the edge is seen from/to in graph.json (v4.1: `checks.ts::checkInvariants`'s
+   * edge-shape check enforces these; an empty array means unconstrained). */
+  from: string[];
+  to: string[];
   source: Provenance;
 }
 
+// from/to below are derived from graph.json edge usage (2026-09-21); each entry's own `source`
+// still covers the edge type's existence per the brief.
 export const EDGE_TYPES: EdgeTypeDef[] = [
-  { id: 'motivates', label: 'motivates', category: 'intentional', kernel: true, hint: 'Is the reason the target exists (purpose → outcome).', source: said(9, 12) },
-  { id: 'serves', label: 'serves', category: 'intentional', kernel: true, hint: 'Delivers value to an audience.', source: said(9, 13) },
-  { id: 'satisfies', label: 'satisfies', category: 'intentional', kernel: true, hint: 'Meets a problem-space statement.', source: inferred('Needed to connect capabilities back to problems; the brief implies it via "value proposition" (S12).') },
-  { id: 'has', label: 'has', category: 'structural', kernel: true, hint: 'Conceptual possession (audience has problem).', source: inferred('Generic structural link; no direct quote.') },
-  { id: 'implements', label: 'implements', category: 'structural', kernel: true, hint: 'Realises a solution-space spec.', source: said(33) },
-  { id: 'contains', label: 'contains', category: 'structural', kernel: true, hint: 'Composition (screen contains component).', source: said(36) },
-  { id: 'exposes', label: 'exposes', category: 'structural', kernel: true, hint: 'Module exposes an interface.', source: said(35, 68) },
-  { id: 'emits', label: 'emits', category: 'behavioural', kernel: true, hint: 'Produces an event (interface or rule emits event).', source: inferred('Events (S74) need a producer edge; the brief does not name it.') },
-  { id: 'combines', label: 'combines', category: 'structural', kernel: true, hint: 'Goal combines metrics.', source: said(100) },
-  { id: 'measures', label: 'measures', category: 'verification', kernel: true, hint: 'Metric reading measures a metric; usage events and feedback measure an outcome or feature.', source: said(99) },
-  { id: 'targets', label: 'targets', category: 'orchestration', kernel: true, hint: 'Task or epic targets the tests it must turn green.', source: said(88, 92) },
-  { id: 'reports', label: 'reports', category: 'verification', kernel: true, hint: 'Test result reports on a test (reality → representation).', source: said(91) },
-  { id: 'realises', label: 'realises', category: 'structural', kernel: true, hint: 'Actual code realises a solution-space module or item (current state → solution).', source: said(85) },
-  { id: 'governs', label: 'governs', category: 'behavioural', kernel: true, hint: 'Rule governs a thing (or several: relationship rules).', source: said(65) },
-  { id: 'defines', label: 'defines', category: 'dependency', kernel: true, hint: 'Glossary term defines a node.', source: said(31, 59) },
-  { id: 'uses', label: 'uses', category: 'dependency', kernel: true, hint: 'Runtime dependency.', source: said(35) },
-  { id: 'references', label: 'references', category: 'dependency', kernel: true, hint: 'Weak link of last resort.', source: inferred('Escape hatch so nothing is ever blocked.') },
-  { id: 'triggers', label: 'triggers', category: 'behavioural', kernel: true, hint: 'Causal succession.', source: inferred('Needed once flows and events exist (S31).') },
-  { id: 'verifies', label: 'verifies', category: 'verification', kernel: true, hint: 'Test verifies a rule (one per condition).', source: said(67, 90) },
-  { id: 'monitors', label: 'monitors', category: 'verification', kernel: true, hint: 'Metric watches an outcome.', source: said(15, 39) },
-  { id: 'supports', label: 'supports', category: 'verification', kernel: true, hint: 'Evidence supports a hypothesis. STUB.', source: said(25) },
-  { id: 'refutes', label: 'refutes', category: 'verification', kernel: true, hint: 'Evidence refutes a hypothesis. STUB.', source: said(25) },
-  { id: 'in-stage', label: 'in stage', category: 'orchestration', kernel: true, hint: 'Tags any node with a lifecycle stage.', source: said(7) },
-  { id: 'carries', label: 'carries', category: 'structural', kernel: true, hint: 'Interface carries a payload that is or derives from this thing ("molecules" entering/leaving through the interface\'s in/out).', source: said(134, 137) },
-  { id: 'hosts', label: 'hosts', category: 'structural', kernel: true, hint: 'Deployable (infra) hosts a module, at the deployment level. Additional to `contains` (module → infra), which the Modules grid still reads — do not repurpose that one.', source: said(139) },
+  { id: 'motivates', label: 'motivates', category: 'intentional', kernel: true, hint: 'Is the reason the target exists (purpose → outcome).', from: ['purpose'], to: ['outcome'], source: said(9, 12) },
+  { id: 'serves', label: 'serves', category: 'intentional', kernel: true, hint: 'Delivers value to an audience.', from: ['capability', 'feature'], to: ['audience', 'goal', 'outcome'], source: said(9, 13) },
+  { id: 'satisfies', label: 'satisfies', category: 'intentional', kernel: true, hint: 'Meets a problem-space statement.', from: ['capability', 'feature'], to: ['problem', 'usecase'], source: inferred('Needed to connect capabilities back to problems; the brief implies it via "value proposition" (S12).') },
+  { id: 'has', label: 'has', category: 'structural', kernel: true, hint: 'Conceptual possession (audience has problem).', from: ['audience', 'capability', 'feature', 'problem'], to: ['agent', 'context', 'flow', 'problem', 'usecase'], source: inferred('Generic structural link; no direct quote.') },
+  { id: 'implements', label: 'implements', category: 'structural', kernel: true, hint: 'Realises a solution-space spec.', from: ['agent', 'flow', 'screen'], to: ['capability', 'feature', 'task'], source: said(33) },
+  { id: 'contains', label: 'contains', category: 'structural', kernel: true, hint: 'Composition (screen contains component).', from: ['codebase', 'epic', 'module', 'repository', 'system'], to: ['ai-function', 'asset', 'codebase', 'event', 'infra', 'module', 'protocol', 'rule', 'task', 'test', 'thing'], source: said(36) },
+  { id: 'exposes', label: 'exposes', category: 'structural', kernel: true, hint: 'Module exposes an interface.', from: ['module'], to: ['interface', 'screen'], source: said(35, 68) },
+  { id: 'emits', label: 'emits', category: 'behavioural', kernel: true, hint: 'Produces an event (interface or rule emits event).', from: ['interface'], to: ['event'], source: inferred('Events (S74) need a producer edge; the brief does not name it.') },
+  { id: 'combines', label: 'combines', category: 'structural', kernel: true, hint: 'Goal combines metrics.', from: ['goal'], to: ['metric'], source: said(100) },
+  { id: 'measures', label: 'measures', category: 'verification', kernel: true, hint: 'Metric reading measures a metric; usage events and feedback measure an outcome or feature.', from: ['feedback', 'metric-reading', 'usage-event'], to: ['flow', 'metric', 'screen'], source: said(99) },
+  { id: 'targets', label: 'targets', category: 'orchestration', kernel: true, hint: 'Task or epic targets the tests it must turn green.', from: ['epic', 'task'], to: ['test'], source: said(88, 92) },
+  { id: 'reports', label: 'reports', category: 'verification', kernel: true, hint: 'Test result reports on a test (reality → representation).', from: ['test-result'], to: ['test'], source: said(91) },
+  { id: 'realises', label: 'realises', category: 'structural', kernel: true, hint: 'Actual code realises a solution-space module or item (current state → solution).', from: ['codebase', 'infrastructure', 'practice'], to: ['infra', 'module', 'protocol', 'system'], source: said(85) },
+  { id: 'governs', label: 'governs', category: 'behavioural', kernel: true, hint: 'Rule governs a thing (or several: relationship rules).', from: ['practice', 'rule'], to: ['codebase', 'thing'], source: said(65) },
+  { id: 'defines', label: 'defines', category: 'dependency', kernel: true, hint: 'Glossary term defines a node.', from: ['term'], to: ['event', 'module', 'thing'], source: said(31, 59) },
+  { id: 'uses', label: 'uses', category: 'dependency', kernel: true, hint: 'Runtime dependency.', from: ['ai-function', 'audience', 'codebase', 'external', 'flow', 'infra', 'interface', 'module', 'protocol', 'screen', 'system'], to: ['external', 'infra', 'infrastructure', 'interface', 'module', 'screen', 'system', 'thing'], source: said(35) },
+  { id: 'references', label: 'references', category: 'dependency', kernel: true, hint: 'Weak link of last resort.', from: ['assumption', 'capability', 'event', 'flow', 'goal', 'hypothesis', 'screen'], to: ['capability', 'flow', 'hypothesis', 'metric', 'outcome', 'problem', 'test', 'thing'], source: inferred('Escape hatch so nothing is ever blocked.') },
+  { id: 'triggers', label: 'triggers', category: 'behavioural', kernel: true, hint: 'Causal succession.', from: ['event', 'module'], to: ['event', 'module'], source: inferred('Needed once flows and events exist (S31).') },
+  { id: 'verifies', label: 'verifies', category: 'verification', kernel: true, hint: 'Test verifies a rule (one per condition).', from: ['test'], to: ['rule'], source: said(67, 90) },
+  { id: 'monitors', label: 'monitors', category: 'verification', kernel: true, hint: 'Metric watches an outcome.', from: ['metric'], to: ['outcome'], source: said(15, 39) },
+  { id: 'supports', label: 'supports', category: 'verification', kernel: true, hint: 'Evidence supports a hypothesis. STUB.', from: ['evidence'], to: ['hypothesis'], source: said(25) },
+  { id: 'refutes', label: 'refutes', category: 'verification', kernel: true, hint: 'Evidence refutes a hypothesis. STUB.', from: ['evidence'], to: ['hypothesis'], source: said(25) },
+  { id: 'in-stage', label: 'in stage', category: 'orchestration', kernel: true, hint: 'Tags any node with a lifecycle stage.', from: [], to: [], source: said(7) },
+  { id: 'carries', label: 'carries', category: 'structural', kernel: true, hint: 'Interface carries a payload that is or derives from this thing ("molecules" entering/leaving through the interface\'s in/out).', from: ['interface'], to: ['thing'], source: said(134, 137) },
+  { id: 'hosts', label: 'hosts', category: 'structural', kernel: true, hint: 'Deployable (infra) hosts a module, at the deployment level. Additional to `contains` (module → infra), which the Modules grid still reads — do not repurpose that one.', from: ['infra'], to: ['module'], source: said(139) },
 ];
 
 export const edgeTypeById = Object.fromEntries(EDGE_TYPES.map((e) => [e.id, e])) as Record<string, EdgeTypeDef>;
@@ -348,7 +370,7 @@ export const LEVELS: LevelDef[] = [
 export const NO_LEVEL_4: Provenance = said(70);
 
 // ── Invariants ──────────────────────────────────────────────────────────────
-export interface Invariant { id: string; text: string; source: Provenance }
+export interface Invariant { id: string; text: string; source: Provenance; raise?: 'question' | 'task' }
 
 export const INVARIANTS: Invariant[] = [
   { id: 'inv-commit-gate', text: 'A node or edge becomes committed only through a Commit. Agents never write directly; their output is a changeset.', source: said(27) },
@@ -359,15 +381,27 @@ export const INVARIANTS: Invariant[] = [
   { id: 'inv-left-to-right', text: 'Spaces are enriched left to right: basics → problem → hypothesis → solution.', source: said(19, 29, 45) },
   { id: 'inv-fixed-vocab', text: 'Once a term is committed in the vocabulary, other nodes should use it verbatim.', source: said(31) },
   { id: 'inv-code-ref', text: 'Every level-3 item may carry props.codeRef, a URL to the file or block on GitHub that implements it.', source: said(69) },
-  { id: 'inv-rule-has-test', text: 'Every rule has at least one test per condition; tests are how the representation connects to reality.', source: said(89, 90) },
-  { id: 'inv-green-means-done', text: 'If every test result is pass, there are no planned changes. Any fail or missing result must be targeted by a task.', source: said(91, 92) },
+  { id: 'inv-rule-has-test', text: 'Every rule has at least one test per condition; tests are how the representation connects to reality.', source: said(89, 90), raise: 'question' },
+  { id: 'inv-green-means-done', text: 'If every test result is pass, there are no planned changes. Any fail or missing result must be targeted by a task.', source: said(91, 92), raise: 'task' },
   { id: 'inv-test-ladder', text: 'Tests climb a ladder: a basic existence check first, for every module including business ones → its API surface → deterministic simulation.', source: said(93, 94, 95, 109) },
-  { id: 'inv-protocol-realised', text: 'Every protocol in the representation is realised by a practice in reality, or its absence is a planned change.', source: said(101, 105) },
+  { id: 'inv-protocol-realised', text: 'Every protocol in the representation is realised by a practice in reality, or its absence is a planned change.', source: said(101, 105), raise: 'question' },
   { id: 'inv-module-boundary', text: 'Modules keep boundaries strict enough to be tested by deterministic simulation.', source: said(95) },
   { id: 'inv-whole-business', text: 'Modules, tests and effects cover every aspect of the business — promotion, sales, marketing, delivery, implementation — not just the tech product.', source: said(103, 104) },
   { id: 'inv-one-utterance', text: 'The mirror shows at most one utterance (or one question) at a time.', source: said(113) },
   { id: 'inv-agent-through-gate', text: 'Agent data changes go through the commit gate like everyone else\'s; only glossary edits take the escape hatch.', source: said(27, 115) },
   { id: 'inv-dogfood', text: 'Bropilot must be describable in Bropilot with no special cases.', source: said(10, 46) },
+  // ── v4.1: three layers, edits, staleness, the reviewer (brief-12, S145–S152) ──
+  { id: 'inv-edits-are-effects', text: 'Edits are effects too, not just new nodes: an update-node effect goes through the same commit gate as an add-node one.', source: said(145) },
+  { id: 'inv-meta-relation-rules', text: 'Rules exist at the meta level as well as the node level: relations between nodes are governed by kernel rules (edge shape, needs), same as nodes encode domain rules.', source: said(146) },
+  { id: 'inv-edge-shape', text: 'Every edge fits the declared from/to kinds of its edge type.', source: inferred('Needed once EdgeTypeDef.from/to exist to enforce (v4.1 stage 0).'), raise: 'question' },
+  { id: 'inv-needs-cardinality', text: 'A kind\'s `needs` are structural expectations on its instances: at least `min` edges of the named type and direction.', source: inferred('Needed once KindDef.needs exists to enforce (v4.1 stage 0).'), raise: 'question' },
+  { id: 'inv-test-has-rule', text: 'A codebase test ties an expectation of the representation to reality: every test verifies a rule.', source: said(147), raise: 'question' },
+  { id: 'inv-meta-tests-raise-questions', text: 'The meta level is tested too: where the kernel is not followed, the check raises a question or clarification request for the user, never a silent auto-repair.', source: said(148), raise: 'question' },
+  { id: 'inv-one-test-kind', text: 'There is one test kind; `resultSource` (code, metric, manual) varies, not the kind.', source: said(149) },
+  { id: 'inv-staleness-cascade', text: 'Staleness on edit is transitive, with an early cutoff: a neighbour revalidated unchanged clears its edges and stops the spread; a neighbour that was itself edited cascades again.', source: said(150) },
+  { id: 'inv-condition-one-line', text: 'A rule\'s condition is one line of its description text (or its title, if it has none).', source: said(151) },
+  { id: 'inv-suspect-pending', text: 'A suspect edge stays surfaced until the node it touches is revalidated.', source: inferred('Follows from inv-staleness-cascade once trace exists (v4.1 stage 0).'), raise: 'question' },
+  { id: 'inv-reviewer-gate', text: 'A task is done only after its full suite is green and a reviewer agent verdict, not on green tests alone.', source: said(152) },
 ];
 
 // ── Open questions (decided later, with examples) ──────────────────────────
@@ -382,10 +416,10 @@ export const OPEN_QUESTIONS: OpenQuestion[] = [
 
 /** Plain-text digest of the kernel for an agent prompt: kinds, edge types, questions, invariants, AI functions. Kept short. */
 export function kernelDigest(): string {
-  const kinds = KINDS.map((k) => `${k.id} (${k.space}${k.level ? `, L${k.level}` : ''}): ${k.blurb}`).join('\n');
-  const edges = EDGE_TYPES.map((e) => `${e.id}: ${e.hint}`).join('\n');
+  const kinds = KINDS.map((k) => `${k.id} (${k.space}${k.level ? `, L${k.level}` : ''}): ${k.blurb}${k.needs ? ` [needs: ${k.needs.map((n) => `${n.dir === 'out' ? '→' : '←'}${n.edge}×${n.min}`).join(', ')}]` : ''}`).join('\n');
+  const edges = EDGE_TYPES.map((e) => `${e.id} (${e.from.join('|') || 'any'} → ${e.to.join('|') || 'any'}): ${e.hint}`).join('\n');
   const questions = QUESTIONS.map((q) => `${q.id} → ${q.produces} [unlocks after: ${q.unlocksAfter.join(', ') || 'none'}]: ${q.prompt}`).join('\n');
-  const invariants = INVARIANTS.map((i) => `- ${i.text}`).join('\n');
+  const invariants = INVARIANTS.map((i) => `- ${i.text}${i.raise ? ` [raises: ${i.raise}]` : ''}`).join('\n');
   const aiFunctions = AI_FUNCTIONS.map((f) => `${f.id} (v${f.version}, needs: ${f.context.needs.join(', ')}): ${f.purpose}`).join('\n');
   return `Kinds:\n${kinds}\nEdge types:\n${edges}\nQuestions:\n${questions}\nInvariants:\n${invariants}\nAI functions:\n${aiFunctions}`;
 }

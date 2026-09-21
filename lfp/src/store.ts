@@ -1,56 +1,11 @@
 import { reactive, computed } from 'vue';
 import seed from './graph.json';
-import { QUESTIONS, kindById, edgeTypeById, type Provenance } from './kernel';
+import reality from './reality.json';
+import { QUESTIONS, kindById, edgeTypeById, SPACES } from './kernel';
+import { checkInvariants, contentHash } from './checks.ts';
+import type { Node, Graph, ScreenItem, Answer, AICall, Effect, Changeset, Commit, FollowUp, OpenItem } from './types';
 
-export type Status = 'draft' | 'committed';
-
-export interface Node {
-  id: string;
-  kind: string;
-  title: string;
-  description?: string;
-  props?: Record<string, string>;
-  status: Status;
-  source?: Provenance;
-  answerId?: string;
-}
-export interface Edge { id: string; src: string; dst: string; type: string; status?: Status; answerId?: string }
-export interface Graph { nodes: Node[]; edges: Edge[] }
-
-/** One card/row currently rendered on screen, reported by the active view via `useScreen`. */
-export interface ScreenItem { id: string; kind: string; title: string; group?: string }
-
-export interface Answer { id: string; questionId: string; content: string; at: number }
-/** One recorded call to an AI function (S128, S129, S131): tracking columns + optional efficacy feedback. */
-export interface AICall {
-  id: string;
-  fn: string;
-  version: string;
-  runtime: 'stub' | 'flue';
-  at: number;
-  contextDigest: string; // short human-readable summary of the context slice the fn received
-  input: string; // user text / trigger
-  output: string; // what it produced (utterance text or effect descriptions)
-  cueIds: string[]; // say/ask ids and/or effect ids it produced
-  rating?: { value: string; note?: string; at: number };
-}
-export type Effect =
-  | { id: string; op: 'add-node'; node: Node; answerId: string }
-  | { id: string; op: 'update-node'; nodeId: string; patch: Partial<Node>; answerId: string }
-  | { id: string; op: 'remove-node'; nodeId: string; answerId: string }
-  | { id: string; op: 'add-edge'; edge: Edge; answerId: string };
-export interface Changeset { effects: Effect[]; warnings: string[] }
-export interface Commit { id: string; at: number; effects: Effect[]; before: Graph; label?: string }
-/** Project-specific question under a template question (sub-question) or a follow-up on one (thread). S52, S53, S54. */
-export interface FollowUp {
-  id: string;
-  parentId: string; // a QUESTIONS id or another FollowUp id
-  prompt: string;
-  kind: 'sub' | 'thread';
-  produces: string; // kind id the answer creates nodes of
-  answerIds: string[];
-  createdAt: number;
-}
+export type { Status, Node, Edge, Graph, ScreenItem, Answer, AICall, Effect, Changeset, Commit, FollowUp, Violation, OpenItem } from './types';
 
 const KEY = 'bropilot:lfp:v1';
 
@@ -80,6 +35,22 @@ export const state = reactive({
 
 function clone<T>(x: T): T { return JSON.parse(JSON.stringify(x)); }
 
+/** Merge `reality.json`'s observed test results onto the `test-result` node that `reports` each
+ * test. Never creates nodes — only patches props of ones that already exist. */
+function applyReality() {
+  const r = reality as { results: Record<string, { status: string; value?: string; threshold?: string; confidence?: string; at?: string; codeRef?: string }>; metrics: Record<string, { value: string; at: string }> };
+  for (const [testId, res] of Object.entries(r.results ?? {})) {
+    const repEdge = state.graph.edges.find((e) => e.type === 'reports' && e.dst === testId);
+    const tr = repEdge ? nodeById(repEdge.src) : undefined;
+    if (!tr) continue;
+    tr.props = { ...tr.props, status: res.status };
+    if (res.value !== undefined) tr.props.value = res.value;
+    if (res.threshold !== undefined) tr.props.threshold = res.threshold;
+    if (res.confidence !== undefined) tr.props.confidence = res.confidence;
+    if (res.codeRef !== undefined) tr.props.codeRef = res.codeRef;
+  }
+}
+
 export function hydrate() {
   try {
     const raw = localStorage.getItem(KEY);
@@ -90,6 +61,10 @@ export function hydrate() {
       state.graph = clone(seed as Graph);
     }
   } catch { state.graph = clone(seed as Graph); }
+  // lazy hash init for nodes seeded/loaded without one — never bumps v, just gives revalidate() a baseline
+  for (const n of state.graph.nodes) if (!n.hash) n.hash = contentHash(n);
+  applyReality();
+  syncRaised();
   state.hydrated = true;
 }
 
@@ -100,6 +75,9 @@ export function persist() {
 
 export function resetToSeed() {
   state.graph = clone(seed as Graph); state.answers = []; state.commits = []; state.staged = null; state.selectedId = null; state.followups = []; state.aiCalls = [];
+  for (const n of state.graph.nodes) if (!n.hash) n.hash = contentHash(n);
+  applyReality();
+  syncRaised();
   persist();
 }
 
@@ -196,16 +174,147 @@ export function removeFollowUp(id: string) {
   state.followups = state.followups.filter((f) => !kill.has(f.id)); persist();
 }
 
+// ── content versioning & staleness (v4.1: edits are effects too; suspicion cascades transitively
+// with an early cutoff — S145, S150) ──────────────────────────────────────────────────────────
+/** Add a brand-new committed node, giving it a starting hash/version so future edits can be detected. */
+function addCommittedNode(node: Node): Node {
+  const n: Node = { ...node, status: 'committed' };
+  n.hash = contentHash(n);
+  n.v = n.v ?? 1;
+  return n;
+}
+/** Apply a patch to an existing node; if the meaningful content actually changed, bump `v` and mark
+ * every edge touching the node `suspect`. The spread past this one hop is not automatic — a human
+ * (or the `revalidate` cue) has to look at each suspect neighbour in turn; if a neighbour turns out
+ * unchanged, `revalidate` clears its own edges and the spread stops there (early cutoff); if it was
+ * itself edited, committing that edit cascades suspicion outward again from the neighbour. */
+function applyNodeUpdate(n: Node, patch: Partial<Node>) {
+  const before = n.hash ?? contentHash(n);
+  Object.assign(n, patch, { status: 'committed' });
+  const after = contentHash(n);
+  if (after !== before) {
+    n.v = (n.v ?? 1) + 1;
+    for (const e of state.graph.edges) if (e.src === n.id || e.dst === n.id) e.trace = 'suspect';
+  }
+  n.hash = after;
+}
+
+/** Recompute a node's hash against what was last stored. Unchanged: clear the suspicion on every
+ * edge touching it (the early cutoff — the spread stops here). Changed (edited outside the commit
+ * gate): bump `v` and mark its edges suspect again, same as a normal committed edit. */
+export function revalidate(nodeId: string) {
+  const n = nodeById(nodeId);
+  if (!n) return;
+  const current = contentHash(n);
+  if (current === n.hash) {
+    for (const e of state.graph.edges) if (e.src === n.id || e.dst === n.id) e.trace = 'valid';
+  } else {
+    n.v = (n.v ?? 1) + 1;
+    n.hash = current;
+    for (const e of state.graph.edges) if (e.src === n.id || e.dst === n.id) e.trace = 'suspect';
+  }
+  syncRaised();
+  persist();
+}
+
+// ── raised questions: kernel violations become FollowUps (v4.1: never auto-repaired) ────────────
+/** Where a violation-raised follow-up hangs in the question tree: the template question whose
+ * `produces` matches the first subject's kind, else the last question of that subject's space,
+ * else the fallback root. */
+function parentFor(subjects: string[]): string {
+  const n = subjects[0] ? nodeById(subjects[0]) : undefined;
+  const kind = n ? kindById[n.kind] : undefined;
+  if (kind) {
+    const exact = QUESTIONS.find((q) => q.produces === kind.id);
+    if (exact) return exact.id;
+    const sameSpace = QUESTIONS.filter((q) => kindById[q.produces]?.space === kind.space);
+    if (sameSpace.length) return sameSpace[sameSpace.length - 1].id;
+  }
+  return 'q-capability';
+}
+
+/** Derive open violation-raised follow-ups from `checkInvariants`: create new ones, remove ones
+ * whose violation no longer exists and that have no answers yet (an answered one stays as a
+ * record even if the violation later clears). Call after hydrate/commit/directCommit/undo/revalidate. */
+export function syncRaised() {
+  const violations = checkInvariants(state.graph).filter((v) => v.raise === 'question');
+  const byId = new Map(violations.map((v) => [v.id, v]));
+  state.followups = state.followups.filter((f) => {
+    if (f.raisedBy?.kind !== 'violation') return true;
+    return byId.has(f.raisedBy.ref) || f.answerIds.length > 0;
+  });
+  const existing = new Set(state.followups.filter((f) => f.raisedBy?.kind === 'violation').map((f) => f.raisedBy!.ref));
+  for (const v of violations) {
+    if (existing.has(v.id)) continue;
+    const parentId = parentFor(v.subjects);
+    state.followups.push({
+      id: `f-${v.id}`,
+      parentId,
+      prompt: v.message,
+      kind: 'thread',
+      produces: v.produces ?? QUESTIONS.find((q) => q.id === parentId)?.produces ?? 'context',
+      answerIds: [],
+      createdAt: Date.now(),
+      raisedBy: { kind: 'violation', ref: v.id },
+      subjects: v.subjects,
+    });
+  }
+}
+
+/** Everything open, ranked into four tiers: (1) agent questions blocking a task, (2) the next
+ * template question, (3) violation-raised follow-ups (by the first subject's space, then
+ * invariant order), (4) the rest — thread follow-ups with no answer yet. */
+export function rankOpen(): OpenItem[] {
+  const items: OpenItem[] = [];
+
+  for (const f of state.followups) {
+    if (f.raisedBy?.kind === 'agent' && f.answerIds.length === 0) {
+      items.push({ id: f.id, prompt: f.prompt, produces: f.produces, source: 'agent', subjects: f.subjects ?? [], tier: 1, blocking: f.raisedBy.ref });
+    }
+  }
+
+  const nq = nextQuestion.value;
+  if (nq) items.push({ id: nq.id, prompt: nq.prompt, produces: nq.produces, source: 'template', subjects: [], tier: 2 });
+
+  const violations = checkInvariants(state.graph);
+  const violationIndex = new Map(violations.map((v, i) => [v.id, i]));
+  const violationsById = new Map(violations.map((v) => [v.id, v]));
+  const tier3 = state.followups
+    .filter((f) => f.raisedBy?.kind === 'violation' && f.answerIds.length === 0)
+    .map((f) => {
+      const subj = f.subjects?.[0];
+      const n = subj ? nodeById(subj) : undefined;
+      const spaceId = n ? kindById[n.kind]?.space : undefined;
+      const spaceOrder = SPACES.find((s) => s.id === spaceId)?.order ?? 999;
+      const vIndex = f.raisedBy ? violationIndex.get(f.raisedBy.ref) ?? 999 : 999;
+      return { f, spaceOrder, vIndex };
+    })
+    .sort((a, b) => a.spaceOrder - b.spaceOrder || a.vIndex - b.vIndex)
+    .map(({ f }) => ({
+      id: f.id, prompt: f.prompt, produces: f.produces, source: 'violation' as const, subjects: f.subjects ?? [], tier: 3 as const,
+      options: f.raisedBy ? violationsById.get(f.raisedBy.ref)?.options : undefined,
+    }));
+  items.push(...tier3);
+
+  const tier4 = state.followups
+    .filter((f) => f.answerIds.length === 0 && f.raisedBy?.kind !== 'agent' && f.raisedBy?.kind !== 'violation')
+    .map((f) => ({ id: f.id, prompt: f.prompt, produces: f.produces, source: (f.raisedBy?.kind ?? 'template') as OpenItem['source'], subjects: f.subjects ?? [], tier: 4 as const }));
+  items.push(...tier4);
+
+  return items;
+}
+
 /** Escape hatch (flow Q5): apply effects as one immediate commit, bypassing review. Used by the glossary. */
 export function directCommit(effects: Effect[], label: string) {
   const before = clone(state.graph);
   for (const e of effects) {
-    if (e.op === 'add-node') state.graph.nodes.push({ ...e.node, status: 'committed' });
-    else if (e.op === 'update-node') { const n = nodeById(e.nodeId); if (n) Object.assign(n, e.patch, { status: 'committed' }); }
+    if (e.op === 'add-node') state.graph.nodes.push(addCommittedNode(e.node));
+    else if (e.op === 'update-node') { const n = nodeById(e.nodeId); if (n) applyNodeUpdate(n, e.patch); }
     else if (e.op === 'remove-node') { state.graph.nodes = state.graph.nodes.filter((n) => n.id !== e.nodeId); state.graph.edges = state.graph.edges.filter((x) => x.src !== e.nodeId && x.dst !== e.nodeId); }
     else if (e.op === 'add-edge') state.graph.edges.push({ ...e.edge, status: 'committed' });
   }
   state.commits.push({ id: `c-${Date.now()}`, at: Date.now(), effects, before, label });
+  syncRaised();
   persist();
 }
 export function upsertTerm(title: string, description: string, id?: string) {
@@ -235,8 +344,8 @@ export function commit(acceptedIds: Set<string>) {
   const before = clone(state.graph);
   const addedNodeIds = new Set<string>();
   for (const e of accepted) {
-    if (e.op === 'add-node') { state.graph.nodes.push({ ...e.node, status: 'committed' }); addedNodeIds.add(e.node.id); }
-    else if (e.op === 'update-node') { const n = nodeById(e.nodeId); if (n) Object.assign(n, e.patch, { status: 'committed' }); }
+    if (e.op === 'add-node') { state.graph.nodes.push(addCommittedNode(e.node)); addedNodeIds.add(e.node.id); }
+    else if (e.op === 'update-node') { const n = nodeById(e.nodeId); if (n) applyNodeUpdate(n, e.patch); }
     else if (e.op === 'remove-node') { state.graph.nodes = state.graph.nodes.filter((n) => n.id !== e.nodeId); state.graph.edges = state.graph.edges.filter((x) => x.src !== e.nodeId && x.dst !== e.nodeId); }
   }
   let skipped = 0;
@@ -247,6 +356,7 @@ export function commit(acceptedIds: Set<string>) {
   }
   state.commits.push({ id: `c-${Date.now()}`, at: Date.now(), effects: accepted, before });
   state.staged = null;
+  syncRaised();
   persist();
   return { applied: accepted.length, skipped };
 }
@@ -255,6 +365,7 @@ export function undo() {
   const c = state.commits.pop();
   if (!c) return;
   state.graph = c.before;
+  syncRaised();
   persist();
 }
 

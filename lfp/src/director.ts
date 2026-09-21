@@ -2,9 +2,10 @@
 // Whoever speaks it (a scripted tour today, a Flue agent tomorrow) has the same powers. It doubles as the LLM tool list.
 
 import {
-  state, nodeById, upsertTerm, removeNodeDirect, persist, describe, nextQuestion,
+  state, nodeById, upsertTerm, removeNodeDirect, persist, describe,
   answer, answerFollowUp, addFollowUp, commit, discardStaged, undo,
-  type Effect, type FollowUp,
+  revalidate, rankOpen, directCommit,
+  type Effect, type FollowUp, type OpenItem,
 } from './store';
 import { QUESTIONS } from './kernel';
 import { computeGaps } from './ai/functions/find-gaps.ts';
@@ -24,7 +25,9 @@ export type Cue =
   | { t: 'followup'; parentId: string; prompt: string; kind: FollowUp['kind']; produces?: string }
   | { t: 'commit'; accept?: string[] }
   | { t: 'discard' }
-  | { t: 'undo' };
+  | { t: 'undo' }
+  | { t: 'revalidate'; nodeId: string }
+  | { t: 'raise'; prompt: string; produces: string; subjects: string[]; source: 'agent'; taskId?: string };
 
 export interface Ask { id: string; text: string; options?: string[] }
 export interface Tour { steps: Cue[][]; i: number; dwellMs: number; paused: boolean }
@@ -43,7 +46,8 @@ export interface Context {
   graph: { nodes: number; edges: number };
   transport: string;
   screen: { view: string; params: Record<string, string>; items: ScreenItemLite[] }; // what the active view is rendering, capped at 80
-  next: { questionId: string; prompt: string; produces: string; unlocks: string[] } | null;
+  next: OpenItem | null; // top of rankOpen(): tier 1 (agent-blocking) > 2 (template) > 3 (violation) > 4 (rest)
+  suspect: { edges: number; nodes: string[] }; // count of suspect edges; titles of nodes touched by one, capped at 10
   gaps: string[]; // exactly two checks: nodes with no edges, hypotheses with no metric
 }
 type ScreenItemLite = { id: string; kind: string; title: string; group?: string };
@@ -132,6 +136,20 @@ export function applyCue(cue: Cue) {
       undo();
       state.transcript.push({ who: 'agent', text: 'Undone.', at: Date.now() });
       break;
+    case 'revalidate':
+      revalidate(cue.nodeId);
+      state.transcript.push({ who: 'agent', text: `Revalidated ${nodeById(cue.nodeId)?.title ?? cue.nodeId}.`, at: Date.now() });
+      break;
+    case 'raise': {
+      const parentId = QUESTIONS.find((q) => q.produces === cue.produces)?.id ?? 'q-capability';
+      const f = addFollowUp(parentId, cue.prompt, 'thread', cue.produces);
+      f.raisedBy = { kind: 'agent', ref: cue.taskId ?? 'agent' };
+      f.subjects = cue.subjects;
+      if (cue.taskId) directCommit([{ id: 'ef-0', op: 'update-node', nodeId: cue.taskId, patch: { props: { ...(nodeById(cue.taskId)?.props ?? {}), status: 'blocked' } }, answerId: 'direct' }], 'blocked by question');
+      state.transcript.push({ who: 'agent', text: `Raised: "${cue.prompt}"${cue.taskId ? ` — blocked ${cue.taskId}` : ''}`, at: Date.now() });
+      persist();
+      break;
+    }
   }
   listeners.forEach((fn) => fn(cue));
 }
@@ -154,7 +172,8 @@ export function pauseTour() { const t = state.tour; if (t) { t.paused = true; if
 // ── context the main screen publishes ───────────────────────────────────────
 export function currentContext(topics: { id: string; label: string }[], transport: string): Context {
   const [view, qs] = location.hash.slice(1).split('?');
-  const nq = nextQuestion.value;
+  const suspectEdges = state.graph.edges.filter((e) => e.trace === 'suspect');
+  const suspectNodeIds = [...new Set(suspectEdges.flatMap((e) => [e.src, e.dst]))];
   return {
     view: view || 'overview',
     params: Object.fromEntries(new URLSearchParams(qs ?? '')),
@@ -171,7 +190,8 @@ export function currentContext(topics: { id: string; label: string }[], transpor
     graph: { nodes: state.graph.nodes.length, edges: state.graph.edges.length },
     transport,
     screen: { view: state.screen.view, params: state.screen.params, items: state.screen.items.slice(0, 80) },
-    next: nq ? { questionId: nq.id, prompt: nq.prompt, produces: nq.produces, unlocks: QUESTIONS.filter((q) => q.unlocksAfter.includes(nq.id)).map((q) => q.id) } : null,
+    next: rankOpen()[0] ?? null,
+    suspect: { edges: suspectEdges.length, nodes: suspectNodeIds.slice(0, 10).map((id) => nodeById(id)?.title ?? id) },
     gaps: computeGaps(),
   };
 }
