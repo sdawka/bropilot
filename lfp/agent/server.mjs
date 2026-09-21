@@ -51,9 +51,39 @@ console.log(`phone mirror: http://${lan}:5199/#mirror?relay=${lan}`);
 // set, direct Anthropic when only ANTHROPIC_API_KEY is. Without either this is a plain relay.
 if (process.env.OPENROUTER_API_KEY || process.env.ANTHROPIC_API_KEY) {
   await runAgent();
+} else if (process.env.FAKE_AI === '1') {
+  console.log('FAKE_AI=1, no model key — running the AI-function relay with canned output only (no Talk agent, no Flue conversation).');
+  await runFakeAiOnly();
 } else {
   console.log('no model key — running as a plain relay (no agent).');
   console.log('  set OPENROUTER_API_KEY (preferred, one key for every tier) or ANTHROPIC_API_KEY in lfp/.env to enable the Talk agent.');
+  console.log('  set FAKE_AI=1 instead to exercise ai-request/ai-response with canned output and no key (what smoke uses).');
+}
+
+// ── FAKE_AI=1, no key: just the ai-request/ai-response relay, no Flue conversation at all ─────────
+async function runFakeAiOnly() {
+  const { createAiService } = await import('./ai-service.ts');
+
+  const clientId = `agent-fake-${Math.random().toString(36).slice(2, 8)}`;
+  const ws = new WebSocket(`ws://localhost:${PORT}`);
+  await new Promise((resolve, reject) => {
+    ws.once('open', resolve);
+    ws.once('error', reject);
+  });
+  ws.send(JSON.stringify({ kind: 'hello', role: 'agent', from: clientId }));
+  console.log('fake-AI service connected to the bus as', clientId);
+
+  const aiService = createAiService({ send: (msg) => ws.send(JSON.stringify({ ...msg, from: clientId })) });
+
+  ws.on('message', (data) => {
+    let msg;
+    try {
+      msg = JSON.parse(data.toString());
+    } catch {
+      return;
+    }
+    if (msg.kind === 'ai-request') aiService.handle(msg).catch((err) => console.error('[ai-service] handle failed:', err));
+  });
 }
 
 async function runAgent() {
@@ -65,10 +95,13 @@ async function runAgent() {
   const { Reviewer } = await import('./agents/reviewer.ts');
   const { modelFor } = await import('./agents/from-spec.ts');
   const { AGENTS } = await import('../src/agents.ts');
+  const { AiFunction, createAiService } = await import('./ai-service.ts');
 
   // Every top-level agent (spec.hosting === 'top') is registered; delegates are declared inside Talk.
+  // AiFunction is the Stage 3-B structured-call runner (docs/AGENT-RUNTIME.md §7) — a fresh instance
+  // per ai-request, never a delegate (delegates can't call useModel/harness.prompt on their own model).
   // Conversations persist in agent/.flue/ (gitignored) so a builder task survives a server restart.
-  await start({ agents: [Talk, Builder, Reviewer], db: sqlite('agent/.flue/flue.sqlite') });
+  await start({ agents: [Talk, Builder, Reviewer, AiFunction], db: sqlite('agent/.flue/flue.sqlite') });
   const talk = init(Talk, { id: 'talk' }); // one session shared by the main screen and every mirror
   console.log('agents:', AGENTS.filter((a) => a.hosting !== 'path').map((a) => `${a.id}→${modelFor(a) ?? 'no model'}`).join(', '));
 
@@ -88,6 +121,11 @@ async function runAgent() {
   function send(msg) {
     ws.send(JSON.stringify({ ...msg, from: clientId }));
   }
+
+  // Stage 3-B: answers `ai-request` bus messages (src/ai/backend.ts::BusBackend) with a real model
+  // call via agent/ai-service.ts. Uses the same `send` as everything else here, so ai-response
+  // frames are indistinguishable on the wire from cue/aicall frames.
+  const aiService = createAiService({ send });
 
   // Runtime events → stdout + an `aicall` bus message per model turn (fn = agent name, model, usage,
   // cost) so the main screen can record agent turns in state.aiCalls (Stage 3 reads this kind).
@@ -151,8 +189,11 @@ async function runAgent() {
       case 'user':
         await handleUserTurn(msg.turn);
         break;
+      case 'ai-request':
+        aiService.handle(msg).catch((err) => console.error('[ai-service] handle failed:', err));
+        break;
       default:
-        break; // 'hello', 'cue' from other agents (shouldn't happen) — ignore
+        break; // 'hello', 'cue', 'ai-response' from other agents (shouldn't happen) — ignore
     }
   });
 

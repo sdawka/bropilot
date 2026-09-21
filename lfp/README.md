@@ -47,6 +47,18 @@ Every place the "AI" acts is a named function in `src/ai/registry.ts` (metadata:
 
 The Talk panel shows "fn · version · runtime" under every utterance and staged changeset, with feedback buttons (makes sense / doesn't / bad question, or the function's own set) that rate the call; ratings persist across reloads. The mirror shows the same utterances but never the feedback buttons — rating is a main-screen action. Reference (`#kernel`) has three tables: the function registry (with expandable prompts), the call log (with inline rating and a "copy JSON" export), and an efficacy summary (count + rating distribution per function/version) — so prompts and context can be iterated and measured independently of everything else.
 
+## Running on Flue + OpenRouter
+`src/ai/runtime.ts::runAI` can run each AI function against a real model instead of the deterministic stub — the "flue" runtime. To turn it on:
+1. Create `lfp/.env` (gitignored) with `OPENROUTER_API_KEY=...` — one key covers every tier via `openrouter/<vendor>/<model>` specifiers. Direct `anthropic/...` specifiers still work with `ANTHROPIC_API_KEY` set instead (`agent/agents/from-spec.ts::modelFor` and `agent/ai-service.ts` pick whichever key is present, OpenRouter first).
+2. `npm run agent` starts the LAN relay and, once it sees a key, also joins the bus as an agent and answers `ai-request` messages published by the main app (`agent/ai-service.ts`, `agent/server.mjs`).
+3. On the Reference page (`#kernel`), flip `state.aiRuntime` from `stub` to `flue` — this switches `src/ai/runtime.ts` from `StubBackend` to `BusBackend` live, no reload.
+
+Tiers and model ids are declared once in `src/agents.ts` (`TIER_MODELS` for OpenRouter, `DIRECT_MODELS` for direct Anthropic). Every AI function in `src/ai/registry.ts` runs on `TIER_MODELS.cheap`, except `answer-to-effects` and `review-change`, which run on `TIER_MODELS.mid` (agent Talk itself also runs on `mid`). Change a model only in that one file.
+
+`FAKE_AI=1 npm run agent` runs the agent server with no key at all and no Flue conversation: it answers `ai-request` with a deterministic canned output for `describe-screen`, `next-decision`, and `find-gaps` (an `error` for any other function), so the `ai-request`/`ai-response` seam can be exercised in CI and local smoke runs without a model key. Without a key and without `FAKE_AI=1`, `npm run agent` is a plain relay — no Talk agent, and switching to `flue` in the Reference page falls back to the stub with a message rather than hanging.
+
+Costs show up wherever an `AICall` is recorded: the Reference page's call log (`src/ai/runtime.ts`, `AICall.costUsd`/`model`) and the agent server's stdout (`[turn] ...cost=$...`, from the same `observe()` "turn" events `agent/ai-service.ts` uses to attach usage to `ai-response`).
+
 ## Architecture diagrams
 Domain's C4-style levels are **1 Deployment**, **2 Modules**, **3 Cell**, both new diagram levels drawn with Vue Flow (`src/components/arch/`):
 - **Deployment** (`arch/Deployment.vue`) — audiences and their client deployable(s) on the left, server deployables (and caches/queues) in the middle, stores and external systems on the right, fixed by `infra.role` and laid out with `src/components/arch/layout.ts::deploymentLayout` (no dagre). Edges are `uses` between deployables/externals; each deployable card lists the modules it `hosts`.
