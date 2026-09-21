@@ -47,20 +47,30 @@ console.log(`main screen:  http://${lan}:5199/#overview?relay=${lan}`);
 console.log(`phone mirror: http://${lan}:5199/#mirror?relay=${lan}`);
 
 // ── the agent: only when a key is configured ────────────────────────────────────────────────────
-if (process.env.ANTHROPIC_API_KEY) {
+// Provider choice lives in agent/agents/from-spec.ts (modelFor): OpenRouter when OPENROUTER_API_KEY is
+// set, direct Anthropic when only ANTHROPIC_API_KEY is. Without either this is a plain relay.
+if (process.env.OPENROUTER_API_KEY || process.env.ANTHROPIC_API_KEY) {
   await runAgent();
 } else {
-  console.log('ANTHROPIC_API_KEY not set — running as a plain relay (no agent).');
+  console.log('no model key — running as a plain relay (no agent).');
+  console.log('  set OPENROUTER_API_KEY (preferred, one key for every tier) or ANTHROPIC_API_KEY in lfp/.env to enable the Talk agent.');
 }
 
 async function runAgent() {
-  const { start } = await import('@flue/runtime/node');
-  const { init } = await import('@flue/runtime');
+  const { start, sqlite } = await import('@flue/runtime/node');
+  const { init, observe } = await import('@flue/runtime');
   const { busRef } = await import('./bus-ref.ts');
   const { Talk, setKernelDigest, setScreenLine } = await import('./talk.ts');
+  const { Builder } = await import('./agents/builder.ts');
+  const { Reviewer } = await import('./agents/reviewer.ts');
+  const { modelFor } = await import('./agents/from-spec.ts');
+  const { AGENTS } = await import('../src/agents.ts');
 
-  await start({ agents: [Talk] }); // in-memory persistence; fine for a prototype, one process
+  // Every top-level agent (spec.hosting === 'top') is registered; delegates are declared inside Talk.
+  // Conversations persist in agent/.flue/ (gitignored) so a builder task survives a server restart.
+  await start({ agents: [Talk, Builder, Reviewer], db: sqlite('agent/.flue/flue.sqlite') });
   const talk = init(Talk, { id: 'talk' }); // one session shared by the main screen and every mirror
+  console.log('agents:', AGENTS.filter((a) => a.hosting !== 'path').map((a) => `${a.id}→${modelFor(a) ?? 'no model'}`).join(', '));
 
   const clientId = `agent-${Math.random().toString(36).slice(2, 8)}`;
   const genId = () => `m-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
@@ -78,6 +88,22 @@ async function runAgent() {
   function send(msg) {
     ws.send(JSON.stringify({ ...msg, from: clientId }));
   }
+
+  // Runtime events → stdout + an `aicall` bus message per model turn (fn = agent name, model, usage,
+  // cost) so the main screen can record agent turns in state.aiCalls (Stage 3 reads this kind).
+  observe((ev) => {
+    if (ev.type === 'turn' && ev.response?.usage) {
+      const u = ev.response.usage;
+      console.log(`[turn] ${ev.agentName} ${ev.request?.requestedModel ?? ''} in=${u.input} out=${u.output} cost=$${(u.cost?.total ?? 0).toFixed(4)}`);
+      send({ kind: 'aicall', fn: ev.agentName, model: ev.request?.requestedModel ?? null, usage: { input: u.input, output: u.output, costUsd: u.cost?.total ?? 0 }, conversationId: ev.conversationId, at: Date.now() });
+    } else if (ev.type === 'tool') {
+      console.log(`[tool] ${ev.agentName} ${ev.toolName ?? ''}${ev.isError ? ' ERROR' : ''}`);
+    } else if (ev.type === 'task') {
+      console.log(`[task] ${ev.agentName} → delegate done${ev.isError ? ' with error' : ''}`);
+    } else if (ev.type === 'submission_settled') {
+      console.log(`[settled] ${ev.agentName} ${ev.outcome ?? ''}`);
+    }
+  });
 
   function screenLineFrom(ctx) {
     const items = Array.isArray(ctx?.screen?.items) ? ctx.screen.items : [];

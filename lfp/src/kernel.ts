@@ -4,6 +4,7 @@
 export { type Provenance, said, inferred } from './provenance.ts';
 import { said, inferred, type Provenance } from './provenance.ts';
 import { AI_FUNCTIONS } from './ai/registry.ts';
+import { agentsDigest } from './agents.ts';
 
 // ── Statement bank (verbatim / near-verbatim from the 2026-09-07 brief) ──────
 export const STATEMENTS: Record<number, string> = {
@@ -421,5 +422,5 @@ export function kernelDigest(): string {
   const questions = QUESTIONS.map((q) => `${q.id} → ${q.produces} [unlocks after: ${q.unlocksAfter.join(', ') || 'none'}]: ${q.prompt}`).join('\n');
   const invariants = INVARIANTS.map((i) => `- ${i.text}${i.raise ? ` [raises: ${i.raise}]` : ''}`).join('\n');
   const aiFunctions = AI_FUNCTIONS.map((f) => `${f.id} (v${f.version}, needs: ${f.context.needs.join(', ')}): ${f.purpose}`).join('\n');
-  return `Kinds:\n${kinds}\nEdge types:\n${edges}\nQuestions:\n${questions}\nInvariants:\n${invariants}\nAI functions:\n${aiFunctions}`;
+  return `Kinds:\n${kinds}\nEdge types:\n${edges}\nQuestions:\n${questions}\nInvariants:\n${invariants}\nAI functions:\n${aiFunctions}\nAgents:\n${agentsDigest()}`;
 }
