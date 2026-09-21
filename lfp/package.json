@@ -11,7 +11,9 @@
     "dev:lan": "vite --host --port 5199 --strictPort",
     "smoke": "node smoke.mjs",
     "smoke:mirror": "node smoke-mirror.mjs",
-    "docs": "node scripts/emit-docs.mjs"
+    "docs": "node scripts/emit-docs.mjs",
+    "observe": "node scripts/observe.mjs",
+    "dispatch": "node scripts/dispatch.mjs"
   },
   "dependencies": {
     "@flue/cli": "^2.0.6",

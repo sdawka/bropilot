@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { QUESTIONS, kindById, SPACES } from '../kernel';
-import { state, isUnlocked, committedAnswerFor, nextQuestion, type FollowUp } from '../store';
+import { state, isUnlocked, committedAnswerFor, nextQuestion, nodeById, type FollowUp } from '../store';
 import { useScreen } from '../screen';
 import Prov from './Prov.vue';
 
@@ -63,6 +63,11 @@ const questionsBySpace = computed(() => {
 });
 const spacesInPath = computed(() => SPACES.filter((s) => questionsBySpace.value[s.id]?.length));
 
+/** Follow-ups raised (not hand-added) directly under a template question, for the always-visible
+ * "raised" strip — separate from the expand-gated sub-question/thread tree below it. */
+const raisedUnder = (parentId: string) => state.followups.filter((f) => f.parentId === parentId && f.raisedBy);
+const nodeTitle = (id: string) => nodeById(id)?.title ?? id;
+
 const answersFor = (questionId: string) => state.answers.filter((a) => a.questionId === questionId);
 const followUpsOf = (parentId: string) => state.followups.filter((f) => f.parentId === parentId);
 const countChildren = (id: string) => followUpsOf(id).length;
@@ -122,6 +127,21 @@ const breadcrumb = (f: FollowUp): string => {
             <span class="count" v-if="countChildren(q.id)">{{ countChildren(q.id) }}</span>
             <span class="q-state">{{ stateOf(q.id) }}</span>
           </button>
+
+          <div class="raised" v-if="raisedUnder(q.id).length">
+            <div
+              v-for="f in raisedUnder(q.id)"
+              :key="f.id"
+              class="raised-row"
+              data-testid="def-raised"
+              :class="{ deferred: f.deferred }"
+              :data-node-id="f.id"
+            >
+              <span class="tag" :class="f.raisedBy!.kind">{{ f.raisedBy!.kind }}</span>
+              <span class="small">{{ f.prompt }}</span>
+              <span class="tag chip" v-for="sid in f.subjects ?? []" :key="sid">{{ nodeTitle(sid) }}</span>
+            </div>
+          </div>
 
           <div v-if="isExpanded(q.id)" class="children">
             <div v-for="a in answersFor(q.id)" :key="a.id" class="answer-entry">{{ a.content }} <span class="small">— {{ new Date(a.at).toLocaleTimeString() }}</span></div>
@@ -199,6 +219,12 @@ const breadcrumb = (f: FollowUp): string => {
 .tag.sub { color: var(--kernel); border-color: var(--kernel); }
 .tag.thread { color: var(--inferred); border-color: var(--inferred); border-style: dotted; }
 .q.lit { outline: 2px solid var(--kernel); }
+.raised { display: flex; flex-direction: column; gap: .2rem; margin: .2rem 0 .2rem 1.3rem; }
+.raised-row { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem; }
+.raised-row.deferred { opacity: .45; }
+.raised-row .tag.violation { color: var(--said); border-color: var(--said); }
+.raised-row .tag.agent { color: var(--kernel); border-color: var(--kernel); }
+.raised-row .tag.contradiction { color: var(--inferred); border-color: var(--inferred); }
 .path.definition { grid-template-columns: minmax(0, 1fr) 380px; } /* tree first and wide; inputs on the side (S84) */
 .answer.side { position: sticky; top: 4rem; align-self: start; max-height: calc(100vh - 5rem); overflow: auto; }
 .tree-main .q .q-text { font-size: .92rem; }

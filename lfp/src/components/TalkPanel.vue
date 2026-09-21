@@ -1,12 +1,84 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { state, rateCall } from '../store';
-import type { Context, UserTurn } from '../director';
+import { ref, computed, watch, nextTick } from 'vue';
+import { state, rateCall, nodeById, persist, describe } from '../store';
+import { applyCue, type Context, type UserTurn } from '../director';
+import type { OpenItem } from '../types';
 import { aiFunctionById } from '../ai/registry';
 
 const props = defineProps<{ ctx: Context | null; send: (t: UserTurn) => void; bare?: boolean }>();
 
 const text = ref('');
+const inputEl = ref<HTMLInputElement | null>(null);
+const answering = ref<string | null>(null); // OpenItem id the next free-text turn should answer
+
+const tierLabel: Record<OpenItem['tier'], string> = { 1: 'Blocking', 2: 'Next question', 3: 'Gap', 4: 'Open thread' };
+
+function pointAt(nodeId: string) { applyCue({ t: 'point', nodes: [nodeId], focus: nodeId }); }
+
+function answerIt(item: OpenItem) {
+  answering.value = item.id;
+  nextTick(() => inputEl.value?.focus());
+}
+function skip(item: OpenItem) {
+  const f = state.followups.find((f) => f.id === item.id);
+  if (f) { f.deferred = true; persist(); }
+}
+
+// ── suspect strip: resolve a node title back to an id, then revalidate it ───
+function revalidateByTitle(title: string) {
+  const n = state.graph.nodes.find((n) => n.title === title);
+  if (n) applyCue({ t: 'revalidate', nodeId: n.id });
+}
+
+// ── outcome tracking (S128-131): what the user did with the staged changeset's AI call ──
+function levenshtein(a: string, b: string): number {
+  const dp: number[][] = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+  for (let i = 0; i <= a.length; i++) dp[i][0] = i;
+  for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+  return dp[a.length][b.length];
+}
+const editedOriginals = ref(new Map<number, string>()); // idx -> description text before the user's edit
+const editingIdx = ref<number | null>(null);
+const editText = ref('');
+function startEdit(i: number, current: string) {
+  if (props.bare) return;
+  if (!editedOriginals.value.has(i)) editedOriginals.value.set(i, current);
+  editingIdx.value = i; editText.value = current;
+}
+function finishEdit(i: number) {
+  const eff = state.staged?.effects[i];
+  editingIdx.value = null;
+  const val = editText.value.trim();
+  if (!eff || !val) return;
+  if (eff.op === 'add-node') eff.node.title = val;
+  else if (eff.op === 'update-node') eff.patch.title = val;
+}
+watch(() => props.ctx?.staged?.ids.join(','), () => { editedOriginals.value = new Map(); });
+
+watch(() => stagedCall.value?.id ?? null, (id, prevId) => {
+  if (prevId && id !== prevId) {
+    const prev = state.aiCalls.find((c) => c.id === prevId);
+    if (prev && !prev.outcome) { prev.outcome = { state: 'ignored', at: Date.now() }; persist(); }
+  }
+});
+function recordOutcome(outcome: 'approved' | 'discarded') {
+  const call = stagedCall.value ? state.aiCalls.find((c) => c.id === stagedCall.value!.id) : null;
+  if (!call) return;
+  const changed = [...editedOriginals.value.entries()].filter(([i, before]) => state.staged && describe(state.staged.effects[i]) !== before);
+  if (outcome === 'approved' && changed.length) {
+    const dist = Math.max(...changed.map(([i, before]) => {
+      const after = describe(state.staged!.effects[i]);
+      return Math.round((levenshtein(before, after) / Math.max(before.length, after.length, 1)) * 100);
+    }));
+    call.outcome = { state: 'edited', editDistance: dist, at: Date.now() };
+  } else {
+    call.outcome = { state: outcome, editDistance: 0, at: Date.now() };
+  }
+  persist();
+}
+function approveStaged() { recordOutcome('approved'); control('approve'); }
+function discardChangeset() { recordOutcome('discarded'); control('discard'); }
 
 /** The AI call that produced the current utterance (say/ask), if any (S128–S131). */
 const utteranceCall = computed(() => {
@@ -30,6 +102,7 @@ function sendText() {
   if (!t) return;
   props.send({ text: t });
   text.value = '';
+  answering.value = null;
 }
 function choose(option: string, forAsk: string) { props.send({ choice: option, forAsk }); }
 function pickTopic(id: string) { props.send({ topic: id }); }
@@ -70,10 +143,23 @@ function close() { state.panelOpen = false; }
 
       <p class="small pointing" v-if="ctx.pointing.length">pointing at: {{ ctx.pointing.join(', ') }}</p>
 
+      <div class="suspect card" data-testid="talk-suspect" v-if="ctx.suspect.edges > 0">
+        <p class="small">{{ ctx.suspect.edges }} suspect link{{ ctx.suspect.edges === 1 ? '' : 's' }} after an edit</p>
+        <div class="suspect-row" v-for="title in ctx.suspect.nodes" :key="title">
+          <span class="small">{{ title }}</span>
+          <button v-if="!bare" data-testid="talk-revalidate" @click="revalidateByTitle(title)">Revalidate</button>
+        </div>
+      </div>
+
       <div class="now" data-testid="talk-now">
         <template v-if="ctx.staged">
           <p class="small">{{ ctx.staged.count }} change{{ ctx.staged.count === 1 ? '' : 's' }} staged — {{ ctx.staged.note }}</p>
-          <ul class="effects"><li v-for="(e, i) in ctx.staged.effects" :key="i" class="small">{{ e }}</li></ul>
+          <ul class="effects">
+            <li v-for="(e, i) in ctx.staged.effects" :key="i" class="small">
+              <input v-if="editingIdx === i" v-model="editText" class="effect-edit" @keyup.enter="finishEdit(i)" @blur="finishEdit(i)" />
+              <span v-else @dblclick="startEdit(i, e)">{{ e }}</span>
+            </li>
+          </ul>
           <div class="feedback" data-testid="talk-feedback" v-if="stagedCall">
             <p class="small tracking" data-testid="talk-tracking">{{ stagedCall.fn }} · {{ stagedCall.version }} · {{ stagedCall.runtime }}</p>
             <p class="small" v-if="stagedCall.rating">{{ metaFor(stagedCall.fn)?.feedback.find((f) => f.value === stagedCall!.rating!.value)?.label ?? stagedCall.rating.value }}</p>
@@ -82,12 +168,28 @@ function close() { state.panelOpen = false; }
             </div>
           </div>
           <div class="row">
-            <button class="primary" data-testid="talk-approve" @click="control('approve')">Approve</button>
-            <button data-testid="talk-discard" @click="control('discard')">Discard</button>
+            <button class="primary" data-testid="talk-approve" @click="approveStaged">Approve</button>
+            <button data-testid="talk-discard" @click="discardChangeset">Discard</button>
           </div>
         </template>
         <template v-else-if="ctx.next">
-          <p class="small">{{ ctx.next.prompt }} — type your answer below</p>
+          <div class="talk-next" data-testid="talk-next">
+            <div class="row">
+              <span class="tag" data-testid="talk-next-tier">{{ tierLabel[ctx.next.tier] }}</span>
+              <span class="tag source">{{ ctx.next.source }}</span>
+            </div>
+            <p class="small">{{ ctx.next.prompt }}</p>
+            <div class="chips" v-if="ctx.next.subjects.length">
+              <button v-for="sid in ctx.next.subjects" :key="sid" class="tag chip" :data-node-id="sid" @click="pointAt(sid)">{{ nodeById(sid)?.title ?? sid }}</button>
+            </div>
+            <div class="row" v-if="ctx.next.options?.length">
+              <button v-for="o in ctx.next.options" :key="o" @click="props.send({ choice: o, forAsk: ctx.next!.id })">{{ o }}</button>
+            </div>
+            <div class="row" v-else>
+              <button class="primary" @click="answerIt(ctx.next)">Answer it</button>
+              <button @click="skip(ctx.next)">Skip</button>
+            </div>
+          </div>
         </template>
         <template v-else-if="ctx.gaps.length">
           <p class="small">{{ ctx.gaps[0] }}</p>
@@ -118,7 +220,7 @@ function close() { state.panelOpen = false; }
     </template>
 
     <div class="composer">
-      <input data-testid="talk-input" v-model="text" placeholder="Say something…" @keyup.enter="sendText" />
+      <input ref="inputEl" data-testid="talk-input" v-model="text" :placeholder="answering ? 'Answer…' : 'Say something…'" @keyup.enter="sendText" />
       <button class="primary" data-testid="talk-send" @click="sendText">Send</button>
     </div>
   </aside>
@@ -146,7 +248,14 @@ function close() { state.panelOpen = false; }
 .now { display: flex; flex-direction: column; gap: .4rem; background: #fbeee4; border-radius: 8px; padding: .5rem .7rem; }
 .now p { margin: 0; }
 .effects { margin: 0; padding-left: 1.1rem; }
+.effects li span { cursor: text; }
+.effect-edit { font: inherit; width: 100%; padding: 0 .2rem; border: 1px solid var(--line); border-radius: 4px; }
 .undo { align-self: flex-start; }
+
+.talk-next { display: flex; flex-direction: column; gap: .4rem; }
+.talk-next .tag.source { text-transform: capitalize; }
+.suspect { background: #fdf3f3; border-color: #e0a0a0; display: flex; flex-direction: column; gap: .3rem; }
+.suspect-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 
 .tour { display: flex; flex-direction: column; gap: .35rem; }
 .row { display: flex; gap: .4rem; }

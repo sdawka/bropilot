@@ -19,4 +19,8 @@ export const busRef = {
   getSnapshot(): Snapshot | null {
     return null; // replaced by server.mjs
   },
+  /** Last context returned from a cue ack, or null. Used by read_open to avoid a round trip. */
+  getLastContext(): Context | null {
+    return null; // replaced by server.mjs
+  },
 };

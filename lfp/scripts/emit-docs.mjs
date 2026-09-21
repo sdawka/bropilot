@@ -11,8 +11,9 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { KINDS, EDGE_TYPES, LEVELS, INVARIANTS, QUESTIONS } from '../src/kernel.ts';
+import { KINDS, EDGE_TYPES, LEVELS, INVARIANTS, QUESTIONS, SPACES } from '../src/kernel.ts';
 import { AI_FUNCTIONS } from '../src/ai/registry.ts';
+import { checkInvariants } from '../src/checks.ts';
 import graph from '../src/graph.json' with { type: 'json' };
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -229,6 +230,181 @@ function aiFunctionsMd() {
   return out.join('\n');
 }
 
+// ── CONSTRAINTS.md — edge shapes, kinds' needs, invariants, current violations ─
+function constraintsMd() {
+  const out = [BANNER, '# Constraints\n'];
+
+  out.push('## Edge shapes\n');
+  out.push('| Type | From | To | Hint |');
+  out.push('| --- | --- | --- | --- |');
+  for (const et of EDGE_TYPES) {
+    const from = et.from.length ? et.from.join(', ') : 'any';
+    const to = et.to.length ? et.to.join(', ') : 'any';
+    out.push(`| ${et.id} | ${from} | ${to} | ${et.hint} |`);
+  }
+  out.push('');
+
+  out.push('## Kinds and their structural needs\n');
+  out.push('| Kind | Edge | Direction | Min | What to ask |');
+  out.push('| --- | --- | --- | --- | --- |');
+  for (const kind of KINDS) {
+    if (!kind.needs) continue;
+    for (const need of kind.needs) {
+      out.push(`| ${kind.id} | ${need.edge} | ${need.dir} | ${need.min} | ${need.ask} |`);
+    }
+  }
+  out.push('');
+
+  out.push('## Invariants\n');
+  out.push('| Id | Text | Raise |');
+  out.push('| --- | --- | --- |');
+  for (const inv of INVARIANTS) {
+    const raise = inv.raise ? `\`${inv.raise}\`` : '—';
+    out.push(`| ${inv.id} | ${inv.text} | ${raise} |`);
+  }
+  out.push('');
+
+  out.push('## Current violations on the seed graph\n');
+  const violations = checkInvariants(graph);
+  const byInvariant = new Map();
+  for (const v of violations) {
+    if (!byInvariant.has(v.invariant)) byInvariant.set(v.invariant, []);
+    byInvariant.get(v.invariant).push(v);
+  }
+  if (violations.length === 0) {
+    out.push('✓ No violations.\n');
+  } else {
+    for (const invariant of INVARIANTS) {
+      const invViolations = byInvariant.get(invariant.id);
+      if (!invViolations) continue;
+      out.push(`### ${invariant.id} (${invViolations.length})\n`);
+      for (const v of invViolations) {
+        out.push(`- ${v.message}`);
+      }
+      out.push('');
+    }
+  }
+
+  return out.join('\n');
+}
+
+// ── OPEN.md — ranked open items on the seed ──────────────────────────────────
+function openMd() {
+  const out = [BANNER, '# Open items\n'];
+
+  out.push('**Tiers 1–2 (agent-blocking questions and template questions) only exist at runtime; this is tier 3–4.**\n');
+
+  const violations = checkInvariants(graph);
+  const byRaise = { question: [], task: [] };
+
+  for (const v of violations) {
+    if (v.raise === 'question') byRaise.question.push(v);
+    else if (v.raise === 'task') byRaise.task.push(v);
+  }
+
+  // Tier 3: violations with raise==='question', ordered by SPACES then invariant order
+  const spaceOrder = Object.fromEntries(SPACES.map((s, i) => [s.id, i]));
+  const invariantOrder = Object.fromEntries(INVARIANTS.map((inv, i) => [inv.id, i]));
+
+  if (byRaise.question.length > 0) {
+    out.push('## Tier 3 — Violations needing clarification\n');
+    const sorted = byRaise.question.sort((a, b) => {
+      // Find first subject's space
+      const aSubject = graph.nodes.find(n => n.id === a.subjects[0]);
+      const bSubject = graph.nodes.find(n => n.id === b.subjects[0]);
+      const aSpace = aSubject ? (KINDS.find(k => k.id === aSubject.kind)?.space ?? 'unknown') : 'unknown';
+      const bSpace = bSubject ? (KINDS.find(k => k.id === bSubject.kind)?.space ?? 'unknown') : 'unknown';
+      const spaceCmp = (spaceOrder[aSpace] ?? 999) - (spaceOrder[bSpace] ?? 999);
+      if (spaceCmp !== 0) return spaceCmp;
+      return (invariantOrder[a.invariant] ?? 999) - (invariantOrder[b.invariant] ?? 999);
+    });
+    for (const v of sorted) {
+      out.push(`### ${v.id}\n`);
+      out.push(`${v.message}\n`);
+      out.push(`**Subjects:** ${v.subjects.join(', ')}`);
+      out.push(`**Options:** ${v.options.join(', ')}`);
+      out.push('');
+    }
+  }
+
+  // Tier "task": violations with raise==='task'
+  if (byRaise.task.length > 0) {
+    out.push('## Tier "Task" — Work items for the implementation layer\n');
+    for (const v of byRaise.task) {
+      out.push(`### ${v.id}\n`);
+      out.push(`${v.message}\n`);
+      out.push(`**Subjects:** ${v.subjects.join(', ')}`);
+      out.push(`**Options:** ${v.options.join(', ')}`);
+      if (v.produces) out.push(`**Produces:** ${v.produces}`);
+      out.push('');
+    }
+  }
+
+  return out.join('\n');
+}
+
+// ── AGENTS.md — agent specs table (if src/agents.ts exists) ─────────────────
+async function agentsMd() {
+  let AGENTS = [];
+  let TIER_MODELS = {};
+
+  try {
+    const agents = await import('../src/agents.ts');
+    AGENTS = agents.AGENTS ?? [];
+    TIER_MODELS = agents.TIER_MODELS ?? {};
+  } catch (e) {
+    // src/agents.ts does not exist yet; render placeholder
+    return `${BANNER}# Agents
+
+_Generated from src/agents.ts (not yet created). Placeholder renders once the AgentSpec definitions are in place._
+
+| id | version | tier | purpose | tools | aiFunctions | sandbox | trigger |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| (pending) | — | — | — | — | — | — | — |
+`;
+  }
+
+  if (AGENTS.length === 0) {
+    return `${BANNER}# Agents
+
+_No agents defined in src/agents.ts yet._
+`;
+  }
+
+  const out = [BANNER, '# Agents\n'];
+  out.push('| id | version | tier → model | purpose | tools | aiFunctions | sandbox | runsIn |');
+  out.push('| --- | --- | --- | --- | --- | --- | --- | --- |');
+
+  for (const agent of AGENTS) {
+    const model = TIER_MODELS[agent.tier]?.split?.('/').pop?.() ?? agent.tier;
+    const tools = agent.tools?.join(', ') ?? '—';
+    const fns = agent.aiFunctions?.join(', ') ?? '—';
+    const sandbox = agent.sandbox ?? '—';
+    const runsIn = agent.runsIn ?? '—';
+    out.push(`| ${agent.id} | ${agent.version} | ${agent.tier} → ${model} | ${agent.purpose} | ${tools} | ${fns} | ${sandbox} | ${runsIn} |`);
+  }
+  out.push('');
+
+  for (const agent of AGENTS) {
+    out.push(`## ${agent.id}\n`);
+    out.push(`**Version:** ${agent.version}\n`);
+    out.push(`**Purpose:** ${agent.purpose}\n`);
+    out.push(`**Tier:** ${agent.tier}`);
+    if (TIER_MODELS[agent.tier]) out.push(` → ${TIER_MODELS[agent.tier]}`);
+    out.push('\n');
+    out.push(`**Tools:** ${agent.tools?.join(', ') ?? '(none)'}\n`);
+    out.push(`**AI Functions:** ${agent.aiFunctions?.join(', ') ?? '(none)'}\n`);
+    out.push(`**Sandbox:** ${agent.sandbox ?? '(none)'}\n`);
+    out.push(`**Runs in:** ${agent.runsIn}\n`);
+    if (agent.budget) {
+      out.push(`**Budget:** ${agent.budget.maxTurns} turns, ${agent.budget.maxWallMs} ms wall, $${agent.budget.maxCostUsd} max cost\n`);
+    }
+    out.push('');
+  }
+
+  return out.join('\n');
+}
+
 // ── agent/prompt.md — generated ─────────────────────────────────────────────
 // The shared director rules, unchanged from the hand-written version this replaces (kept as a
 // constant here so the generator is the single source; edit HEADER_RULES, not agent/prompt.md).
@@ -257,6 +433,41 @@ function agentPromptMd() {
     '<!-- GENERATED by scripts/emit-docs.mjs — do not edit. Edit HEADER_RULES there for the shared rules, or src/ai/registry.ts for a function\'s prompt, then run `npm run docs`. -->\n',
     HEADER_RULES,
     '',
+    '## Open items and questions\n',
+    'When exploration yields zero or several plausible readings, or when no measurable done-criterion can be derived, raise a question.',
+    '',
+    '### Using `read_open`',
+    'Call `read_open` (no arguments) to check the current next question and suspect edge count without publishing a cue. Returns:',
+    '- `next`: the top open item (tier 1–4), or null if all are resolved.',
+    '- `suspect`: object with `edges` (count) and `nodes` (titles touched by suspect edges).',
+    '',
+    'Use `read_open` to decide: should you ask, revalidate suspect edges, or work on a task?',
+    '',
+    '### When to `raise_question`',
+    'Ask when:',
+    '- Exploration yields zero or several plausible readings.',
+    '- No measurable done-criterion can be derived.',
+    '- A node or path needs clarification before proceeding.',
+    '',
+    'A raised question names subject nodes (the nodes it is about), what is missing, and the readings considered.',
+    '',
+    'Call `raise_question` with:',
+    '- `prompt`: the question itself.',
+    '- `subjects`: array of node ids this question is about.',
+    '- `produces`: (optional) kind id the answer will likely create.',
+    '- `taskId`: (optional) id of a task this question is blocking.',
+    '',
+    '## Suspect links\n',
+    'When an edge is edited (via `stage` + `commit`), its traces turn `suspect` until you revalidate them.',
+    '',
+    '### Using `revalidate`',
+    'After re-editing a node to fix suspect edges:',
+    '1. Call `read_open` to see which nodes have suspect edges.',
+    '2. For each node you have re-examined, call `revalidate` with its node id.',
+    '3. Suspect edges clear when a revalidate ack lands.',
+    '',
+    'Revalidate is the way neighbours signal that they accept an edit. It is not auto — each touching node must actively clear it.',
+    '',
     '## Functions',
     '',
   ];
@@ -274,10 +485,15 @@ function agentPromptMd() {
 }
 
 // ── write ─────────────────────────────────────────────────────────────────
-mkdirSync(join(ROOT, 'docs'), { recursive: true });
-writeFileSync(join(ROOT, 'docs', 'ARCHITECTURE.md'), architectureMd());
-writeFileSync(join(ROOT, 'docs', 'FLOWS.md'), flowsMd());
-writeFileSync(join(ROOT, 'docs', 'AI-FUNCTIONS.md'), aiFunctionsMd());
-writeFileSync(join(ROOT, 'agent', 'prompt.md'), agentPromptMd());
+(async () => {
+  mkdirSync(join(ROOT, 'docs'), { recursive: true });
+  writeFileSync(join(ROOT, 'docs', 'ARCHITECTURE.md'), architectureMd());
+  writeFileSync(join(ROOT, 'docs', 'FLOWS.md'), flowsMd());
+  writeFileSync(join(ROOT, 'docs', 'AI-FUNCTIONS.md'), aiFunctionsMd());
+  writeFileSync(join(ROOT, 'docs', 'CONSTRAINTS.md'), constraintsMd());
+  writeFileSync(join(ROOT, 'docs', 'OPEN.md'), openMd());
+  writeFileSync(join(ROOT, 'docs', 'AGENTS.md'), await agentsMd());
+  writeFileSync(join(ROOT, 'agent', 'prompt.md'), agentPromptMd());
 
-console.log('docs emitted: docs/ARCHITECTURE.md, docs/FLOWS.md, docs/AI-FUNCTIONS.md, agent/prompt.md');
+  console.log('docs emitted: docs/ARCHITECTURE.md, docs/FLOWS.md, docs/AI-FUNCTIONS.md, docs/CONSTRAINTS.md, docs/OPEN.md, docs/AGENTS.md, agent/prompt.md');
+})();

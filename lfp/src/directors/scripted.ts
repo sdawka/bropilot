@@ -6,6 +6,7 @@ import { currentContext } from '../director.ts';
 import type { Cue, Director, UserTurn } from '../director.ts';
 import { runAI } from '../ai/runtime.ts';
 import { aiFunction } from '../ai/index.ts';
+import { state } from '../store.ts';
 
 type Pending =
   | { fn: 'define-term'; stage: 'title' | 'desc'; title?: string }
@@ -79,6 +80,32 @@ export class ScriptedDirector implements Director {
     if (/^(what next|next)$/.test(lower)) return runAI(aiFunction('next-decision'), undefined, this.ctx());
     if (/^follow\s?up$/.test(lower)) return runAI(aiFunction('propose-followup'), {}, this.ctx());
     if (/^(back|stop)$/.test(lower)) return [];
+    if (/^gaps$/.test(lower)) return runAI(aiFunction('find-gaps'), undefined, this.ctx());
+
+    const review = trimmed.match(/^review\s+(task-\S+)/i);
+    if (review) return runAI(aiFunction('review-change'), { taskId: review[1] }, this.ctx());
+
+    const raise = trimmed.match(/^raise(?: on (task-\S+))?[:\s]+(.+)$/i);
+    if (raise) return runAI(aiFunction('raise-question'), { taskId: raise[1], missing: raise[2] }, this.ctx());
+
+    const revalidate = trimmed.match(/^revalidate\s+(.+)$/i);
+    if (revalidate) {
+      const node = this.findByTitle(revalidate[1]);
+      if (!node) return [{ t: 'say', id: `s-revalidate-${Date.now()}`, text: `Couldn't find a node titled "${revalidate[1]}".` }];
+      return [{ t: 'revalidate', nodeId: node.id }];
+    }
+
     return runAI(aiFunction('describe-screen'), { text: trimmed }, this.ctx());
+  }
+
+  /** Best-effort title lookup (no AI call): exact case-insensitive match first, else substring
+   * either direction, longest title wins — same heuristic as describe-screen's stub. */
+  private findByTitle(text: string) {
+    const q = text.trim().toLowerCase();
+    const exact = state.graph.nodes.find((n) => n.title.toLowerCase() === q);
+    if (exact) return exact;
+    return state.graph.nodes
+      .filter((n) => n.title.toLowerCase().includes(q) || q.includes(n.title.toLowerCase()))
+      .sort((a, b) => b.title.length - a.title.length)[0];
   }
 }

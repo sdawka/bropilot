@@ -21,6 +21,7 @@ function compactCtx(ctx: Context | null | undefined) {
     gaps: c.gaps ?? [],
     ask: c.ask ?? null,
     say: c.say ?? null,
+    suspect: c.suspect ?? null,
   };
 }
 
@@ -135,6 +136,43 @@ const discard = cueTool('discard', 'Discard the currently staged changeset. Noth
 
 const undo = cueTool('undo', 'Undo the last commit.', undefined, () => ({ t: 'undo' }));
 
+const revalidate = cueTool(
+  'revalidate',
+  'Clear the suspect flag on edges touching a node after you have re-edited them. The node must be specified by id.',
+  v.object({ nodeId: v.string() }),
+  (d) => ({ t: 'revalidate', nodeId: d.nodeId }),
+);
+
+const raiseQuestion = cueTool(
+  'raise_question',
+  'Raise a question about missing information or clarification needed. Surfaces as a follow-up the user can answer.',
+  v.object({
+    prompt: v.string(),
+    produces: v.optional(v.string()),
+    subjects: v.array(v.string()),
+    taskId: v.optional(v.string()),
+  }),
+  (d) => ({ t: 'raise', prompt: d.prompt, produces: d.produces ?? '', subjects: d.subjects, source: 'agent', taskId: d.taskId }),
+);
+
+const readOpen = defineTool({
+  name: 'read_open',
+  description:
+    'Get the current next question and suspect edge status without publishing a cue. Returns the top open item and node count of suspect edges, useful for planning what to ask or revalidate.',
+  input: undefined,
+  async run() {
+    const ctx = busRef.getLastContext();
+    if (!ctx) return { output: { note: 'no context yet: the main screen has not published one' } };
+    const c = ctx as Record<string, any>;
+    return {
+      output: {
+        next: c.next ?? null,
+        suspect: c.suspect ?? null,
+      },
+    };
+  },
+});
+
 const readGraph = defineTool({
   name: 'read_graph',
   description:
@@ -154,4 +192,4 @@ const readGraph = defineTool({
 });
 
 /** Built once at module load; every Cue tool closes over `busRef`, which server.mjs wires up later. */
-export const cueTools = [say, navigate, point, clear, sequence, stage, glossary, ask, answer, followup, commit, discard, undo, readGraph];
+export const cueTools = [say, navigate, point, clear, sequence, stage, glossary, ask, answer, followup, commit, discard, undo, revalidate, raiseQuestion, readOpen, readGraph];

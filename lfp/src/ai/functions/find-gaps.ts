@@ -1,29 +1,42 @@
-// find-gaps: the two gap checks (moved from director.ts's private `computeGaps`, S83). Kept as a
-// plain exported function too, since director.ts's `currentContext` calls it directly on every
-// context publish — that isn't itself an AI call, so it shouldn't go through `runAI`/`state.aiCalls`.
-import { state, nodeById, edgesOf } from '../../store.ts';
+// find-gaps: v4.1 folds the old two ad-hoc checks (no edges / bets with no metric) into the
+// kernel itself (S145) — this is now a thin reporter over `checks.ts::checkInvariants`, one line
+// per violation. Kept as a plain exported function too, since director.ts's `currentContext`
+// calls it directly on every context publish — that isn't itself an AI call, so it shouldn't go
+// through `runAI`/`state.aiCalls`.
+import { state, nodeById } from '../../store.ts';
+import { checkInvariants } from '../../checks.ts';
 import type { Cue } from '../../director.ts';
 import type { AIFunctionImpl } from '../types.ts';
 
-/** Exactly two gap checks, kept to one line each (Cut on purpose: nothing more). */
+/** One line per violation from checkInvariants(state.graph). */
 export function computeGaps(): string[] {
-  const out: string[] = [];
-  const noEdges = state.graph.nodes.filter((n) => !state.graph.edges.some((e) => e.src === n.id || e.dst === n.id));
-  if (noEdges.length) out.push(`${noEdges.length} node${noEdges.length === 1 ? '' : 's'} with no edges: ${noEdges.slice(0, 3).map((n) => n.title).join(', ')}`);
-  const hyps = state.graph.nodes.filter((n) => n.kind === 'hypothesis');
-  const noMetric = hyps.filter((h) => !edgesOf(h.id).some((e) => nodeById(e.src === h.id ? e.dst : e.src)?.kind === 'metric'));
-  if (noMetric.length) out.push(`${noMetric.length} bet${noMetric.length === 1 ? '' : 's'} with no metric: ${noMetric.slice(0, 3).map((n) => n.title).join(', ')}`);
-  return out;
+  return checkInvariants(state.graph).map((v) => v.message);
 }
 
-export interface FindGapsOut { gaps: string[] }
+export interface FindGapsOut { gaps: string[]; pointIds: string[] }
+
+function stub(): FindGapsOut {
+  const violations = checkInvariants(state.graph);
+  const first = violations[0];
+  const pointIds = first ? first.subjects.filter((id) => nodeById(id)) : [];
+  return { gaps: violations.map((v) => v.message), pointIds };
+}
 
 function toCues(out: FindGapsOut, callId: string): Cue[] {
-  return [{ t: 'say', id: `${callId}-s1`, text: out.gaps.length ? out.gaps.join(' ') : 'No gaps found.' }];
+  const cues: Cue[] = [];
+  if (out.pointIds.length) cues.push({ t: 'point', nodes: out.pointIds, focus: out.pointIds[0] });
+  if (!out.gaps.length) {
+    cues.push({ t: 'say', id: `${callId}-s1`, text: 'No gaps found.' });
+    return cues;
+  }
+  const shown = out.gaps.slice(0, 5);
+  const text = `${shown.join(' ')} (${out.gaps.length} open gap${out.gaps.length === 1 ? '' : 's'} total.)`;
+  cues.push({ t: 'say', id: `${callId}-s1`, text });
+  return cues;
 }
 
 export const findGaps: AIFunctionImpl<undefined, FindGapsOut> = {
   context: { digest: (ctx) => `gaps=${ctx.gaps.length}` },
-  stub: () => ({ gaps: computeGaps() }),
+  stub,
   toCues,
 };

@@ -20,13 +20,50 @@ Rules:
 - Call `read_graph` before claiming anything that is not already visible in `context.screen` —
   do not guess at graph contents.
 
+## Open items and questions
+
+When exploration yields zero or several plausible readings, or when no measurable done-criterion can be derived, raise a question.
+
+### Using `read_open`
+Call `read_open` (no arguments) to check the current next question and suspect edge count without publishing a cue. Returns:
+- `next`: the top open item (tier 1–4), or null if all are resolved.
+- `suspect`: object with `edges` (count) and `nodes` (titles touched by suspect edges).
+
+Use `read_open` to decide: should you ask, revalidate suspect edges, or work on a task?
+
+### When to `raise_question`
+Ask when:
+- Exploration yields zero or several plausible readings.
+- No measurable done-criterion can be derived.
+- A node or path needs clarification before proceeding.
+
+A raised question names subject nodes (the nodes it is about), what is missing, and the readings considered.
+
+Call `raise_question` with:
+- `prompt`: the question itself.
+- `subjects`: array of node ids this question is about.
+- `produces`: (optional) kind id the answer will likely create.
+- `taskId`: (optional) id of a task this question is blocking.
+
+## Suspect links
+
+When an edge is edited (via `stage` + `commit`), its traces turn `suspect` until you revalidate them.
+
+### Using `revalidate`
+After re-editing a node to fix suspect edges:
+1. Call `read_open` to see which nodes have suspect edges.
+2. For each node you have re-examined, call `revalidate` with its node id.
+3. Suspect edges clear when a revalidate ack lands.
+
+Revalidate is the way neighbours signal that they accept an edit. It is not auto — each touching node must actively clear it.
+
 ## Functions
 
 ### describe-screen
 
 **Purpose:** Names what is visible on the active view and points at the matching cards.
 
-**Context needs:** screen, selection, graph
+**Context needs:** screen, selection, graph, suspect
 
 **Prompt:**
 
@@ -38,13 +75,14 @@ Here is the current screen and graph context:
 If the text names a node (by title, or close to it), point at that node and its immediate neighbours, then explain it in one or two sentences: what it is, why it exists, what it connects to. Quote the user's own words if you have them.
 If the text names nothing in the graph, say so plainly and suggest a node name, "edit bet: …", or a tour instead.
 If the text is empty, just describe what the active screen is currently showing (counts by kind are enough).
+If there are any suspect edges (an endpoint changed since the edge was last checked), end with one sentence naming up to three affected nodes and suggesting "revalidate <title>".
 ```
 
 **Output:** One utterance describing the active view, plus a point cue at the items it names.
 
 ### next-decision
 
-**Purpose:** Ranks the next unanswered question and open gaps, and surfaces the single most important one.
+**Purpose:** Ranks the next open item across all four tiers (agent-blocking, template question, violation, rest) and surfaces the single most important one.
 
 **Context needs:** next, gaps
 
@@ -54,7 +92,7 @@ If the text is empty, just describe what the active screen is currently showing 
 Context:
 {{context}}
 
-Pick exactly one thing to surface next: the next unlocked, unanswered question if there is one, otherwise the single most important open gap. Ask about it in one sentence, say why it matters, and offer "Answer it" / "Skip" as options. Never surface more than one item.
+Pick exactly one thing to surface next, using the ranking: (1) an agent question blocking a queued/running task, (2) the next unlocked template question, (3) a violation-raised question, ordered left-to-right by space, (4) any other open thread. Ask about it in one sentence prefixed by its tier ("Blocking:", "Next question:", "Gap:", "Open thread:"), and offer its own options if it has any, else "Answer it" / "Skip". Never surface more than one item.
 ```
 
 **Output:** One ask/say cue naming the next question or gap, with a one-line reason.
@@ -72,7 +110,7 @@ The user's answer: {{input}}
 Context (the question being answered, and the current graph):
 {{context}}
 
-Split the answer into one node per distinct idea (one per non-empty line for a plural kind; the whole answer as one node/update for a singular kind). Keep the user's own wording as the title. Skip anything that already exists under that kind — warn instead of duplicating. Never touch the graph directly: only produce the effects to stage.
+If the answer is of the form "edit <title>: <new text>", find the node with that title and stage an update — its title to the new text, or its description when the new text starts with "desc:". Otherwise split the answer into one node per distinct idea (one per non-empty line for a plural kind; the whole answer as one node/update for a singular kind). Keep the user's own wording as the title. Skip anything that already exists under that kind — warn instead of duplicating. Never touch the graph directly: only produce the effects to stage.
 ```
 
 **Output:** A changeset: one effect per non-empty line (or one update for a singular kind).
@@ -109,6 +147,7 @@ User text (if this was a text command, e.g. "edit bet: …"): {{input}}
 
 Walk the node: what it is, why it exists (its edges to problems/causes), what depends on or is satisfied by it, and any verdict/evidence it carries. Point at each group of neighbours before describing it. Two sentences per step, at most.
 If the user asked to reword it, ask for the new wording first, then stage the rename — never edit without asking.
+If the node has any suspect edges (an endpoint changed since the edge was last checked), say so and suggest a revalidate.
 ```
 
 **Output:** A short sequence of say + point cues walking the node and its neighbours.
@@ -132,7 +171,7 @@ Walk the level-0 Map in this fixed order: (1) what the Map shows (representation
 
 ### find-gaps
 
-**Purpose:** Runs the gap checks (nodes with no edges; bets with no metric) and reports them.
+**Purpose:** Reports every kernel violation (checkInvariants) as one line each — edge shapes, missing tests, orphans, unrealised protocols, suspect edges, and more.
 
 **Context needs:** gaps, graph
 
@@ -142,7 +181,7 @@ Walk the level-0 Map in this fixed order: (1) what the Map shows (representation
 Graph:
 {{context}}
 
-Report every open gap in one line each: nodes with no edges at all, and bets (hypotheses) with no linked metric. Name up to three examples per gap type. If there are none, say the graph has no gaps right now.
+Report every open violation in one line each (up to five), then the total count. Point at the subjects of the first one. If there are none, say the graph has no gaps right now.
 ```
 
 **Output:** A list of one-line gap descriptions; extensible with more checks later.
@@ -190,10 +229,13 @@ This is a two-step flow. If no term has been collected yet, ask for the term (a 
 **Prompt:**
 
 ```
-Filled in stage 1-A.
+Task under review, its targeted tests, and the rules those tests verify:
+{{context}}
+
+Judge the diff against the rule's own lines (its conditions), not against the letter of the test. For each rule the task's tests verify, check whether every condition line has a targeted test naming it (a test whose condition text matches that line, not just any test that happens to pass). Answer with exactly one of: "serves-intent" (every condition of every verified rule is covered), "overfits" (some conditions are uncovered — the task turns its own tests green without covering the rule), or "unclear" (the task targets no tests, or none of them verify a rule). Give one reason line per condition.
 ```
 
-**Output:** A verdict on the task: serves-intent, overfits, or unclear, with a one-line reason.
+**Output:** A verdict on the task: serves-intent, overfits, or unclear, with one reason per condition.
 
 ### raise-question
 
@@ -204,7 +246,10 @@ Filled in stage 1-A.
 **Prompt:**
 
 ```
-Filled in stage 1-A.
+Task (if any), what's missing, and the readings considered:
+{{context}}
+
+Per the ask-vs-act rule (AGENT-RUNTIME.md §4): only raise when exploration yields zero or several plausible readings, or no measurable done-criterion can be derived from the rule lines and test conditions. Name the subject task and its targeted tests, state plainly what's missing, and list the two or three readings you considered. Never guess and proceed — raise instead.
 ```
 
 **Output:** A raise cue: a follow-up question under the matching template question, and the task marked blocked.

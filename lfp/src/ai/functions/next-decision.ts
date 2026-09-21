@@ -1,31 +1,42 @@
-// next-decision: ranks ctx.next (the next unlocked question) above the top open gap and surfaces
-// exactly one of them as an ask, with a reason and a couple of quick options.
+// next-decision: surfaces the single top-ranked open item from store.ts's `rankOpen()` (four
+// tiers: agent-blocking > next template question > violation > rest), falling back to ctx.next
+// when rankOpen() somehow disagrees with the context snapshot. One ask, one tier word, done.
+import { rankOpen } from '../../store.ts';
 import type { Cue, Context } from '../../director.ts';
 import type { AIFunctionImpl } from '../types.ts';
+import type { OpenItem } from '../../types.ts';
 
-type NextOut = { op: 'next'; questionId: string; prompt: string };
-type GapOut = { op: 'gap'; text: string };
-type NoneOut = { op: 'none' };
-export type NextDecisionOut = NextOut | GapOut | NoneOut;
+export interface NextDecisionOut { item: OpenItem | null; openCount: number }
+
+const TIER_WORD: Record<OpenItem['tier'], string> = {
+  1: 'Blocking:',
+  2: 'Next question:',
+  3: 'Gap:',
+  4: 'Open thread:',
+};
 
 function stub(_input: undefined, ctx: Context): NextDecisionOut {
-  if (ctx.next) return { op: 'next', questionId: ctx.next.id, prompt: ctx.next.prompt };
-  if (ctx.gaps.length) return { op: 'gap', text: ctx.gaps[0] };
-  return { op: 'none' };
+  const items = rankOpen();
+  const item = items[0] ?? ctx.next ?? null;
+  return { item, openCount: items.length };
 }
 
 function toCues(out: NextDecisionOut, callId: string): Cue[] {
-  if (out.op === 'next') {
-    return [{ t: 'ask', id: `${callId}-a1`, text: `The next unanswered question is: ${out.prompt}`, options: ['Answer it', 'Skip'] }];
+  if (!out.item) {
+    return [{ t: 'say', id: `${callId}-s1`, text: 'Nothing outstanding: every question is answered and no gaps were found.' }];
   }
-  if (out.op === 'gap') {
-    return [{ t: 'ask', id: `${callId}-a1`, text: `Every question is answered, but there's an open gap: ${out.text}`, options: ['Answer it', 'Skip'] }];
-  }
-  return [{ t: 'say', id: `${callId}-s1`, text: 'Nothing outstanding: every question is answered and no gaps were found.' }];
+  const options = out.item.options?.length ? out.item.options : ['Answer it', 'Skip'];
+  return [{ t: 'ask', id: `${callId}-a1`, text: `${TIER_WORD[out.item.tier]} ${out.item.prompt}`, options }];
 }
 
 export const nextDecision: AIFunctionImpl<undefined, NextDecisionOut> = {
-  context: { digest: (ctx) => `next=${ctx.next?.id ?? 'none'} gaps=${ctx.gaps.length}` },
+  context: {
+    digest: (ctx: Context) => {
+      const items = rankOpen();
+      const item = items[0] ?? ctx.next;
+      return `tier=${item?.tier ?? 'none'} id=${item?.id ?? 'none'} open=${items.length}`;
+    },
+  },
   stub,
   toCues,
 };

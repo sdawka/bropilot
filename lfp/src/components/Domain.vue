@@ -79,6 +79,31 @@ const detailKind = computed(() => (detail.value ? kindById[detail.value.kind] : 
 const detailOut = computed(() => (state.selectedId ? edgesOf(state.selectedId).filter((e) => e.src === state.selectedId) : []));
 const detailIn = computed(() => (state.selectedId ? edgesOf(state.selectedId).filter((e) => e.dst === state.selectedId) : []));
 
+// ── tests footer (Reference: 1-C) ──
+const detailTests = computed(() => {
+  if (!state.selectedId) return [];
+  const selected = nodeById(state.selectedId);
+  if (!selected || selected.kind !== 'rule') return [];
+  // Find tests that verify this rule
+  return edgesOfType('verifies')
+    .filter((e) => e.dst === state.selectedId && nodeById(e.src)?.kind === 'test')
+    .map((e) => {
+      const test = nodeById(e.src)!;
+      const resultEdge = edgesOfType('reports').find((re) => re.dst === test.id);
+      const result = resultEdge ? nodeById(resultEdge.src) : undefined;
+      const status = result?.props?.status ?? 'missing';
+      const isStale = resultEdge?.trace === 'suspect';
+      return {
+        id: test.id,
+        title: test.title,
+        resultSource: test.props?.resultSource ?? 'unknown',
+        condition: test.props?.condition ?? '',
+        status: status as string,
+        isStale,
+      };
+    });
+});
+
 // report what's rendered on screen, per level
 useScreen((): ScreenItem[] => {
   if (level.value === 0) {
@@ -200,6 +225,17 @@ useScreen((): ScreenItem[] => {
       <ul><li v-for="e in detailOut" :key="e.id"><em>{{ edgeTypeById[e.type]?.label ?? e.type }}</em> → {{ title(e.dst) }}</li></ul>
       <h3>Edges in ({{ detailIn.length }})</h3>
       <ul><li v-for="e in detailIn" :key="e.id">{{ title(e.src) }} <em>{{ edgeTypeById[e.type]?.label ?? e.type }}</em> →</li></ul>
+      <div v-if="detailTests.length > 0" class="tests-footer">
+        <h3>Tests ({{ detailTests.length }})</h3>
+        <template v-for="t in detailTests" :key="t.id">
+          <span class="test-chip" :class="[t.status, { selected: state.selectedId === t.id }]" @click="state.selectedId = t.id">
+            <span class="ladder">{{ t.status[0] }}</span>
+            {{ t.title }}
+            <span v-if="t.isStale" class="stale">stale</span>
+            <span class="small">({{ t.resultSource }}: {{ t.condition || '—' }})</span>
+          </span>
+        </template>
+      </div>
     </aside>
   </div>
 </template>
@@ -248,6 +284,7 @@ useScreen((): ScreenItem[] => {
 .test-chip.selected { outline: 2px solid var(--ink); }
 .test-chip .ladder { font-size: .65rem; color: var(--kernel); border: 1px solid var(--kernel); border-radius: 4px; padding: 0 .3rem; }
 .tests-footer h3 { color: var(--muted); font-size: .75rem; text-transform: uppercase; margin: 0; }
+.test-chip .stale { color: var(--inferred); font-weight: 600; font-size: .7rem; text-transform: uppercase; margin-left: .2rem; }
 
 .detail { position: fixed; right: 1rem; top: 4rem; bottom: 1rem; width: 400px; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1rem; box-shadow: 0 8px 30px rgba(0,0,0,.08); z-index: 4; }
 .detail .close { position: absolute; right: .6rem; top: .5rem; border: none; font-size: 1.1rem; }

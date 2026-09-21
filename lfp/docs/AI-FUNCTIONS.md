@@ -4,24 +4,24 @@
 
 | id | version | purpose | context needs | feedback | provenance |
 | --- | --- | --- | --- | --- | --- |
-| describe-screen | 0.1 | Names what is visible on the active view and points at the matching cards. | screen, selection, graph | Makes sense / Doesn't make sense | said S119, S120 |
-| next-decision | 0.1 | Ranks the next unanswered question and open gaps, and surfaces the single most important one. | next, gaps | Makes sense / Doesn't make sense / Bad question | said S116, S117 |
-| answer-to-effects | 0.1 | Turns free-text answer content into staged add/update node and edge effects. | next, graph | Makes sense / Doesn't make sense | said S21, S27 |
+| describe-screen | 0.2 | Names what is visible on the active view and points at the matching cards. | screen, selection, graph, suspect | Makes sense / Doesn't make sense | said S119, S120 |
+| next-decision | 0.2 | Ranks the next open item across all four tiers (agent-blocking, template question, violation, rest) and surfaces the single most important one. | next, gaps | Makes sense / Doesn't make sense / Bad question | said S116, S117 |
+| answer-to-effects | 0.2 | Turns free-text answer content into staged add/update node and edge effects. | next, graph | Makes sense / Doesn't make sense | said S21, S27 |
 | propose-followup | 0.1 | Given a question or node, proposes one sub-question or follow-up thread. | selection, next | Makes sense / Doesn't make sense / Bad question | said S52, S53, S54 |
-| explain-node | 0.1 | Explains a selected node in context: why it exists, what it connects to, its verdict. | selection, graph | Makes sense / Doesn't make sense | said S62, S65 |
+| explain-node | 0.2 | Explains a selected node in context: why it exists, what it connects to, its verdict. | selection, graph | Makes sense / Doesn't make sense | said S62, S65 |
 | walk-map | 0.1 | Tours the level-0 Map: problem, bets, solution, then the reality-side test loop. | graph | Makes sense / Doesn't make sense | said S79, S80, S81 |
-| find-gaps | 0.1 | Runs the gap checks (nodes with no edges; bets with no metric) and reports them. | gaps, graph | Makes sense / Doesn't make sense | said S83 |
+| find-gaps | 0.2 | Reports every kernel violation (checkInvariants) as one line each — edge shapes, missing tests, orphans, unrealised protocols, suspect edges, and more. | gaps, graph | Makes sense / Doesn't make sense | said S83 |
 | unrealised-to-tasks | 0.1 | Finds protocols with no realising practice and stages an epic plus one task each. | graph | Makes sense / Doesn't make sense / Bad question | said S101, S105, S107 |
 | define-term | 0.1 | Two-step glossary flow: asks for a term, then its definition, then commits it. | selection | Makes sense / Doesn't make sense | said S59 |
-| review-change | 0.1 | Checks that a task's change serves the intent of the rule, not just the test it targets. | selection, graph | Makes sense / Doesn't make sense / Bad question | said S152 |
-| raise-question | 0.1 | Raises a clarification question from an agent about a task, blocking it until answered. | selection, next | Makes sense / Doesn't make sense / Bad question | said S148 |
+| review-change | 0.2 | Checks that a task's change serves the intent of the rule, not just the test it targets. | selection, graph | Makes sense / Doesn't make sense / Bad question | said S152 |
+| raise-question | 0.2 | Raises a clarification question from an agent about a task, blocking it until answered. | selection, next | Makes sense / Doesn't make sense / Bad question | said S148 |
 
 ## describe-screen
 
 Names what is visible on the active view and points at the matching cards.
 
-- **Version:** 0.1
-- **Context needs:** screen, selection, graph
+- **Version:** 0.2
+- **Context needs:** screen, selection, graph, suspect
 - **Output:** One utterance describing the active view, plus a point cue at the items it names.
 - **Feedback options:** Makes sense, Doesn't make sense
 
@@ -35,13 +35,14 @@ Here is the current screen and graph context:
 If the text names a node (by title, or close to it), point at that node and its immediate neighbours, then explain it in one or two sentences: what it is, why it exists, what it connects to. Quote the user's own words if you have them.
 If the text names nothing in the graph, say so plainly and suggest a node name, "edit bet: …", or a tour instead.
 If the text is empty, just describe what the active screen is currently showing (counts by kind are enough).
+If there are any suspect edges (an endpoint changed since the edge was last checked), end with one sentence naming up to three affected nodes and suggesting "revalidate <title>".
 ```
 
 ## next-decision
 
-Ranks the next unanswered question and open gaps, and surfaces the single most important one.
+Ranks the next open item across all four tiers (agent-blocking, template question, violation, rest) and surfaces the single most important one.
 
-- **Version:** 0.1
+- **Version:** 0.2
 - **Context needs:** next, gaps
 - **Output:** One ask/say cue naming the next question or gap, with a one-line reason.
 - **Feedback options:** Makes sense, Doesn't make sense, Bad question
@@ -52,14 +53,14 @@ Ranks the next unanswered question and open gaps, and surfaces the single most i
 Context:
 {{context}}
 
-Pick exactly one thing to surface next: the next unlocked, unanswered question if there is one, otherwise the single most important open gap. Ask about it in one sentence, say why it matters, and offer "Answer it" / "Skip" as options. Never surface more than one item.
+Pick exactly one thing to surface next, using the ranking: (1) an agent question blocking a queued/running task, (2) the next unlocked template question, (3) a violation-raised question, ordered left-to-right by space, (4) any other open thread. Ask about it in one sentence prefixed by its tier ("Blocking:", "Next question:", "Gap:", "Open thread:"), and offer its own options if it has any, else "Answer it" / "Skip". Never surface more than one item.
 ```
 
 ## answer-to-effects
 
 Turns free-text answer content into staged add/update node and edge effects.
 
-- **Version:** 0.1
+- **Version:** 0.2
 - **Context needs:** next, graph
 - **Output:** A changeset: one effect per non-empty line (or one update for a singular kind).
 - **Feedback options:** Makes sense, Doesn't make sense
@@ -71,7 +72,7 @@ The user's answer: {{input}}
 Context (the question being answered, and the current graph):
 {{context}}
 
-Split the answer into one node per distinct idea (one per non-empty line for a plural kind; the whole answer as one node/update for a singular kind). Keep the user's own wording as the title. Skip anything that already exists under that kind — warn instead of duplicating. Never touch the graph directly: only produce the effects to stage.
+If the answer is of the form "edit <title>: <new text>", find the node with that title and stage an update — its title to the new text, or its description when the new text starts with "desc:". Otherwise split the answer into one node per distinct idea (one per non-empty line for a plural kind; the whole answer as one node/update for a singular kind). Keep the user's own wording as the title. Skip anything that already exists under that kind — warn instead of duplicating. Never touch the graph directly: only produce the effects to stage.
 ```
 
 ## propose-followup
@@ -96,7 +97,7 @@ Propose exactly one concrete sub-question that would make the parent more specif
 
 Explains a selected node in context: why it exists, what it connects to, its verdict.
 
-- **Version:** 0.1
+- **Version:** 0.2
 - **Context needs:** selection, graph
 - **Output:** A short sequence of say + point cues walking the node and its neighbours.
 - **Feedback options:** Makes sense, Doesn't make sense
@@ -110,6 +111,7 @@ User text (if this was a text command, e.g. "edit bet: …"): {{input}}
 
 Walk the node: what it is, why it exists (its edges to problems/causes), what depends on or is satisfied by it, and any verdict/evidence it carries. Point at each group of neighbours before describing it. Two sentences per step, at most.
 If the user asked to reword it, ask for the new wording first, then stage the rename — never edit without asking.
+If the node has any suspect edges (an endpoint changed since the edge was last checked), say so and suggest a revalidate.
 ```
 
 ## walk-map
@@ -132,9 +134,9 @@ Walk the level-0 Map in this fixed order: (1) what the Map shows (representation
 
 ## find-gaps
 
-Runs the gap checks (nodes with no edges; bets with no metric) and reports them.
+Reports every kernel violation (checkInvariants) as one line each — edge shapes, missing tests, orphans, unrealised protocols, suspect edges, and more.
 
-- **Version:** 0.1
+- **Version:** 0.2
 - **Context needs:** gaps, graph
 - **Output:** A list of one-line gap descriptions; extensible with more checks later.
 - **Feedback options:** Makes sense, Doesn't make sense
@@ -145,7 +147,7 @@ Runs the gap checks (nodes with no edges; bets with no metric) and reports them.
 Graph:
 {{context}}
 
-Report every open gap in one line each: nodes with no edges at all, and bets (hypotheses) with no linked metric. Name up to three examples per gap type. If there are none, say the graph has no gaps right now.
+Report every open violation in one line each (up to five), then the total count. Point at the subjects of the first one. If there are none, say the graph has no gaps right now.
 ```
 
 ## unrealised-to-tasks
@@ -188,22 +190,25 @@ This is a two-step flow. If no term has been collected yet, ask for the term (a 
 
 Checks that a task's change serves the intent of the rule, not just the test it targets.
 
-- **Version:** 0.1
+- **Version:** 0.2
 - **Context needs:** selection, graph
-- **Output:** A verdict on the task: serves-intent, overfits, or unclear, with a one-line reason.
+- **Output:** A verdict on the task: serves-intent, overfits, or unclear, with one reason per condition.
 - **Feedback options:** Makes sense, Doesn't make sense, Bad question
 
 **Prompt:**
 
 ```
-Filled in stage 1-A.
+Task under review, its targeted tests, and the rules those tests verify:
+{{context}}
+
+Judge the diff against the rule's own lines (its conditions), not against the letter of the test. For each rule the task's tests verify, check whether every condition line has a targeted test naming it (a test whose condition text matches that line, not just any test that happens to pass). Answer with exactly one of: "serves-intent" (every condition of every verified rule is covered), "overfits" (some conditions are uncovered — the task turns its own tests green without covering the rule), or "unclear" (the task targets no tests, or none of them verify a rule). Give one reason line per condition.
 ```
 
 ## raise-question
 
 Raises a clarification question from an agent about a task, blocking it until answered.
 
-- **Version:** 0.1
+- **Version:** 0.2
 - **Context needs:** selection, next
 - **Output:** A raise cue: a follow-up question under the matching template question, and the task marked blocked.
 - **Feedback options:** Makes sense, Doesn't make sense, Bad question
@@ -211,5 +216,8 @@ Raises a clarification question from an agent about a task, blocking it until an
 **Prompt:**
 
 ```
-Filled in stage 1-A.
+Task (if any), what's missing, and the readings considered:
+{{context}}
+
+Per the ask-vs-act rule (AGENT-RUNTIME.md §4): only raise when exploration yields zero or several plausible readings, or no measurable done-criterion can be derived from the rule lines and test conditions. Name the subject task and its targeted tests, state plainly what's missing, and list the two or three readings you considered. Never guess and proceed — raise instead.
 ```
