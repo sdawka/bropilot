@@ -46,14 +46,13 @@ function modelForFn(fn: string): string {
   return table[MID_TIER_FNS.has(fn) ? 'mid' : 'cheap'];
 }
 
-// FAKE_AI canned output — deterministic, no model call. Shapes are a best-effort match to each
-// function's registry `output` prose (src/ai/registry.ts); src/ai/schemas.ts (Stage 3-A, concurrent
-// with this file) is the actual source of truth for the validated shape, so treat these as smoke
-// fixtures, not a schema contract.
+// FAKE_AI canned output — deterministic, no model call. Each shape satisfies the matching schema in
+// src/ai/schemas.ts (the browser validates every ai-response against it), so the seam is exercised
+// end to end with no key: request → bus → this service → response → schema check → toCues.
 const FAKE_OUTPUT: Record<string, unknown> = {
-  'describe-screen': { say: 'This is the active screen. (fake output — FAKE_AI=1)', point: [] },
-  'next-decision': { say: 'Next question: (fake output — FAKE_AI=1)' },
-  'find-gaps': { say: 'No gaps right now. (fake output — FAKE_AI=1)', count: 0 },
+  'describe-screen': { op: 'screen', view: 'overview', itemIds: [], summary: 'This is the active screen. (fake output — FAKE_AI=1)', suspect: '' },
+  'next-decision': { item: null, openCount: 0 },
+  'find-gaps': { gaps: ['(fake output — FAKE_AI=1) no gaps computed'], pointIds: [] },
 };
 
 // ── the one-shot structured-function agent ──────────────────────────────────────────────────────
