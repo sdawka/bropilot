@@ -1126,7 +1126,8 @@
           6,
           43
         ]
-      }
+      },
+      "description": "Templates can add Kinds, edge types, and questions\nTemplates never remove kernel Kinds"
     },
     {
       "id": "rule-node-has-kind",
@@ -1142,7 +1143,8 @@
         "statements": [
           43
         ]
-      }
+      },
+      "description": "Every Node has exactly one Kind\nA Kind belongs to exactly one Space"
     },
     {
       "id": "rule-thread-parent",
@@ -1159,7 +1161,8 @@
           52,
           53
         ]
-      }
+      },
+      "description": "A Thread belongs to one Question\nSub-questions are project-specific, not part of the template"
     },
     {
       "id": "rule-fixed-vocab",
@@ -1788,7 +1791,8 @@
       "status": "committed",
       "props": {
         "ladder": "exists",
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs",
+        "resultSource": "code"
       },
       "source": {
         "kind": "said",
@@ -1804,7 +1808,9 @@
       "status": "committed",
       "props": {
         "ladder": "surface",
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs",
+        "condition": "Every Effect traces to exactly one Answer or Action",
+        "resultSource": "code"
       },
       "source": {
         "kind": "said",
@@ -1820,7 +1826,9 @@
       "status": "committed",
       "props": {
         "ladder": "surface",
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs",
+        "condition": "A node or edge becomes committed only through a Commit",
+        "resultSource": "code"
       },
       "source": {
         "kind": "said",
@@ -1836,7 +1844,9 @@
       "status": "committed",
       "props": {
         "ladder": "surface",
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs",
+        "condition": "Undo reverts one whole Commit",
+        "resultSource": "code"
       },
       "source": {
         "kind": "said",
@@ -1852,7 +1862,9 @@
       "status": "committed",
       "props": {
         "ladder": "surface",
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs",
+        "condition": "A Question unlocks only when all unlocksAfter have a committed Answer",
+        "resultSource": "code"
       },
       "source": {
         "kind": "said",
@@ -1867,7 +1879,9 @@
       "title": "simulated random answer/commit/undo sequences never leave a draft committed",
       "status": "committed",
       "props": {
-        "ladder": "simulation"
+        "ladder": "simulation",
+        "condition": "A node or edge becomes committed only through a Commit",
+        "resultSource": "code"
       },
       "source": {
         "kind": "said",
@@ -2379,7 +2393,9 @@
         ]
       },
       "props": {
-        "ladder": "exists"
+        "ladder": "exists",
+        "resultSource": "metric",
+        "condition": "a landing page is live"
       }
     },
     {
@@ -2394,7 +2410,8 @@
         ]
       },
       "props": {
-        "status": "missing"
+        "status": "missing",
+        "threshold": "landing page reachable (HTTP 200)"
       }
     },
     {
@@ -2410,7 +2427,9 @@
         ]
       },
       "props": {
-        "ladder": "exists"
+        "ladder": "exists",
+        "resultSource": "metric",
+        "condition": "a way to buy or book exists"
       }
     },
     {
@@ -2425,7 +2444,8 @@
         ]
       },
       "props": {
-        "status": "missing"
+        "status": "missing",
+        "threshold": "a booking/purchase path exists"
       }
     },
     {
@@ -2441,7 +2461,9 @@
         ]
       },
       "props": {
-        "ladder": "exists"
+        "ladder": "exists",
+        "resultSource": "metric",
+        "condition": "an onboarding guide is published"
       }
     },
     {
@@ -2456,7 +2478,8 @@
         ]
       },
       "props": {
-        "status": "missing"
+        "status": "missing",
+        "threshold": "onboarding guide published"
       }
     },
     {
@@ -2605,7 +2628,8 @@
       "props": {
         "tests": "0 pos / 0 neg",
         "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
-      }
+      },
+      "description": "Agent changes go through the commit gate\nOnly glossary edits take the escape hatch"
     },
     {
       "id": "rule-point-is-truthful",
@@ -2621,7 +2645,8 @@
       "props": {
         "tests": "0 pos / 0 neg",
         "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/src/director.ts"
-      }
+      },
+      "description": "What the director points at is what the main screen highlights\nThe context published back matches what is on screen"
     },
     {
       "id": "event-cue-applied",
@@ -2704,7 +2729,8 @@
       },
       "props": {
         "ladder": "exists",
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs",
+        "resultSource": "code"
       }
     },
     {
@@ -2736,7 +2762,9 @@
       },
       "props": {
         "ladder": "surface",
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs",
+        "condition": "What the director points at is what the main screen highlights",
+        "resultSource": "code"
       }
     },
     {
@@ -2768,7 +2796,9 @@
       },
       "props": {
         "ladder": "surface",
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs",
+        "condition": "Agent changes go through the commit gate",
+        "resultSource": "code"
       }
     },
     {
@@ -2800,7 +2830,9 @@
       },
       "props": {
         "ladder": "surface",
-        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs"
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/smoke.mjs",
+        "condition": "The mirror shows at most one utterance or question at a time",
+        "resultSource": "code"
       }
     },
     {
@@ -3654,6 +3686,53 @@
       "props": {
         "version": "0.1",
         "runtime": "stub"
+      }
+    },
+    {
+      "id": "agent-reviewer",
+      "kind": "agent",
+      "title": "Reviewer",
+      "status": "committed",
+      "props": {
+        "status": "stub"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          152
+        ]
+      }
+    },
+    {
+      "id": "ai-function-review-change",
+      "kind": "ai-function",
+      "title": "Review change",
+      "status": "committed",
+      "props": {
+        "version": "0.1",
+        "runtime": "stub"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          152
+        ]
+      }
+    },
+    {
+      "id": "ai-function-raise-question",
+      "kind": "ai-function",
+      "title": "Raise question",
+      "status": "committed",
+      "props": {
+        "version": "0.1",
+        "runtime": "stub"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          148
+        ]
       }
     }
   ],
@@ -6303,6 +6382,34 @@
       "src": "ai-function-define-term",
       "dst": "thing-term",
       "type": "uses"
+    },
+    {
+      "id": "e-has-agent-reviewer",
+      "src": "capability-orchestration",
+      "dst": "agent-reviewer",
+      "type": "has",
+      "status": "committed"
+    },
+    {
+      "id": "e-implements-agent-reviewer",
+      "src": "agent-reviewer",
+      "dst": "feature-engineering",
+      "type": "implements",
+      "status": "committed"
+    },
+    {
+      "id": "e-contains-ai-function-review-change",
+      "src": "module-director",
+      "dst": "ai-function-review-change",
+      "type": "contains",
+      "status": "committed"
+    },
+    {
+      "id": "e-contains-ai-function-raise-question",
+      "src": "module-director",
+      "dst": "ai-function-raise-question",
+      "type": "contains",
+      "status": "committed"
     }
   ]
 }
