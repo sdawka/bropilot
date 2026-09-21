@@ -56,12 +56,6 @@ function finishEdit(i: number) {
 }
 watch(() => props.ctx?.staged?.ids.join(','), () => { editedOriginals.value = new Map(); });
 
-watch(() => stagedCall.value?.id ?? null, (id, prevId) => {
-  if (prevId && id !== prevId) {
-    const prev = state.aiCalls.find((c) => c.id === prevId);
-    if (prev && !prev.outcome) { prev.outcome = { state: 'ignored', at: Date.now() }; persist(); }
-  }
-});
 function recordOutcome(outcome: 'approved' | 'discarded') {
   const call = stagedCall.value ? state.aiCalls.find((c) => c.id === stagedCall.value!.id) : null;
   if (!call) return;
@@ -93,6 +87,13 @@ const stagedCall = computed(() => {
   const ids = props.ctx.staged.ids;
   if (!ids.length) return null;
   return state.aiCalls.find((c) => ids.some((id) => c.cueIds.includes(id))) ?? null;
+});
+// Placed after stagedCall's declaration: watch() reads its source synchronously during setup.
+watch(() => stagedCall.value?.id ?? null, (id, prevId) => {
+  if (prevId && id !== prevId) {
+    const prev = state.aiCalls.find((c) => c.id === prevId);
+    if (prev && !prev.outcome) { prev.outcome = { state: 'ignored', at: Date.now() }; persist(); }
+  }
 });
 const metaFor = (fn: string) => aiFunctionById[fn];
 function rate(callId: string, value: string) { rateCall(callId, value); }
