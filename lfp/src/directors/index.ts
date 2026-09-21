@@ -1,11 +1,34 @@
 // Wires the active Director to the bus and the main screen. Runs in the main tab only.
 import { watch } from 'vue';
-import { state } from '../store';
+import { state, persist, type AICall } from '../store';
 import { applyCues, tourStep, stopTour, pauseTour, currentContext, onCueApplied, type UserTurn, type Director } from '../director';
 import { publish, subscribe, bus, agentId } from '../bus';
 import { ScriptedDirector } from './scripted';
 import { RemoteDirector } from './remote';
 import { kernelDigest } from '../kernel';
+
+const genAiCallId = () => `call-agent-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+
+/** Records an `aicall` bus message (published by agent/server.mjs for a Talk turn, not through
+ * `runAI`) into `state.aiCalls`, so Kernel.vue's AI-calls table shows model/cost for those too. */
+function recordAgentCall(m: Extract<import('../bus').BusMessage, { kind: 'aicall' }>) {
+  const call: AICall = {
+    id: genAiCallId(),
+    fn: `agent:${m.fn}`,
+    version: 'flue',
+    runtime: 'flue',
+    at: m.at,
+    contextDigest: m.conversationId,
+    input: '',
+    output: '',
+    cueIds: [],
+    model: m.model,
+    costUsd: m.usage?.costUsd,
+    status: 'ok',
+  };
+  state.aiCalls.push(call);
+  persist();
+}
 
 let director: Director = new ScriptedDirector();
 let started = false;
@@ -62,6 +85,8 @@ export function startDirectorHost() {
     } else if (m.kind === 'cue' && m.from === agentId) {
       applyCues([m.cue]);
       if (m.msgId) publish({ kind: 'ack', msgId: m.msgId, ctx: currentContext(topics(), bus().label) });
+    } else if (m.kind === 'aicall') {
+      recordAgentCall(m);
     }
   });
   publish({ kind: 'hello', role: 'main' });

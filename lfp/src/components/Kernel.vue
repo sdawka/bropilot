@@ -43,6 +43,7 @@ const edgeShapes = computed(() => {
 const calls = computed(() => [...state.aiCalls].sort((a, b) => b.at - a.at));
 const fnById = Object.fromEntries(AI_FUNCTIONS.map((f) => [f.id, f]));
 const truncate = (s: string, n = 120) => (s.length > n ? s.slice(0, n) + '…' : s);
+const totalCostUsd = computed(() => state.aiCalls.reduce((sum, c) => sum + (c.costUsd ?? 0), 0));
 
 // ── Efficacy with outcome metrics (Reference: 1-C) ──
 const efficacy = computed(() => {
@@ -215,15 +216,25 @@ async function copyCalls() {
     </table>
 
     <h2>AI calls <span class="small">{{ calls.length }} recorded</span></h2>
-    <div class="toolbar"><button @click="copyCalls">Copy calls JSON</button></div>
+    <div class="toolbar">
+      <label class="mono small" data-testid="ref-ai-runtime">
+        <input type="radio" value="stub" v-model="state.aiRuntime" /> stub
+        <input type="radio" value="flue" v-model="state.aiRuntime" /> flue
+      </label>
+      <button @click="copyCalls">Copy calls JSON</button>
+      <span class="small">Total cost: ${{ totalCostUsd.toFixed(4) }}</span>
+    </div>
     <table data-testid="ref-ai-calls">
-      <thead><tr><th>At</th><th>Fn</th><th>Version</th><th>Runtime</th><th>Context digest</th><th>Input</th><th>Output</th><th>Rating</th><th>Outcome</th></tr></thead>
+      <thead><tr><th>At</th><th>Fn</th><th>Version</th><th>Runtime</th><th>Status</th><th>Model</th><th>Cost</th><th>Context digest</th><th>Input</th><th>Output</th><th>Rating</th><th>Outcome</th></tr></thead>
       <tbody>
         <tr v-for="c in calls" :key="c.id">
           <td class="mono small">{{ new Date(c.at).toLocaleString() }}</td>
           <td class="mono">{{ c.fn }}</td>
           <td class="mono">{{ c.version }}</td>
           <td class="mono">{{ c.runtime }}</td>
+          <td class="mono small">{{ c.status ?? '—' }}</td>
+          <td class="mono small">{{ c.model ?? '—' }}</td>
+          <td class="mono small">{{ c.costUsd !== undefined ? '$' + c.costUsd.toFixed(4) : '—' }}</td>
           <td>{{ c.contextDigest }}</td>
           <td :title="c.input">{{ truncate(c.input) }}</td>
           <td :title="c.output">{{ truncate(c.output) }}</td>

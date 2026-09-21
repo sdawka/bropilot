@@ -10,7 +10,13 @@ export type BusMessage =
   | { kind: 'user'; turn: UserTurn; from: string }
   | { kind: 'hello'; role: 'main' | 'mirror' | 'agent'; from: string }
   | { kind: 'ack'; msgId: string; ctx: Context; from: string }
-  | { kind: 'snapshot'; graph: Graph; kernel: string; from: string };
+  | { kind: 'snapshot'; graph: Graph; kernel: string; from: string }
+  // AIBackend seam (AGENT-RUNTIME.md §7): the browser asks, the agent server answers.
+  | { kind: 'ai-request'; id: string; fn: string; prompt: string; input: string; schemaId: string; from: string }
+  | { kind: 'ai-response'; id: string; output?: unknown; error?: string; model?: string; usage?: { input: number; output: number; costUsd: number }; from: string }
+  // Published by agent/server.mjs for every agent turn (not a browser-originated ai-request), so
+  // Kernel.vue's AI-calls table can show model/cost for Talk turns too.
+  | { kind: 'aicall'; fn: string; model?: string; usage?: { input: number; output: number; costUsd: number }; conversationId: string; at: number; from: string };
 
 export interface Transport { send(m: BusMessage): void; onMessage(fn: (m: BusMessage) => void): void; close(): void; readonly label: string }
 

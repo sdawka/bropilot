@@ -51,6 +51,10 @@ export interface AICall {
   rating?: { value: string; note?: string; at: number };
   /** Outcome of the call as observed at the Talk panel: what the user actually did with it. */
   outcome?: { state: 'approved' | 'edited' | 'discarded' | 'ignored'; editDistance?: number; at: number };
+  /** Flue-backed calls only: 'pending' while awaiting the agent's answer, then 'ok' or 'failed'. */
+  status?: 'ok' | 'failed' | 'pending';
+  model?: string;
+  costUsd?: number;
 }
 
 export type Effect =
