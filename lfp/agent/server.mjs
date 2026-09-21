@@ -82,7 +82,7 @@ async function runFakeAiOnly() {
     } catch {
       return;
     }
-    if (msg.kind === 'ai-request') aiService.handle(msg).catch((err) => console.error('[ai-service] handle failed:', err));
+    if (msg.kind === 'ai-request') { console.log(`[ai-request] ${msg.fn} ${msg.id}`); aiService.handle(msg).catch((err) => console.error('[ai-service] handle failed:', err)); }
   });
 }
 

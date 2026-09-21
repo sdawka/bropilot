@@ -1,6 +1,6 @@
 // Smoke test for the lfp. Usage: BIN=<chromium binary> OUT=<dir> node smoke.mjs   (dev server on :5199)
 import { chromium } from 'playwright';
-import { execSync } from 'node:child_process';
+import { execSync, spawn } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 const out = process.env.OUT ?? '/tmp';
 
@@ -319,6 +319,98 @@ await t('test-undo-whole', async () => {
 await t('test-unlock', async () => {
   if (r.definition?.followupId === undefined) throw new Error('Follow-up question not created');
 });
+
+// v4.1 (Stage 3 seam): the browser can run any AI function against a real Flue backend instead of
+// the deterministic stub (src/ai/backend.ts::BusBackend, AGENT-RUNTIME.md §7). FAKE_AI=1 exercises
+// the ai-request/ai-response wire with canned output and no model key — what CI/smoke uses.
+{
+  const { spawn } = await import('node:child_process');
+  const { WebSocket: NodeWebSocket } = await import('ws');
+  let child = null;
+  let skip = null;
+  let agentLog = '';
+  try {
+    child = spawn('node', ['agent/server.mjs'], { cwd: process.cwd(), env: { ...process.env, FAKE_AI: '1' }, stdio: ['ignore', 'pipe', 'pipe'] });
+    child.stdout.on('data', (b) => (agentLog += b.toString()));
+    child.stderr.on('data', (b) => (agentLog += b.toString()));
+    let exited = false;
+    child.once('exit', () => { exited = true; });
+    // the server's startup log line prints before the port bind actually settles, so don't trust it
+    // alone — dial the socket directly and only call it ready once a real connection opens.
+    const ready = await new Promise((resolve) => {
+      const deadline = Date.now() + 4000;
+      const tryConnect = () => {
+        if (exited || /EADDRINUSE/i.test(agentLog)) { resolve('busy'); return; }
+        if (Date.now() > deadline) { resolve('timeout'); return; }
+        const ws = new NodeWebSocket(`ws://localhost:5200`);
+        ws.once('open', () => { ws.close(); resolve('ready'); });
+        ws.once('error', () => { setTimeout(tryConnect, 250); });
+      };
+      tryConnect();
+    });
+    // The relay accepting connections is not enough: the fake service joins the bus as a client a
+    // moment later, and an ai-request published before that is rebroadcast to nobody. Wait for its log line.
+    if (ready === 'ready') {
+      const deadline2 = Date.now() + 6000;
+      while (!/fake-AI service connected/.test(agentLog) && Date.now() < deadline2) await new Promise((res) => setTimeout(res, 100));
+      if (!/fake-AI service connected/.test(agentLog)) skip = 'FAKE_AI service never joined the bus within 6s — skipped the flue-seam check';
+      else await new Promise((res) => setTimeout(res, 500));
+    }
+    if (ready === 'busy') skip = 'port 5200 already in use — skipped the flue-seam check';
+    else if (ready === 'timeout') skip = 'FAKE_AI agent server did not accept a connection within 4s — skipped the flue-seam check';
+  } catch (e) {
+    skip = `failed to spawn agent/server.mjs: ${e.message} — skipped the flue-seam check`;
+  }
+
+  if (skip) {
+    r.v41FlueSeam = { skipped: skip };
+    child?.kill();
+  } else {
+    try {
+      // A hash-only navigation does not reload the page, and the bus picks its transport once at load:
+      // reload so `?relay=localhost` (remembered in localStorage) actually switches it to the WebSocket relay.
+      await p.goto('http://localhost:5199/#overview?relay=localhost'); await p.reload(); await p.waitForSelector('.card');
+      await p.waitForTimeout(1500); // let the page's relay socket open and say hello before publishing
+      await p.evaluate(() => { window.__lfp.state.aiRuntime = 'flue'; });
+      await p.evaluate(async () => {
+        const mod = await import('/src/ai/runtime.ts');
+        const idx = await import('/src/ai/index.ts');
+        const dir = await import('/src/director.ts');
+        mod.runAI(idx.aiFunction('describe-screen'), { text: '' }, dir.currentContext([], 'smoke'));
+      });
+      await p.waitForTimeout(5000);
+      const call = await p.evaluate(() => window.__lfp.state.aiCalls.at(-1));
+      const relay = await p.evaluate(async () => (await import('/src/bus.ts')).relayHost());
+      r.v41FlueSeamRelay = relay;
+      const sayText = await p.evaluate(() => window.__lfp.state.say?.text ?? '');
+      r.v41FlueSeam = { runtime: call?.runtime, status: call?.status, sayText };
+      if (call?.runtime !== 'flue') throw new Error(`flue seam: expected last AICall.runtime === 'flue', got ${call?.runtime}`);
+      if (call?.status !== 'ok') throw new Error(`flue seam: expected last AICall.status === 'ok', got ${call?.status}; call=${JSON.stringify(call).slice(0, 300)}; agent log: ${agentLog.slice(-500)}`);
+      if (!sayText.includes('FAKE_AI=1')) throw new Error(`flue seam: expected state.say.text to mention FAKE_AI=1, got: ${sayText}`);
+
+      // fallback path: stop the fake agent, ask again on the same (still `flue`) runtime — with
+      // nothing to answer, the BusBackend's 15s timeout should fail the call and fall back to the
+      // stub's own cues rather than hang or throw. Kept in the same page load/context as the success
+      // check above so the ~16s wait isn't paid twice.
+      child.kill(); child = null;
+      await p.waitForTimeout(300); // let the browser's relay socket notice the server is gone
+      const fallbackCallId = await p.evaluate(async () => {
+        const mod = await import('/src/ai/runtime.ts');
+        const idx = await import('/src/ai/index.ts');
+        const dir = await import('/src/director.ts');
+        mod.runAI(idx.aiFunction('describe-screen'), { text: '' }, dir.currentContext([], 'smoke'));
+        return window.__lfp.state.aiCalls.at(-1).id;
+      });
+      await p.waitForTimeout(16000);
+      const fallback = await p.evaluate((id) => window.__lfp.state.aiCalls.find((c) => c.id === id), fallbackCallId);
+      r.v41FlueSeam.fallbackStatus = fallback?.status;
+      if (fallback?.status !== 'failed') throw new Error(`flue seam fallback: expected AICall.status === 'failed' once the agent is gone, got ${fallback?.status}`);
+      if (errors.length) throw new Error(`flue seam fallback: expected zero page errors, got: ${errors.join('; ')}`);
+    } finally {
+      child?.kill();
+    }
+  }
+}
 
 // v4.1: `npm run observe` (wraps this smoke via REALITY_OUT) writes src/reality.json with >=1
 // result; `npm run dispatch -- <taskId>` prints a work order containing "Acceptance". Skipped when
