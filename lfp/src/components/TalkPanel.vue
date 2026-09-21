@@ -185,7 +185,7 @@ function close() { state.panelOpen = false; }
             <div class="row" v-if="ctx.next.options?.length">
               <button v-for="o in ctx.next.options" :key="o" @click="props.send({ choice: o, forAsk: ctx.next!.id })">{{ o }}</button>
             </div>
-            <div class="row" v-else>
+            <div class="row" v-else-if="!bare">
               <button class="primary" @click="answerIt(ctx.next)">Answer it</button>
               <button @click="skip(ctx.next)">Skip</button>
             </div>
