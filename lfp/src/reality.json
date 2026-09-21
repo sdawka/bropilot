@@ -1,4 +1,50 @@
 {
-  "results": {},
-  "metrics": {}
+  "results": {
+    "test-page-loads": {
+      "status": "pass",
+      "at": "2026-09-21T15:06:06.650Z"
+    },
+    "test-store-answer-stages": {
+      "status": "pass",
+      "at": "2026-09-21T15:06:08.245Z"
+    },
+    "test-one-utterance": {
+      "status": "pass",
+      "at": "2026-09-21T15:06:08.724Z"
+    },
+    "test-mirror-exists": {
+      "status": "pass",
+      "at": "2026-09-21T15:06:08.880Z"
+    },
+    "test-point-highlights": {
+      "status": "pass",
+      "at": "2026-09-21T15:06:10.392Z"
+    },
+    "test-stage-reviewable": {
+      "status": "pass",
+      "at": "2026-09-21T15:06:12.115Z"
+    },
+    "test-commit-gate": {
+      "status": "pass",
+      "at": "2026-09-21T15:06:15.510Z"
+    },
+    "test-undo-whole": {
+      "status": "pass",
+      "at": "2026-09-21T15:06:15.510Z"
+    },
+    "test-unlock": {
+      "status": "pass",
+      "at": "2026-09-21T15:06:15.510Z"
+    }
+  },
+  "metrics": {
+    "metric-commits-since-reset": {
+      "value": "45",
+      "at": "2026-09-21T15:06:15.592Z"
+    },
+    "metric-violations": {
+      "value": "34",
+      "at": "2026-09-21T15:06:15.595Z"
+    }
+  }
 }

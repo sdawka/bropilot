@@ -55,7 +55,7 @@ try {
   const count = parseInt(
     execSync(`git rev-list --count ${resetCommit}..HEAD`, { cwd }).toString().trim()
   );
-  reality.metrics['metric-commits-since-reset'] = { value: count, at: Date.now() };
+  reality.metrics['metric-commits-since-reset'] = { value: String(count), at: new Date().toISOString() };
 } catch (e) {
   console.warn('Could not calculate commits-since-reset:', e.message);
 }
@@ -64,7 +64,7 @@ try {
 try {
   const graph = JSON.parse(readFileSync(join(cwd, 'src/graph.json'), 'utf8'));
   const violations = checkInvariants(graph);
-  reality.metrics['metric-violations'] = { value: violations.length, at: Date.now() };
+  reality.metrics['metric-violations'] = { value: String(violations.length), at: new Date().toISOString() };
 } catch (e) {
   console.warn('Could not calculate violations:', e.message);
 }

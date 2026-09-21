@@ -9,8 +9,24 @@ const errors = []; for (const p of [main, mirror]) { p.on('pageerror', (e) => er
 const r = {};
 process.on('uncaughtException', (e) => { r.errors = errors; r.failedAt = String(e.message).split('\n')[0]; console.log(JSON.stringify(r, null, 1)); process.exit(1); });
 await main.goto('http://localhost:5199/#overview'); await main.evaluate(() => localStorage.clear()); await main.reload(); await main.waitForSelector('.card');
+// v4.1: force a suspect edge on the main screen (same staged-update-then-commit trick as smoke.mjs's
+// edit-staleness check) so the mirror's "talk-revalidate absent" assertion below is meaningful — not
+// just vacuously true because there happens to be nothing to revalidate yet.
+await main.evaluate(() => {
+  const g = window.__lfp.state.graph;
+  const rule = g.nodes.find((n) => n.id === 'rule-unlock');
+  window.__lfp.state.staged = { effects: [{ id: 'ef-x', op: 'update-node', nodeId: rule.id, patch: { title: rule.title + ' (mirror smoke)' }, answerId: 'smoke' }], warnings: [] };
+  window.__lfp.applyCue({ t: 'commit' });
+});
+await main.waitForTimeout(150);
 await mirror.goto('http://localhost:5199/#mirror'); await mirror.waitForTimeout(600);
 r.mirror = { hasTopBar: await mirror.locator('.top').count(), talkPanel: await mirror.locator('[data-testid=talk-panel]').count(), text: (await mirror.locator('body').innerText()).slice(0, 200) };
+// v4.1: the mirror shows the same Now-strip "next" item as the main screen (bare, same testid) but
+// never the local-only Answer-it/Skip/Revalidate actions — those are main-screen-only (S128-131,
+// extended for suspect/revalidate in v4.1).
+r.v41Mirror = { talkNextVisible: await mirror.locator('[data-testid=talk-next]').count() > 0, talkRevalidateAbsent: (await mirror.locator('[data-testid=talk-revalidate]').count()) === 0 };
+if (!r.v41Mirror.talkNextVisible) throw new Error('expected [data-testid=talk-next] to be visible on the mirror on load (seed graph always has an open item)');
+if (!r.v41Mirror.talkRevalidateAbsent) throw new Error('expected [data-testid=talk-revalidate] to be absent on the bare mirror even when suspect edges exist');
 // tour: Walk the Map, started from the mirror via a topic chip
 await mirror.getByText('Walk the Map').first().click(); await mirror.waitForTimeout(500);
 r.afterStart = { mainHash: await main.evaluate(() => location.hash), mainHasMap: await main.getByText('Planned changes').count() > 0, mirrorSays: (await mirror.locator('body').innerText()).includes('This is the Map') };

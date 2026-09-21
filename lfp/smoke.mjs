@@ -9,9 +9,9 @@ const results = {};
 async function t(testId, fn) {
   try {
     await fn();
-    results[testId] = { status: 'pass', at: Date.now() };
+    results[testId] = { status: 'pass', at: new Date().toISOString() };
   } catch (e) {
-    results[testId] = { status: 'fail', at: Date.now(), value: String(e.message).slice(0, 200) };
+    results[testId] = { status: 'fail', at: new Date().toISOString(), value: String(e.message).slice(0, 200) };
     throw e;
   }
 }
@@ -155,6 +155,150 @@ await t('test-stage-reviewable', async () => {
   await p.screenshot({ path: `${out}/glossary.png` });
 });
 
+// v4.1 (Stage 2): Reference — violations, open items, edge shapes. No matching test node in
+// graph.json yet (these are new Reference tables, not kernel rules), so this is a plain check.
+{
+  await p.goto('http://localhost:5199/#kernel'); await p.waitForSelector('[data-testid=ref-violations]');
+  r.v41Reference = {
+    violationRows: await p.locator('[data-testid=ref-violations] tbody tr').count(),
+    openRows: await p.locator('[data-testid=ref-open] tbody tr').count(),
+    edgeShapeRows: await p.locator('[data-testid=ref-edge-shapes] tbody tr').count(),
+  };
+  if (r.v41Reference.violationRows < 1) throw new Error(`ref-violations: expected >=1 row on the seed, got ${r.v41Reference.violationRows}`);
+  if (r.v41Reference.openRows < 1) throw new Error(`ref-open: expected >=1 row on the seed, got ${r.v41Reference.openRows}`);
+  if (r.v41Reference.edgeShapeRows < 20) throw new Error(`ref-edge-shapes: expected >=20 rows (one per EDGE_TYPES entry), got ${r.v41Reference.edgeShapeRows}`);
+}
+
+// v4.1: Talk panel's Now strip shows ctx.next with a tier badge (S145+). Plain check.
+{
+  await p.goto('http://localhost:5199/#overview'); await p.waitForSelector('.card');
+  // defensive: test-stage-reviewable opens the glossary drawer for a screenshot and never closes it;
+  // shut it before clicking composer controls that would otherwise sit behind it.
+  if (await p.locator('.glossary').count()) { await p.locator('.glossary .close').click(); await p.waitForTimeout(150); }
+  const rankedNext = await p.evaluate(() => window.__lfp.rankOpen()[0] ?? null);
+  if (!rankedNext) throw new Error('rankOpen()[0] is null on the seed — expected at least one open item');
+  await p.waitForSelector('[data-testid=talk-next]', { timeout: 5000 });
+  const tierText = await p.locator('[data-testid=talk-next-tier]').innerText();
+  const validTiers = ['Blocking', 'Next question', 'Gap', 'Open thread'];
+  if (!validTiers.includes(tierText.trim())) throw new Error(`talk-next-tier text "${tierText}" is not one of ${validTiers.join(', ')}`);
+  r.v41TalkNext = { rankedNextId: rankedNext.id, tierText: tierText.trim() };
+}
+
+// v4.1: "what next" → an ask utterance tiered by rankOpen(); rate it → AICall.rating recorded.
+// (Builds on the existing test-one-utterance flow above, which already exercises feedback+reload.)
+{
+  await p.locator('[data-testid=talk-input]').fill('what next'); await p.locator('[data-testid=talk-send]').click();
+  await p.waitForSelector('[data-testid=talk-utterance]');
+  const utteranceText = await p.locator('[data-testid=talk-utterance] p').first().innerText();
+  const tierWords = ['Blocking', 'Next question', 'Gap', 'Open thread'];
+  const startsWithTier = tierWords.some((w) => utteranceText.trim().toLowerCase().startsWith(w.toLowerCase()) || utteranceText.includes(w));
+  r.v41WhatNext = { utteranceText, startsWithTier };
+  await p.waitForSelector('[data-testid=talk-feedback-makes-sense]');
+  await p.locator('[data-testid=talk-feedback-makes-sense]').first().click(); await p.waitForTimeout(150);
+  const lastCallRating = await p.evaluate(() => window.__lfp.state.aiCalls.at(-1)?.rating?.value);
+  if (!lastCallRating) throw new Error('expected state.aiCalls last call to carry a rating after clicking talk-feedback-makes-sense');
+  r.v41WhatNext.lastCallRating = lastCallRating;
+}
+
+// v4.1: edit-staleness — editing a committed rule with a verifies edge marks its edges suspect;
+// talk-suspect shows; revalidating an unchanged node clears them (early cutoff). Plain check.
+{
+  const before = await p.evaluate(() => {
+    const g = window.__lfp.state.graph;
+    const rule = g.nodes.find((n) => n.id === 'rule-unlock');
+    return { v: rule?.v ?? 0, title: rule?.title }; // seed nodes carry no v until first edit (baseline 0)
+  });
+  if (before.title === undefined) throw new Error('rule-unlock not found in the seed graph');
+
+  await p.evaluate(() => {
+    const g = window.__lfp.state.graph;
+    const rule = g.nodes.find((n) => n.id === 'rule-unlock');
+    window.__lfp.state.staged = {
+      effects: [{ id: 'ef-x', op: 'update-node', nodeId: rule.id, patch: { title: rule.title + ' (reworded)' }, answerId: 'smoke' }],
+      warnings: [],
+    };
+    window.__lfp.applyCue({ t: 'commit' });
+  });
+  await p.waitForTimeout(150);
+
+  const after = await p.evaluate(() => {
+    const g = window.__lfp.state.graph;
+    const rule = g.nodes.find((n) => n.id === 'rule-unlock');
+    const touchingEdges = g.edges.filter((e) => e.src === rule.id || e.dst === rule.id);
+    return { v: rule.v ?? 0, title: rule.title, suspectCount: touchingEdges.filter((e) => e.trace === 'suspect').length, totalTouching: touchingEdges.length };
+  });
+  if (!(after.v > before.v)) throw new Error(`expected rule-unlock's v to increment past ${before.v}, got ${after.v}`);
+  if (after.suspectCount < 1) throw new Error('expected at least one edge touching rule-unlock to be suspect after the edit');
+
+  await p.reload(); await p.waitForSelector('[data-testid=talk-panel]');
+  await p.waitForSelector('[data-testid=talk-suspect]', { timeout: 5000 });
+  await p.locator('[data-testid=talk-revalidate]').first().click({ force: true }); await p.waitForTimeout(200);
+
+  const revalidated = await p.evaluate(() => {
+    const g = window.__lfp.state.graph;
+    const rule = g.nodes.find((n) => n.id === 'rule-unlock');
+    const touchingEdges = g.edges.filter((e) => e.src === rule.id || e.dst === rule.id);
+    return { suspectCount: touchingEdges.filter((e) => e.trace === 'suspect').length };
+  });
+  if (revalidated.suspectCount !== 0) throw new Error(`expected revalidate() on unchanged rule-unlock to clear its suspect edges, got ${revalidated.suspectCount} still suspect`);
+  const suspectStripGone = (await p.locator('[data-testid=talk-suspect]').count()) === 0;
+  r.v41Staleness = { beforeV: before.v, afterV: after.v, suspectAfterEdit: after.suspectCount, suspectAfterRevalidate: revalidated.suspectCount, suspectStripGone };
+  if (!suspectStripGone) throw new Error('expected talk-suspect strip to disappear after revalidating the only suspect node');
+}
+
+// v4.1: outcome tracking — approve records outcome.state 'approved'; discard records 'discarded',
+// on the AICall that actually staged the changeset. Plain answer/commit doesn't call an AI function
+// (see test-store-answer-stages' note above), so this drives the "edit bet: …" AI-backed reword path
+// (src/ai/functions/explain-node.ts, op reword-start/reword-apply) instead, which does.
+{
+  // "edit bet: …" points at (and so selects) the bet, opening the Overview inspector — a fixed side
+  // panel that can visually overlap the Talk panel's own fixed position and make its Send *button*
+  // flaky to click; drive the composer via Enter instead, which doesn't have that problem.
+  await p.locator('[data-testid=talk-input]').fill('edit bet: H1'); await p.locator('[data-testid=talk-input]').press('Enter');
+  await p.waitForSelector('[data-testid=talk-utterance]');
+  await p.locator('[data-testid=talk-input]').fill('H1, reworded by smoke (approve path)'); await p.locator('[data-testid=talk-input]').press('Enter');
+  await p.waitForSelector('[data-testid=talk-approve]');
+  const stagingCallId = await p.evaluate(() => window.__lfp.state.aiCalls.at(-1)?.id);
+  // the reword's `point` cue opened the Overview inspector (fixed panel) on top of the Talk panel's
+  // Approve button, which a real browser click would hit instead of the button underneath; `clear`
+  // closes the inspector without touching the staged changeset.
+  await p.evaluate(() => window.__lfp.applyCue({ t: 'clear' })); await p.waitForTimeout(100);
+  await p.locator('[data-testid=talk-approve]').click(); await p.waitForTimeout(200);
+  const approvedOutcome = await p.evaluate((id) => window.__lfp.state.aiCalls.find((c) => c.id === id)?.outcome?.state, stagingCallId);
+  if (approvedOutcome !== 'approved') throw new Error(`expected the staging AICall's outcome.state to be 'approved', got ${approvedOutcome}`);
+
+  await p.locator('[data-testid=talk-input]').fill('edit bet: H2'); await p.locator('[data-testid=talk-input]').press('Enter');
+  await p.waitForSelector('[data-testid=talk-utterance]');
+  await p.locator('[data-testid=talk-input]').fill('H2, reworded by smoke (discard path)'); await p.locator('[data-testid=talk-input]').press('Enter');
+  await p.waitForSelector('[data-testid=talk-discard]');
+  const stagingCallId2 = await p.evaluate(() => window.__lfp.state.aiCalls.at(-1)?.id);
+  await p.evaluate(() => window.__lfp.applyCue({ t: 'clear' })); await p.waitForTimeout(100);
+  await p.locator('[data-testid=talk-discard]').click(); await p.waitForTimeout(200);
+  const discardedOutcome = await p.evaluate((id) => window.__lfp.state.aiCalls.find((c) => c.id === id)?.outcome?.state, stagingCallId2);
+  if (discardedOutcome !== 'discarded') throw new Error(`expected the staging AICall's outcome.state to be 'discarded', got ${discardedOutcome}`);
+
+  r.v41Outcomes = { approvedOutcome, discardedOutcome };
+}
+
+// v4.1: Definition shows raised follow-ups with a source badge (def-raised) on the seed.
+{
+  await p.goto('http://localhost:5199/#definition'); await p.waitForSelector('.q, [class*=tree]');
+  const raisedCount = await p.locator('[data-testid=def-raised]').count();
+  r.v41DefRaised = { raisedCount };
+  if (raisedCount < 1) throw new Error(`def-raised: expected >=1 raised follow-up visible on the seed, got ${raisedCount}`);
+}
+
+// v4.1: dogfood — every agent in src/agents.ts appears in kernelDigest() (checked via a plain Node
+// import, not the browser, since __lfp doesn't expose kernelDigest/agentById).
+{
+  const { AGENTS } = await import('./src/agents.ts');
+  const { kernelDigest } = await import('./src/kernel.ts');
+  const digest = kernelDigest();
+  const missing = AGENTS.map((a) => a.id).filter((id) => !digest.includes(id));
+  r.v41AgentDogfood = { agentIds: AGENTS.map((a) => a.id), missingFromDigest: missing };
+  if (missing.length) throw new Error(`kernelDigest() is missing agent ids: ${missing.join(', ')}`);
+}
+
 await t('test-commit-gate', async () => {
   // docs drift gate: `npm run docs` must be a no-op once docs/ and agent/prompt.md are committed
   try {
@@ -175,5 +319,21 @@ await t('test-undo-whole', async () => {
 await t('test-unlock', async () => {
   if (r.definition?.followupId === undefined) throw new Error('Follow-up question not created');
 });
+
+// v4.1: `npm run observe` (wraps this smoke via REALITY_OUT) writes src/reality.json with >=1
+// result; `npm run dispatch -- <taskId>` prints a work order containing "Acceptance". Skipped when
+// this run IS the one being driven by `observe` (REALITY_OUT set) to avoid recursion.
+if (!process.env.REALITY_OUT) {
+  try {
+    execSync('npm run dispatch -- task-unlock-test', { cwd: process.cwd(), stdio: 'pipe' }).toString();
+    const wo = readFileSync(`${process.cwd()}/scratch/workorders/task-unlock-test.md`, 'utf8');
+    r.v41Dispatch = { hasAcceptance: wo.includes('Acceptance') };
+    if (!r.v41Dispatch.hasAcceptance) throw new Error('dispatch work order for task-unlock-test is missing an "Acceptance" section');
+  } catch (e) {
+    r.v41Dispatch = { error: String(e.message).slice(0, 300) };
+    throw e;
+  }
+  r.v41Observe = { note: 'npm run observe wraps this smoke.mjs; run it separately (see package.json) to populate src/reality.json — not invoked here to avoid recursive smoke runs.' };
+}
 
 r.errors = errors; console.log(JSON.stringify(r, null, 1)); await b.close();

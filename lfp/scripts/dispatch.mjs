@@ -66,15 +66,15 @@ if (newState) {
 // Generate work order (no --state given)
 // Find rules served by this task (task → targets → test → verifies → rule)
 const tests = graph.edges
-  .filter(e => e.from === taskId && e.relation === 'targets')
-  .map(e => graph.nodes.find(n => n.id === e.to))
+  .filter(e => e.src === taskId && e.type === 'targets')
+  .map(e => graph.nodes.find(n => n.id === e.dst))
   .filter(Boolean);
 
 const rules = new Set();
 tests.forEach(test => {
   graph.edges
-    .filter(e => e.from === test.id && e.relation === 'verifies')
-    .forEach(e => rules.add(e.to));
+    .filter(e => e.src === test.id && e.type === 'verifies')
+    .forEach(e => rules.add(e.dst));
 });
 
 const ruleNodes = Array.from(rules)
@@ -109,7 +109,7 @@ if (tests.length > 0) {
   lines.push('## Tests Targeted');
   tests.forEach(test => {
     const cond = test.props?.condition || '(no condition)';
-    const resultNode = graph.nodes.find(n => n.kind === 'test-result' && graph.edges.some(e => e.from === test.id && e.to === n.id && e.relation === 'reports'));
+    const resultNode = graph.nodes.find(n => n.kind === 'test-result' && graph.edges.some(e => e.src === n.id && e.dst === test.id && e.type === 'reports'));
     const resultStatus = resultNode?.props?.status || 'unknown';
     lines.push(`- **${test.title}** (\`${test.id}\`)`);
     lines.push(`  - Condition: ${cond}`);
