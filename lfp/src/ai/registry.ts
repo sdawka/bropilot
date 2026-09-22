@@ -1,0 +1,151 @@
+// The AI-function registry: metadata only, no implementations (S128). Node-runnable (imported by
+// kernel.ts for the digest and by scripts/emit-docs.mjs) — imports nothing but ./types.ts and
+// ../provenance.ts. Stage 1-A fills in `prompt`; functions/*.ts (browser-only) hold the stubs.
+
+import type { AIFunctionMeta } from './types.ts';
+import { said, inferred } from '../provenance.ts';
+
+const decides: AIFunctionMeta['feedback'] = [
+  { value: 'makes-sense', label: 'Makes sense' },
+  { value: 'doesnt', label: "Doesn't make sense" },
+  { value: 'bad-question', label: 'Bad question' },
+];
+const states: AIFunctionMeta['feedback'] = [
+  { value: 'makes-sense', label: 'Makes sense' },
+  { value: 'doesnt', label: "Doesn't make sense" },
+];
+
+export const AI_FUNCTIONS: AIFunctionMeta[] = [
+  {
+    id: 'describe-screen',
+    version: '0.2',
+    purpose: 'Names what is visible on the active view and points at the matching cards.',
+    context: { needs: ['screen', 'selection', 'graph', 'suspect'] },
+    prompt: `The user said: {{input}}\nHere is the current screen and graph context:\n{{context}}\n\nIf the text names a node (by title, or close to it), point at that node and its immediate neighbours, then explain it in one or two sentences: what it is, why it exists, what it connects to. Quote the user's own words if you have them.\nIf the text names nothing in the graph, say so plainly and suggest a node name, "edit bet: …", or a tour instead.\nIf the text is empty, just describe what the active screen is currently showing (counts by kind are enough).\nIf there are any suspect edges (an endpoint changed since the edge was last checked), end with one sentence naming up to three affected nodes and suggesting "revalidate <title>".`,
+    output: 'One utterance describing the active view, plus a point cue at the items it names.',
+    feedback: states,
+    source: said(119, 120),
+  },
+  {
+    id: 'next-decision',
+    version: '0.2',
+    purpose: 'Ranks the next open item across all four tiers (agent-blocking, template question, violation, rest) and surfaces the single most important one.',
+    context: { needs: ['next', 'gaps'] },
+    prompt: `Context:\n{{context}}\n\nPick exactly one thing to surface next, using the ranking: (1) an agent question blocking a queued/running task, (2) the next unlocked template question, (3) a violation-raised question, ordered left-to-right by space, (4) any other open thread. Ask about it in one sentence prefixed by its tier ("Blocking:", "Next question:", "Gap:", "Open thread:"), and offer its own options if it has any, else "Answer it" / "Skip". Never surface more than one item.`,
+    output: 'One ask/say cue naming the next question or gap, with a one-line reason.',
+    feedback: decides,
+    source: said(116, 117),
+  },
+  {
+    id: 'answer-to-effects',
+    version: '0.2',
+    purpose: 'Turns free-text answer content into staged add/update node and edge effects.',
+    context: { needs: ['next', 'graph'] },
+    prompt: `The user's answer: {{input}}\nContext (the question being answered, and the current graph):\n{{context}}\n\nIf the answer is of the form "edit <title>: <new text>", find the node with that title and stage an update — its title to the new text, or its description when the new text starts with "desc:". Otherwise split the answer into one node per distinct idea (one per non-empty line for a plural kind; the whole answer as one node/update for a singular kind). Keep the user's own wording as the title. Skip anything that already exists under that kind — warn instead of duplicating. Never touch the graph directly: only produce the effects to stage.`,
+    output: 'A changeset: one effect per non-empty line (or one update for a singular kind).',
+    feedback: states,
+    source: said(21, 27),
+  },
+  {
+    id: 'propose-followup',
+    version: '0.1',
+    purpose: 'Given a question or node, proposes one sub-question or follow-up thread.',
+    context: { needs: ['selection', 'next'] },
+    prompt: `Parent (a selected node, or the next open question):\n{{context}}\n\nPropose exactly one concrete sub-question that would make the parent more specific or testable — a request for an example, a number, or a name, not another open-ended question. One sentence.`,
+    output: 'One followup cue: a sub-question or thread prompt under the parent.',
+    feedback: decides,
+    source: said(52, 53, 54),
+  },
+  {
+    id: 'explain-node',
+    version: '0.2',
+    purpose: 'Explains a selected node in context: why it exists, what it connects to, its verdict.',
+    context: { needs: ['selection', 'graph'] },
+    prompt: `Selected node and its neighbours:\n{{context}}\nUser text (if this was a text command, e.g. "edit bet: …"): {{input}}\n\nWalk the node: what it is, why it exists (its edges to problems/causes), what depends on or is satisfied by it, and any verdict/evidence it carries. Point at each group of neighbours before describing it. Two sentences per step, at most.\nIf the user asked to reword it, ask for the new wording first, then stage the rename — never edit without asking.\nIf the node has any suspect edges (an endpoint changed since the edge was last checked), say so and suggest a revalidate.`,
+    output: 'A short sequence of say + point cues walking the node and its neighbours.',
+    feedback: states,
+    source: said(62, 65),
+  },
+  {
+    id: 'walk-map',
+    version: '0.1',
+    purpose: 'Tours the level-0 Map: problem, bets, solution, then the reality-side test loop.',
+    context: { needs: ['graph'] },
+    prompt: `Graph summary:\n{{context}}\n\nWalk the level-0 Map in this fixed order: (1) what the Map shows (representation vs. reality, joined by tests), (2) the main problem, (3) the bets, (4) the capabilities and which problems they satisfy, (5) how many tests are unfulfilled on the reality side. One or two sentences per step; point at what you're naming before you say it.`,
+    output: 'A sequence cue: a fixed set of navigate/point/say steps over the Map.',
+    feedback: states,
+    source: said(79, 80, 81),
+  },
+  {
+    id: 'find-gaps',
+    version: '0.2',
+    purpose: 'Reports every kernel violation (checkInvariants) as one line each — edge shapes, missing tests, orphans, unrealised protocols, suspect edges, and more.',
+    context: { needs: ['gaps', 'graph'] },
+    prompt: `Graph:\n{{context}}\n\nReport every open violation in one line each (up to five), then the total count. Point at the subjects of the first one. If there are none, say the graph has no gaps right now.`,
+    output: 'A list of one-line gap descriptions; extensible with more checks later.',
+    feedback: states,
+    source: said(83),
+  },
+  {
+    id: 'unrealised-to-tasks',
+    version: '0.1',
+    purpose: 'Finds protocols with no realising practice and stages an epic plus one task each.',
+    context: { needs: ['graph'] },
+    prompt: `Protocols and which practices realise them:\n{{context}}\n\nFind every protocol with no realising practice. If there are none, say so and stop. Otherwise propose one epic ("Realise N unrealised protocols") containing one task per missing protocol ("Put "<protocol>" into practice"), and stage it — never commit directly. Name every missing protocol in the summary.`,
+    output: 'A stage cue: one epic node and one task node + contains edge per unrealised protocol.',
+    feedback: decides,
+    source: said(101, 105, 107),
+  },
+  {
+    id: 'define-term',
+    version: '0.1',
+    purpose: 'Two-step glossary flow: asks for a term, then its definition, then commits it.',
+    context: { needs: ['selection'] },
+    prompt: `Conversation so far: {{context}}\nLatest user text: {{input}}\n\nThis is a two-step flow. If no term has been collected yet, ask for the term (a word or phrase) and nothing else. Once you have a term, ask for its definition in one sentence. Once you have both, commit the glossary upsert immediately — this is the one flow allowed to skip the stage/approve step — and tell the user it's done and undoable.`,
+    output: 'A glossary upsert cue, committed immediately (the escape hatch).',
+    feedback: states,
+    source: said(59),
+  },
+  {
+    id: 'review-change',
+    version: '0.2',
+    purpose: "Checks that a task's change serves the intent of the rule, not just the test it targets.",
+    context: { needs: ['selection', 'graph'] },
+    prompt: `Task under review, its targeted tests, and the rules those tests verify:\n{{context}}\n\nJudge the diff against the rule's own lines (its conditions), not against the letter of the test. For each rule the task's tests verify, check whether every condition line has a targeted test naming it (a test whose condition text matches that line, not just any test that happens to pass). Answer with exactly one of: "serves-intent" (every condition of every verified rule is covered), "overfits" (some conditions are uncovered — the task turns its own tests green without covering the rule), or "unclear" (the task targets no tests, or none of them verify a rule). Give one reason line per condition.`,
+    output: 'A verdict on the task: serves-intent, overfits, or unclear, with one reason per condition.',
+    feedback: decides,
+    source: said(152),
+  },
+  {
+    id: 'raise-question',
+    version: '0.2',
+    purpose: 'Raises a clarification question from an agent about a task, blocking it until answered.',
+    context: { needs: ['selection', 'next'] },
+    prompt: `Task (if any), what's missing, and the readings considered:\n{{context}}\n\nPer the ask-vs-act rule (AGENT-RUNTIME.md §4): only raise when exploration yields zero or several plausible readings, or no measurable done-criterion can be derived from the rule lines and test conditions. Name the subject task and its targeted tests, state plainly what's missing, and list the two or three readings you considered. Never guess and proceed — raise instead.`,
+    output: 'A raise cue: a follow-up question under the matching template question, and the task marked blocked.',
+    feedback: decides,
+    source: said(148),
+  },
+  {
+    id: 'consolidate-questions',
+    version: '0.1',
+    purpose: 'Rewrites a group of related violation follow-ups as one question a user can answer in a single sentence.',
+    context: { needs: ['next'] },
+    prompt: `The consolidated follow-up's deterministic message and the member gaps it groups (one line each), plus the subject nodes' titles:\n{{context}}\n\nPropose ONE question a user could answer in a single sentence that resolves every member gap listed, offering the union of their repair options (at most four). If the members genuinely can't be answered as one sentence, answer the biggest subset you can and set "answersAll" to false, naming which are left out.`,
+    output: 'A refine cue rewriting the follow-up\'s prompt/options to the single consolidated question, plus a confirmation line.',
+    feedback: decides,
+    source: said(113, 142),
+  },
+  {
+    id: 'find-contradictions',
+    version: '0.1',
+    purpose: 'Scans the graph for two statements that disagree: same-titled nodes of one kind, or rules governing the same thing with opposing conditions.',
+    context: { needs: ['graph'] },
+    prompt: `Graph summary:\n{{context}}\n\nLook for two statements that disagree: (a) two nodes of the same kind that appear to name the same thing, (b) two rules governing the same target whose condition lines contradict each other (one forbids what the other requires). Report each as a one-sentence question naming both sides and the shared subject. If you find none, say so.`,
+    output: 'One raise cue per contradiction found (or a single "no contradictions" say cue).',
+    feedback: decides,
+    source: inferred('v4.2 plan: contradiction-detection wasn\'t named in a brief statement; grouped under the same "consolidate to common sources of truth" intent as consolidate-questions (S142).'),
+  },
+];
+
+export const aiFunctionById = Object.fromEntries(AI_FUNCTIONS.map((f) => [f.id, f])) as Record<string, AIFunctionMeta>;

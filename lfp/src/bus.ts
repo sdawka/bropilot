@@ -1,0 +1,85 @@
+// One message bus between the main screen, the mirror screen(s) and the director (agent).
+// Two transports behind one interface: BroadcastChannel (same machine) and a LAN WebSocket relay (phone).
+
+import type { Cue, Context, UserTurn } from './director';
+import type { Graph } from './store';
+
+export type BusMessage =
+  | { kind: 'cue'; cue: Cue; msgId?: string; from: string }
+  | { kind: 'context'; ctx: Context; from: string }
+  | { kind: 'user'; turn: UserTurn; from: string }
+  | { kind: 'hello'; role: 'main' | 'mirror' | 'agent'; from: string }
+  | { kind: 'ack'; msgId: string; ctx: Context; from: string }
+  | { kind: 'snapshot'; graph: Graph; kernel: string; from: string }
+  // AIBackend seam (AGENT-RUNTIME.md §7): the browser asks, the agent server answers.
+  | { kind: 'ai-request'; id: string; fn: string; prompt: string; input: string; schemaId: string; from: string }
+  | { kind: 'ai-response'; id: string; output?: unknown; error?: string; model?: string; usage?: { input: number; output: number; costUsd: number }; from: string }
+  // Published by agent/server.mjs for every agent turn (not a browser-originated ai-request), so
+  // Kernel.vue's AI-calls table can show model/cost for Talk turns too.
+  | { kind: 'aicall'; fn: string; model?: string; usage?: { input: number; output: number; costUsd: number }; conversationId: string; at: number; from: string };
+
+export interface Transport { send(m: BusMessage): void; onMessage(fn: (m: BusMessage) => void): void; close(): void; readonly label: string }
+
+const CHANNEL = 'bropilot:director';
+export const clientId = (() => {
+  const KEY = 'bropilot:clientId';
+  try {
+    let id = sessionStorage.getItem(KEY);
+    if (!id) { id = Math.random().toString(36).slice(2, 8); sessionStorage.setItem(KEY, id); }
+    return id;
+  } catch { return Math.random().toString(36).slice(2, 8); }
+})();
+
+/** The `from` id of the last agent client that said hello, if any (directors/index.ts targets its cue acks/snapshots there). */
+export let agentId: string | null = null;
+
+class BroadcastTransport implements Transport {
+  label = 'broadcast';
+  private ch = new BroadcastChannel(CHANNEL);
+  send(m: BusMessage) { this.ch.postMessage(JSON.parse(JSON.stringify(m))); } // strip Vue proxies: structured clone rejects them
+  onMessage(fn: (m: BusMessage) => void) { this.ch.onmessage = (e) => fn(e.data as BusMessage); }
+  close() { this.ch.close(); }
+}
+
+class RelayTransport implements Transport {
+  label: string;
+  private ws: WebSocket; private queue: BusMessage[] = []; private handler: ((m: BusMessage) => void) | null = null;
+  constructor(host: string) {
+    this.label = `relay ${host}`;
+    this.ws = new WebSocket(`ws://${host}:5200`);
+    this.ws.onopen = () => { for (const m of this.queue) this.ws.send(JSON.stringify(m)); this.queue = []; };
+    this.ws.onmessage = (e) => { try { this.handler?.(JSON.parse(String(e.data))); } catch { /* ignore */ } };
+  }
+  send(m: BusMessage) { if (this.ws.readyState === WebSocket.OPEN) this.ws.send(JSON.stringify(m)); else this.queue.push(m); }
+  onMessage(fn: (m: BusMessage) => void) { this.handler = fn; }
+  close() { this.ws.close(); }
+}
+
+/** Relay host from `?relay=<host>` in the URL (also remembered) or localStorage; empty string = BroadcastChannel. */
+export function relayHost(): string {
+  try {
+    const q = new URLSearchParams(location.search.slice(1) || location.hash.split('?')[1] || '');
+    const fromUrl = q.get('relay');
+    if (fromUrl) { localStorage.setItem('bropilot:relay', fromUrl); return fromUrl; }
+    return localStorage.getItem('bropilot:relay') ?? '';
+  } catch { return ''; }
+}
+export function setRelayHost(host: string) { try { host ? localStorage.setItem('bropilot:relay', host) : localStorage.removeItem('bropilot:relay'); } catch { /* ignore */ } }
+
+let transport: Transport | null = null;
+const subscribers = new Set<(m: BusMessage) => void>();
+
+export function bus(): Transport {
+  if (transport) return transport;
+  const host = relayHost();
+  transport = host ? new RelayTransport(host) : new BroadcastTransport();
+  transport.onMessage((m) => {
+    if (m.from === clientId) return;
+    if (m.kind === 'hello' && m.role === 'agent') agentId = m.from;
+    subscribers.forEach((fn) => fn(m));
+  });
+  return transport;
+}
+type Outgoing = { [K in BusMessage['kind']]: Omit<Extract<BusMessage, { kind: K }>, 'from'> }[BusMessage['kind']];
+export function publish(m: Outgoing) { bus().send({ ...m, from: clientId } as BusMessage); }
+export function subscribe(fn: (m: BusMessage) => void) { bus(); subscribers.add(fn); return () => subscribers.delete(fn); }
