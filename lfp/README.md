@@ -9,6 +9,18 @@ npm run dev      # http://localhost:5173
 npm run build
 ```
 
+## Latest Update + todos for User
+
+_Overwritten after every accomplishment; only the current state lives here._
+
+**Latest (2026-09-21, `v4` @ fa32ceb): v4.1 shipped.** Rules → per-condition tests → tasks; kernel violations raised as questions (never auto-repaired); suspect edges with transitive early-cutoff revalidation; six agent specs in `src/agents.ts` running on Flue 2.0.6 with OpenRouter tiers; browser ↔ agent seam with stub fallback; smoke drives the seam through `FAKE_AI=1`. Build, `smoke`, `smoke:mirror` green.
+
+Todos for you:
+1. Put `OPENROUTER_API_KEY=...` in `lfp/.env`, run `npm run agent`, switch Reference → runtime to `flue`, and try one Talk turn.
+2. Check the model slugs in `TIER_MODELS` (`src/agents.ts`) against your OpenRouter account.
+3. Decide the open questions in `docs/AGENT-RUNTIME.md` §8 (rule-based reviewer, planner schedule, Cloudflare vs Node for the cloud path).
+4. Decide whether raised questions get a consolidation pass (today: one follow-up per violation, no grouping).
+
 ## What Bropilot v4 is (the brief, condensed)
 A **business requirements orchestrator**. A user answers a structured series of questions; each answer stages downstream effects on a representation graph; the user reviews and **commits**; an agentic team (Flue later; implementation detail) makes the committed things happen in reality. The graph is the **representation layer** (problem, hypothesis, solution spaces). The coded, deployed, used system is the **reality layer** (stubbed for now; shape planned). Bropilot must be describable in Bropilot.
 
