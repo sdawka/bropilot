@@ -161,6 +161,9 @@ async function runAgent() {
       send({ kind: 'cue', cue, msgId });
     });
   busRef.getSnapshot = () => latestSnapshot;
+  // `talk.ts::run_review` writes the verdict to reality.json itself (it runs in this process); this
+  // is just the "browser ignores for now" broadcast (v4.2 §Agent C) — fire-and-forget, no ack.
+  busRef.publishReality = (payload) => send({ kind: 'reality', ...payload });
 
   ws.on('message', async (data) => {
     let msg;

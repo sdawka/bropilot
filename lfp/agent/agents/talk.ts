@@ -4,22 +4,42 @@
 // cannot have). The clarifier is not an agent: it is the paragraph below about raise_question.
 import { useSubagent, defineTool, init } from '@flue/runtime';
 import * as v from 'valibot';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { agentById } from '../../src/agents.ts';
-import { applySpec, asSubagent } from './from-spec.ts';
+import { applySpec, asSubagent, tierOverrideEnvKey } from './from-spec.ts';
+import { diffChangedFiles } from './tools.ts';
+import { precheckDiff } from './precheck.ts';
+import { busRef } from '../bus-ref.ts';
 import { Observer } from './observer.ts';
 import { Planner } from './planner.ts';
 import { Builder } from './builder.ts';
 import { Reviewer } from './reviewer.ts';
 
+const LFP = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+
 // prompt.md is generated from src/ai/registry.ts (npm run docs); a missing file never crashes the server.
 let PROMPT = '';
 try {
-  PROMPT = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'prompt.md'), 'utf8');
+  PROMPT = readFileSync(join(LFP, 'agent', 'prompt.md'), 'utf8');
 } catch {
   PROMPT = '';
+}
+
+/** Append one task's verdict to `src/reality.json`, preserving `results`/`metrics` (and every
+ * other task's verdict). `run_review` runs inside this Node server process (docs/AGENT-RUNTIME.md
+ * §7), so writing with `fs` here is the whole mechanism — nothing round-trips through the bus. */
+function writeVerdict(taskId: string, record: { verdict: string; reasons: string[]; at: string; scopeOk?: boolean }) {
+  const path = join(LFP, 'src', 'reality.json');
+  let reality: { results?: unknown; metrics?: unknown; verdicts?: Record<string, unknown> } = {};
+  try {
+    reality = JSON.parse(readFileSync(path, 'utf8'));
+  } catch {
+    reality = { results: {}, metrics: {} };
+  }
+  reality.verdicts = { ...(reality.verdicts ?? {}), [taskId]: record };
+  writeFileSync(path, JSON.stringify(reality, null, 2));
 }
 
 // Set by server.mjs on every `snapshot` / `context` bus message; read fresh on every render.
@@ -41,21 +61,51 @@ const dispatchTask = defineTool({
   },
 });
 
-/** Run the reviewer on a finished task and return its verdict tool output (or its text if it never called verdict). */
+/** Run the reviewer on a finished task and return its verdict tool output (or its text if it never
+ * called verdict). Precheck first (docs/AGENT-RUNTIME.md §8, rule-based): `git diff --name-only` in
+ * the worktree against the task's `codeRefs` decides the reviewer's tier — mid when the diff stays
+ * inside them, strong otherwise (via the `TIER_OVERRIDE_REVIEWER` env var `from-spec.ts::modelFor`
+ * reads; `Reviewer()` itself never changes). The verdict, once it arrives, is written into
+ * `src/reality.json.verdicts[taskId]` here (server-side, see `writeVerdict` above) and published
+ * as a `reality` bus message — the browser has no handler for it yet, so it is a no-op there. */
 const runReview = defineTool({
   name: 'run_review',
-  description: 'Ask the reviewer agent to judge a finished task: pass the task id, the rule lines, the tests, and the worktree path. Returns the verdict.',
-  input: v.object({ taskId: v.string(), brief: v.string() }),
+  description: "Ask the reviewer agent to judge a finished task: pass the task id, the rule/test brief, the worktree path (cwd), and the task's codeRefs. Runs a rule-based precheck (changed files vs. codeRefs) to pick mid or strong tier, records the verdict in reality.json, and returns it.",
+  input: v.object({ taskId: v.string(), brief: v.string(), cwd: v.optional(v.string()), codeRefs: v.optional(v.array(v.string())) }),
   async run({ data }: any) {
-    const reviewer = init(Reviewer, { id: `reviewer:${data.taskId}` });
-    const receipt = await reviewer.dispatch(data.brief);
-    let verdict: unknown = null;
-    const reply = await reviewer.read(receipt, {
-      onEvent(chunk: any) {
-        if (chunk.type === 'tool-output' && chunk.toolName === 'verdict') verdict = chunk.output;
-      },
-    });
-    return { output: { taskId: data.taskId, verdict, text: reply.text } };
+    const cwd = data.cwd ?? process.cwd();
+    const changedFiles = await diffChangedFiles(cwd);
+    const precheck = precheckDiff(changedFiles, data.codeRefs ?? []);
+    const envKey = tierOverrideEnvKey('reviewer');
+    if (precheck.scopeOk) process.env[envKey] = 'mid';
+    else delete process.env[envKey];
+    const brief = [
+      data.brief,
+      '',
+      '## Precheck (rule-based, not a model judgement)',
+      `Changed files: ${changedFiles.join(', ') || '(none)'}`,
+      precheck.scopeOk
+        ? "Stays inside the task's codeRefs — running at mid tier."
+        : `Touches files outside the task's codeRefs (${precheck.extraFiles.join(', ') || 'no codeRefs given'}) — running at strong tier.`,
+    ].join('\n');
+    try {
+      const reviewer = init(Reviewer, { id: `reviewer:${data.taskId}` });
+      const receipt = await reviewer.dispatch(brief);
+      let verdict: unknown = null;
+      const reply = await reviewer.read(receipt, {
+        onEvent(chunk: any) {
+          if (chunk.type === 'tool-output' && chunk.toolName === 'verdict') verdict = chunk.output;
+        },
+      });
+      if (verdict && typeof verdict === 'object') {
+        const record = { verdict: (verdict as any).verdict, reasons: (verdict as any).reasons ?? [], at: new Date().toISOString(), scopeOk: precheck.scopeOk };
+        writeVerdict(data.taskId, record);
+        void (busRef as any).publishReality?.({ taskId: data.taskId, ...record });
+      }
+      return { output: { taskId: data.taskId, verdict, text: reply.text, scopeOk: precheck.scopeOk, extraFiles: precheck.extraFiles } };
+    } finally {
+      delete process.env[envKey];
+    }
   },
 });
 

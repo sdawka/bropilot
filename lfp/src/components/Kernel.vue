@@ -6,6 +6,7 @@ import { unanchored, BRIEFS } from '../brief';
 import { AI_FUNCTIONS } from '../ai/registry';
 import { state, rateCall, rankOpen } from '../store';
 import { checkInvariants } from '../checks';
+import realityData from '../reality.json';
 const missingAnchors = unanchored();
 
 const onlyInferred = ref(false);
@@ -24,6 +25,19 @@ const counts = computed(() => {
 // ── Violations and open items (Reference: 1-C) ──
 const violations = computed(() => checkInvariants(state.graph));
 const open = computed(() => rankOpen());
+
+// ── Verdicts (Reference: v4.2, the reviewer gate — S152) ──
+const verdicts = computed(() => {
+  const v = (realityData as any).verdicts ?? {};
+  return Object.entries(v as Record<string, { verdict: string; reasons?: string[]; at?: string; scopeOk?: boolean }>).map(([taskId, r]) => ({
+    taskId,
+    title: state.graph.nodes.find((n) => n.id === taskId)?.title ?? taskId,
+    verdict: r.verdict,
+    scopeOk: r.scopeOk,
+    at: r.at,
+    reasons: r.reasons ?? [],
+  }));
+});
 
 // ── Edge shapes table (Reference: 1-C) ──
 const edgeShapes = computed(() => {
@@ -168,6 +182,20 @@ async function copyCalls() {
           <td>{{ o.prompt }}</td>
           <td class="mono">{{ o.produces }}</td>
           <td><span v-for="s in o.subjects" :key="s" class="tag" :title="s" @click="state.selectedId = s" style="cursor: pointer">{{ s.slice(0, 20) }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Verdicts <span class="small">{{ verdicts.length }} recorded — the reviewer gate</span></h2>
+    <table data-testid="ref-verdicts">
+      <thead><tr><th>Task</th><th>Verdict</th><th>Scope OK</th><th>At</th><th>Reasons</th></tr></thead>
+      <tbody>
+        <tr v-for="v in verdicts" :key="v.taskId">
+          <td :title="v.taskId" class="mono" @click="state.selectedId = v.taskId" style="cursor: pointer">{{ v.title }}</td>
+          <td><span class="tag">{{ v.verdict }}</span></td>
+          <td class="mono">{{ v.scopeOk === undefined ? '—' : (v.scopeOk ? 'yes' : 'no') }}</td>
+          <td class="mono small">{{ v.at ? new Date(v.at).toLocaleString() : '—' }}</td>
+          <td><span v-for="(r, i) in v.reasons" :key="i" class="tag small">{{ r }}</span><span v-if="!v.reasons.length" class="small">—</span></td>
         </tr>
       </tbody>
     </table>

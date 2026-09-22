@@ -38,14 +38,18 @@ try {
 }
 
 // Read existing reality.json
-let reality = { results: {}, metrics: {} };
+let reality = { results: {}, metrics: {}, verdicts: {} };
 try {
   reality = JSON.parse(readFileSync(realityPath, 'utf8'));
 } catch (e) {
   console.warn('No existing reality.json, starting fresh');
 }
 
-// Merge smoke results (do not overwrite existing runs, only add new or update failed→pass)
+// Merge smoke results (do not overwrite existing runs, only add new or update failed→pass).
+// `verdicts` (v4.2: the reviewer gate, written server-side by agent/agents/talk.ts::run_review)
+// is untouched here — `reality` already carries whatever was on disk, this just guards the case
+// where the file didn't exist yet.
+reality.verdicts = reality.verdicts ?? {};
 reality.results = { ...reality.results, ...results };
 
 // Add git metrics: commits since reset commit (look for 'reset' in git log)

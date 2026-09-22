@@ -119,6 +119,16 @@ const RaiseQuestionSchema = v.object({
   taskId: v.optional(v.string()), taskTitle: v.string(),
 });
 
+// ── consolidate-questions ──────────────────────────────────────────────────────
+const ConsolidateQuestionsSchema = v.object({
+  prompt: v.string(), options: v.array(v.string()), answersAll: v.boolean(),
+  followupId: v.optional(v.string()), count: v.optional(v.number()),
+});
+
+// ── find-contradictions ────────────────────────────────────────────────────────
+const ContradictionSchema = v.object({ subjects: v.array(v.string()), prompt: v.string(), produces: v.string() });
+const FindContradictionsSchema = v.object({ contradictions: v.array(ContradictionSchema) });
+
 export const OUTPUT_SCHEMAS: Record<string, v.GenericSchema> = {
   'describe-screen': DescribeScreenSchema,
   'next-decision': NextDecisionSchema,
@@ -131,6 +141,8 @@ export const OUTPUT_SCHEMAS: Record<string, v.GenericSchema> = {
   'define-term': DefineTermSchema,
   'review-change': ReviewChangeSchema,
   'raise-question': RaiseQuestionSchema,
+  'consolidate-questions': ConsolidateQuestionsSchema,
+  'find-contradictions': FindContradictionsSchema,
 };
 
 export function schemaFor(id: string): v.GenericSchema {

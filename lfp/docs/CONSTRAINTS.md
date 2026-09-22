@@ -75,5 +75,7 @@
 | inv-condition-one-line | A rule's condition is one line of its description text (or its title, if it has none). | — |
 | inv-suspect-pending | A suspect edge stays surfaced until the node it touches is revalidated. | `question` |
 | inv-reviewer-gate | A task is done only after its full suite is green and a reviewer agent verdict, not on green tests alone. | — |
+| inv-task-done-without-verdict | A task marked done or verified needs a reviewer verdict recorded in reality; the kernel asks for one rather than assuming it. | `question` |
+| inv-task-verified-without-green | A task marked verified must have every targeted test passing and fresh; otherwise it raises as work still to do. | `task` |
 
 ## Current violations on the seed graph

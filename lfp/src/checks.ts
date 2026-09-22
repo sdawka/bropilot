@@ -32,7 +32,22 @@ const OPTIONS: Record<string, string[]> = {
   'test-without-passing-fresh-result-and-no-task': ['Create a task targeting this test', 'Add it to an existing epic', 'Mark as accepted risk'],
   orphans: ['Link it to something', 'Remove it', 'Leave as a stub'],
   'suspect-edges-pending': ['Revalidate', 'Re-edit the neighbour', 'Ignore for now'],
+  'task-done-without-verdict': ['Run the reviewer', 'Set status back to running', 'Accept without review'],
+  'task-verified-without-green': ['Re-run the suite', 'Set status back to running'],
 };
+
+/** Every test a task targets reports a fresh, passing result (v4.2, S152: the reviewer gate).
+ * `store.ts::applyReality` merges `reality.json`'s test-result props and edge `trace` before this
+ * runs, so a stale (`trace:'suspect'`) or missing report already reads as not-green here. */
+function taskTargetsGreen(task: Node, graph: Graph, byId: Record<string, Node>): boolean {
+  const targets = graph.edges.filter((e) => e.type === 'targets' && e.src === task.id).map((e) => byId[e.dst]).filter(Boolean) as Node[];
+  if (!targets.length) return false;
+  return targets.every((t) => {
+    const repEdge = graph.edges.find((e) => e.type === 'reports' && e.dst === t.id);
+    if (!repEdge || repEdge.trace === 'suspect') return false;
+    return byId[repEdge.src]?.props?.status === 'pass';
+  });
+}
 
 export function checkInvariants(graph: Graph): Violation[] {
   const byId = Object.fromEntries(graph.nodes.map((n) => [n.id, n])) as Record<string, Node>;
@@ -173,6 +188,32 @@ export function checkInvariants(graph: Graph): Violation[] {
       options: OPTIONS['suspect-edges-pending'],
       raise: 'question',
     });
+  }
+
+  // ── task lifecycle gate: done/verified needs a verdict; verified needs every target green ─────
+  for (const task of graph.nodes.filter((n) => n.kind === 'task')) {
+    const status = task.props?.status;
+    const hasVerdict = !!task.props?.verdict;
+    if ((status === 'done' || status === 'verified') && !hasVerdict) {
+      violations.push({
+        id: `task-done-without-verdict:${task.id}`,
+        invariant: 'task-done-without-verdict',
+        subjects: [task.id],
+        message: `"${task.title}" is ${status} with no reviewer verdict recorded.`,
+        options: OPTIONS['task-done-without-verdict'],
+        raise: 'question',
+      });
+    }
+    if (status === 'verified' && !taskTargetsGreen(task, graph, byId)) {
+      violations.push({
+        id: `task-verified-without-green:${task.id}`,
+        invariant: 'task-verified-without-green',
+        subjects: [task.id],
+        message: `"${task.title}" is verified but not every targeted test is pass and fresh.`,
+        options: OPTIONS['task-verified-without-green'],
+        raise: 'task',
+      });
+    }
   }
 
   return violations;

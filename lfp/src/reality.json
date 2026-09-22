@@ -37,6 +37,7 @@
       "at": "2026-09-21T15:06:15.510Z"
     }
   },
+  "verdicts": {},
   "metrics": {
     "metric-commits-since-reset": {
       "value": "45",

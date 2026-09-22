@@ -3734,6 +3734,37 @@
           148
         ]
       }
+    },
+    {
+      "id": "ai-function-consolidate-questions",
+      "kind": "ai-function",
+      "title": "Consolidate questions",
+      "status": "committed",
+      "props": {
+        "version": "0.1",
+        "runtime": "stub"
+      },
+      "source": {
+        "kind": "said",
+        "statements": [
+          113,
+          142
+        ]
+      }
+    },
+    {
+      "id": "ai-function-find-contradictions",
+      "kind": "ai-function",
+      "title": "Find contradictions",
+      "status": "committed",
+      "props": {
+        "version": "0.1",
+        "runtime": "stub"
+      },
+      "source": {
+        "kind": "inferred",
+        "reason": "v4.2 plan: contradiction-detection wasn't named in a brief statement; grouped under the same \"consolidate to common sources of truth\" intent as consolidate-questions (S142)."
+      }
     }
   ],
   "edges": [
@@ -6408,6 +6439,20 @@
       "id": "e-contains-ai-function-raise-question",
       "src": "module-director",
       "dst": "ai-function-raise-question",
+      "type": "contains",
+      "status": "committed"
+    },
+    {
+      "id": "e-contains-ai-function-consolidate-questions",
+      "src": "module-director",
+      "dst": "ai-function-consolidate-questions",
+      "type": "contains",
+      "status": "committed"
+    },
+    {
+      "id": "e-contains-ai-function-find-contradictions",
+      "src": "module-director",
+      "dst": "ai-function-find-contradictions",
       "type": "contains",
       "status": "committed"
     }

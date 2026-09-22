@@ -82,6 +82,13 @@ export class ScriptedDirector implements Director {
     if (/^(back|stop)$/.test(lower)) return [];
     if (/^gaps$/.test(lower)) return runAI(aiFunction('find-gaps'), undefined, this.ctx());
 
+    if (/^consolidate$/.test(lower)) {
+      const ctx = this.ctx();
+      if (ctx.next?.source !== 'violation') return [{ t: 'say', id: `s-consolidate-${Date.now()}`, text: 'Nothing to consolidate.' }];
+      return runAI(aiFunction('consolidate-questions'), { followupId: ctx.next.id }, ctx);
+    }
+    if (/^contradictions?$/.test(lower)) return runAI(aiFunction('find-contradictions'), undefined, this.ctx());
+
     const review = trimmed.match(/^review\s+(task-\S+)/i);
     if (review) return runAI(aiFunction('review-change'), { taskId: review[1] }, this.ctx());
 

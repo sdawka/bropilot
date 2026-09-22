@@ -37,6 +37,14 @@ const REPO_ALLOWED: Record<string, (a: string[]) => boolean> = {
   worktree: (a) => a[0] === 'add' || a[0] === 'list',
   branch: (a) => a.length === 0 || a[0] === '--show-current',
 };
+/** Plain (non-Flue-tool) helper so `talk.ts::run_review` can get the changed-file list for the
+ * precheck without going through a model tool-call. `diff` is already allowed with any args
+ * (including `--name-only`) by `REPO_ALLOWED` above, so this reuses the same allow-listed command. */
+export async function diffChangedFiles(cwd: string): Promise<string[]> {
+  const r = await run('git', ['diff', '--name-only'], cwd, 60_000);
+  return r.out.split('\n').map((s) => s.trim()).filter(Boolean);
+}
+
 export const repo = defineTool({
   name: 'repo',
   description: 'Inspect the repository: git status | diff [paths] | log -n N | show <ref> | branch | worktree add <dir> v4 | worktree list. Nothing else.',

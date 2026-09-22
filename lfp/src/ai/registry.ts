@@ -3,7 +3,7 @@
 // ../provenance.ts. Stage 1-A fills in `prompt`; functions/*.ts (browser-only) hold the stubs.
 
 import type { AIFunctionMeta } from './types.ts';
-import { said } from '../provenance.ts';
+import { said, inferred } from '../provenance.ts';
 
 const decides: AIFunctionMeta['feedback'] = [
   { value: 'makes-sense', label: 'Makes sense' },
@@ -125,6 +125,26 @@ export const AI_FUNCTIONS: AIFunctionMeta[] = [
     output: 'A raise cue: a follow-up question under the matching template question, and the task marked blocked.',
     feedback: decides,
     source: said(148),
+  },
+  {
+    id: 'consolidate-questions',
+    version: '0.1',
+    purpose: 'Rewrites a group of related violation follow-ups as one question a user can answer in a single sentence.',
+    context: { needs: ['next'] },
+    prompt: `The consolidated follow-up's deterministic message and the member gaps it groups (one line each), plus the subject nodes' titles:\n{{context}}\n\nPropose ONE question a user could answer in a single sentence that resolves every member gap listed, offering the union of their repair options (at most four). If the members genuinely can't be answered as one sentence, answer the biggest subset you can and set "answersAll" to false, naming which are left out.`,
+    output: 'A refine cue rewriting the follow-up\'s prompt/options to the single consolidated question, plus a confirmation line.',
+    feedback: decides,
+    source: said(113, 142),
+  },
+  {
+    id: 'find-contradictions',
+    version: '0.1',
+    purpose: 'Scans the graph for two statements that disagree: same-titled nodes of one kind, or rules governing the same thing with opposing conditions.',
+    context: { needs: ['graph'] },
+    prompt: `Graph summary:\n{{context}}\n\nLook for two statements that disagree: (a) two nodes of the same kind that appear to name the same thing, (b) two rules governing the same target whose condition lines contradict each other (one forbids what the other requires). Report each as a one-sentence question naming both sides and the shared subject. If you find none, say so.`,
+    output: 'One raise cue per contradiction found (or a single "no contradictions" say cue).',
+    feedback: decides,
+    source: inferred('v4.2 plan: contradiction-detection wasn\'t named in a brief statement; grouped under the same "consolidate to common sources of truth" intent as consolidate-questions (S142).'),
   },
 ];
 

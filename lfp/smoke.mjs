@@ -428,4 +428,68 @@ if (!process.env.REALITY_OUT) {
   r.v41Observe = { note: 'npm run observe wraps this smoke.mjs; run it separately (see package.json) to populate src/reality.json — not invoked here to avoid recursive smoke runs.' };
 }
 
+// v4.2: consolidation — a node carrying >=2 violations yields ONE tier-3 parent (covers >= 2) with
+// hidden children; `consolidate-questions` refines the parent's prompt; answering the parent answers
+// every child. Then `find-contradictions` says "No contradictions found." on the seed graph and raises
+// a contradiction-sourced follow-up once a duplicate-titled node exists. Then the task lifecycle
+// gate: a task marked done with no verdict is a violation; Reference renders the verdicts table.
+{
+  // The seam block above may have left the runtime on 'flue' with the agent gone: back to stub on a clean page.
+  await p.evaluate(() => localStorage.removeItem('bropilot:relay')); // the seam block remembered ?relay=localhost
+  await p.goto('http://localhost:5199/#overview'); await p.reload(); await p.waitForSelector('.card');
+  await p.evaluate(() => { window.__lfp.state.aiRuntime = 'stub'; });
+  const seeded = await p.evaluate(() => {
+    const lfp = window.__lfp;
+    lfp.state.staged = { effects: [{ id: 'ef-c1', op: 'add-node', node: { id: 'task-smoke-lonely', kind: 'task', title: 'Smoke lonely task', status: 'draft', props: { status: 'done' } }, answerId: 'smoke' }], warnings: [] };
+    lfp.applyCue({ t: 'commit' });
+    const items = lfp.rankOpen();
+    const parent = items.find((i) => i.source === 'violation' && i.subjects.includes('task-smoke-lonely'));
+    const children = lfp.state.followups.filter((f) => f.parentId === parent?.id);
+    const childShown = parent ? items.some((i) => children.some((c) => c.id === i.id)) : null;
+    return { parentId: parent?.id ?? null, covers: parent?.covers ?? 0, children: children.length, childShown, prompt: parent?.prompt ?? '' };
+  });
+  r.v42Consolidate = seeded;
+  if (!seeded.parentId) throw new Error('consolidation: expected a violation-raised item about task-smoke-lonely');
+  if (seeded.covers < 2) throw new Error(`consolidation: expected the parent to cover >= 2 violations, got ${seeded.covers}`);
+  if (seeded.children !== seeded.covers) throw new Error(`consolidation: expected ${seeded.covers} child follow-ups, got ${seeded.children}`);
+  if (seeded.childShown) throw new Error('consolidation: children must be hidden from rankOpen while the parent is open');
+  if (!/task-done-without-verdict/.test(JSON.stringify(await p.evaluate(() => window.__lfp.state.followups.map((f) => f.raisedBy?.ref))))) throw new Error('lifecycle gate: expected a task-done-without-verdict violation for the done task with no verdict');
+
+  const refined = await p.evaluate(async (parentId) => {
+    const mod = await import('/src/ai/runtime.ts'); const idx = await import('/src/ai/index.ts'); const dir = await import('/src/director.ts');
+    const ctx = dir.currentContext([], 'smoke'); ctx.next = window.__lfp.rankOpen().find((i) => i.id === parentId);
+    const before = window.__lfp.state.followups.find((f) => f.id === parentId).prompt;
+    const cues = mod.runAI(idx.aiFunction('consolidate-questions'), { followupId: parentId }, ctx); cues.forEach((c) => window.__lfp.applyCue(c));
+    const after = window.__lfp.state.followups.find((f) => f.id === parentId).prompt;
+    return { cueTypes: cues.map((c) => c.t), changed: before !== after, after: after.slice(0, 120) };
+  }, seeded.parentId);
+  r.v42Consolidate.refined = refined;
+  if (!refined.cueTypes.includes('refine') || !refined.changed) throw new Error(`consolidate-questions: expected a refine cue that rewrites the parent prompt, got ${JSON.stringify(refined)}`);
+
+  const answered = await p.evaluate((parentId) => {
+    window.__lfp.applyCue({ t: 'answer', questionId: parentId, content: 'smoke: it is meant to stand alone' });
+    const kids = window.__lfp.state.followups.filter((f) => f.parentId === parentId);
+    return { kidsAnswered: kids.filter((f) => f.answerIds.length > 0).length, kids: kids.length, stillOpen: window.__lfp.rankOpen().some((i) => i.id === parentId) };
+  }, seeded.parentId);
+  r.v42Consolidate.answered = answered;
+  if (answered.kidsAnswered !== answered.kids || answered.stillOpen) throw new Error(`consolidation: answering the parent must answer all ${answered.kids} children and close it, got ${JSON.stringify(answered)}`);
+
+  await p.locator('[data-testid=talk-input]').fill('contradictions'); await p.locator('[data-testid=talk-input]').press('Enter'); await p.waitForTimeout(300);
+  const noContra = await p.evaluate(() => window.__lfp.state.transcript.at(-1)?.text ?? '');
+  const raisedContra = await p.evaluate(async () => {
+    const mod = await import('/src/ai/runtime.ts'); const idx = await import('/src/ai/index.ts'); const dir = await import('/src/director.ts');
+    window.__lfp.state.staged = { effects: [{ id: 'ef-c2', op: 'add-node', node: { id: 'task-smoke-lonely-dup', kind: 'task', title: 'Smoke lonely task', status: 'draft' }, answerId: 'smoke' }], warnings: [] };
+    window.__lfp.applyCue({ t: 'commit' });
+    mod.runAI(idx.aiFunction('find-contradictions'), undefined, dir.currentContext([], 'smoke')).forEach((c) => window.__lfp.applyCue(c));
+    return window.__lfp.state.followups.filter((f) => f.raisedBy?.kind === 'contradiction').length;
+  });
+  r.v42Contradictions = { seedReply: noContra.slice(0, 80), raisedAfterDuplicate: raisedContra };
+  if (!/contradiction/i.test(noContra)) throw new Error(`find-contradictions: expected a reply mentioning contradictions, got "${noContra}"`);
+  if (raisedContra < 1) throw new Error('find-contradictions: expected a contradiction-sourced follow-up after adding a duplicate-titled task');
+
+  await p.goto('http://localhost:5199/#kernel'); await p.waitForSelector('[data-testid=ref-verdicts]', { timeout: 5000 });
+  r.v42Verdicts = { table: await p.locator('[data-testid=ref-verdicts]').count() };
+  await p.goto('http://localhost:5199/#overview'); await p.waitForSelector('.card');
+}
+
 r.errors = errors; console.log(JSON.stringify(r, null, 1)); await b.close();

@@ -81,6 +81,12 @@ export interface FollowUp {
   raisedBy?: { kind: 'template' | 'violation' | 'agent' | 'contradiction'; ref: string };
   subjects?: string[]; // node ids the follow-up is about (mirrors Violation.subjects)
   deferred?: boolean;
+  /** Violation ids this consolidated (parent) follow-up answers; set only on `by !== 'single'`
+   * group parents (consolidate.ts). Answering it also answers every child follow-up. */
+  covers?: string[];
+  /** Overrides the options shown for this follow-up (e.g. after a `refine` cue rewrites it as one
+   * question) — takes precedence over the raised violation/group's own options. */
+  options?: string[];
 }
 
 // ── checks.ts shapes (kept here so Node-runnable files needn't import each other for types) ──────
@@ -107,4 +113,18 @@ export interface OpenItem {
   tier: 1 | 2 | 3 | 4;
   options?: string[];
   blocking?: string; // a task id, when this item is blocking that task
+  covers?: number; // count of violations this item's follow-up consolidates (consolidate.ts)
+}
+
+// ── consolidate.ts shapes ──────────────────────────────────────────────────────────────────────
+
+/** One or more violations collapsed into a single question (consolidate.ts::groupViolations). */
+export interface ViolationGroup {
+  id: string; // `group:subject:<nodeId>` | `group:invariant:<invariant>:<parentId|kind>` | the single violation id
+  violationIds: string[];
+  subjects: string[]; // node ids only (no cond tags)
+  message: string; // deterministic: one line summary + the member messages as "- …" lines
+  options: string[]; // union of member options, de-duplicated, max 4
+  produces?: string;
+  by: 'subject' | 'invariant' | 'single';
 }

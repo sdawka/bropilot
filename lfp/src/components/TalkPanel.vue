@@ -178,6 +178,7 @@ function close() { state.panelOpen = false; }
             <div class="row">
               <span class="tag" data-testid="talk-next-tier">{{ tierLabel[ctx.next.tier] }}</span>
               <span class="tag source">{{ ctx.next.source }}</span>
+              <span class="tag" data-testid="talk-next-covers" v-if="ctx.next.covers">answers {{ ctx.next.covers }} gaps</span>
             </div>
             <p class="small">{{ ctx.next.prompt }}</p>
             <div class="chips" v-if="ctx.next.subjects.length">
@@ -189,6 +190,7 @@ function close() { state.panelOpen = false; }
             <div class="row" v-else-if="!bare">
               <button class="primary" @click="answerIt(ctx.next)">Answer it</button>
               <button @click="skip(ctx.next)">Skip</button>
+              <button v-if="ctx.next.covers" data-testid="talk-consolidate" @click="props.send({ text: 'consolidate' })">Ask as one question</button>
             </div>
           </div>
         </template>

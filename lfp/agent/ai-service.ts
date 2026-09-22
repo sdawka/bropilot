@@ -53,6 +53,8 @@ const FAKE_OUTPUT: Record<string, unknown> = {
   'describe-screen': { op: 'screen', view: 'overview', itemIds: [], summary: 'This is the active screen. (fake output — FAKE_AI=1)', suspect: '' },
   'next-decision': { item: null, openCount: 0 },
   'find-gaps': { gaps: ['(fake output — FAKE_AI=1) no gaps computed'], pointIds: [] },
+  'consolidate-questions': { prompt: '(fake output — FAKE_AI=1) one question', options: ['a', 'b'], answersAll: true },
+  'find-contradictions': { contradictions: [] },
 };
 
 // ── the one-shot structured-function agent ──────────────────────────────────────────────────────

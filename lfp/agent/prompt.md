@@ -253,3 +253,37 @@ Per the ask-vs-act rule (AGENT-RUNTIME.md §4): only raise when exploration yiel
 ```
 
 **Output:** A raise cue: a follow-up question under the matching template question, and the task marked blocked.
+
+### consolidate-questions
+
+**Purpose:** Rewrites a group of related violation follow-ups as one question a user can answer in a single sentence.
+
+**Context needs:** next
+
+**Prompt:**
+
+```
+The consolidated follow-up's deterministic message and the member gaps it groups (one line each), plus the subject nodes' titles:
+{{context}}
+
+Propose ONE question a user could answer in a single sentence that resolves every member gap listed, offering the union of their repair options (at most four). If the members genuinely can't be answered as one sentence, answer the biggest subset you can and set "answersAll" to false, naming which are left out.
+```
+
+**Output:** A refine cue rewriting the follow-up's prompt/options to the single consolidated question, plus a confirmation line.
+
+### find-contradictions
+
+**Purpose:** Scans the graph for two statements that disagree: same-titled nodes of one kind, or rules governing the same thing with opposing conditions.
+
+**Context needs:** graph
+
+**Prompt:**
+
+```
+Graph summary:
+{{context}}
+
+Look for two statements that disagree: (a) two nodes of the same kind that appear to name the same thing, (b) two rules governing the same target whose condition lines contradict each other (one forbids what the other requires). Report each as a one-sentence question naming both sides and the shared subject. If you find none, say so.
+```
+
+**Output:** One raise cue per contradiction found (or a single "no contradictions" say cue).

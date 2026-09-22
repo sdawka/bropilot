@@ -16,6 +16,8 @@ import { unrealisedToTasks } from './functions/unrealised-to-tasks.ts';
 import { defineTerm } from './functions/define-term.ts';
 import { reviewChange } from './functions/review-change.ts';
 import { raiseQuestion } from './functions/raise-question.ts';
+import { consolidateQuestions } from './functions/consolidate-questions.ts';
+import { findContradictions } from './functions/find-contradictions.ts';
 
 const impls: Record<string, AIFunctionImpl<any, any>> = {
   'describe-screen': describeScreen,
@@ -29,6 +31,8 @@ const impls: Record<string, AIFunctionImpl<any, any>> = {
   'define-term': defineTerm,
   'review-change': reviewChange,
   'raise-question': raiseQuestion,
+  'consolidate-questions': consolidateQuestions,
+  'find-contradictions': findContradictions,
 };
 
 const metaIds = AI_FUNCTION_META.map((f) => f.id).sort();

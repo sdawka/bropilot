@@ -339,5 +339,7 @@ Architecture-relevant invariants from the kernel (see the app's Reference tab fo
 - A rule's condition is one line of its description text (or its title, if it has none).
 - A suspect edge stays surfaced until the node it touches is revalidated.
 - A task is done only after its full suite is green and a reviewer agent verdict, not on green tests alone.
+- A task marked done or verified needs a reviewer verdict recorded in reality; the kernel asks for one rather than assuming it.
+- A task marked verified must have every targeted test passing and fresh; otherwise it raises as work still to do.
 
-_42 kinds, 25 edge types, 4 levels, 28 invariants, 12 kernel questions — see the Reference tab for the live versions._
+_42 kinds, 25 edge types, 4 levels, 30 invariants, 12 kernel questions — see the Reference tab for the live versions._

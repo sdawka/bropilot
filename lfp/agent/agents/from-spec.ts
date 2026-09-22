@@ -10,15 +10,25 @@ import { local } from '@flue/runtime/node';
 import { TIER_MODELS, DIRECT_MODELS, type AgentSpec } from '../../src/agents.ts';
 import { toolsFor } from './tools.ts';
 
-/** OpenRouter when its key is present, else direct Anthropic — TIER_MODELS is the only other place that knows. */
-export function modelFor(spec: AgentSpec): string | null {
-  if (spec.tier === 'none') return null;
+/** The env var a caller sets to steer a top-level agent's tier for its *next* run without changing
+ * its call signature — needed for the reviewer precheck (docs/AGENT-RUNTIME.md §8): `Reviewer()`
+ * (agent/agents/reviewer.ts) takes no params, so `talk.ts::run_review` can't pass a tier straight
+ * through. It sets/clears this instead, right around `init(Reviewer, ...)`. */
+export const tierOverrideEnvKey = (id: AgentSpec['id']) => `TIER_OVERRIDE_${id.toUpperCase()}`;
+
+/** OpenRouter when its key is present, else direct Anthropic — TIER_MODELS is the only other place
+ * that knows. `tierOverride` (explicit param, or the `TIER_OVERRIDE_<ID>` env var) replaces the
+ * spec's own tier for this call only; the spec itself is never mutated. */
+export function modelFor(spec: AgentSpec, tierOverride?: AgentSpec['tier']): string | null {
+  const envTier = process.env[tierOverrideEnvKey(spec.id)] as AgentSpec['tier'] | undefined;
+  const tier = tierOverride ?? envTier ?? spec.tier;
+  if (tier === 'none') return null;
   const table = process.env.OPENROUTER_API_KEY ? TIER_MODELS : DIRECT_MODELS;
-  return table[spec.tier];
+  return table[tier];
 }
 
-export function applySpec(spec: AgentSpec, opts: { cwd?: string; extraTools?: { name: string }[] } = {}): string {
-  const model = modelFor(spec);
+export function applySpec(spec: AgentSpec, opts: { cwd?: string; extraTools?: { name: string }[]; tierOverride?: AgentSpec['tier'] } = {}): string {
+  const model = modelFor(spec, opts.tierOverride);
   if (model) useModel(model, spec.thinkingLevel ? { thinkingLevel: spec.thinkingLevel } : undefined);
   if (spec.sandbox === 'local') useSandbox(local({ cwd: opts.cwd ?? process.cwd() }));
   else if (spec.sandbox === 'remote') throw new Error(`agent ${spec.id}: remote sandbox is not configured yet (docs/AGENT-RUNTIME.md §6)`);

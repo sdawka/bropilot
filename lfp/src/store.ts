@@ -3,9 +3,10 @@ import seed from './graph.json';
 import reality from './reality.json';
 import { QUESTIONS, kindById, edgeTypeById, SPACES } from './kernel';
 import { checkInvariants, contentHash } from './checks.ts';
-import type { Node, Graph, ScreenItem, Answer, AICall, Effect, Changeset, Commit, FollowUp, OpenItem } from './types';
+import { groupViolations } from './consolidate.ts';
+import type { Node, Graph, ScreenItem, Answer, AICall, Effect, Changeset, Commit, FollowUp, OpenItem, ViolationGroup } from './types';
 
-export type { Status, Node, Edge, Graph, ScreenItem, Answer, AICall, Effect, Changeset, Commit, FollowUp, Violation, OpenItem } from './types';
+export type { Status, Node, Edge, Graph, ScreenItem, Answer, AICall, Effect, Changeset, Commit, FollowUp, Violation, OpenItem, ViolationGroup } from './types';
 
 const KEY = 'bropilot:lfp:v1';
 
@@ -38,7 +39,11 @@ function clone<T>(x: T): T { return JSON.parse(JSON.stringify(x)); }
 /** Merge `reality.json`'s observed test results onto the `test-result` node that `reports` each
  * test. Never creates nodes — only patches props of ones that already exist. */
 function applyReality() {
-  const r = reality as { results: Record<string, { status: string; value?: string; threshold?: string; confidence?: string; at?: string; codeRef?: string }>; metrics: Record<string, { value: string; at: string }> };
+  const r = reality as {
+    results: Record<string, { status: string; value?: string; threshold?: string; confidence?: string; at?: string; codeRef?: string }>;
+    verdicts?: Record<string, { verdict: 'serves-intent' | 'overfits' | 'unclear'; reasons: string[]; at: string; scopeOk?: boolean }>;
+    metrics: Record<string, { value: string; at: string }>;
+  };
   for (const [testId, res] of Object.entries(r.results ?? {})) {
     const repEdge = state.graph.edges.find((e) => e.type === 'reports' && e.dst === testId);
     const tr = repEdge ? nodeById(repEdge.src) : undefined;
@@ -48,6 +53,20 @@ function applyReality() {
     if (res.threshold !== undefined) tr.props.threshold = res.threshold;
     if (res.confidence !== undefined) tr.props.confidence = res.confidence;
     if (res.codeRef !== undefined) tr.props.codeRef = res.codeRef;
+  }
+  // task lifecycle gate (v4.2, S152): a recorded verdict drives done → verified/blocked, and is
+  // always shown on the task via props.verdict, whether or not it moves the status.
+  for (const [taskId, verdict] of Object.entries(r.verdicts ?? {})) {
+    const task = nodeById(taskId);
+    if (!task || task.kind !== 'task') continue;
+    task.props = { ...task.props, verdict: verdict.verdict };
+    const targets = state.graph.edges.filter((e) => e.type === 'targets' && e.src === taskId).map((e) => nodeById(e.dst)).filter(Boolean) as Node[];
+    const allGreen = targets.length > 0 && targets.every((t) => {
+      const repEdge = state.graph.edges.find((e) => e.type === 'reports' && e.dst === t.id);
+      return !!repEdge && repEdge.trace !== 'suspect' && nodeById(repEdge.src)?.props?.status === 'pass';
+    });
+    if (verdict.verdict === 'serves-intent' && allGreen) task.props.status = 'verified';
+    else if (verdict.verdict === 'overfits' || verdict.verdict === 'unclear') task.props.status = 'blocked';
   }
 }
 
@@ -166,7 +185,22 @@ export function answerFollowUp(followUpId: string, content: string) {
   const f = state.followups.find((f) => f.id === followUpId)!;
   const a: Answer = { id: `a-${Date.now()}`, questionId: followUpId, content, at: Date.now() };
   state.answers.push(a); f.answerIds.push(a.id);
+  // a consolidated follow-up's answer also answers every violation it covers (child follow-ups
+  // created by syncRaised() as `f-<violationId>`) so tier 3 doesn't re-surface them individually.
+  for (const vid of f.covers ?? []) {
+    const child = state.followups.find((c) => c.id === `f-${vid}`);
+    if (child && !child.answerIds.includes(a.id)) child.answerIds.push(a.id);
+  }
   state.staged = stageFor(f.produces, content, a.id);
+  persist();
+}
+/** Replace a follow-up's prompt (and, if given, its options) — used by the `refine` cue after
+ * `consolidate-questions` rewrites a consolidated group's message as one broader question. */
+export function refineFollowUp(id: string, prompt: string, options?: string[]) {
+  const f = state.followups.find((f) => f.id === id);
+  if (!f) return;
+  f.prompt = prompt;
+  if (options) f.options = options;
   persist();
 }
 export function removeFollowUp(id: string) {
@@ -233,31 +267,79 @@ function parentFor(subjects: string[]): string {
   return 'q-capability';
 }
 
-/** Derive open violation-raised follow-ups from `checkInvariants`: create new ones, remove ones
- * whose violation no longer exists and that have no answers yet (an answered one stays as a
- * record even if the violation later clears). Call after hydrate/commit/directCommit/undo/revalidate. */
+/** Derive open violation-raised follow-ups from `checkInvariants`, consolidated via
+ * `consolidate.ts::groupViolations`: one parent follow-up per group (`f-<group.id>`), plus — for
+ * groups of more than one violation — one child follow-up per member violation (`f-<violationId>`,
+ * `parentId` = the group's parent) so `rankOpen()` can hide them while the parent is open and
+ * `answerFollowUp` can answer them together with it. Removes unanswered follow-ups whose group or
+ * violation no longer exists; regenerates an unanswered parent's prompt/subjects/covers when its
+ * group's membership changes. An answered follow-up (`answerIds.length > 0`) always stays.
+ * Call after hydrate/commit/directCommit/undo/revalidate. */
 export function syncRaised() {
   const violations = checkInvariants(state.graph).filter((v) => v.raise === 'question');
-  const byId = new Map(violations.map((v) => [v.id, v]));
+  const groups = groupViolations(violations, state.graph);
+  const groupById = new Map<string, ViolationGroup>(groups.map((g) => [g.id, g]));
+  const violationIds = new Set(violations.map((v) => v.id));
+
   state.followups = state.followups.filter((f) => {
     if (f.raisedBy?.kind !== 'violation') return true;
-    return byId.has(f.raisedBy.ref) || f.answerIds.length > 0;
+    if (f.answerIds.length > 0) return true;
+    const ref = f.raisedBy.ref;
+    return groupById.has(ref) || violationIds.has(ref);
   });
-  const existing = new Set(state.followups.filter((f) => f.raisedBy?.kind === 'violation').map((f) => f.raisedBy!.ref));
-  for (const v of violations) {
-    if (existing.has(v.id)) continue;
-    const parentId = parentFor(v.subjects);
-    state.followups.push({
-      id: `f-${v.id}`,
-      parentId,
-      prompt: v.message,
-      kind: 'thread',
-      produces: v.produces ?? QUESTIONS.find((q) => q.id === parentId)?.produces ?? 'context',
-      answerIds: [],
-      createdAt: Date.now(),
-      raisedBy: { kind: 'violation', ref: v.id },
-      subjects: v.subjects,
-    });
+
+  const existingParents = new Map(
+    state.followups
+      .filter((f) => f.raisedBy?.kind === 'violation' && groupById.has(f.raisedBy!.ref))
+      .map((f) => [f.raisedBy!.ref, f] as const),
+  );
+  const existingChildIds = new Set(
+    state.followups
+      .filter((f) => f.raisedBy?.kind === 'violation' && violationIds.has(f.raisedBy!.ref))
+      .map((f) => f.raisedBy!.ref),
+  );
+
+  for (const g of groups) {
+    let parent = existingParents.get(g.id);
+    if (!parent) {
+      const parentId = parentFor(g.subjects);
+      parent = {
+        id: `f-${g.id}`,
+        parentId,
+        prompt: g.message,
+        kind: 'thread',
+        produces: g.produces ?? QUESTIONS.find((q) => q.id === parentId)?.produces ?? 'context',
+        answerIds: [],
+        createdAt: Date.now(),
+        raisedBy: { kind: 'violation', ref: g.id },
+        subjects: g.subjects,
+        covers: g.violationIds,
+      };
+      state.followups.push(parent);
+    } else if (parent.answerIds.length === 0 && (parent.covers ?? []).join('|') !== g.violationIds.join('|')) {
+      // membership changed: regenerate; an unchanged group keeps a refined prompt (consolidate-questions)
+      parent.prompt = g.message;
+      parent.subjects = g.subjects;
+      parent.covers = g.violationIds;
+      parent.options = undefined;
+    }
+
+    if (g.by === 'single') continue;
+    for (const vid of g.violationIds) {
+      if (existingChildIds.has(vid)) continue;
+      const v = violations.find((v) => v.id === vid)!;
+      state.followups.push({
+        id: `f-${v.id}`,
+        parentId: parent.id,
+        prompt: v.message,
+        kind: 'thread',
+        produces: v.produces ?? parent.produces,
+        answerIds: [],
+        createdAt: Date.now(),
+        raisedBy: { kind: 'violation', ref: v.id },
+        subjects: v.subjects,
+      });
+    }
   }
 }
 
@@ -277,10 +359,16 @@ export function rankOpen(): OpenItem[] {
   if (nq) items.push({ id: nq.id, prompt: nq.prompt, produces: nq.produces, source: 'template', subjects: [], tier: 2 });
 
   const violations = checkInvariants(state.graph);
+  const groups = groupViolations(violations.filter((v) => v.raise === 'question'), state.graph);
   const violationIndex = new Map(violations.map((v, i) => [v.id, i]));
   const violationsById = new Map(violations.map((v) => [v.id, v]));
+  const groupById = new Map(groups.map((g) => [g.id, g]));
+  // children stay hidden while their consolidated parent is still an open violation follow-up
+  const openViolationParentIds = new Set(
+    state.followups.filter((f) => f.raisedBy?.kind === 'violation' && f.answerIds.length === 0).map((f) => f.id),
+  );
   const tier3 = state.followups
-    .filter((f) => f.raisedBy?.kind === 'violation' && f.answerIds.length === 0)
+    .filter((f) => f.raisedBy?.kind === 'violation' && f.answerIds.length === 0 && !openViolationParentIds.has(f.parentId))
     .map((f) => {
       const subj = f.subjects?.[0];
       const n = subj ? nodeById(subj) : undefined;
@@ -292,7 +380,8 @@ export function rankOpen(): OpenItem[] {
     .sort((a, b) => a.spaceOrder - b.spaceOrder || a.vIndex - b.vIndex)
     .map(({ f }) => ({
       id: f.id, prompt: f.prompt, produces: f.produces, source: 'violation' as const, subjects: f.subjects ?? [], tier: 3 as const,
-      options: f.raisedBy ? violationsById.get(f.raisedBy.ref)?.options : undefined,
+      options: f.options ?? (f.raisedBy ? (groupById.get(f.raisedBy.ref)?.options ?? violationsById.get(f.raisedBy.ref)?.options) : undefined),
+      covers: f.covers?.length,
     }));
   items.push(...tier3);
 

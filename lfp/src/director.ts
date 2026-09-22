@@ -4,7 +4,7 @@
 import {
   state, nodeById, upsertTerm, removeNodeDirect, persist, describe,
   answer, answerFollowUp, addFollowUp, commit, discardStaged, undo,
-  revalidate, rankOpen, directCommit,
+  revalidate, rankOpen, directCommit, refineFollowUp,
   type Effect, type FollowUp, type OpenItem,
 } from './store';
 import { QUESTIONS } from './kernel';
@@ -27,7 +27,8 @@ export type Cue =
   | { t: 'discard' }
   | { t: 'undo' }
   | { t: 'revalidate'; nodeId: string }
-  | { t: 'raise'; prompt: string; produces: string; subjects: string[]; source: 'agent'; taskId?: string };
+  | { t: 'raise'; prompt: string; produces: string; subjects: string[]; source: 'agent' | 'contradiction'; taskId?: string }
+  | { t: 'refine'; followupId: string; prompt: string; options?: string[] };
 
 export interface Ask { id: string; text: string; options?: string[] }
 export interface Tour { steps: Cue[][]; i: number; dwellMs: number; paused: boolean }
@@ -143,11 +144,16 @@ export function applyCue(cue: Cue) {
     case 'raise': {
       const parentId = QUESTIONS.find((q) => q.produces === cue.produces)?.id ?? 'q-capability';
       const f = addFollowUp(parentId, cue.prompt, 'thread', cue.produces);
-      f.raisedBy = { kind: 'agent', ref: cue.taskId ?? 'agent' };
+      f.raisedBy = { kind: cue.source, ref: cue.taskId ?? cue.source };
       f.subjects = cue.subjects;
       if (cue.taskId) directCommit([{ id: 'ef-0', op: 'update-node', nodeId: cue.taskId, patch: { props: { ...(nodeById(cue.taskId)?.props ?? {}), status: 'blocked' } }, answerId: 'direct' }], 'blocked by question');
       state.transcript.push({ who: 'agent', text: `Raised: "${cue.prompt}"${cue.taskId ? ` — blocked ${cue.taskId}` : ''}`, at: Date.now() });
       persist();
+      break;
+    }
+    case 'refine': {
+      refineFollowUp(cue.followupId, cue.prompt, cue.options);
+      state.transcript.push({ who: 'agent', text: `Rewrote ${cue.followupId} as one question: "${cue.prompt}"`, at: Date.now() });
       break;
     }
   }

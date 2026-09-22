@@ -15,6 +15,8 @@
 | define-term | 0.1 | Two-step glossary flow: asks for a term, then its definition, then commits it. | selection | Makes sense / Doesn't make sense | said S59 |
 | review-change | 0.2 | Checks that a task's change serves the intent of the rule, not just the test it targets. | selection, graph | Makes sense / Doesn't make sense / Bad question | said S152 |
 | raise-question | 0.2 | Raises a clarification question from an agent about a task, blocking it until answered. | selection, next | Makes sense / Doesn't make sense / Bad question | said S148 |
+| consolidate-questions | 0.1 | Rewrites a group of related violation follow-ups as one question a user can answer in a single sentence. | next | Makes sense / Doesn't make sense / Bad question | said S113, S142 |
+| find-contradictions | 0.1 | Scans the graph for two statements that disagree: same-titled nodes of one kind, or rules governing the same thing with opposing conditions. | graph | Makes sense / Doesn't make sense / Bad question | inferred: v4.2 plan: contradiction-detection wasn't named in a brief statement; grouped under the same "consolidate to common sources of truth" intent as consolidate-questions (S142). |
 
 ## describe-screen
 
@@ -220,4 +222,40 @@ Task (if any), what's missing, and the readings considered:
 {{context}}
 
 Per the ask-vs-act rule (AGENT-RUNTIME.md §4): only raise when exploration yields zero or several plausible readings, or no measurable done-criterion can be derived from the rule lines and test conditions. Name the subject task and its targeted tests, state plainly what's missing, and list the two or three readings you considered. Never guess and proceed — raise instead.
+```
+
+## consolidate-questions
+
+Rewrites a group of related violation follow-ups as one question a user can answer in a single sentence.
+
+- **Version:** 0.1
+- **Context needs:** next
+- **Output:** A refine cue rewriting the follow-up's prompt/options to the single consolidated question, plus a confirmation line.
+- **Feedback options:** Makes sense, Doesn't make sense, Bad question
+
+**Prompt:**
+
+```
+The consolidated follow-up's deterministic message and the member gaps it groups (one line each), plus the subject nodes' titles:
+{{context}}
+
+Propose ONE question a user could answer in a single sentence that resolves every member gap listed, offering the union of their repair options (at most four). If the members genuinely can't be answered as one sentence, answer the biggest subset you can and set "answersAll" to false, naming which are left out.
+```
+
+## find-contradictions
+
+Scans the graph for two statements that disagree: same-titled nodes of one kind, or rules governing the same thing with opposing conditions.
+
+- **Version:** 0.1
+- **Context needs:** graph
+- **Output:** One raise cue per contradiction found (or a single "no contradictions" say cue).
+- **Feedback options:** Makes sense, Doesn't make sense, Bad question
+
+**Prompt:**
+
+```
+Graph summary:
+{{context}}
+
+Look for two statements that disagree: (a) two nodes of the same kind that appear to name the same thing, (b) two rules governing the same target whose condition lines contradict each other (one forbids what the other requires). Report each as a one-sentence question naming both sides and the shared subject. If you find none, say so.
 ```
