@@ -1,7 +1,7 @@
 // System One in the browser (v4.3, AGENT-RUNTIME.md §9): publish typed questions on the bus, await
 // the typed answers the agent server gets from Jev. The key never leaves the server. This is the
 // only browser file that knows the system1-request/system1-response messages exist; runtime.ts
-// (registry functions) and directors/scripted.ts (the router) call `askDecision`.
+// (registry functions) and directors/route.ts (the shared router) call `askDecision`.
 import { state } from '../store.ts';
 import { publish, subscribe } from '../bus.ts';
 import type { S1Answers, S1Request } from './types.ts';

@@ -1,7 +1,7 @@
 // route-utterance: classifies free text that matched none of ScriptedDirector's exact Talk
 // commands, picking which registry function should handle it (v4.3, System One). This is the
 // router itself, not a screen-facing function — it never produces cues of its own; whichever
-// function it dispatches to (via scripted.ts's routeFree) produces the cues the user sees. The
+// function it dispatches to (via route.ts's fall-through) produces the cues the user sees. The
 // stub is today's fall-through: always describe-screen, unsure or not.
 import type { Cue, Context } from '../../director.ts';
 import type { AIFunctionImpl, DecisionSpec, S1Answers } from '../types.ts';
@@ -14,7 +14,7 @@ function stub(): RouteUtteranceOut {
 }
 
 /** No cues of its own: the router only decides which function runs; that function's own toCues
- * produces what the user sees. scripted.ts never calls this — it's here only so the AIFunctionImpl
+ * produces what the user sees. route.ts never calls this — it's here only so the AIFunctionImpl
  * shape is complete and any generic caller gets an empty (safe) result. */
 function toCues(_out: RouteUtteranceOut, _callId: string): Cue[] {
   return [];

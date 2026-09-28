@@ -44,7 +44,7 @@ function runDecision<I, O>(fn: AIFunctionDef<I, O>, req: S1Request, input: I, ct
       settle(fn.stub(input, ctx), { runtime: 'stub', fallback: /timed out/.test(reason) ? 'timeout' : 'error' });
     },
   );
-  return [{ t: 'say', id: pendingSayId, text: 'Deciding…' }];
+  return [{ t: 'say', id: pendingSayId, text: 'Deciding…', transient: true }];
 }
 
 const genId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
@@ -87,10 +87,11 @@ function updateCall(callId: string, patch: Partial<AICall>) {
  * id, never the `s-<Date.now()>` fallback in `applyCue`, so the Talk panel can look this call back
  * up by cue id.
  *
- * `runAI` itself stays synchronous so today's callers (`directors/scripted.ts`) don't need to
+ * `runAI` itself stays synchronous so today's callers (`directors/route.ts`, both directors) don't need to
  * change: for the stub backend it behaves exactly as before. For `flue` it returns an immediate
  * "Asking the agent…" cue and applies the real cues (or, on error/timeout, a fallback message plus
- * the stub's own cues) once the backend's promise settles. */
+ * the stub's own cues) once the backend's promise settles. Both placeholders are `transient` says:
+ * on the strip, never in the transcript. */
 export function runAI<I, O>(fn: AIFunctionDef<I, O>, input: I, ctx: Context): Cue[] {
   const callId = genId(`call-${fn.id}`);
   const backend = backendFor(state.aiRuntime);
@@ -105,7 +106,9 @@ export function runAI<I, O>(fn: AIFunctionDef<I, O>, input: I, ctx: Context): Cu
     nothingToAsk = true;
   }
 
-  if (backend.kind === 'stub') {
+  // Router-only functions (`internal`: route-utterance, link-answer) are a decision plus code —
+  // generation adds nothing, so they never pay a Flue turn: Jev if present, else the stub.
+  if (backend.kind === 'stub' || fn.internal) {
     const out = fn.stub(input, ctx);
     const cues = fn.toCues(out, callId);
     const call: AICall = {
@@ -168,5 +171,5 @@ export function runAI<I, O>(fn: AIFunctionDef<I, O>, input: I, ctx: Context): Cu
     },
   );
 
-  return [{ t: 'say', id: pendingSayId, text: 'Asking the agent…' }];
+  return [{ t: 'say', id: pendingSayId, text: 'Asking the agent…', transient: true }];
 }

@@ -8,8 +8,8 @@ import Kernel from './components/Kernel.vue';
 import Glossary from './components/Glossary.vue';
 import Mirror from './components/Mirror.vue';
 import TalkPanel from './components/TalkPanel.vue';
-import { state, hydrate, resetToSeed, exportJson, nextQuestion, rankOpen, revalidate } from './store';
-import { startDirectorHost, handleUser, topics } from './directors/index';
+import { state, hydrate, resetToSeed, exportJson, nextQuestion, rankOpen, revalidate, nodeById } from './store';
+import { startDirectorHost, handleUser, topics, currentDirector, publishSnapshot } from './directors/index';
 import { currentContext, applyCue } from './director';
 import { relayHost, setRelayHost, bus } from './bus';
 import { AI_FUNCTIONS } from './ai/registry';
@@ -34,7 +34,7 @@ onMounted(() => {
   if (!isMirror.value) startDirectorHost();
   // Dev-only test hook: lets smoke.mjs drive the Director protocol directly (e.g. applyCue({t:'answer', ...}))
   // for flows the ScriptedDirector's freeTalk keyword matcher doesn't cover. Never shipped (import.meta.env.DEV).
-  if (import.meta.env.DEV) (window as any).__lfp = { applyCue, state, nextQuestion, aiFunctionIds: AI_FUNCTIONS.map((f) => f.id), rankOpen, revalidate };
+  if (import.meta.env.DEV) (window as any).__lfp = { applyCue, state, nextQuestion, aiFunctionIds: AI_FUNCTIONS.map((f) => f.id), rankOpen, revalidate, currentDirector };
 });
 
 watchEffect(() => {
@@ -48,13 +48,16 @@ const glossaryOpen = ref(false);
 const copied = ref(false);
 const relay = ref(relayHost());
 async function copyExport() { await navigator.clipboard.writeText(exportJson()); copied.value = true; setTimeout(() => (copied.value = false), 1500); }
-function reset() { if (confirm('Reset to the seed graph.json? Local edits, answers, follow-ups and commits are lost.')) resetToSeed(); }
+// resetToSeed() starts a new sessionId; the snapshot tells the agent server to drop its memory.
+function reset() { if (confirm('Reset to the seed graph.json? Local edits, answers, follow-ups and commits are lost.')) { resetToSeed(); publishSnapshot(); } }
 function openMirror() { window.open(`${location.origin}${location.pathname}#mirror${relay.value ? `?relay=${relay.value}` : ''}`, 'bropilot-mirror', 'width=420,height=800'); }
 function configureRelay() {
   const host = prompt('Relay host (LAN IP of this machine, printed by `npm run relay`). Empty = same-machine BroadcastChannel.', relay.value ?? '');
   if (host === null) return; setRelayHost(host.trim()); relay.value = host.trim(); location.reload();
 }
 const pushLayout = computed(() => !!state.selectedId || glossaryOpen.value || state.panelOpen);
+// Inspector and Talk panel both open: they sit side by side (inspector left) and the page is pushed by both.
+const twoPanels = computed(() => view.value === 'overview' && !!state.selectedId && !!nodeById(state.selectedId) && state.panelOpen); // only Overview renders the Inspector
 </script>
 
 <template>
@@ -73,7 +76,7 @@ const pushLayout = computed(() => !!state.selectedId || glossaryOpen.value || st
         <button @click="reset">Reset to seed</button>
       </div>
     </header>
-    <div class="view" :class="{ 'panel-open': pushLayout }" v-if="state.hydrated">
+    <div class="view" :class="{ 'panel-open': pushLayout, two: twoPanels }" v-if="state.hydrated">
       <Overview v-if="view === 'overview'" />
       <Definition v-else-if="view === 'definition'" />
       <Domain v-else-if="view === 'domain'" />

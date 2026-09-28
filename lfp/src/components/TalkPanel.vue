@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue';
-import { state, rateCall, nodeById, persist, describe } from '../store';
+import { state, rateCall, nodeById, persist, describe, rankOpen } from '../store';
+import { kindById } from '../kernel';
 import { applyCue, type Context, type UserTurn } from '../director';
 import type { OpenItem } from '../types';
 import { aiFunctionById } from '../ai/registry';
@@ -14,6 +15,14 @@ const answering = ref<string | null>(null); // OpenItem id the next free-text tu
 const tierLabel: Record<OpenItem['tier'], string> = { 1: 'Blocking', 2: 'Next question', 3: 'Gap', 4: 'Open thread' };
 
 function pointAt(nodeId: string) { applyCue({ t: 'point', nodes: [nodeId], focus: nodeId }); }
+
+/** Non-singular kinds take several items per answer, separated by " / " (store.ts::splitItems). */
+const placeholder = computed(() => {
+  if (!answering.value) return 'Say something…';
+  const item = props.ctx?.next?.id === answering.value ? props.ctx.next : rankOpen().find((i) => i.id === answering.value);
+  const kind = item ? kindById[item.produces] : undefined;
+  return kind && !kind.singular ? 'Answer… (separate items with " / ")' : 'Answer…';
+});
 
 function answerIt(item: OpenItem) {
   answering.value = item.id;
@@ -101,7 +110,7 @@ function rate(callId: string, value: string) { rateCall(callId, value); }
 function sendText() {
   const t = text.value.trim();
   if (!t) return;
-  props.send({ text: t });
+  props.send(answering.value ? { text: t, forItem: answering.value } : { text: t });
   text.value = '';
   answering.value = null;
 }
@@ -185,10 +194,10 @@ function close() { state.panelOpen = false; }
               <button v-for="sid in ctx.next.subjects" :key="sid" class="tag chip" :data-node-id="sid" @click="pointAt(sid)">{{ nodeById(sid)?.title ?? sid }}</button>
             </div>
             <div class="row" v-if="ctx.next.options?.length">
-              <button v-for="o in ctx.next.options" :key="o" @click="props.send({ choice: o, forAsk: ctx.next!.id })">{{ o }}</button>
+              <button v-for="o in ctx.next.options" :key="o" data-testid="talk-next-option" @click="props.send({ choice: o, forAsk: ctx.next!.id })">{{ o }}</button>
             </div>
             <div class="row" v-else-if="!bare">
-              <button class="primary" @click="answerIt(ctx.next)">Answer it</button>
+              <button class="primary" data-testid="talk-answer-it" @click="answerIt(ctx.next)">Answer it</button>
               <button @click="skip(ctx.next)">Skip</button>
               <button v-if="ctx.next.covers" data-testid="talk-consolidate" @click="props.send({ text: 'consolidate' })">Ask as one question</button>
             </div>
@@ -223,14 +232,14 @@ function close() { state.panelOpen = false; }
     </template>
 
     <div class="composer">
-      <input ref="inputEl" data-testid="talk-input" v-model="text" :placeholder="answering ? 'Answer…' : 'Say something…'" @keyup.enter="sendText" />
+      <input ref="inputEl" data-testid="talk-input" v-model="text" :placeholder="placeholder" @keyup.enter="sendText" />
       <button class="primary" data-testid="talk-send" @click="sendText">Send</button>
     </div>
   </aside>
 </template>
 
 <style scoped>
-.agent-sidebar { position: fixed; right: 1rem; top: 4rem; bottom: 1rem; width: 400px; z-index: 3; overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 30px rgba(0, 0, 0, .08); padding: 1rem; display: flex; flex-direction: column; gap: .6rem; }
+.agent-sidebar { position: fixed; right: 1rem; top: 4rem; bottom: 1rem; width: var(--side-w); z-index: 3; overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 30px rgba(0, 0, 0, .08); padding: 1rem; display: flex; flex-direction: column; gap: .6rem; }
 .agent-sidebar.bare { position: static; inset: auto; width: 100%; max-width: 560px; height: auto; background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto; }
 .head { display: flex; align-items: center; gap: .5rem; }
 .head h2 { margin: 0; flex: 1; }

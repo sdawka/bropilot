@@ -6,10 +6,16 @@ import type { Graph, Violation, ViolationGroup } from './types.ts';
 
 const COND_TAG = /^cond\d+$/;
 
+const ORPHAN_REPAIRS = ['Link it to something', 'Remove it', 'Leave as a stub'];
+
+/** Union of the members' options, first 4 — except an all-orphans group, whose options are the
+ * union of its members' candidate titles (up to 6) followed by the repairs any member offers. */
 function optionsOf(members: Violation[]): string[] {
   const out: string[] = [];
   for (const m of members) for (const o of m.options) if (!out.includes(o)) out.push(o);
-  return out.slice(0, 4);
+  if (!members.every((m) => m.invariant === 'orphans')) return out.slice(0, 4);
+  const candidates = out.filter((o) => !ORPHAN_REPAIRS.includes(o)).slice(0, 6);
+  return [...candidates, ...ORPHAN_REPAIRS.filter((o) => out.includes(o))];
 }
 function producesOf(members: Violation[]): string | undefined {
   return members.find((m) => m.produces)?.produces;

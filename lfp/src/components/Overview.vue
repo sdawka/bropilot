@@ -159,7 +159,7 @@ useScreen((): ScreenItem[] => {
 
     </div>
 
-    <Inspector v-if="state.selectedId" :id="state.selectedId" @close="state.selectedId = null" />
+    <Inspector v-if="state.selectedId" :id="state.selectedId" :class="{ beside: state.panelOpen }" @close="state.selectedId = null" />
   </div>
 </template>
 

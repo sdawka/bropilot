@@ -13,7 +13,9 @@ import { computeGaps } from './ai/functions/find-gaps.ts';
 export type View = 'overview' | 'definition' | 'domain' | 'flows' | 'kernel';
 
 export type Cue =
-  | { t: 'say'; text: string; id?: string }
+  // transient: a placeholder ("Deciding…") shown on the strip until the real cues land, never
+  // written to the transcript (found in session 2026-09-28: each one read as an agent message).
+  | { t: 'say'; text: string; id?: string; transient?: true }
   | { t: 'navigate'; view: View; params?: { level?: 0 | 1 | 2 | 3; module?: string; question?: string } }
   | { t: 'point'; nodes?: string[]; edges?: string[]; focus?: string }
   | { t: 'clear' }
@@ -54,8 +56,8 @@ export interface Context {
 type ScreenItemLite = { id: string; kind: string; title: string; group?: string };
 
 export type UserTurn =
-  | { text: string }
-  | { choice: string; forAsk: string }
+  | { text: string; forItem?: string } // forItem: the Now item (template question or follow-up id) this text answers — applied as an `answer` cue in code, no director turn
+  | { choice: string; forAsk: string } // forAsk an open item's id (a Now-strip option): answered in code like forItem; an ask cue's id: a director turn
   | { control: 'next' | 'back' | 'stop' | 'approve' | 'discard' | 'undo' }
   | { topic: string };
 
@@ -76,7 +78,7 @@ export function applyCue(cue: Cue) {
     case 'say':
       state.ask = null; // one thing at a time: a new utterance replaces a pending question (inv-one-utterance)
       state.say = { id: cue.id ?? `s-${Date.now()}`, text: cue.text };
-      state.transcript.push({ who: 'agent', text: cue.text, at: Date.now() });
+      if (!cue.transient) state.transcript.push({ who: 'agent', text: cue.text, at: Date.now() });
       break;
     case 'navigate':
       if (cue.params?.level !== undefined) state.domainLevel = cue.params.level;

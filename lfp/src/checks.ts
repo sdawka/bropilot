@@ -6,6 +6,7 @@
 import { KINDS, kindById, edgeTypeById } from './kernel.ts';
 import type { Graph, Node, Violation } from './types.ts';
 import { thresholdFor } from './ai/decisionConfig.ts';
+import { LINKS } from './ai/links.ts';
 
 /** A rule's conditions: its description split on newlines, trimmed, non-empty — or, when it has
  * no description, one condition equal to its title (v4.1 decision: "a condition is one line of
@@ -40,6 +41,9 @@ const OPTIONS: Record<string, string[]> = {
   'protocol-realised': ['Add a realising practice', 'Mark as a planned change', 'Retire the protocol'],
   'test-without-passing-fresh-result-and-no-task': ['Create a task targeting this test', 'Add it to an existing epic', 'Mark as accepted risk'],
   orphans: ['Link it to something', 'Remove it', 'Leave as a stub'],
+  // a kind with a LINKS rule and candidates offers the candidate titles instead of "Link it to
+  // something"; store.ts::answerFollowUp turns a picked title into the edge (orphanRepair)
+  'orphans-linkable': ['Remove it', 'Leave as a stub'],
   'suspect-edges-pending': ['Revalidate', 'Re-edit the neighbour', 'Ignore for now'],
   'task-done-without-verdict': ['Run the reviewer', 'Set status back to running', 'Accept without review'],
   'task-verified-without-green': ['Re-run the suite', 'Set status back to running'],
@@ -199,15 +203,18 @@ export function checkInvariants(graph: Graph, reality: RealityMatches = {}): Vio
   }
 
   // ── orphans: same rule as store.ts's dogfood check (singular kinds and terms may stand alone) ─
+  // Options for a kind with a LINKS rule: up to 6 titles of the rule's target kind, then the repairs.
   for (const n of graph.nodes) {
     if (kindById[n.kind]?.singular || n.kind === 'term') continue;
     if (!graph.edges.some((e) => e.src === n.id || e.dst === n.id)) {
+      const rule = LINKS[n.kind];
+      const candidates = rule ? graph.nodes.filter((c) => c.kind === rule.target && c.id !== n.id).slice(0, 6).map((c) => c.title) : [];
       violations.push({
         id: `orphans:${n.id}`,
         invariant: 'orphans',
         subjects: [n.id],
         message: `"${n.title}" (${n.kind}) has no edges at all.`,
-        options: OPTIONS.orphans,
+        options: candidates.length ? [...candidates, ...OPTIONS['orphans-linkable']] : OPTIONS.orphans,
         raise: 'question',
       });
     }

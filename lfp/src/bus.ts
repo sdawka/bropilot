@@ -10,7 +10,8 @@ export type BusMessage =
   | { kind: 'user'; turn: UserTurn; from: string }
   | { kind: 'hello'; role: 'main' | 'mirror' | 'agent'; from: string }
   | { kind: 'ack'; msgId: string; ctx: Context; from: string }
-  | { kind: 'snapshot'; graph: Graph; kernel: string; from: string }
+  // sessionId: the design session (store.ts); the agent server starts a fresh conversation when it changes.
+  | { kind: 'snapshot'; graph: Graph; kernel: string; sessionId: string; from: string }
   // AIBackend seam (AGENT-RUNTIME.md §7): the browser asks, the agent server answers.
   | { kind: 'ai-request'; id: string; fn: string; prompt: string; input: string; schemaId: string; from: string }
   | { kind: 'ai-response'; id: string; output?: unknown; error?: string; model?: string; usage?: { input: number; output: number; costUsd: number }; from: string }

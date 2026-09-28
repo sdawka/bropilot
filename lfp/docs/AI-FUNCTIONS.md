@@ -5,7 +5,7 @@
 | id | version | purpose | context needs | System One | feedback | provenance |
 | --- | --- | --- | --- | --- | --- | --- |
 | describe-screen | 0.2 | Names what is visible on the active view and points at the matching cards. | screen, selection, graph, suspect | yes | Makes sense / Doesn't make sense | said S119, S120 |
-| next-decision | 0.2 | Ranks the next open item across all four tiers (agent-blocking, template question, violation, rest) and surfaces the single most important one. | next, gaps | — | Makes sense / Doesn't make sense / Bad question | said S116, S117 |
+| next-decision | 0.3 | Ranks the next open item across all four tiers (agent-blocking, template question, violation, rest) and surfaces the single most important one. | next, gaps | — | Makes sense / Doesn't make sense / Bad question | said S116, S117 |
 | answer-to-effects | 0.2 | Turns free-text answer content into staged add/update node and edge effects. | next, graph | yes | Makes sense / Doesn't make sense | said S21, S27 |
 | propose-followup | 0.1 | Given a question or node, proposes one sub-question or follow-up thread. | selection, next | — | Makes sense / Doesn't make sense / Bad question | said S52, S53, S54 |
 | explain-node | 0.2 | Explains a selected node in context: why it exists, what it connects to, its verdict. | selection, graph | yes | Makes sense / Doesn't make sense | said S62, S65 |
@@ -18,6 +18,7 @@
 | consolidate-questions | 0.1 | Rewrites a group of related violation follow-ups as one question a user can answer in a single sentence. | next | — | Makes sense / Doesn't make sense / Bad question | said S113, S142 |
 | find-contradictions | 0.1 | Scans the graph for two statements that disagree: same-titled nodes of one kind, or rules governing the same thing with opposing conditions. | graph | yes | Makes sense / Doesn't make sense / Bad question | inferred: v4.2 plan: contradiction-detection wasn't named in a brief statement; grouped under the same "consolidate to common sources of truth" intent as consolidate-questions (S142). |
 | route-utterance | 0.1 | Routes free text that matched no Talk command to the registry function that should handle it (v4.3, System One). | screen, next | yes | Makes sense / Doesn't make sense / Bad question | inferred: v4.3: the Talk router was ten anchored regexes with a describe-screen fallback; Jev classifies the fall-through (S154). |
+| link-answer | 0.2 | Proposes the edges for the nodes a just-staged answer added (audience has context, bet references outcome, …) and appends them to the same staged changeset, so no template answer lands as orphans (v4.3). | graph | yes | Makes sense / Doesn't make sense / Bad question | inferred: v4.3 design session (2026-09-28): answering the template staged nodes but no edges, so the orphans invariant raised ~29 gaps at once. |
 
 ## describe-screen
 
@@ -46,9 +47,9 @@ If there are any suspect edges (an endpoint changed since the edge was last chec
 
 Ranks the next open item across all four tiers (agent-blocking, template question, violation, rest) and surfaces the single most important one.
 
-- **Version:** 0.2
+- **Version:** 0.3
 - **Context needs:** next, gaps
-- **Output:** One ask/say cue naming the next question or gap, with a one-line reason.
+- **Output:** One say cue ("Next: <tier> <prompt>") naming the next question or gap; an ask only when the item has its own options.
 - **System One:** no — code or a generating model
 - **Feedback options:** Makes sense, Doesn't make sense, Bad question
 
@@ -58,7 +59,7 @@ Ranks the next open item across all four tiers (agent-blocking, template questio
 Context:
 {{context}}
 
-Pick exactly one thing to surface next, using the ranking: (1) an agent question blocking a queued/running task, (2) the next unlocked template question, (3) a violation-raised question, ordered left-to-right by space, (4) any other open thread. Ask about it in one sentence prefixed by its tier ("Blocking:", "Next question:", "Gap:", "Open thread:"), and offer its own options if it has any, else "Answer it" / "Skip". Never surface more than one item.
+Pick exactly one thing to surface next, using the ranking: (1) an agent question blocking a queued/running task, (2) the next unlocked template question, (3) a violation-raised question, ordered left-to-right by space, (4) any other open thread. Ask about it in one sentence prefixed by its tier ("Blocking:", "Next question:", "Gap:", "Open thread:"), and offer its own options if it has any; otherwise just say it (the Now strip already offers Answer it / Skip). Never surface more than one item.
 ```
 
 ## answer-to-effects
@@ -292,4 +293,24 @@ Context:
 {{context}}
 
 Pick exactly one function to handle it: describe-screen (names what is on screen or explains a node), next-decision (what to do next), propose-followup (a sub-question), find-gaps (what is missing), consolidate-questions (fold the open gaps into one question), find-contradictions (what disagrees), review-change (judge a task), raise-question (a question for the user). When unsure, describe-screen.
+```
+
+## link-answer
+
+Proposes the edges for the nodes a just-staged answer added (audience has context, bet references outcome, …) and appends them to the same staged changeset, so no template answer lands as orphans (v4.3).
+
+- **Version:** 0.2
+- **Context needs:** graph
+- **Output:** A stage cue: the staged changeset plus one add-edge effect per proposed edge, noted "linked N of M new nodes".
+- **System One:** declares a typed decision (AGENT-RUNTIME.md §9); the stub answers below the threshold
+- **Feedback options:** Makes sense, Doesn't make sense, Bad question
+
+**Prompt:**
+
+```
+The nodes a just-staged answer added, the edge each kind needs (the LINKS table), and the committed nodes each could link to:
+{{context}}
+Answer: {{input}}
+
+For each new node, pick which of the listed candidates it links to — every candidate it belongs to when the kind can belong to several (one yes/no per candidate), "none" when it fits none. Never invent a node or an edge type; only add-edge effects, appended to the staged changeset for the user to approve with the nodes.
 ```

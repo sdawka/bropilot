@@ -4,6 +4,7 @@ import reality from './reality.json';
 import { QUESTIONS, kindById, edgeTypeById, SPACES } from './kernel';
 import { checkInvariants, contentHash } from './checks.ts';
 import { groupViolations } from './consolidate.ts';
+import { LINKS, endpoints } from './ai/links.ts';
 import type { Node, Graph, ScreenItem, Answer, AICall, Effect, Changeset, Commit, FollowUp, OpenItem, ViolationGroup } from './types';
 
 export type { Status, Node, Edge, Graph, ScreenItem, Answer, AICall, Effect, Changeset, Commit, FollowUp, Violation, OpenItem, ViolationGroup } from './types';
@@ -38,7 +39,13 @@ export const state = reactive({
   // ── screen awareness (S110-115): what the active view is showing, for the Talk panel ──
   screen: { view: '', params: {} as Record<string, string>, items: [] as ScreenItem[] },
   panelOpen: true,
+  // Persisted. The agent server keys its Flue conversation on this (snapshot.sessionId), so a reset
+  // graph gets a fresh agent memory (found in session 2026-09-28: it remembered the wiped design).
+  sessionId: '',
 });
+
+/** `s-<base36 time>-<4 random>`: a new design session (hydrate when missing, resetToSeed). */
+export const newSessionId = () => `s-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 
 function clone<T>(x: T): T { return JSON.parse(JSON.stringify(x)); }
 
@@ -103,11 +110,12 @@ export function hydrate() {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const s = JSON.parse(raw);
-      state.graph = s.graph; state.answers = s.answers ?? []; state.commits = s.commits ?? []; state.staged = s.staged ?? null; state.followups = s.followups ?? []; state.aiCalls = s.aiCalls ?? [];
+      state.graph = s.graph; state.answers = s.answers ?? []; state.commits = s.commits ?? []; state.staged = s.staged ?? null; state.followups = s.followups ?? []; state.aiCalls = s.aiCalls ?? []; state.sessionId = s.sessionId ?? '';
     } else {
       state.graph = clone(seed as Graph);
     }
   } catch { state.graph = clone(seed as Graph); }
+  if (!state.sessionId) state.sessionId = newSessionId();
   // lazy hash init for nodes seeded/loaded without one — never bumps v, just gives revalidate() a baseline
   for (const n of state.graph.nodes) if (!n.hash) n.hash = contentHash(n);
   applyReality();
@@ -116,12 +124,13 @@ export function hydrate() {
 }
 
 export function persist() {
-  const { graph, answers, commits, staged, followups, aiCalls } = state;
-  localStorage.setItem(KEY, JSON.stringify({ graph, answers, commits, staged, followups, aiCalls }));
+  const { graph, answers, commits, staged, followups, aiCalls, sessionId } = state;
+  localStorage.setItem(KEY, JSON.stringify({ graph, answers, commits, staged, followups, aiCalls, sessionId }));
 }
 
 export function resetToSeed() {
   state.graph = clone(seed as Graph); state.answers = []; state.commits = []; state.staged = null; state.selectedId = null; state.followups = []; state.aiCalls = [];
+  state.sessionId = newSessionId(); state.transcript = []; state.say = null; state.ask = null;
   for (const n of state.graph.nodes) if (!n.hash) n.hash = contentHash(n);
   applyReality();
   syncRaised();
@@ -162,14 +171,18 @@ export function committedAnswerFor(qid: string) {
 export const isUnlocked = (qid: string) => QUESTIONS.find((q) => q.id === qid)!.unlocksAfter.every(committedAnswerFor);
 export const nextQuestion = computed(() => QUESTIONS.find((q) => isUnlocked(q.id) && !committedAnswerFor(q.id)) ?? null);
 
-/** Low-fi effect mapping: singular kinds → one add/update; otherwise one node per non-empty line.
+/** Items in one answer: newline or " / " separated (the Talk input is single-line, so " / " is the
+ * only way to give several there — found in session 2026-09-28). Trimmed, empties dropped. */
+export const splitItems = (content: string) => content.split(/\n|\s\/\s/).map((l) => l.trim()).filter(Boolean);
+
+/** Low-fi effect mapping: singular kinds → one add/update; otherwise one node per item (splitItems).
  * Pure (no state mutation) so AI functions (`ai/functions/answer-to-effects.ts`) can reuse it as
  * their stub's core logic and renumber the effect ids against their own `callId`. */
 export function stageFor(kindId: string, content: string, answerId: string): Changeset {
   const kind = kindById[kindId];
   const taken = new Set(state.graph.nodes.map((n) => n.id));
   const effects: Effect[] = []; const warnings: string[] = [];
-  const lines = content.split('\n').map((l) => l.trim()).filter(Boolean);
+  const lines = splitItems(content);
   if (kind.singular) {
     const existing = state.graph.nodes.find((n) => n.kind === kind.id);
     const title = lines.join(' ');
@@ -209,9 +222,52 @@ export function addFollowUp(parentId: string, prompt: string, kind: FollowUp['ki
   const f: FollowUp = { id: `f-${Date.now()}`, parentId, prompt, kind, produces: produces ?? root?.produces ?? 'context', answerIds: [], createdAt: Date.now() };
   state.followups.push(f); persist(); return f;
 }
+/** The orphan nodes a violation-raised follow-up is about: its own `orphans:<nodeId>` violation
+ * and, for a consolidated parent, every covered one. */
+function orphanNodesOf(f: FollowUp): Node[] {
+  const vids = [...(f.raisedBy?.kind === 'violation' ? [f.raisedBy.ref] : []), ...(f.covers ?? [])];
+  const ids = [...new Set(vids.filter((v) => v.startsWith('orphans:')).map((v) => v.slice('orphans:'.length)))];
+  return ids.map(nodeById).filter((n): n is Node => !!n);
+}
+
+/** Orphan repair answered in code (checks.ts's orphans options): "Leave as a stub" defers; "Remove
+ * it" stages a remove-node per orphan; candidate titles (case-insensitive, several via " / ") stage
+ * the LINKS edge from every covered orphan whose rule targets that title's kind — the same edge
+ * shape link-answer proposes. `null` = not an orphan follow-up or nothing matched: stage as before. */
+function orphanRepair(f: FollowUp, content: string, answerId: string): Changeset | 'defer' | null {
+  const orphans = orphanNodesOf(f);
+  if (!orphans.length) return null;
+  const said = content.trim().toLowerCase();
+  if (said === 'leave as a stub') return 'defer';
+  if (said === 'remove it') return { effects: orphans.map((n, i): Effect => ({ id: `ef-${i}`, op: 'remove-node', nodeId: n.id, answerId })), warnings: [] };
+  const key = (src: string, type: string, dst: string) => `${src}|${type}|${dst}`;
+  const have = new Set(state.graph.edges.map((e) => key(e.src, e.type, e.dst)));
+  const effects: Effect[] = []; const warnings: string[] = [];
+  let matched = false;
+  for (const item of splitItems(content)) {
+    const hits = state.graph.nodes.filter((c) => c.title.toLowerCase() === item.toLowerCase() && orphans.some((n) => LINKS[n.kind]?.target === c.kind));
+    if (!hits.length) { warnings.push(`"${item}" matches no candidate; skipped.`); continue; }
+    matched = true;
+    for (const c of hits) for (const n of orphans) {
+      const rule = LINKS[n.kind];
+      if (!rule || rule.target !== c.kind || c.id === n.id) continue;
+      const { src, dst } = endpoints(rule, n.id, c.id);
+      if (have.has(key(src, rule.edge, dst))) continue;
+      have.add(key(src, rule.edge, dst));
+      effects.push({ id: `ef-${effects.length}`, op: 'add-edge', edge: { id: `e-${src}-${rule.edge}-${dst}`, src, dst, type: rule.edge, status: 'draft', answerId }, answerId });
+    }
+  }
+  if (!matched) return null;
+  if (!effects.length) warnings.push('Nothing to stage.');
+  return { effects, warnings };
+}
+
 export function answerFollowUp(followUpId: string, content: string) {
   const f = state.followups.find((f) => f.id === followUpId)!;
   const a: Answer = { id: `a-${Date.now()}`, questionId: followUpId, content, at: Date.now() };
+  const repair = orphanRepair(f, content, a.id);
+  // "Leave as a stub" is the Now strip's Skip: deferred, nothing answered, nothing staged
+  if (repair === 'defer') { f.deferred = true; persist(); return; }
   state.answers.push(a); f.answerIds.push(a.id);
   // a consolidated follow-up's answer also answers every violation it covers (child follow-ups
   // created by syncRaised() as `f-<violationId>`) so tier 3 doesn't re-surface them individually.
@@ -219,7 +275,7 @@ export function answerFollowUp(followUpId: string, content: string) {
     const child = state.followups.find((c) => c.id === `f-${vid}`);
     if (child && !child.answerIds.includes(a.id)) child.answerIds.push(a.id);
   }
-  state.staged = stageFor(f.produces, content, a.id);
+  state.staged = repair ?? stageFor(f.produces, content, a.id);
   persist();
 }
 /** Replace a follow-up's prompt (and, if given, its options) — used by the `refine` cue after
@@ -378,7 +434,7 @@ export function rankOpen(): OpenItem[] {
   const items: OpenItem[] = [];
 
   for (const f of state.followups) {
-    if (f.raisedBy?.kind === 'agent' && f.answerIds.length === 0) {
+    if (f.raisedBy?.kind === 'agent' && f.answerIds.length === 0 && !f.deferred) {
       items.push({ id: f.id, prompt: f.prompt, produces: f.produces, source: 'agent', subjects: f.subjects ?? [], tier: 1, blocking: f.raisedBy.ref });
     }
   }
@@ -396,7 +452,7 @@ export function rankOpen(): OpenItem[] {
     state.followups.filter((f) => f.raisedBy?.kind === 'violation' && f.answerIds.length === 0).map((f) => f.id),
   );
   const tier3 = state.followups
-    .filter((f) => f.raisedBy?.kind === 'violation' && f.answerIds.length === 0 && !openViolationParentIds.has(f.parentId))
+    .filter((f) => f.raisedBy?.kind === 'violation' && f.answerIds.length === 0 && !f.deferred && !openViolationParentIds.has(f.parentId))
     .map((f) => {
       const subj = f.subjects?.[0];
       const n = subj ? nodeById(subj) : undefined;
@@ -414,7 +470,7 @@ export function rankOpen(): OpenItem[] {
   items.push(...tier3);
 
   const tier4 = state.followups
-    .filter((f) => f.answerIds.length === 0 && f.raisedBy?.kind !== 'agent' && f.raisedBy?.kind !== 'violation')
+    .filter((f) => f.answerIds.length === 0 && !f.deferred && f.raisedBy?.kind !== 'agent' && f.raisedBy?.kind !== 'violation')
     .map((f) => ({ id: f.id, prompt: f.prompt, produces: f.produces, source: (f.raisedBy?.kind ?? 'template') as OpenItem['source'], subjects: f.subjects ?? [], tier: 4 as const }));
   items.push(...tier4);
 

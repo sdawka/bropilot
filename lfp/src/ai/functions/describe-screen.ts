@@ -8,7 +8,7 @@ import { state, nodeById } from '../../store.ts';
 import { kindById, edgeTypeById, STATEMENTS } from '../../kernel.ts';
 import { contextFor } from '../../brief.ts';
 import { titleCandidates } from '../candidates.ts';
-import { nodeByTextRequest, nodeByTextNext, resolveNodeByText } from '../ontology.ts';
+import { nodeByTextRequest, nodeByTextNext, resolveNodeByText, pointableKinds } from '../ontology.ts';
 import { thresholdFor } from '../decisionConfig.ts';
 import type { Cue, Context, View } from '../../director.ts';
 import type { AIFunctionImpl, DecisionSpec, S1Answers, S1Request } from '../types.ts';
@@ -95,7 +95,7 @@ function toCues(out: DescribeScreenOut, callId: string): Cue[] {
 const CAND_THRESHOLD = thresholdFor('find-by-title');
 function questions(input: DescribeScreenIn): S1Request | null {
   const q = input.text.trim();
-  if (!q) return null;
+  if (!q || !pointableKinds(state.graph.nodes).length) return null; // empty graph: no kinds to choose from (Jev rejects an empty choice)
   return nodeByTextRequest(q, state.graph.nodes, titleCandidates(q, state.graph.nodes));
 }
 const next = (answers: S1Answers, input: DescribeScreenIn): S1Request | null => nodeByTextNext(input.text.trim(), state.graph.nodes, answers, CAND_THRESHOLD);

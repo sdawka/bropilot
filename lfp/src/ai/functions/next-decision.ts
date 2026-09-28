@@ -1,6 +1,9 @@
 // next-decision: surfaces the single top-ranked open item from store.ts's `rankOpen()` (four
 // tiers: agent-blocking > next template question > violation > rest), falling back to ctx.next
-// when rankOpen() somehow disagrees with the context snapshot. One ask, one tier word, done.
+// when rankOpen() somehow disagrees with the context snapshot. The Talk panel's Now strip already
+// shows that item with Answer it / Skip, so this only says it; an item with its own options stays
+// an ask, since those are real choices (2026-09-28: the duplicated ask's "Answer it" became a paid
+// agent turn).
 import { rankOpen } from '../../store.ts';
 import type { Cue, Context } from '../../director.ts';
 import type { AIFunctionImpl } from '../types.ts';
@@ -25,8 +28,9 @@ function toCues(out: NextDecisionOut, callId: string): Cue[] {
   if (!out.item) {
     return [{ t: 'say', id: `${callId}-s1`, text: 'Nothing outstanding: every question is answered and no gaps were found.' }];
   }
-  const options = out.item.options?.length ? out.item.options : ['Answer it', 'Skip'];
-  return [{ t: 'ask', id: `${callId}-a1`, text: `${TIER_WORD[out.item.tier]} ${out.item.prompt}`, options }];
+  const text = `${TIER_WORD[out.item.tier]} ${out.item.prompt}`;
+  if (out.item.options?.length) return [{ t: 'ask', id: `${callId}-a1`, text, options: out.item.options }];
+  return [{ t: 'say', id: `${callId}-s1`, text: `Next: ${text}` }];
 }
 
 export const nextDecision: AIFunctionImpl<undefined, NextDecisionOut> = {

@@ -29,11 +29,11 @@ export const AI_FUNCTIONS: AIFunctionMeta[] = [
   },
   {
     id: 'next-decision',
-    version: '0.2',
+    version: '0.3',
     purpose: 'Ranks the next open item across all four tiers (agent-blocking, template question, violation, rest) and surfaces the single most important one.',
     context: { needs: ['next', 'gaps'] },
-    prompt: `Context:\n{{context}}\n\nPick exactly one thing to surface next, using the ranking: (1) an agent question blocking a queued/running task, (2) the next unlocked template question, (3) a violation-raised question, ordered left-to-right by space, (4) any other open thread. Ask about it in one sentence prefixed by its tier ("Blocking:", "Next question:", "Gap:", "Open thread:"), and offer its own options if it has any, else "Answer it" / "Skip". Never surface more than one item.`,
-    output: 'One ask/say cue naming the next question or gap, with a one-line reason.',
+    prompt: `Context:\n{{context}}\n\nPick exactly one thing to surface next, using the ranking: (1) an agent question blocking a queued/running task, (2) the next unlocked template question, (3) a violation-raised question, ordered left-to-right by space, (4) any other open thread. Ask about it in one sentence prefixed by its tier ("Blocking:", "Next question:", "Gap:", "Open thread:"), and offer its own options if it has any; otherwise just say it (the Now strip already offers Answer it / Skip). Never surface more than one item.`,
+    output: 'One say cue ("Next: <tier> <prompt>") naming the next question or gap; an ask only when the item has its own options.',
     feedback: decides,
     source: said(116, 117),
   },
@@ -163,6 +163,18 @@ export const AI_FUNCTIONS: AIFunctionMeta[] = [
     output: 'One registry function id; the router dispatches it with the original text.',
     feedback: decides,
     source: inferred('v4.3: the Talk router was ten anchored regexes with a describe-screen fallback; Jev classifies the fall-through (S154).'),
+  },
+  {
+    id: 'link-answer',
+    version: '0.2',
+    hasDecision: true,
+    internal: true,
+    purpose: 'Proposes the edges for the nodes a just-staged answer added (audience has context, bet references outcome, …) and appends them to the same staged changeset, so no template answer lands as orphans (v4.3).',
+    context: { needs: ['graph'] },
+    prompt: `The nodes a just-staged answer added, the edge each kind needs (the LINKS table), and the committed nodes each could link to:\n{{context}}\nAnswer: {{input}}\n\nFor each new node, pick which of the listed candidates it links to — every candidate it belongs to when the kind can belong to several (one yes/no per candidate), "none" when it fits none. Never invent a node or an edge type; only add-edge effects, appended to the staged changeset for the user to approve with the nodes.`,
+    output: 'A stage cue: the staged changeset plus one add-edge effect per proposed edge, noted "linked N of M new nodes".',
+    feedback: decides,
+    source: inferred('v4.3 design session (2026-09-28): answering the template staged nodes but no edges, so the orphans invariant raised ~29 gaps at once.'),
   },
 ];
 

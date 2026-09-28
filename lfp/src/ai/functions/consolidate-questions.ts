@@ -1,7 +1,7 @@
 // consolidate-questions: rewrites a consolidated (group) follow-up's deterministic message ("N
 // gaps about «title»: …" plus member lines, from src/consolidate.ts::groupViolations, Agent A) as
 // one question a user can answer in a single sentence. Triggered by the `consolidate` text command
-// (directors/scripted.ts) on the current tier-3 Now item. v4.2 (plan: "Agent B — AI functions").
+// (directors/route.ts, the shared router) on the current tier-3 Now item. v4.2 (plan: "Agent B — AI functions").
 import { nodeById } from '../../store.ts';
 import type { Cue, Context } from '../../director.ts';
 import type { AIFunctionImpl } from '../types.ts';

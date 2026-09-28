@@ -19,6 +19,7 @@ import { raiseQuestion } from './functions/raise-question.ts';
 import { consolidateQuestions } from './functions/consolidate-questions.ts';
 import { findContradictions } from './functions/find-contradictions.ts';
 import { routeUtterance } from './functions/route-utterance.ts';
+import { linkAnswer } from './functions/link-answer.ts';
 
 const impls: Record<string, AIFunctionImpl<any, any>> = {
   'describe-screen': describeScreen,
@@ -35,6 +36,7 @@ const impls: Record<string, AIFunctionImpl<any, any>> = {
   'consolidate-questions': consolidateQuestions,
   'find-contradictions': findContradictions,
   'route-utterance': routeUtterance,
+  'link-answer': linkAnswer,
 };
 
 const metaIds = AI_FUNCTION_META.map((f) => f.id).sort();

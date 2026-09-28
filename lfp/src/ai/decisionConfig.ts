@@ -20,6 +20,7 @@ export const S1_THRESHOLDS: Record<string, number> = {
   'condition-match': 0.85,
   'consolidate-pair': 0.75,
   'raise-parent': 0.65,
+  'link-answer': 0.6, // nouls per (node, audience) pair land at .61–.67 live (2026-09-28, three sessions); .7 sent every one to the stub
 };
 export const S1_DEFAULT_THRESHOLD = 0.7;
 export const thresholdFor = (id: string): number => S1_THRESHOLDS[id] ?? S1_DEFAULT_THRESHOLD;

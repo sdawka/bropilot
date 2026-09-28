@@ -5,7 +5,7 @@
 //   applySpec(spec)      — inside a top-level agent function: model, sandbox, tools, turn budget.
 //   delegateTools(spec)  — inside a delegate's render: tools only.
 //   asSubagent(spec, fn) — the SubagentDefinition a parent passes to useSubagent.
-import { useModel, useSandbox, useTool, usePersistentState, type SubagentDefinition } from '@flue/runtime';
+import { useModel, useSandbox, useTool, usePersistentState, useResponseStart, type SubagentDefinition } from '@flue/runtime';
 import { local } from '@flue/runtime/node';
 import { TIER_MODELS, DIRECT_MODELS, type AgentSpec } from '../../src/agents.ts';
 import { toolsFor } from './tools.ts';
@@ -36,12 +36,19 @@ export function applySpec(spec: AgentSpec, opts: { cwd?: string; extraTools?: { 
   for (const t of toolsFor(spec.tools, opts.extraTools)) useTool(t as any);
 
   // Turn budget: a durable counter per conversation; past the limit the prompt tells the model to stop.
+  // Renders are pure reads in Flue 2.0.6 — the setter throws during render ("State was written
+  // during render"), so the count moves inside the response-start seam (once per response).
+  // Found 2026-09-28: every live Talk turn had been failing on this since v4.1's Sonnet pass.
   const [turns, setTurns] = usePersistentState<number>(`turns:${spec.id}`, 0);
-  setTurns((n) => (n ?? 0) + 1);
+  useResponseStart(() => { setTurns((n) => (n ?? 0) + 1); });
+  // The count stays out of the prompt text: the first render of a response reads it before the
+  // bump above, every later one after it, so "Turn N" changed at the first tool result and Flue
+  // sent "System instructions updated." — Sonnet answered it with a second, near-identical say
+  // (found 2026-09-28 driving a design session). Only the STOP line below depends on it (flips once).
   const exhausted = turns >= spec.budget.maxTurns;
   return [
     `You are the ${spec.id} agent (v${spec.version}). ${spec.purpose}`,
-    `Budget: ${spec.budget.maxTurns} turns, ${Math.round(spec.budget.maxWallMs / 60000)} min, $${spec.budget.maxCostUsd}. Turn ${turns + 1}. Checkpoint: ${spec.checkpoint}.`,
+    `Budget: ${spec.budget.maxTurns} turns, ${Math.round(spec.budget.maxWallMs / 60000)} min, $${spec.budget.maxCostUsd}. Checkpoint: ${spec.checkpoint}.`,
     exhausted ? 'STOP: turn budget exhausted. Summarise what you did and end.' : '',
   ].filter(Boolean).join('\n');
 }

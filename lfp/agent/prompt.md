@@ -92,10 +92,10 @@ If there are any suspect edges (an endpoint changed since the edge was last chec
 Context:
 {{context}}
 
-Pick exactly one thing to surface next, using the ranking: (1) an agent question blocking a queued/running task, (2) the next unlocked template question, (3) a violation-raised question, ordered left-to-right by space, (4) any other open thread. Ask about it in one sentence prefixed by its tier ("Blocking:", "Next question:", "Gap:", "Open thread:"), and offer its own options if it has any, else "Answer it" / "Skip". Never surface more than one item.
+Pick exactly one thing to surface next, using the ranking: (1) an agent question blocking a queued/running task, (2) the next unlocked template question, (3) a violation-raised question, ordered left-to-right by space, (4) any other open thread. Ask about it in one sentence prefixed by its tier ("Blocking:", "Next question:", "Gap:", "Open thread:"), and offer its own options if it has any; otherwise just say it (the Now strip already offers Answer it / Skip). Never surface more than one item.
 ```
 
-**Output:** One ask/say cue naming the next question or gap, with a one-line reason.
+**Output:** One say cue ("Next: <tier> <prompt>") naming the next question or gap; an ask only when the item has its own options.
 
 ### answer-to-effects
 
@@ -305,3 +305,21 @@ Pick exactly one function to handle it: describe-screen (names what is on screen
 ```
 
 **Output:** One registry function id; the router dispatches it with the original text.
+
+### link-answer
+
+**Purpose:** Proposes the edges for the nodes a just-staged answer added (audience has context, bet references outcome, …) and appends them to the same staged changeset, so no template answer lands as orphans (v4.3).
+
+**Context needs:** graph
+
+**Prompt:**
+
+```
+The nodes a just-staged answer added, the edge each kind needs (the LINKS table), and the committed nodes each could link to:
+{{context}}
+Answer: {{input}}
+
+For each new node, pick which of the listed candidates it links to — every candidate it belongs to when the kind can belong to several (one yes/no per candidate), "none" when it fits none. Never invent a node or an edge type; only add-edge effects, appended to the staged changeset for the user to approve with the nodes.
+```
+
+**Output:** A stage cue: the staged changeset plus one add-edge effect per proposed edge, noted "linked N of M new nodes".

@@ -44,7 +44,8 @@ function writeVerdict(taskId: string, record: { verdict: string; reasons: string
   writeFileSync(path, JSON.stringify(reality, null, 2));
 }
 
-// Set by server.mjs on every `snapshot` / `context` bus message; read fresh on every render.
+// Set by server.mjs at dispatch time (latest snapshot + context), never mid-response: a changed
+// instruction document makes Flue signal "System instructions updated" and the model answers it.
 let kernelDigest = '(no kernel snapshot yet — the main screen has not connected)';
 let screenLine = '(no context yet — waiting for the main screen)';
 export function setKernelDigest(text: string) { kernelDigest = text; }
