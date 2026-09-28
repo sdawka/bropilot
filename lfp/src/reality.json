@@ -38,16 +38,382 @@
     }
   },
   "verdicts": {},
-  "matches": {},
-  "decisions": {},
+  "matches": {
+    "471e06d3": {
+      "test-stage-reviewable": 0.22
+    },
+    "9058b2e": {
+      "test-point-highlights": 0.23
+    }
+  },
+  "decisions": {
+    "consolidate-pair": {
+      "group:invariant:needs-cardinality:hypothesis-0-1": {
+        "value": 0.32,
+        "confidence": 0.36,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-0-2": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-0-3": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-0-4": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-0-5": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-0-6": {
+        "value": 0.34,
+        "confidence": 0.31999999999999995,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-0-7": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-1-2": {
+        "value": 0.34,
+        "confidence": 0.31999999999999995,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-1-3": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-1-4": {
+        "value": 0.34,
+        "confidence": 0.31999999999999995,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-1-5": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-1-6": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-1-7": {
+        "value": 0.32,
+        "confidence": 0.36,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-2-3": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-2-4": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-2-5": {
+        "value": 0.32,
+        "confidence": 0.36,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-2-6": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-2-7": {
+        "value": 0.34,
+        "confidence": 0.31999999999999995,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-3-4": {
+        "value": 0.34,
+        "confidence": 0.31999999999999995,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-3-5": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-3-6": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-3-7": {
+        "value": 0.34,
+        "confidence": 0.31999999999999995,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-4-5": {
+        "value": 0.32,
+        "confidence": 0.36,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-4-6": {
+        "value": 0.32,
+        "confidence": 0.36,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-4-7": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-5-6": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-5-7": {
+        "value": 0.34,
+        "confidence": 0.31999999999999995,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:hypothesis-6-7": {
+        "value": 0.34,
+        "confidence": 0.31999999999999995,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-0-1": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-0-2": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-0-3": {
+        "value": 0.34,
+        "confidence": 0.31999999999999995,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-0-4": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-0-5": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-0-6": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-1-2": {
+        "value": 0.34,
+        "confidence": 0.31999999999999995,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-1-3": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-1-4": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-1-5": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-1-6": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-2-3": {
+        "value": 0.32,
+        "confidence": 0.36,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-2-4": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-2-5": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-2-6": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-3-4": {
+        "value": 0.32,
+        "confidence": 0.36,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-3-5": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-3-6": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-4-5": {
+        "value": 0.32,
+        "confidence": 0.36,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-4-6": {
+        "value": 0.34,
+        "confidence": 0.31999999999999995,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:needs-cardinality:system-bropilot-5-6": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:protocol-realised:module-automation-0-1": {
+        "value": 0.34,
+        "confidence": 0.31999999999999995,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:subject:rule-kernel-additive-0-1": {
+        "value": 0.32,
+        "confidence": 0.36,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:subject:rule-node-has-kind-0-1": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:subject:rule-thread-parent-0-1": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      },
+      "group:invariant:rule-condition-has-test:module-director-0-1": {
+        "value": 0.33,
+        "confidence": 0.33999999999999997,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:12.208Z"
+      }
+    },
+    "raise-parent": {
+      "metric": {
+        "value": "q-metric",
+        "confidence": 1,
+        "agreedWithCode": true,
+        "at": "2026-09-28T14:27:14.728Z"
+      },
+      "interface": {
+        "value": "q-capability",
+        "confidence": 0.93,
+        "agreedWithCode": true,
+        "at": "2026-09-28T14:27:14.728Z"
+      },
+      "practice": {
+        "value": "q-capability",
+        "confidence": 0.27,
+        "agreedWithCode": true,
+        "at": "2026-09-28T14:27:14.728Z"
+      },
+      "rule": {
+        "value": "q-capability",
+        "confidence": 0.32,
+        "agreedWithCode": true,
+        "at": "2026-09-28T14:27:14.728Z"
+      },
+      "test": {
+        "value": "q-metric",
+        "confidence": 0.85,
+        "agreedWithCode": false,
+        "at": "2026-09-28T14:27:14.728Z"
+      }
+    }
+  },
   "metrics": {
     "metric-commits-since-reset": {
-      "value": "45",
-      "at": "2026-09-21T15:06:15.592Z"
+      "value": "52",
+      "at": "2026-09-28T14:27:07.885Z"
     },
     "metric-violations": {
       "value": "34",
-      "at": "2026-09-21T15:06:15.595Z"
+      "at": "2026-09-28T14:27:07.888Z"
     }
   }
 }
