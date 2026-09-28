@@ -7,8 +7,9 @@ import { publish, subscribe } from '../bus.ts';
 import type { S1Answers, S1Request } from './types.ts';
 import { minConfidence, thresholdFor } from './decisionConfig.ts';
 
-/** Jev answers in 70–500 ms; one bus hop each way. 3 s is generous, and the fallback is instant. */
-export const S1_TIMEOUT_MS = 3000;
+/** Per level of a chain. Jev measured live answers in 0.2–2 s; the server cuts a hung attempt at
+ * 2.5 s and retries once (agent/system1.ts), so its worst case ≈5.2 s fits under 6 s. */
+export const S1_TIMEOUT_MS = 6000;
 
 export interface S1Result { answers: S1Answers; model?: string; ms?: number; costUsd?: number }
 
@@ -42,9 +43,19 @@ export function askDecision(fn: string, req: S1Request): Promise<S1Result> {
   });
 }
 
-/** One decision, gated: the answers plus whether their (weakest) confidence clears the threshold. */
-export async function decideGated(id: string, req: S1Request, confidenceOf: (a: S1Answers) => number = minConfidence) {
-  const res = await askDecision(id, req);
-  const confidence = confidenceOf(res.answers);
-  return { ...res, confidence, ok: confidence >= thresholdFor(id) };
+/** One decision, gated: the answers plus whether their (weakest) confidence clears the threshold.
+ * `next` walks a chained decision level by level (at most `maxLevels` round trips); answers merge. */
+export async function decideGated(id: string, req: S1Request, confidenceOf: (a: S1Answers) => number = minConfidence, next?: (answers: S1Answers) => S1Request | null, maxLevels = 4) {
+  let res = await askDecision(id, req);
+  let answers: S1Answers = { ...res.answers };
+  let ms = res.ms ?? 0, costUsd = res.costUsd ?? 0;
+  for (let level = 1; next && level < maxLevels; level++) {
+    const more = next(answers);
+    if (!more) break;
+    res = await askDecision(id, more);
+    answers = { ...answers, ...res.answers };
+    ms += res.ms ?? 0; costUsd += res.costUsd ?? 0;
+  }
+  const confidence = confidenceOf(answers);
+  return { answers, model: res.model, ms, costUsd, confidence, ok: confidence >= thresholdFor(id) };
 }

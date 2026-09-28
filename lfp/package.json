@@ -13,6 +13,7 @@
     "smoke:mirror": "node smoke-mirror.mjs",
     "docs": "node scripts/emit-docs.mjs",
     "observe": "node --env-file-if-exists=.env scripts/observe.mjs",
+    "s1:eval": "node --env-file-if-exists=.env scripts/s1-eval.mjs",
     "dispatch": "node --env-file-if-exists=.env scripts/dispatch.mjs"
   },
   "dependencies": {

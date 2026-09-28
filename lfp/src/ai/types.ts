@@ -51,6 +51,10 @@ export interface DecisionSpec<I, O> {
   decide: (answers: S1Answers, input: I, ctx: Context) => O;
   /** Override the default confidence (the weakest answer) when only some answers gate the decision. */
   confidence?: (answers: S1Answers) => number;
+  /** Chained levels (ontology.ts): given every answer so far, the next dependent request, or null
+   * when the chain is complete. Sibling branches go in one request; only a level that needs an
+   * earlier answer costs another round trip. */
+  next?: (answers: S1Answers, input: I, ctx: Context) => S1Request | null;
 }
 
 /** Implementation: the code half, browser-only. */

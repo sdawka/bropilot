@@ -8,6 +8,7 @@ import { checkInvariants, conditionPairs } from '../src/checks.ts';
 import { groupViolations } from '../src/consolidate.ts';
 import { QUESTIONS, kindById } from '../src/kernel.ts';
 import { system1Available, askSystem1 } from '../agent/system1.ts';
+import { gapPairQuestions, resolveGapPair, parentRequest, resolveParent } from '../src/ai/ontology.ts';
 
 const cwd = process.cwd();
 const outDir = process.env.OUT ?? '/tmp/lfp-smoke-' + Date.now();
@@ -167,10 +168,14 @@ async function runSystem1Pass(graph, reality) {
   const groups = groupViolations(violations, graph);
   const violationById = new Map(violations.map((v) => [v.id, v]));
 
-  // consolidate-pair: every pair of violations co-grouped by groupViolations (code already grouped
-  // them, so agreedWithCode is whether System One's noul also says yes).
+  // consolidate-pair, chained through the gap ontology (ontology.ts: subject → missing → repair,
+  // three nouls per pair asked together, literal texts in the instructions, empty shared state).
+  // The v4.3 flat version put all pairs in one shared state and never named the pair in the
+  // question: 0/54 agreed at 0.34 confidence. Chained: 54/54 agreed at 0.71, 2/20 cross-group
+  // controls "together" and both below threshold (scripts/s1-eval.mjs).
+  const nodeByIdMap = new Map(graph.nodes.map((n) => [n.id, n]));
+  const fact = (v) => { const n = v.subjects.map((s) => nodeByIdMap.get(s)).find(Boolean); return { message: v.message, subjectTitle: n?.title, subjectKind: n ? kindById[n.kind]?.label : undefined, invariant: v.invariant, produces: v.produces }; };
   const pairQuestions = {};
-  const pairState = {};
   const pairKeys = [];
   for (const g of groups) {
     if (g.by === 'single' || g.violationIds.length < 2) continue;
@@ -181,46 +186,37 @@ async function runSystem1Pass(graph, reality) {
         if (!a || !b) continue;
         const key = `${g.id}-${i}-${j}`;
         pairKeys.push(key);
-        pairQuestions[key] = { type: 'noul', instructions: 'Would one answer from the user settle both of these gaps at once?' };
-        pairState[key] = { a: a.message, b: b.message };
+        Object.assign(pairQuestions, gapPairQuestions(key, fact(a), fact(b)));
       }
     }
   }
   if (pairKeys.length) {
-    const answers = await askInChunks(pairState, pairQuestions);
+    const answers = await askInChunks({}, pairQuestions);
     for (const key of pairKeys) {
-      const a = answers[key];
-      const noul = a && a.type === 'noul' ? a.noul : undefined;
-      if (noul === undefined) continue;
-      const agreedWithCode = (noul >= 0.5) === true; // code always grouped these, so "true" is the code's answer
-      reality.decisions['consolidate-pair'][key] = { value: noul, confidence: Math.abs(noul - 0.5) * 2, agreedWithCode, at: new Date().toISOString() };
+      const v = resolveGapPair(key, answers);
+      if (!v) continue;
+      reality.decisions['consolidate-pair'][key] = { value: { subject: v.subject, missing: v.missing, repair: v.repair, together: v.together }, confidence: v.confidence, agreedWithCode: v.together, at: new Date().toISOString() };
     }
-    console.log(`System One consolidate-pair: ${pairKeys.length} co-grouped pair(s) checked.`);
+    console.log(`System One consolidate-pair: ${pairKeys.length} co-grouped pair(s) checked (chained).`);
   } else {
     console.log('System One consolidate-pair: no co-grouped pairs.');
   }
 
-  // raise-parent: one choice question per distinct violation.produces kind, over the 11 template
-  // question ids; agreedWithCode = choice === mirrorParentFor(kind).
+  // raise-parent, chained: space first, then the template question within that space (both in one
+  // request, only the chosen space's answer read). Flat 11-way: 25/42 kinds agreed with parentFor;
+  // space-first: 34/42, and the 8 left are reality-layer kinds where Jev picks q-metric ("How will
+  // you know?") over the code's q-capability fallback (scripts/s1-eval.mjs).
   const kinds = [...new Set(violations.map((v) => v.produces).filter(Boolean))];
   if (kinds.length) {
-    const criteria = Object.fromEntries(QUESTIONS.map((q) => [q.id, q.prompt]));
-    const parentQuestions = {};
-    const parentState = {};
     for (const kind of kinds) {
-      const id = `raise-parent-${kind}`;
-      parentQuestions[id] = { type: 'choice', instructions: `Under which template question should a gap that produces a ${kind} be asked?`, criteria };
-      parentState[id] = { kind };
+      try {
+        const res = await askSystem1(parentRequest(kind).state, parentRequest(kind).questions);
+        const v = resolveParent(res.answers);
+        if (!v.questionId) continue;
+        reality.decisions['raise-parent'][kind] = { value: v.questionId, space: v.space, confidence: v.confidence, agreedWithCode: v.questionId === mirrorParentFor(kind), at: new Date().toISOString() };
+      } catch (e) { console.warn(`raise-parent ${kind}: ${e.message}`); }
     }
-    const answers = await askInChunks(parentState, parentQuestions);
-    for (const kind of kinds) {
-      const id = `raise-parent-${kind}`;
-      const a = answers[id];
-      if (!a || a.type !== 'choice') continue;
-      const codePick = mirrorParentFor(kind);
-      reality.decisions['raise-parent'][kind] = { value: a.choice, confidence: a.confidence ?? 0, agreedWithCode: a.choice === codePick, at: new Date().toISOString() };
-    }
-    console.log(`System One raise-parent: ${kinds.length} distinct produces-kind(s) checked.`);
+    console.log(`System One raise-parent: ${kinds.length} distinct produces-kind(s) checked (space first).`);
   } else {
     console.log('System One raise-parent: no violations with a produces kind.');
   }

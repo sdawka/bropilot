@@ -27,6 +27,7 @@ async function processOne(msg: S1Request, send: (msg: S1Response) => void) {
     console.log(`[system1] ${msg.fn} ${n} question${n === 1 ? '' : 's'} ${r.ms}ms ${r.model}`);
     send({ kind: 'system1-response', id: msg.id, answers: r.answers, model: r.model, ms: r.ms, usage: r.usage });
   } catch (err) {
+    console.error(`[system1] ${msg.fn} failed:`, (err as Error).message ?? String(err));
     send({ kind: 'system1-response', id: msg.id, error: (err as Error).message ?? String(err) });
   }
 }

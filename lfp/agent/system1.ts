@@ -72,7 +72,10 @@ async function getClient() {
   if (!provider) throw new Error('System One is off');
   const { TypeSafeClient } = await import('@typesafe-ai/sdk');
   const p = PROVIDERS[provider];
-  client = new TypeSafeClient({ apiKey: p.key(), baseURL: p.baseURL, defaultModel: p.model });
+  // Measured live: most answers land in 0.2–2 s, but an attempt now and then hangs until the SDK's
+  // 10 s default timeout and the retry answers at once. Cut a hung attempt at 2.5 s and retry once
+  // quickly: worst case ≈5.2 s, inside the browser's per-level S1_TIMEOUT_MS (src/ai/system1.ts).
+  client = new TypeSafeClient({ apiKey: p.key(), baseURL: p.baseURL, defaultModel: p.model, timeout: 2500, retry: { maxRetries: 1, backoffInitialMs: 200 } });
   return client;
 }
 

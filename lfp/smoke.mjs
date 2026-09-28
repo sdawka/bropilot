@@ -326,11 +326,13 @@ await t('test-unlock', async () => {
 {
   const { spawn } = await import('node:child_process');
   const { WebSocket: NodeWebSocket } = await import('ws');
+  // Blank model keys (set-but-empty wins over lfp/.env) so a real key there can't start the Talk
+  // agent instead of the System One service alone — the check would silently skip.
   let child = null;
   let skip = null;
   let agentLog = '';
   try {
-    child = spawn('node', ['agent/server.mjs'], { cwd: process.cwd(), env: { ...process.env, FAKE_AI: '1' }, stdio: ['ignore', 'pipe', 'pipe'] });
+    child = spawn('node', ['agent/server.mjs'], { cwd: process.cwd(), env: { ...process.env, FAKE_AI: '1', OPENROUTER_API_KEY: '', ANTHROPIC_API_KEY: '', TYPESAFE_API_KEY: '' }, stdio: ['ignore', 'pipe', 'pipe'] });
     child.stdout.on('data', (b) => (agentLog += b.toString()));
     child.stderr.on('data', (b) => (agentLog += b.toString()));
     let exited = false;
@@ -500,9 +502,11 @@ if (!process.env.REALITY_OUT) {
 // only fall-through Talk text is routed, exact commands never ask; review-change decides on system1.
 {
   const { WebSocket: NodeWebSocket } = await import('ws');
+  // Blank model keys (set-but-empty wins over lfp/.env) so a real key there can't start the Talk
+  // agent instead of the System One service alone — the check would silently skip.
   let child = null; let skip = null; let agentLog = '';
   try {
-    child = spawn('node', ['agent/server.mjs'], { cwd: process.cwd(), env: { ...process.env, FAKE_S1: '1' }, stdio: ['ignore', 'pipe', 'pipe'] });
+    child = spawn('node', ['agent/server.mjs'], { cwd: process.cwd(), env: { ...process.env, FAKE_S1: '1', OPENROUTER_API_KEY: '', ANTHROPIC_API_KEY: '', TYPESAFE_API_KEY: '' }, stdio: ['ignore', 'pipe', 'pipe'] });
     child.stdout.on('data', (b) => (agentLog += b.toString())); child.stderr.on('data', (b) => (agentLog += b.toString()));
     let exited = false; child.once('exit', () => { exited = true; });
     const ready = await new Promise((resolve) => {

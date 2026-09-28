@@ -8,6 +8,8 @@ import { state, nodeById } from '../../store.ts';
 import { kindById, edgeTypeById, STATEMENTS } from '../../kernel.ts';
 import { contextFor } from '../../brief.ts';
 import { titleCandidates } from '../candidates.ts';
+import { nodeByTextRequest, nodeByTextNext, resolveNodeByText } from '../ontology.ts';
+import { thresholdFor } from '../decisionConfig.ts';
 import type { Cue, Context, View } from '../../director.ts';
 import type { AIFunctionImpl, DecisionSpec, S1Answers, S1Request } from '../types.ts';
 import type { Node } from '../../store.ts';
@@ -86,41 +88,29 @@ function toCues(out: DescribeScreenOut, callId: string): Cue[] {
   ];
 }
 
-/** 'find-by-title': ask Jev only the query text and the pre-filtered candidates' ids/titles/kinds —
- * never the whole graph, never descriptions. Null when there's nothing to disambiguate (empty
- * query, or the pre-filter found nothing) — the stub's 'not-found'/'screen' path is already right. */
+/** 'find-by-title', chained through the ontology (ontology.ts, AGENT-RUNTIME.md §9): level 1 asks
+ * the substring candidates (if any) and "which kind of item?" side by side; a confident candidate
+ * ends it, otherwise level 2 asks for the node within that kind. So a paraphrase with no substring
+ * hit ("the phone view") still resolves. Null only for an empty query. */
+const CAND_THRESHOLD = thresholdFor('find-by-title');
 function questions(input: DescribeScreenIn): S1Request | null {
   const q = input.text.trim();
   if (!q) return null;
-  const candidates = titleCandidates(q, state.graph.nodes);
-  if (!candidates.length) return null;
-  return {
-    state: { text: q, candidates: candidates.map((c) => ({ id: c.id, title: c.title, kind: c.kind })) },
-    questions: {
-      node: {
-        type: 'choice',
-        instructions: "Which of these nodes does the user's text refer to? Pick none if the text refers to nothing listed.",
-        criteria: {
-          ...Object.fromEntries(candidates.map((c) => [c.id, c.title])),
-          none: 'None of these is what the text refers to',
-        },
-      },
-    },
-  };
+  return nodeByTextRequest(q, state.graph.nodes, titleCandidates(q, state.graph.nodes));
 }
+const next = (answers: S1Answers, input: DescribeScreenIn): S1Request | null => nodeByTextNext(input.text.trim(), state.graph.nodes, answers, CAND_THRESHOLD);
+const confidence = (answers: S1Answers) => resolveNodeByText(answers, CAND_THRESHOLD).confidence;
 
 function decide(answers: S1Answers, input: DescribeScreenIn, ctx: Context): DescribeScreenOut {
   const q = input.text.trim();
   const suspect = suspectSentence(ctx);
-  const answer = answers.node;
-  const choice = answer && answer.type === 'choice' ? answer.choice : 'none';
-  if (choice === 'none') return { op: 'not-found', text: q, suspect };
-  const hit = nodeById(choice);
+  const picked = resolveNodeByText(answers, CAND_THRESHOLD);
+  const hit = picked.id ? nodeById(picked.id) : undefined;
   if (!hit) return { op: 'not-found', text: q, suspect };
   return buildHit(hit, suspect);
 }
 
-const decision: DecisionSpec<DescribeScreenIn, DescribeScreenOut> = { id: 'find-by-title', questions, decide };
+const decision: DecisionSpec<DescribeScreenIn, DescribeScreenOut> = { id: 'find-by-title', questions, decide, next, confidence };
 
 export const describeScreen: AIFunctionImpl<DescribeScreenIn, DescribeScreenOut> = {
   context: { digest: (ctx) => `view=${ctx.view} screenItems=${ctx.screen.items.length} selection=${ctx.selectedId ?? 'none'}` },

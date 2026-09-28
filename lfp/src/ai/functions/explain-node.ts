@@ -8,6 +8,7 @@ import { state, nodeById } from '../../store.ts';
 import { kindById, STATEMENTS } from '../../kernel.ts';
 import { contextFor } from '../../brief.ts';
 import { titleCandidates } from '../candidates.ts';
+import { nodeRequest } from '../ontology.ts';
 import type { Cue, Context } from '../../director.ts';
 import type { AIFunctionImpl, DecisionSpec, S1Answers, S1Request } from '../types.ts';
 import type { Node } from '../../store.ts';
@@ -111,21 +112,12 @@ function questions(input: ExplainNodeIn): S1Request | null {
   if (input.op !== 'reword-start') return null;
   const hint = input.hint.trim();
   if (!hint) return null;
-  const candidates = titleCandidates(hint, byKind('hypothesis'));
-  if (!candidates.length) return null;
-  return {
-    state: { text: hint, candidates: candidates.map((c) => ({ id: c.id, title: c.title, kind: c.kind })) },
-    questions: {
-      node: {
-        type: 'choice',
-        instructions: "Which of these nodes does the user's text refer to? Pick none if the text refers to nothing listed.",
-        criteria: {
-          ...Object.fromEntries(candidates.map((c) => [c.id, c.title])),
-          none: 'None of these is what the text refers to',
-        },
-      },
-    },
-  };
+  // The kind is known (a bet), so the chain is one level: the substring candidates when there are
+  // any, else every hypothesis — a paraphrase ("the bet about structured questions") still resolves.
+  const bets = byKind('hypothesis');
+  if (!bets.length) return null;
+  const candidates = titleCandidates(hint, bets);
+  return nodeRequest(hint, 'hypothesis', candidates.length ? candidates : bets);
 }
 
 function decide(answers: S1Answers): ExplainNodeOut {

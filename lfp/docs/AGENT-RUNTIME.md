@@ -122,4 +122,37 @@ Implementation facts (Stage 3, verified): the server runs each request as a one-
 - Server gates: `run_review` asks one `score` (routine → high-risk) from file count, `scopeOk`, extra file paths and the targeted test/rule titles — never the diff — and `precheck.ts::tierFor(scopeOk, risk)` picks strong when out of scope or when a confident score reaches "sensitive"; the verdict record gains `risk`. `scripts/dispatch.mjs` asks one `noul` ("can a measurable done be derived from these lines?") before writing a work order; a confident no writes the question to `reality.json.raised[taskId]` and sets the task `blocked` in `graph.json` instead of writing a work order (`--no-gate` skips it); `store.ts::applyReality` turns each `raised` entry into the same agent-raised follow-up the `raise` cue makes, so it shows in the Talk panel at the next load.
 - Observe-time cache: `scripts/observe.mjs` asks one `noul` per (rule condition, test that verifies the rule) pair that is not already string-equal and writes `reality.json.matches[contentHash(cond)][testId]`; `checks.ts::checkInvariants(graph, { matches })` counts a cached probability ≥ threshold as covered. Only `store.ts` passes the table. The same pass cross-checks the two structural decisions that stay in code — `groupViolations` pairs (consolidate-pair) and `parentFor` (raise-parent) — into `reality.json.decisions[id]` with `agreedWithCode`; Reference shows counts, mean confidence and % agreed (`ref-decisions`) so the numbers exist before those ids are handed over. `S1_SKIP=1` skips the pass, `S1_ONLY=1` runs only it.
 
-**Open**: Jev is early access and its request shape may move; the reviewer tier score is a proxy (paths, not content) and stays OR'd with `scopeOk`; thresholds are starting points.
+### Chained questions over the ontology (2026-09-28)
+
+A flat question fails in the two ways Jev's own docs warn about. A large mixed option set puts "Reviewer" the agent next to "Review change" the ai-function. A shared state full of things the question is not about drags every answer toward "no". The fix is the kernel's own ontology, used as a question tree in `src/ai/ontology.ts` (Node-runnable, imports only `kernel.ts`): layer → space → kind → node for "which node does this text name", and subject → invariant → repair for "do these two gaps belong together".
+
+The design rule:
+- **Small homogeneous option sets.** One level of the ontology per question, never nodes of every kind in one choice.
+- **Ground each level with the level below.** Every kind option carries three example titles from the graph. Singular kinds (name, purpose, summary) are left out; left in, they were the sink for every vague phrase.
+- **Siblings in one request.** Jev answers every question in a request in one parallel pass and output tokens are free, so code asks every branch at once and reads only the chosen one.
+- **Dependent levels cost one round trip each.** `DecisionSpec.next(answers, input, ctx)` returns the next request or `null`; `system1.ts::decideGated` walks at most 4 levels and merges the answers before `decide()` runs.
+- **Code walks the tree.** Jev never sees the tree; code picks the branch, combines the levels and computes the confidence.
+
+**Where it is used.** describe-screen and explain-node (for bets) ask the substring candidates, when any, side by side with "which kind of item?". A candidate answer at or above the find-by-title threshold ends the chain; otherwise level 2 asks "which node of that kind?" with `none`. The consolidate-pair cross-check asks three nouls per pair: same item? same kind of thing missing? one combined question? The literal violation messages and subject titles go in the instructions and the shared state is empty. Together means repair ≥ .5 and (subject ≥ .5 or missing ≥ .5); confidence is the minimum. raise-parent asks the space and the question-within-each-space in one request. `observe.mjs` records the chained verdict object as `value` for consolidate-pair and the chosen `space` for raise-parent.
+
+**Measured** (`npm run s1:eval [-- node|gaps|parent]`, live; direct TypeSafe key, ~250 ms per level):
+
+| Decision | Variant | Result |
+|---|---|---|
+| Node by text, 20 labelled phrases over the seed graph | substring candidates only | 6/20 |
+| | kind → node, no examples | 12/20 |
+| | space → kind → node, with examples | 15/20 |
+| | **kind → node, with examples** (shipped) | **17/20**, mean confidence 0.77 |
+| Gap pairs, 54 code groupings | flat question, all pairs in one shared state | 0/54 agreed, 0.34 |
+| | **chained, one pair per question set** (shipped) | **54/54 together**, 0.71 |
+| | 24 cross-group negative controls | 2 "together", both below .75 |
+| raise-parent, 42 kinds vs `parentFor` | flat 11-way choice | 25/42 |
+| | **space first, then question** (shipped) | **34/42**, 0.86 |
+| Live `npm run observe` | consolidate-pair | 54/54 agreed, mean 0.71, 14 above threshold |
+| | raise-parent | 4/5 agreed, mean 0.79 |
+
+The chain now resolves paraphrases with no substring hit, such as "the phone view", "the websocket relay" and "the PR gate protocol". The three node misses are genuinely ambiguous: "the glossary" lands on asset, "domain modelling" on term, "the one-thing-at-a-time companion" on agent. The gap levels read correctly. Invariant groups score subject 0.03, missing 0.95, repair 0.86; subject groups score 0.69, 0.94, 0.86. The 8 raise-parent disagreements are all reality-layer kinds (test-result, metric-reading, evidence and similar). There Jev picks q-metric "How will you know?" over the code's q-capability fallback, and Jev is arguably right; this is an open question and `parentFor` is unchanged.
+
+**The wording lesson.** The third gap level first asked whether "one sentence resolves both". For invariant groups Jev honestly said no, because each hypothesis needs its own metric. What consolidation actually means is "one combined question the user answers in a single reply", and that wording gives the 0.86. Ask Jev the question the code means, in the words the user will see.
+
+**Open**: Jev is early access and its request shape may move; the reviewer tier score is a proxy (paths, not content) and stays OR'd with `scopeOk`; thresholds are starting points; whether `parentFor` should adopt Jev's q-metric for reality-layer kinds is undecided.

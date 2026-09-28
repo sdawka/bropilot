@@ -34,7 +34,7 @@ function runDecision<I, O>(fn: AIFunctionDef<I, O>, req: S1Request, input: I, ct
     applyCues(cues);
     updateCall(callId, { output: describeOutput(cues), cueIds: cues.flatMap(cueIdsOf), status: 'ok', ...patch });
   };
-  decideGated(dec.id, req, dec.confidence).then(
+  decideGated(dec.id, req, dec.confidence, dec.next ? (a) => dec.next!(a, input, ctx) : undefined).then(
     (res) => {
       if (res.ok) settle(dec.decide(res.answers, input, ctx), { runtime: 'system1', confidence: res.confidence, model: res.model, costUsd: res.costUsd });
       else settle(fn.stub(input, ctx), { runtime: 'stub', fallback: 'low-confidence', confidence: res.confidence, model: res.model, costUsd: res.costUsd });

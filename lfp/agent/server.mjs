@@ -24,6 +24,7 @@ function loadDotEnv() {
     const key = s.slice(0, eq).trim();
     let value = s.slice(eq + 1).trim();
     if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) value = value.slice(1, -1);
+    else value = value.replace(/\s+#.*$/, ''); // inline `KEY=value # note`, as node --env-file reads it
     if (!(key in process.env)) process.env[key] = value;
   }
 }
