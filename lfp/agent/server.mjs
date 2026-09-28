@@ -50,10 +50,11 @@ console.log(`phone mirror: http://${lan}:5199/#mirror?relay=${lan}`);
 // Provider choice lives in agent/agents/from-spec.ts (modelFor): OpenRouter when OPENROUTER_API_KEY is
 // set, direct Anthropic when only ANTHROPIC_API_KEY is. Without either this is a plain relay.
 // System One (v4.3, AGENT-RUNTIME.md §9): typed decisions over the same bus. Independent of the
-// Talk agent — a TYPESAFE_API_KEY (or FAKE_S1=1) alone is enough to answer system1-request messages.
-const { system1Mode } = await import('./system1.ts');
+// Talk agent — a TYPESAFE_API_KEY, the OPENROUTER_API_KEY (Jev is on OpenRouter too) or FAKE_S1=1
+// is enough to answer system1-request messages.
+const { system1Mode, system1Provider } = await import('./system1.ts');
 const s1Mode = system1Mode();
-console.log(`system1: ${s1Mode}${s1Mode === 'off' ? ' (set TYPESAFE_API_KEY or FAKE_S1=1 in lfp/.env)' : ''}`);
+console.log(`system1: ${s1Mode}${s1Mode === 'live' ? ` via ${system1Provider()}` : ''}${s1Mode === 'off' ? ' (set TYPESAFE_API_KEY or OPENROUTER_API_KEY, or FAKE_S1=1, in lfp/.env)' : ''}`);
 
 if (process.env.OPENROUTER_API_KEY || process.env.ANTHROPIC_API_KEY) {
   await runAgent();

@@ -11,10 +11,25 @@
 
 export const S1_MODEL = 'jev-1.13.0';
 
+// Two providers, one SDK. TypeSafe direct when TYPESAFE_API_KEY is set; otherwise OpenRouter, which
+// exposes the same System One endpoint (`POST https://openrouter.ai/api/v1/systemone`, billed to the
+// OpenRouter account, no TypeSafe account needed) under the model id `typesafe/jev-1.13` — the SDK
+// takes it as `jev-1.13`. So the OPENROUTER_API_KEY the Talk agent already uses is enough.
+export type S1Provider = 'typesafe' | 'openrouter' | null;
+export function system1Provider(): S1Provider {
+  if (process.env.TYPESAFE_API_KEY) return 'typesafe';
+  if (process.env.OPENROUTER_API_KEY) return 'openrouter';
+  return null;
+}
+const PROVIDERS = {
+  typesafe: { baseURL: 'https://api.typesafe.ai', model: S1_MODEL, key: () => process.env.TYPESAFE_API_KEY },
+  openrouter: { baseURL: 'https://openrouter.ai/api', model: 'jev-1.13', key: () => process.env.OPENROUTER_API_KEY },
+} as const;
+
 export type S1Mode = 'live' | 'fake' | 'off';
 export function system1Mode(): S1Mode {
   if (process.env.FAKE_S1 === '1') return 'fake';
-  if (process.env.TYPESAFE_API_KEY) return 'live';
+  if (system1Provider()) return 'live';
   return 'off';
 }
 export const system1Available = () => system1Mode() !== 'off';
@@ -53,8 +68,11 @@ function fakeAnswer(id: string, q: any, flatState: string): unknown {
 let client: any = null;
 async function getClient() {
   if (client) return client;
+  const provider = system1Provider();
+  if (!provider) throw new Error('System One is off');
   const { TypeSafeClient } = await import('@typesafe-ai/sdk');
-  client = new TypeSafeClient({ apiKey: process.env.TYPESAFE_API_KEY });
+  const p = PROVIDERS[provider];
+  client = new TypeSafeClient({ apiKey: p.key(), baseURL: p.baseURL, defaultModel: p.model });
   return client;
 }
 
@@ -68,10 +86,12 @@ export async function askSystem1(state: unknown, questions: Record<string, unkno
     const answers = Object.fromEntries(Object.entries(questions).map(([id, q]) => [id, fakeAnswer(id, q, flat)]));
     return { answers, model: `${S1_MODEL} (fake)`, ms: Date.now() - t0, usage: { input: 0, output: 0, costUsd: 0 } };
   }
-  if (system1Mode() === 'off') throw new Error('System One is off: set TYPESAFE_API_KEY (or FAKE_S1=1) in lfp/.env');
+  if (system1Mode() === 'off') throw new Error('System One is off: set TYPESAFE_API_KEY or OPENROUTER_API_KEY (or FAKE_S1=1) in lfp/.env');
   const c = await getClient();
-  const res = await c.systemOne({ state: state as any, questions: questions as any, model: S1_MODEL });
+  const res = await c.systemOne({ state: state as any, questions: questions as any });
   const input = res.usage?.input_tokens ?? 0;
   const output = res.usage?.output_tokens ?? 0;
-  return { answers: res.answers as Record<string, unknown>, model: res.model ?? S1_MODEL, ms: Date.now() - t0, usage: { input, output, costUsd: (input / 1e6) * USD_PER_M_INPUT } };
+  // OpenRouter answers with the USD cost on the response; TypeSafe direct is priced from its rate card.
+  const costUsd = typeof res.usage?.cost === 'number' ? res.usage.cost : (input / 1e6) * USD_PER_M_INPUT;
+  return { answers: res.answers as Record<string, unknown>, model: res.model ?? S1_MODEL, ms: Date.now() - t0, usage: { input, output, costUsd } };
 }
