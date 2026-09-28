@@ -26,6 +26,12 @@ export const state = reactive({
   transcript: [] as { who: 'agent' | 'user'; text: string; at: number; callId?: string }[],
   aiCalls: [] as AICall[],
   aiRuntime: 'stub' as 'stub' | 'flue', // not persisted: runtime choice is per-session
+  // System One (v4.3): orthogonal to aiRuntime — classification decisions go to Jev whenever a
+  // System One client is on the bus (`system1Ready`, set by the server's system1-ready message)
+  // and the user hasn't switched it off. Free-text generation still follows aiRuntime.
+  system1: true,
+  system1Ready: false,
+  system1Mode: 'off' as 'live' | 'fake' | 'off',
   domainLevel: 0 as 0 | 1 | 2 | 3,
   domainModule: null as string | null,
   definitionQuestion: null as string | null,
@@ -36,14 +42,24 @@ export const state = reactive({
 
 function clone<T>(x: T): T { return JSON.parse(JSON.stringify(x)); }
 
+/** The shape of src/reality.json (v4.3 adds `matches`/`decisions` — System One's caches, written
+ * by scripts/observe.mjs, read here and by checks.ts::checkInvariants). */
+export interface RealityFile {
+  results: Record<string, { status: string; value?: string; threshold?: string; confidence?: string; at?: string; codeRef?: string }>;
+  verdicts?: Record<string, { verdict: 'serves-intent' | 'overfits' | 'unclear'; reasons: string[]; at: string; scopeOk?: boolean }>;
+  metrics: Record<string, { value: string; at: string }>;
+  /** contentHash(condition line) -> testId -> noul probability the test verifies the rule. */
+  matches?: Record<string, Record<string, number>>;
+  /** decision id -> key -> a recorded System One cross-check vs. what the code decided. */
+  decisions?: Record<string, Record<string, { value: unknown; confidence: number; agreedWithCode: boolean; at: string }>>;
+  /** taskId -> the question `scripts/dispatch.mjs`'s ask-or-act gate raised instead of a work order (v4.3). */
+  raised?: Record<string, { raisedBy: { kind: 'agent'; ref: string }; prompt: string; options?: string[]; at: string }>;
+}
+
 /** Merge `reality.json`'s observed test results onto the `test-result` node that `reports` each
  * test. Never creates nodes — only patches props of ones that already exist. */
 function applyReality() {
-  const r = reality as {
-    results: Record<string, { status: string; value?: string; threshold?: string; confidence?: string; at?: string; codeRef?: string }>;
-    verdicts?: Record<string, { verdict: 'serves-intent' | 'overfits' | 'unclear'; reasons: string[]; at: string; scopeOk?: boolean }>;
-    metrics: Record<string, { value: string; at: string }>;
-  };
+  const r = reality as RealityFile;
   for (const [testId, res] of Object.entries(r.results ?? {})) {
     const repEdge = state.graph.edges.find((e) => e.type === 'reports' && e.dst === testId);
     const tr = repEdge ? nodeById(repEdge.src) : undefined;
@@ -67,6 +83,18 @@ function applyReality() {
     });
     if (verdict.verdict === 'serves-intent' && allGreen) task.props.status = 'verified';
     else if (verdict.verdict === 'overfits' || verdict.verdict === 'unclear') task.props.status = 'blocked';
+  }
+  // ask-or-act gate (v4.3, AGENT-RUNTIME.md §9): a question dispatch.mjs raised on disk becomes the
+  // same agent-raised follow-up the `raise` cue would have made — once, keyed by task + prompt.
+  for (const [taskId, raised] of Object.entries(r.raised ?? {})) {
+    const task = nodeById(taskId);
+    if (!task || task.kind !== 'task') continue;
+    if (state.followups.some((f) => f.raisedBy?.kind === 'agent' && f.raisedBy.ref === taskId && f.prompt === raised.prompt)) continue;
+    const parentId = QUESTIONS.find((q) => q.produces === 'task')?.id ?? 'q-capability';
+    const f: FollowUp = { id: `f-raised-${taskId}`, parentId, prompt: raised.prompt, kind: 'thread', produces: 'task', answerIds: [], createdAt: Date.parse(raised.at) || Date.now(), options: raised.options };
+    f.raisedBy = raised.raisedBy; f.subjects = [taskId];
+    state.followups.push(f);
+    task.props = { ...task.props, status: 'blocked' };
   }
 }
 
@@ -276,7 +304,7 @@ function parentFor(subjects: string[]): string {
  * group's membership changes. An answered follow-up (`answerIds.length > 0`) always stays.
  * Call after hydrate/commit/directCommit/undo/revalidate. */
 export function syncRaised() {
-  const violations = checkInvariants(state.graph).filter((v) => v.raise === 'question');
+  const violations = checkInvariants(state.graph, { matches: (reality as RealityFile).matches ?? {} }).filter((v) => v.raise === 'question');
   const groups = groupViolations(violations, state.graph);
   const groupById = new Map<string, ViolationGroup>(groups.map((g) => [g.id, g]));
   const violationIds = new Set(violations.map((v) => v.id));
@@ -358,7 +386,7 @@ export function rankOpen(): OpenItem[] {
   const nq = nextQuestion.value;
   if (nq) items.push({ id: nq.id, prompt: nq.prompt, produces: nq.produces, source: 'template', subjects: [], tier: 2 });
 
-  const violations = checkInvariants(state.graph);
+  const violations = checkInvariants(state.graph, { matches: (reality as RealityFile).matches ?? {} });
   const groups = groupViolations(violations.filter((v) => v.raise === 'question'), state.graph);
   const violationIndex = new Map(violations.map((v, i) => [v.id, i]));
   const violationsById = new Map(violations.map((v) => [v.id, v]));

@@ -49,31 +49,53 @@ console.log(`phone mirror: http://${lan}:5199/#mirror?relay=${lan}`);
 // ── the agent: only when a key is configured ────────────────────────────────────────────────────
 // Provider choice lives in agent/agents/from-spec.ts (modelFor): OpenRouter when OPENROUTER_API_KEY is
 // set, direct Anthropic when only ANTHROPIC_API_KEY is. Without either this is a plain relay.
+// System One (v4.3, AGENT-RUNTIME.md §9): typed decisions over the same bus. Independent of the
+// Talk agent — a TYPESAFE_API_KEY (or FAKE_S1=1) alone is enough to answer system1-request messages.
+const { system1Mode } = await import('./system1.ts');
+const s1Mode = system1Mode();
+console.log(`system1: ${s1Mode}${s1Mode === 'off' ? ' (set TYPESAFE_API_KEY or FAKE_S1=1 in lfp/.env)' : ''}`);
+
 if (process.env.OPENROUTER_API_KEY || process.env.ANTHROPIC_API_KEY) {
   await runAgent();
-} else if (process.env.FAKE_AI === '1') {
-  console.log('FAKE_AI=1, no model key — running the AI-function relay with canned output only (no Talk agent, no Flue conversation).');
-  await runFakeAiOnly();
+} else if (process.env.FAKE_AI === '1' || s1Mode !== 'off') {
+  if (process.env.FAKE_AI === '1') console.log('FAKE_AI=1, no model key — running the AI-function relay with canned output only (no Talk agent, no Flue conversation).');
+  else console.log('no model key — running the System One service only (no Talk agent).');
+  await runServicesOnly();
 } else {
   console.log('no model key — running as a plain relay (no agent).');
   console.log('  set OPENROUTER_API_KEY (preferred, one key for every tier) or ANTHROPIC_API_KEY in lfp/.env to enable the Talk agent.');
   console.log('  set FAKE_AI=1 instead to exercise ai-request/ai-response with canned output and no key (what smoke uses).');
 }
 
-// ── FAKE_AI=1, no key: just the ai-request/ai-response relay, no Flue conversation at all ─────────
-async function runFakeAiOnly() {
-  const { createAiService } = await import('./ai-service.ts');
+/** The System One service on a bus client: answers system1-request, announces itself with
+ * system1-ready at connect and again for every main-screen hello (the browser may load after us). */
+async function attachSystem1(ws, send) {
+  const { createSystem1Service } = await import('./system1-service.ts');
+  const service = createSystem1Service({ send });
+  const ready = () => send({ kind: 'system1-ready', ready: s1Mode !== 'off', mode: s1Mode });
+  ready();
+  return (msg) => {
+    if (msg.kind === 'system1-request') { service.handle(msg).catch((err) => console.error('[system1-service] handle failed:', err)); return true; }
+    if (msg.kind === 'hello' && msg.role === 'main') { ready(); return true; }
+    return false;
+  };
+}
 
+// ── no model key: the ai-request (FAKE_AI) and/or system1-request services, no Flue conversation ──
+async function runServicesOnly() {
   const clientId = `agent-fake-${Math.random().toString(36).slice(2, 8)}`;
   const ws = new WebSocket(`ws://localhost:${PORT}`);
   await new Promise((resolve, reject) => {
     ws.once('open', resolve);
     ws.once('error', reject);
   });
-  ws.send(JSON.stringify({ kind: 'hello', role: 'agent', from: clientId }));
-  console.log('fake-AI service connected to the bus as', clientId);
-
-  const aiService = createAiService({ send: (msg) => ws.send(JSON.stringify({ ...msg, from: clientId })) });
+  const send = (msg) => ws.send(JSON.stringify({ ...msg, from: clientId }));
+  // Only a FAKE_AI service says hello as an agent (the main screen switches to RemoteDirector on
+  // that hello); the System One service alone must not — the ScriptedDirector keeps routing.
+  if (process.env.FAKE_AI === '1') ws.send(JSON.stringify({ kind: 'hello', role: 'agent', from: clientId }));
+  const aiService = process.env.FAKE_AI === '1' ? (await import('./ai-service.ts')).createAiService({ send }) : null;
+  const handleS1 = await attachSystem1(ws, send);
+  console.log(`${process.env.FAKE_AI === '1' ? 'fake-AI service' : 'System One service'} connected to the bus as`, clientId);
 
   ws.on('message', (data) => {
     let msg;
@@ -82,7 +104,8 @@ async function runFakeAiOnly() {
     } catch {
       return;
     }
-    if (msg.kind === 'ai-request') { console.log(`[ai-request] ${msg.fn} ${msg.id}`); aiService.handle(msg).catch((err) => console.error('[ai-service] handle failed:', err)); }
+    if (handleS1(msg)) return;
+    if (msg.kind === 'ai-request' && aiService) { console.log(`[ai-request] ${msg.fn} ${msg.id}`); aiService.handle(msg).catch((err) => console.error('[ai-service] handle failed:', err)); }
   });
 }
 
@@ -126,6 +149,7 @@ async function runAgent() {
   // call via agent/ai-service.ts. Uses the same `send` as everything else here, so ai-response
   // frames are indistinguishable on the wire from cue/aicall frames.
   const aiService = createAiService({ send });
+  const handleS1 = await attachSystem1(ws, send);
 
   // Runtime events → stdout + an `aicall` bus message per model turn (fn = agent name, model, usage,
   // cost) so the main screen can record agent turns in state.aiCalls (Stage 3 reads this kind).
@@ -172,6 +196,7 @@ async function runAgent() {
     } catch {
       return;
     }
+    if (handleS1(msg)) return;
     switch (msg.kind) {
       case 'context':
         setScreenLine(screenLineFrom(msg.ctx));

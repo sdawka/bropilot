@@ -42,7 +42,7 @@ export interface AICall {
   id: string;
   fn: string;
   version: string;
-  runtime: 'stub' | 'flue';
+  runtime: 'stub' | 'flue' | 'system1';
   at: number;
   contextDigest: string; // short human-readable summary of the context slice the fn received
   input: string; // user text / trigger
@@ -55,6 +55,11 @@ export interface AICall {
   status?: 'ok' | 'failed' | 'pending';
   model?: string;
   costUsd?: number;
+  /** System One (v4.3): the weakest answer's confidence for a call Jev decided, or the confidence
+   * that fell short when `fallback` is 'low-confidence'. */
+  confidence?: number;
+  /** Why a System One decision was not used and the stub answered instead. */
+  fallback?: 'low-confidence' | 'timeout' | 'error' | 'nothing-to-ask';
 }
 
 export type Effect =

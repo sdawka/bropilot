@@ -26,6 +26,7 @@ flowchart LR
     external_flue["Flue (agent runtime)"]
     external_github["GitHub"]
     external_llm["LLM provider"]
+    external_typesafe["TypeSafe API (Jev, System One)"]
   end
   audience_agent_team --> infra_browser_spa
   audience_trained_unstructured --> infra_browser_spa
@@ -36,6 +37,7 @@ flowchart LR
   infra_browser_spa --> infra_relay_ws
   infra_agent_server --> infra_relay_ws
   infra_browser_spa --> infra_localstorage
+  infra_agent_server --> external_typesafe
 ```
 
 ## Cells

@@ -5,6 +5,7 @@
 
 import { KINDS, kindById, edgeTypeById } from './kernel.ts';
 import type { Graph, Node, Violation } from './types.ts';
+import { thresholdFor } from './ai/decisionConfig.ts';
 
 /** A rule's conditions: its description split on newlines, trimmed, non-empty — or, when it has
  * no description, one condition equal to its title (v4.1 decision: "a condition is one line of
@@ -14,13 +15,21 @@ export function conditionsOf(rule: Node): string[] {
   return lines.length ? lines : [rule.title];
 }
 
-/** Simple djb2 string hash (hex) of a node's meaningful content — title, description, props.
- * Used to detect edits for versioning/staleness (store.ts::commit/directCommit/revalidate). */
-export function contentHash(node: Node): string {
-  const s = `${node.title}|${node.description ?? ''}|${JSON.stringify(node.props ?? {})}`;
+/** Plain djb2 string hash (hex) — the primitive `contentHash` below and `conditionPairs` share. */
+function djb2(s: string): string {
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
   return (h >>> 0).toString(16);
+}
+
+/** djb2 hash (hex) of a node's meaningful content — title, description, props — or, given a plain
+ * string (a rule condition line), of that string directly. Used to detect edits for
+ * versioning/staleness (store.ts::commit/directCommit/revalidate) and, for the string form, as the
+ * key into `reality.json`'s `matches` table (scripts/observe.mjs, this file's covered-check). */
+export function contentHash(node: Node | string): string {
+  if (typeof node === 'string') return djb2(node);
+  const s = `${node.title}|${node.description ?? ''}|${JSON.stringify(node.props ?? {})}`;
+  return djb2(s);
 }
 
 const OPTIONS: Record<string, string[]> = {
@@ -49,7 +58,42 @@ function taskTargetsGreen(task: Node, graph: Graph, byId: Record<string, Node>):
   });
 }
 
-export function checkInvariants(graph: Graph): Violation[] {
+/** System One's condition-match cache: contentHash(condition line) -> testId -> noul probability
+ * that the test verifies the rule. Written by scripts/observe.mjs, read here. */
+export interface RealityMatches { matches?: Record<string, Record<string, number>> }
+
+/** Is `test` covered for `cond` — either by an exact string match (the v4.1 rule) or by a cached
+ * System One match at/above the `condition-match` threshold? Shared by checkInvariants and (later)
+ * review-change so both read the cache the same way. */
+export function isCovered(cond: string, test: Node, matches: RealityMatches['matches']): boolean {
+  if ((test.props?.condition ?? '').trim() === cond) return true;
+  const p = matches?.[contentHash(cond)]?.[test.id];
+  return p !== undefined && p >= thresholdFor('condition-match');
+}
+
+/** Every (rule condition, test that verifies the rule) pair whose strings are NOT already exactly
+ * equal — the candidates worth asking System One about a condition-match. Pure, used by
+ * scripts/observe.mjs to build its noul questions. */
+export function conditionPairs(graph: Graph): {
+  cond: string; condHash: string; ruleId: string; ruleTitle: string; testId: string; testTitle: string; testCondition: string;
+}[] {
+  const byId = Object.fromEntries(graph.nodes.map((n) => [n.id, n])) as Record<string, Node>;
+  const out: { cond: string; condHash: string; ruleId: string; ruleTitle: string; testId: string; testTitle: string; testCondition: string }[] = [];
+  for (const rule of graph.nodes.filter((n) => n.kind === 'rule')) {
+    const conds = conditionsOf(rule);
+    const tests = graph.edges.filter((e) => e.type === 'verifies' && e.dst === rule.id).map((e) => byId[e.src]).filter(Boolean) as Node[];
+    for (const cond of conds) {
+      for (const test of tests) {
+        const testCondition = (test.props?.condition ?? '').trim();
+        if (testCondition === cond) continue;
+        out.push({ cond, condHash: contentHash(cond), ruleId: rule.id, ruleTitle: rule.title, testId: test.id, testTitle: test.title, testCondition });
+      }
+    }
+  }
+  return out;
+}
+
+export function checkInvariants(graph: Graph, reality: RealityMatches = {}): Violation[] {
   const byId = Object.fromEntries(graph.nodes.map((n) => [n.id, n])) as Record<string, Node>;
   const violations: Violation[] = [];
 
@@ -113,10 +157,9 @@ export function checkInvariants(graph: Graph): Violation[] {
   // ── rule-condition-has-test: every condition line of every rule needs a test naming it ───────
   for (const rule of graph.nodes.filter((n) => n.kind === 'rule')) {
     const conds = conditionsOf(rule);
+    const verifyingTests = graph.edges.filter((e) => e.type === 'verifies' && e.dst === rule.id).map((e) => byId[e.src]).filter(Boolean) as Node[];
     conds.forEach((cond, i) => {
-      const covered = graph.edges.some(
-        (e) => e.type === 'verifies' && e.dst === rule.id && (byId[e.src]?.props?.condition ?? '').trim() === cond,
-      );
+      const covered = verifyingTests.some((test) => isCovered(cond, test, reality.matches));
       if (!covered) {
         violations.push({
           id: `rule-condition-has-test:${rule.id}+cond${i}`,

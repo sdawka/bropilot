@@ -1,10 +1,15 @@
 // explain-node: ScriptedDirector.tourBet generalised to any selected/named node (not just bets),
 // plus the "edit bet: …" reword command (a two-step ask, same shape as define-term's).
+// v4.3: `decision` (AGENT-RUNTIME.md §9, threshold 'find-by-title') covers the 'reword-start' hint
+// match — the same node-by-title resolution describe-screen does, restricted to hypothesis nodes
+// (candidates.ts's titleCandidates parametrised by that list). 'explain' has no free text to
+// resolve (nodeId/selection only) so it stays fully deterministic.
 import { state, nodeById } from '../../store.ts';
 import { kindById, STATEMENTS } from '../../kernel.ts';
 import { contextFor } from '../../brief.ts';
+import { titleCandidates } from '../candidates.ts';
 import type { Cue, Context } from '../../director.ts';
-import type { AIFunctionImpl } from '../types.ts';
+import type { AIFunctionImpl, DecisionSpec, S1Answers, S1Request } from '../types.ts';
 import type { Node } from '../../store.ts';
 
 export type ExplainNodeIn =
@@ -35,11 +40,17 @@ function pickNode(input: { nodeId?: string }, ctx: Context): Node | undefined {
     ?? byKind('hypothesis')[0];
 }
 
+/** Build the 'reword-ask' output for a resolved hypothesis node — shared by the stub and the
+ * decision path. */
+function buildRewordAsk(bet: Node): RewordAskOut {
+  return { op: 'reword-ask', nodeId: bet.id, title: bet.title };
+}
+
 function stub(input: ExplainNodeIn, ctx: Context): ExplainNodeOut {
   if (input.op === 'reword-start') {
-    const bet = byKind('hypothesis').find((b) => b.title.toLowerCase().includes(input.hint.toLowerCase()))
+    const bet = titleCandidates(input.hint, byKind('hypothesis'))[0]
       ?? (ctx.selectedId ? nodeById(ctx.selectedId) : undefined);
-    if (bet && bet.kind === 'hypothesis') return { op: 'reword-ask', nodeId: bet.id, title: bet.title };
+    if (bet && bet.kind === 'hypothesis') return buildRewordAsk(bet);
     return { op: 'reword-none' };
   }
   if (input.op === 'reword-apply') {
@@ -92,8 +103,45 @@ function toCues(out: ExplainNodeOut, callId: string): Cue[] {
   return [{ t: 'sequence', dwellMs: 0, steps }];
 }
 
+/** 'find-by-title': only for 'reword-start' — the hint text plus the pre-filtered hypothesis
+ * candidates' ids/titles. Null when there's no hint, no candidates, or the input isn't
+ * 'reword-start' at all (nothing to disambiguate; the stub's fallback-to-selection/'reword-none'
+ * path is already right). */
+function questions(input: ExplainNodeIn): S1Request | null {
+  if (input.op !== 'reword-start') return null;
+  const hint = input.hint.trim();
+  if (!hint) return null;
+  const candidates = titleCandidates(hint, byKind('hypothesis'));
+  if (!candidates.length) return null;
+  return {
+    state: { text: hint, candidates: candidates.map((c) => ({ id: c.id, title: c.title, kind: c.kind })) },
+    questions: {
+      node: {
+        type: 'choice',
+        instructions: "Which of these nodes does the user's text refer to? Pick none if the text refers to nothing listed.",
+        criteria: {
+          ...Object.fromEntries(candidates.map((c) => [c.id, c.title])),
+          none: 'None of these is what the text refers to',
+        },
+      },
+    },
+  };
+}
+
+function decide(answers: S1Answers): ExplainNodeOut {
+  const answer = answers.node;
+  const choice = answer && answer.type === 'choice' ? answer.choice : 'none';
+  if (choice === 'none') return { op: 'reword-none' };
+  const bet = nodeById(choice);
+  if (!bet || bet.kind !== 'hypothesis') return { op: 'reword-none' };
+  return buildRewordAsk(bet);
+}
+
+const decision: DecisionSpec<ExplainNodeIn, ExplainNodeOut> = { id: 'find-by-title', questions, decide };
+
 export const explainNode: AIFunctionImpl<ExplainNodeIn, ExplainNodeOut> = {
   context: { digest: (ctx) => `selection=${ctx.selectedId ?? 'none'}` },
   stub,
   toCues,
+  decision,
 };

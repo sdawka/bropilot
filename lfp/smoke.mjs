@@ -492,4 +492,167 @@ if (!process.env.REALITY_OUT) {
   await p.goto('http://localhost:5199/#overview'); await p.waitForSelector('.card');
 }
 
+// v4.3: System One (AGENT-RUNTIME.md §9). FAKE_S1=1 starts the System One service alone (no agent
+// hello, so the ScriptedDirector keeps routing) and answers every typed question from a canned
+// table steered by `#s1no` / `#s1low` / `#s1pick:<key>` tokens in the state. Checks: the ready flag
+// lands; a Jev-decided describe-screen says exactly what the stub says; a near-miss title raises a
+// contradiction the exact-match stub misses and a low-confidence answer falls back (call stays ok);
+// only fall-through Talk text is routed, exact commands never ask; review-change decides on system1.
+{
+  const { WebSocket: NodeWebSocket } = await import('ws');
+  let child = null; let skip = null; let agentLog = '';
+  try {
+    child = spawn('node', ['agent/server.mjs'], { cwd: process.cwd(), env: { ...process.env, FAKE_S1: '1' }, stdio: ['ignore', 'pipe', 'pipe'] });
+    child.stdout.on('data', (b) => (agentLog += b.toString())); child.stderr.on('data', (b) => (agentLog += b.toString()));
+    let exited = false; child.once('exit', () => { exited = true; });
+    const ready = await new Promise((resolve) => {
+      const deadline = Date.now() + 4000;
+      const tryConnect = () => {
+        if (exited || /EADDRINUSE/i.test(agentLog)) { resolve('busy'); return; }
+        if (Date.now() > deadline) { resolve('timeout'); return; }
+        const ws = new NodeWebSocket('ws://localhost:5200');
+        ws.once('open', () => { ws.close(); resolve('ready'); }); ws.once('error', () => setTimeout(tryConnect, 250));
+      };
+      tryConnect();
+    });
+    if (ready === 'ready') {
+      const deadline2 = Date.now() + 6000;
+      while (!/System One service connected/.test(agentLog) && Date.now() < deadline2) await new Promise((res) => setTimeout(res, 100));
+      if (!/System One service connected/.test(agentLog)) skip = 'FAKE_S1 service never joined the bus within 6s — skipped the System One check';
+    } else skip = ready === 'busy' ? 'port 5200 already in use — skipped the System One check' : 'FAKE_S1 agent server did not accept a connection within 4s — skipped the System One check';
+  } catch (e) { skip = `failed to spawn agent/server.mjs: ${e.message} — skipped the System One check`; }
+  if (!/system1: fake/.test(agentLog) && !skip) skip = `agent server did not print "system1: fake": ${agentLog.slice(0, 200)}`;
+
+  if (skip) { r.v43System1 = { skipped: skip }; child?.kill(); }
+  else {
+    try {
+      await p.goto('http://localhost:5199/#overview?relay=localhost'); await p.reload(); await p.waitForSelector('.card');
+      await p.waitForTimeout(1500);
+      const flags = await p.evaluate(() => ({ ready: window.__lfp.state.system1Ready, mode: window.__lfp.state.system1Mode, on: window.__lfp.state.system1, runtime: window.__lfp.state.aiRuntime }));
+      r.v43System1 = { flags };
+      if (!flags.ready || flags.mode !== 'fake') throw new Error(`system1: expected system1Ready=true mode=fake after the server's hello, got ${JSON.stringify(flags)}; agent log: ${agentLog.slice(-300)}`);
+      if (!flags.on) throw new Error('system1: expected state.system1 to default to on');
+
+      // helper: run a function, wait for the decision to settle, return the call + the last utterance
+      const run = async (fn, input, wait = 1500) => p.evaluate(async ({ fn, input, wait }) => {
+        const mod = await import('/src/ai/runtime.ts'); const idx = await import('/src/ai/index.ts'); const dir = await import('/src/director.ts');
+        const cues = mod.runAI(idx.aiFunction(fn), input, dir.currentContext([], 'smoke')); cues.forEach((c) => window.__lfp.applyCue(c));
+        const id = window.__lfp.state.aiCalls.at(-1).id;
+        await new Promise((res) => setTimeout(res, wait));
+        const call = window.__lfp.state.aiCalls.find((c) => c.id === id);
+        return { call, say: window.__lfp.state.say?.text ?? '' };
+      }, { fn, input, wait });
+
+      // C2 — the same node the substring path resolves, byte-identical utterance, decided by Jev.
+      await p.evaluate(() => { window.__lfp.state.system1 = false; });
+      const stubHit = await run('describe-screen', { text: 'Guided articulation path' }, 100);
+      await p.evaluate(() => { window.__lfp.state.system1 = true; });
+      const s1Hit = await run('describe-screen', { text: 'Guided articulation path' });
+      r.v43System1.describe = { stubRuntime: stubHit.call.runtime, s1Runtime: s1Hit.call.runtime, confidence: s1Hit.call.confidence, model: s1Hit.call.model, same: stubHit.call.output === s1Hit.call.output };
+      if (stubHit.call.runtime !== 'stub' || stubHit.call.fallback) throw new Error(`system1 off: expected a plain stub call, got ${JSON.stringify(stubHit.call).slice(0, 200)}`);
+      if (s1Hit.call.runtime !== 'system1' || s1Hit.call.status !== 'ok') throw new Error(`describe-screen via Jev: expected runtime system1 + ok, got ${JSON.stringify(s1Hit.call).slice(0, 300)}; log: ${agentLog.slice(-300)}`);
+      if (!/jev/.test(s1Hit.call.model ?? '') || !(s1Hit.call.confidence >= 0.65)) throw new Error(`describe-screen via Jev: expected a jev model and confidence >= .65, got ${s1Hit.call.model} ${s1Hit.call.confidence}`);
+      if (stubHit.call.output !== s1Hit.call.output) throw new Error(`describe-screen via Jev: expected the same output as the stub for the same node, got\n  stub: ${stubHit.call.output}\n  s1:   ${s1Hit.call.output}`);
+
+      // C5 — a near-miss title (shares words, not equal) raises a contradiction the exact-match stub cannot.
+      const contra = await p.evaluate(async () => {
+        window.__lfp.state.staged = { effects: [{ id: 'ef-s1a', op: 'add-node', node: { id: 'task-smoke-lonely-near', kind: 'task', title: 'Smoke lonely task again', status: 'draft' }, answerId: 'smoke' }], warnings: [] };
+        window.__lfp.applyCue({ t: 'commit' });
+        return window.__lfp.state.followups.filter((f) => f.raisedBy?.kind === 'contradiction').length;
+      });
+      const s1Contra = await run('find-contradictions', undefined, 2000);
+      const contraAfter = await p.evaluate(() => window.__lfp.state.followups.filter((f) => f.raisedBy?.kind === 'contradiction').map((f) => f.prompt));
+      r.v43System1.contradictions = { before: contra, after: contraAfter.length, runtime: s1Contra.call.runtime, confidence: s1Contra.call.confidence };
+      if (s1Contra.call.runtime !== 'system1') throw new Error(`find-contradictions via Jev: expected runtime system1, got ${JSON.stringify(s1Contra.call).slice(0, 300)}`);
+      if (!contraAfter.some((t) => /again/.test(t))) throw new Error(`find-contradictions via Jev: expected a raised question about the near-miss title "Smoke lonely task again", got ${JSON.stringify(contraAfter)}`);
+      // …and a low-confidence batch falls back to the stub: call ok, runtime stub, fallback tagged, no near-miss raise.
+      await p.evaluate(() => {
+        window.__lfp.state.staged = { effects: [{ id: 'ef-s1b', op: 'add-node', node: { id: 'task-smoke-lonely-low', kind: 'task', title: 'Smoke lonely task #s1low', status: 'draft' }, answerId: 'smoke' }], warnings: [] };
+        window.__lfp.applyCue({ t: 'commit' });
+      });
+      const lowContra = await run('find-contradictions', undefined, 2000);
+      r.v43System1.contradictions.low = { runtime: lowContra.call.runtime, fallback: lowContra.call.fallback, status: lowContra.call.status, confidence: lowContra.call.confidence };
+      if (lowContra.call.status !== 'ok' || lowContra.call.runtime !== 'stub' || lowContra.call.fallback !== 'low-confidence') throw new Error(`low-confidence fallback: expected status ok, runtime stub, fallback low-confidence, got ${JSON.stringify(lowContra.call).slice(0, 300)}`);
+
+      // C1 — routing: exact commands never ask; fall-through text is classified; low confidence → describe-screen.
+      const talk = async (text, wait = 1500) => {
+        const before = await p.evaluate(() => window.__lfp.state.aiCalls.length);
+        await p.locator('[data-testid=talk-input]').fill(text); await p.locator('[data-testid=talk-input]').press('Enter'); await p.waitForTimeout(wait);
+        return p.evaluate((before) => window.__lfp.state.aiCalls.slice(before).map((c) => ({ fn: c.fn, runtime: c.runtime, status: c.status, fallback: c.fallback ?? null, output: (c.output ?? '').slice(0, 60) })), before);
+      };
+      const exact = await talk('gaps', 400);
+      const routed = await talk('what is still missing here #s1pick:find-gaps');
+      const lowRouted = await talk('tell me about the whole thing #s1low');
+      r.v43System1.router = { exact, routed, lowRouted };
+      if (exact.some((c) => c.fn === 'route-utterance')) throw new Error(`router: the exact command "gaps" must not ask Jev, got ${JSON.stringify(exact)}`);
+      const routeCall = routed.find((c) => c.fn === 'route-utterance');
+      if (!routeCall || routeCall.runtime !== 'system1' || !routed.some((c) => c.fn === 'find-gaps')) throw new Error(`router: expected a system1 route-utterance call followed by find-gaps, got ${JSON.stringify(routed)}`);
+      const lowCall = lowRouted.find((c) => c.fn === 'route-utterance');
+      if (!lowCall || lowCall.fallback !== 'low-confidence' || !lowRouted.some((c) => c.fn === 'describe-screen')) throw new Error(`router: expected a low-confidence fallback to describe-screen, got ${JSON.stringify(lowRouted)}`);
+
+      // C6 — the review verdict is a 3-way choice; the fake picks the first key (serves-intent).
+      const review = await run('review-change', { taskId: 'task-unlock-test' });
+      r.v43System1.review = { runtime: review.call.runtime, output: review.call.output.slice(0, 80), confidence: review.call.confidence };
+      if (review.call.runtime !== 'system1' || !/serves/.test(review.call.output)) throw new Error(`review-change via Jev: expected runtime system1 and a serves-intent verdict, got ${JSON.stringify(review.call).slice(0, 300)}`);
+
+      // Reference shows the confidence column and the system1 toggle.
+      await p.goto('http://localhost:5199/#kernel'); await p.waitForSelector('[data-testid=ref-system1]', { timeout: 5000 });
+      r.v43System1.reference = { toggle: await p.locator('[data-testid=ref-system1]').count(), decisions: await p.locator('[data-testid=ref-decisions]').count() };
+      if (!r.v43System1.reference.decisions) throw new Error('reference: expected the ref-decisions table');
+      if (errors.length) throw new Error(`system1: expected zero page errors, got: ${errors.join('; ')}`);
+    } finally {
+      child?.kill();
+      await p.evaluate(() => localStorage.removeItem('bropilot:relay'));
+    }
+  }
+}
+
+// v4.3 server-side gates and the observe-time cache, all under FAKE_S1=1 and on throwaway copies of
+// graph.json / reality.json under scratch/ (gitignored) so nothing observed by hand leaks into src/.
+if (!process.env.REALITY_OUT) {
+  const { mkdirSync, existsSync, rmSync } = await import('node:fs');
+  const dir = `${process.cwd()}/scratch/s1`; mkdirSync(dir, { recursive: true });
+  const seedGraph = JSON.parse(readFileSync(`${process.cwd()}/src/graph.json`, 'utf8'));
+  const env = { ...process.env, FAKE_S1: '1' };
+  const sh = (cmd, extra = {}) => execSync(cmd, { cwd: process.cwd(), stdio: 'pipe', env: { ...env, ...extra } }).toString();
+
+  // ask-or-act: a confident "yes" proceeds exactly as today (work order printed, nothing blocked)…
+  writeFileSync(`${dir}/graph-yes.json`, JSON.stringify(seedGraph));
+  writeFileSync(`${dir}/reality-yes.json`, JSON.stringify({ results: {}, metrics: {} }));
+  const yes = sh(`node scripts/dispatch.mjs task-unlock-test --dry-run --graph ${dir}/graph-yes.json --reality ${dir}/reality-yes.json`);
+  // …and a confident "no" (the task's test lines carry #s1no) raises a question and blocks the task instead.
+  const noGraph = JSON.parse(JSON.stringify(seedGraph));
+  const task = noGraph.nodes.find((n) => n.id === 'task-unlock-test'); task.title += ' #s1no';
+  writeFileSync(`${dir}/graph-no.json`, JSON.stringify(noGraph));
+  writeFileSync(`${dir}/reality-no.json`, JSON.stringify({ results: {}, metrics: {} }));
+  const no = sh(`node scripts/dispatch.mjs task-unlock-test --graph ${dir}/graph-no.json --reality ${dir}/reality-no.json`);
+  const blockedGraph = JSON.parse(readFileSync(`${dir}/graph-no.json`, 'utf8'));
+  const blockedReality = JSON.parse(readFileSync(`${dir}/reality-no.json`, 'utf8'));
+  const status = blockedGraph.nodes.find((n) => n.id === 'task-unlock-test').props?.status;
+  r.v43Dispatch = { yesHasAcceptance: yes.includes('Acceptance'), noHasAcceptance: no.includes('Acceptance'), status, raised: blockedReality.raised?.['task-unlock-test']?.prompt?.slice(0, 80) ?? null };
+  if (!r.v43Dispatch.yesHasAcceptance) throw new Error(`ask-or-act yes: expected the work order as today, got: ${yes.slice(-300)}`);
+  if (r.v43Dispatch.noHasAcceptance || status !== 'blocked' || !r.v43Dispatch.raised) throw new Error(`ask-or-act no: expected no work order, task blocked and a raised question, got ${JSON.stringify(r.v43Dispatch)}; out: ${no.slice(-300)}`);
+
+  // observe-time cache: the System One pass fills reality.matches; a cached match >= threshold makes
+  // checkInvariants(graph, { matches }) drop a rule-condition-has-test violation the bare call still raises.
+  const relReality = 'scratch/s1/reality-observe.json';
+  writeFileSync(`${process.cwd()}/${relReality}`, JSON.stringify({ results: {}, metrics: {} }));
+  const obs = sh('node scripts/observe.mjs', { S1_ONLY: '1', LFP_REALITY_PATH: relReality });
+  const observed = JSON.parse(readFileSync(`${process.cwd()}/${relReality}`, 'utf8'));
+  const check = JSON.parse(sh(`node --input-type=module -e "
+    import { checkInvariants, conditionPairs } from './src/checks.ts';
+    const graph = JSON.parse((await import('node:fs')).readFileSync('src/graph.json', 'utf8'));
+    const reality = JSON.parse((await import('node:fs')).readFileSync('${relReality}', 'utf8'));
+    const pairs = conditionPairs(graph);
+    const before = checkInvariants(graph).filter((v) => v.invariant === 'rule-condition-has-test').length;
+    const after = checkInvariants(graph, { matches: reality.matches }).filter((v) => v.invariant === 'rule-condition-has-test').length;
+    console.log(JSON.stringify({ pairs: pairs.length, matches: Object.keys(reality.matches ?? {}).length, decisions: Object.keys(reality.decisions ?? {}), before, after }));
+  "`));
+  r.v43Observe = check;
+  if (!check.pairs || check.matches < 1) throw new Error(`observe S1 pass: expected cached matches for ${check.pairs} pairs, got ${JSON.stringify(check)}; out: ${obs.slice(-300)}`);
+  if (!(check.after < check.before)) throw new Error(`observe S1 pass: expected cached matches to drop rule-condition-has-test violations (${check.before} → ${check.after})`);
+  if (!check.decisions.includes('consolidate-pair') || !check.decisions.includes('raise-parent')) throw new Error(`observe S1 pass: expected consolidate-pair and raise-parent cross-checks, got ${check.decisions}`);
+  if (existsSync(dir)) rmSync(dir, { recursive: true, force: true });
+}
+
 r.errors = errors; console.log(JSON.stringify(r, null, 1)); await b.close();

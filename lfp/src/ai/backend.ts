@@ -12,7 +12,7 @@ import { publish, subscribe } from '../bus.ts';
 export interface AIBackendResult<O> { output: O; model?: string; costUsd?: number }
 
 export interface AIBackend {
-  kind: 'stub' | 'flue';
+  kind: 'stub' | 'flue'; // 'system1' is not a backend: it is a decision layer runAI consults first (src/ai/system1.ts)
   run<I, O>(fn: AIFunctionDef<I, O>, input: I, ctx: Context): Promise<AIBackendResult<O>>;
 }
 

@@ -87,6 +87,9 @@ export function startDirectorHost() {
       if (m.msgId) publish({ kind: 'ack', msgId: m.msgId, ctx: currentContext(topics(), bus().label) });
     } else if (m.kind === 'aicall') {
       recordAgentCall(m);
+    } else if (m.kind === 'system1-ready') {
+      state.system1Ready = m.ready;
+      state.system1Mode = m.mode;
     }
   });
   publish({ kind: 'hello', role: 'main' });

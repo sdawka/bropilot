@@ -38,6 +38,8 @@
     }
   },
   "verdicts": {},
+  "matches": {},
+  "decisions": {},
   "metrics": {
     "metric-commits-since-reset": {
       "value": "45",

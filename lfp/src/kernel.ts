@@ -172,6 +172,7 @@ export const STATEMENTS: Record<number, string> = {
   151: 'A condition is one line of the rule text',
   152: 'After the suite is green the task needs a reviewer agent',
   153: 'orchestrate sonnet and haiku agents to implement these',
+  154: 'especially classification tasks',
 };
 
 // ── Layers & spaces ─────────────────────────────────────────────────────────
@@ -260,7 +261,7 @@ export const KINDS: KindDef[] = [
   { id: 'design-system', label: 'Design system', plural: 'Design system', space: 'solution', icon: '🎨', kernel: false, singular: true, blurb: 'Guides product and marketing material, including tone.', source: said(37) },
   // agents (sub-items of the orchestration capability)
   { id: 'agent', label: 'Agent', plural: 'Agents', space: 'solution', icon: '🤖', kernel: true, fields: [{ key: 'status', label: 'Status', type: 'select', options: ['core', 'stub'] }], blurb: 'Executes actions for one or more features; a sub-item of the orchestration capability.', source: said(2, 4, 5, 72) },
-  { id: 'ai-function', label: 'AI function', plural: 'AI functions', space: 'solution', icon: '🧠', kernel: true, level: 3, fields: [{ key: 'version', label: 'Version' }, { key: 'runtime', label: 'Runtime', type: 'select', options: ['stub', 'flue'] }], blurb: 'A named place the AI acts: its own prompt, declared context needs, output shape, a deterministic stub, and a feedback mechanism to measure efficacy.', source: said(127, 128, 129, 144) },
+  { id: 'ai-function', label: 'AI function', plural: 'AI functions', space: 'solution', icon: '🧠', kernel: true, level: 3, fields: [{ key: 'version', label: 'Version' }, { key: 'runtime', label: 'Runtime', type: 'select', options: ['stub', 'flue', 'system1'] }], blurb: 'A named place the AI acts: its own prompt, declared context needs, output shape, a deterministic stub, and a feedback mechanism to measure efficacy.', source: said(127, 128, 129, 144) },
   // reality · current state (S85, S96)
   { id: 'repository', label: 'Repository', plural: 'Repositories', space: 'current', icon: '📂', kernel: true, blurb: 'Where the actual code lives; the thing codeRefs point into.', source: said(85) },
   { id: 'codebase', label: 'Code', plural: 'Code', space: 'current', icon: '💾', kernel: true, blurb: 'A reference into the repository: a module, file or block as it actually exists.', source: said(85) },

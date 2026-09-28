@@ -18,6 +18,39 @@ export interface AIFunctionMeta {
   output: string; // prose description of the expected output shape (documentation)
   feedback: { value: string; label: string }[]; // e.g. makes-sense / doesnt / bad-question
   source: Provenance;
+  /** v4.3: the implementation declares a System One decomposition (`decision`); mirrored here so
+   * scripts/emit-docs.mjs can print it without importing browser code. */
+  hasDecision?: boolean;
+  /** Router-only functions: logged as AI calls but hidden from the Reference prompt table. */
+  internal?: boolean;
+}
+
+// ── System One (v4.3, AGENT-RUNTIME.md §9) ──────────────────────────────────────────────────────
+// The wire shape is the TypeSafe SDK's own question/answer shape, so the browser builds questions,
+// the bus carries them verbatim, and agent/system1.ts passes them straight to `client.systemOne`.
+
+export type S1Question =
+  | { type: 'noul'; instructions: string; criteria?: { true?: string; false?: string } }
+  | { type: 'choice'; instructions: string; criteria: Record<string, string> }
+  | { type: 'score'; instructions: string; criteria: string[] };
+
+export type S1Answer =
+  | { type: 'noul'; noul: number }
+  | { type: 'choice'; choice: string; confidence: number; probabilities: Record<string, number> }
+  | { type: 'score'; score: number; confidence: number; probabilities: Record<string, number> };
+
+export interface S1Request { state: unknown; questions: Record<string, S1Question> }
+export type S1Answers = Record<string, S1Answer>;
+
+/** A function's System One decomposition: code shapes the state and the typed questions, the
+ * model answers them all in one pass, code makes the final answer. `questions` returning null
+ * means "nothing worth asking here" and the stub answers as before. */
+export interface DecisionSpec<I, O> {
+  id: string; // threshold key in decisionConfig.ts (usually the function id)
+  questions: (input: I, ctx: Context) => S1Request | null;
+  decide: (answers: S1Answers, input: I, ctx: Context) => O;
+  /** Override the default confidence (the weakest answer) when only some answers gate the decision. */
+  confidence?: (answers: S1Answers) => number;
 }
 
 /** Implementation: the code half, browser-only. */
@@ -25,6 +58,7 @@ export interface AIFunctionImpl<I, O> {
   context: { digest: (ctx: Context) => string };
   stub: (input: I, ctx: Context) => O; // deterministic implementation used by runtime 'stub'
   toCues: (out: O, callId: string) => Cue[];
+  decision?: DecisionSpec<I, O>;
 }
 
 export type AIFunctionDef<I = unknown, O = unknown> = AIFunctionMeta & AIFunctionImpl<I, O>;

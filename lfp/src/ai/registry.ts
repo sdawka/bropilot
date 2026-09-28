@@ -18,6 +18,7 @@ const states: AIFunctionMeta['feedback'] = [
 export const AI_FUNCTIONS: AIFunctionMeta[] = [
   {
     id: 'describe-screen',
+    hasDecision: true,
     version: '0.2',
     purpose: 'Names what is visible on the active view and points at the matching cards.',
     context: { needs: ['screen', 'selection', 'graph', 'suspect'] },
@@ -38,6 +39,7 @@ export const AI_FUNCTIONS: AIFunctionMeta[] = [
   },
   {
     id: 'answer-to-effects',
+    hasDecision: true,
     version: '0.2',
     purpose: 'Turns free-text answer content into staged add/update node and edge effects.',
     context: { needs: ['next', 'graph'] },
@@ -58,6 +60,7 @@ export const AI_FUNCTIONS: AIFunctionMeta[] = [
   },
   {
     id: 'explain-node',
+    hasDecision: true,
     version: '0.2',
     purpose: 'Explains a selected node in context: why it exists, what it connects to, its verdict.',
     context: { needs: ['selection', 'graph'] },
@@ -98,6 +101,7 @@ export const AI_FUNCTIONS: AIFunctionMeta[] = [
   },
   {
     id: 'define-term',
+    hasDecision: true,
     version: '0.1',
     purpose: 'Two-step glossary flow: asks for a term, then its definition, then commits it.',
     context: { needs: ['selection'] },
@@ -108,6 +112,7 @@ export const AI_FUNCTIONS: AIFunctionMeta[] = [
   },
   {
     id: 'review-change',
+    hasDecision: true,
     version: '0.2',
     purpose: "Checks that a task's change serves the intent of the rule, not just the test it targets.",
     context: { needs: ['selection', 'graph'] },
@@ -138,6 +143,7 @@ export const AI_FUNCTIONS: AIFunctionMeta[] = [
   },
   {
     id: 'find-contradictions',
+    hasDecision: true,
     version: '0.1',
     purpose: 'Scans the graph for two statements that disagree: same-titled nodes of one kind, or rules governing the same thing with opposing conditions.',
     context: { needs: ['graph'] },
@@ -145,6 +151,18 @@ export const AI_FUNCTIONS: AIFunctionMeta[] = [
     output: 'One raise cue per contradiction found (or a single "no contradictions" say cue).',
     feedback: decides,
     source: inferred('v4.2 plan: contradiction-detection wasn\'t named in a brief statement; grouped under the same "consolidate to common sources of truth" intent as consolidate-questions (S142).'),
+  },
+  {
+    id: 'route-utterance',
+    version: '0.1',
+    hasDecision: true,
+    internal: true,
+    purpose: 'Routes free text that matched no Talk command to the registry function that should handle it (v4.3, System One).',
+    context: { needs: ['screen', 'next'] },
+    prompt: `The user typed (it matched none of the exact Talk commands): {{input}}\nContext:\n{{context}}\n\nPick exactly one function to handle it: describe-screen (names what is on screen or explains a node), next-decision (what to do next), propose-followup (a sub-question), find-gaps (what is missing), consolidate-questions (fold the open gaps into one question), find-contradictions (what disagrees), review-change (judge a task), raise-question (a question for the user). When unsure, describe-screen.`,
+    output: 'One registry function id; the router dispatches it with the original text.',
+    feedback: decides,
+    source: inferred('v4.3: the Talk router was ten anchored regexes with a describe-screen fallback; Jev classifies the fall-through (S154).'),
   },
 ];
 

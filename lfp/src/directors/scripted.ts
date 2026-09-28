@@ -2,11 +2,12 @@
 // and stub — lives in src/ai/functions/*; this file just decides *which* AI function to call and
 // threads the tiny bit of state a two-step ask needs (which pending function/stage is open) across
 // turns. A Flue/LLM director replaces the routing later; the functions stay the same either way.
-import { currentContext } from '../director.ts';
+import { currentContext, applyCues } from '../director.ts';
 import type { Cue, Director, UserTurn } from '../director.ts';
 import { runAI } from '../ai/runtime.ts';
 import { aiFunction } from '../ai/index.ts';
-import { state } from '../store.ts';
+import { decideGated, system1Enabled } from '../ai/system1.ts';
+import { state, persist, nodeById, type AICall } from '../store.ts';
 
 type Pending =
   | { fn: 'define-term'; stage: 'title' | 'desc'; title?: string }
@@ -102,7 +103,93 @@ export class ScriptedDirector implements Director {
       return [{ t: 'revalidate', nodeId: node.id }];
     }
 
-    return runAI(aiFunction('describe-screen'), { text: trimmed }, this.ctx());
+    return this.routeFree(trimmed);
+  }
+
+  /** Exact commands never pay the round trip; only fall-through text is classified. When a
+   * System One client is on the bus, Jev classifies which function should handle it
+   * (route-utterance); a low-confidence answer, a timeout, or an error falls back to
+   * describe-screen — exactly today's behaviour, unchanged. */
+  private routeFree(trimmed: string): Cue[] {
+    if (!system1Enabled()) return runAI(aiFunction('describe-screen'), { text: trimmed }, this.ctx());
+
+    const routeFn = aiFunction('route-utterance');
+    const ctx = this.ctx();
+    const req = routeFn.decision?.questions({ text: trimmed }, ctx) ?? null;
+    if (!req) return runAI(aiFunction('describe-screen'), { text: trimmed }, this.ctx());
+
+    const fnQuestion = req.questions.fn;
+    const criteriaKeys = fnQuestion.type === 'choice' ? Object.keys(fnQuestion.criteria) : [];
+
+    const callId = `call-route-utterance-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+    const pendingSayId = `${callId}-s0`;
+    const pending: AICall = {
+      id: callId,
+      fn: 'route-utterance',
+      version: routeFn.version,
+      runtime: 'system1',
+      at: Date.now(),
+      contextDigest: routeFn.context.digest(ctx),
+      input: trimmed,
+      output: '',
+      cueIds: [],
+      status: 'pending',
+    };
+    state.aiCalls.push(pending);
+    persist();
+
+    decideGated('route-utterance', req).then(
+      (res) => {
+        const answer = res.answers.fn;
+        const chosen = answer?.type === 'choice' ? answer.choice : undefined;
+        if (res.ok && chosen && criteriaKeys.includes(chosen)) {
+          this.updateAICall(callId, { runtime: 'system1', confidence: res.confidence, model: res.model, costUsd: res.costUsd, output: chosen, status: 'ok' });
+          applyCues(this.dispatch(chosen, trimmed));
+        } else {
+          this.updateAICall(callId, { runtime: 'stub', fallback: 'low-confidence', confidence: res.confidence, model: res.model, costUsd: res.costUsd, status: 'ok' });
+          applyCues(runAI(aiFunction('describe-screen'), { text: trimmed }, this.ctx()));
+        }
+      },
+      (err: unknown) => {
+        const reason = err instanceof Error ? err.message : String(err);
+        this.updateAICall(callId, { runtime: 'stub', fallback: /timed out/.test(reason) ? 'timeout' : 'error', status: 'ok' });
+        applyCues(runAI(aiFunction('describe-screen'), { text: trimmed }, this.ctx()));
+      },
+    );
+
+    return [{ t: 'say', id: pendingSayId, text: 'Deciding…' }];
+  }
+
+  /** Dispatches the function route-utterance classified, with the args each one needs — mirrors
+   * the args the regex branches above already pass their own functions. */
+  private dispatch(fn: string, text: string): Cue[] {
+    const ctx = this.ctx();
+    switch (fn) {
+      case 'next-decision': return runAI(aiFunction('next-decision'), undefined, ctx);
+      case 'propose-followup': return runAI(aiFunction('propose-followup'), {}, ctx);
+      case 'find-gaps': return runAI(aiFunction('find-gaps'), undefined, ctx);
+      case 'find-contradictions': return runAI(aiFunction('find-contradictions'), undefined, ctx);
+      case 'consolidate-questions':
+        if (ctx.next?.source !== 'violation') return [{ t: 'say', id: `s-consolidate-${Date.now()}`, text: 'Nothing to consolidate.' }];
+        return runAI(aiFunction('consolidate-questions'), { followupId: ctx.next.id }, ctx);
+      case 'review-change': {
+        const next = ctx.next;
+        const isTask = !!next && nodeById(next.id)?.kind === 'task';
+        if (next && isTask) return runAI(aiFunction('review-change'), { taskId: next.id }, ctx);
+        return runAI(aiFunction('describe-screen'), { text }, ctx);
+      }
+      case 'raise-question': return runAI(aiFunction('raise-question'), { missing: text }, ctx);
+      case 'describe-screen':
+      default:
+        return runAI(aiFunction('describe-screen'), { text }, ctx);
+    }
+  }
+
+  private updateAICall(callId: string, patch: Partial<AICall>) {
+    const call = state.aiCalls.find((c) => c.id === callId);
+    if (!call) return;
+    Object.assign(call, patch);
+    persist();
   }
 
   /** Best-effort title lookup (no AI call): exact case-insensitive match first, else substring

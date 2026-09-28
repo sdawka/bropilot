@@ -1,11 +1,15 @@
 // describe-screen: free-text fallback. Finds a matching node in the graph and explains it (moved
 // from ScriptedDirector.freeTalk's keyword lookup), or — when nothing matches — names what the
 // active screen is currently showing.
+// v4.3: `decision` (AGENT-RUNTIME.md §9, threshold 'find-by-title') hands Jev the same pre-filtered
+// candidates the stub would search itself, and asks it to confirm the resolved node isn't a false
+// positive — even a single candidate is asked about, since a substring match can still be wrong.
 import { state, nodeById } from '../../store.ts';
 import { kindById, edgeTypeById, STATEMENTS } from '../../kernel.ts';
 import { contextFor } from '../../brief.ts';
+import { titleCandidates } from '../candidates.ts';
 import type { Cue, Context, View } from '../../director.ts';
-import type { AIFunctionImpl } from '../types.ts';
+import type { AIFunctionImpl, DecisionSpec, S1Answers, S1Request } from '../types.ts';
 import type { Node } from '../../store.ts';
 
 export interface DescribeScreenIn { text: string }
@@ -36,25 +40,26 @@ const quote = (n?: Node) => {
   return c ? ` You said: "${c.hit.trim()}"` : ` (S${s.statements[0]}: "${STATEMENTS[s.statements[0]]}")`;
 };
 
+/** Build the 'hit' output for a resolved node — shared by the stub and the decision path so a
+ * resolved node produces byte-identical cues/text either way. */
+function buildHit(hit: Node, suspect: string): HitOut {
+  const es = edgesOf(hit.id).slice(0, 6);
+  const kind = kindById[hit.kind];
+  const view: View = kind?.level !== undefined ? 'domain' : 'overview';
+  const rel = es.map((e) => `${e.src === hit.id ? '' : title(e.src) + ' '}${edgeTypeById[e.type]?.label ?? e.type}${e.src === hit.id ? ' ' + title(e.dst) : ''}`).join('; ');
+  return {
+    op: 'hit', id: hit.id, label: kind?.label ?? hit.kind, title: hit.title, description: hit.description,
+    quote: quote(hit), related: rel, view, level: kind?.level, pointIds: [hit.id, ...es.map((e) => other(e, hit.id))], edgeIds: es.map((e) => e.id), suspect,
+  };
+}
+
 function stub(input: DescribeScreenIn, ctx: Context): DescribeScreenOut {
   const q = input.text.trim();
   const lower = q.toLowerCase();
   const suspect = suspectSentence(ctx);
   if (lower) {
-    const hits = state.graph.nodes
-      .filter((n) => n.title.toLowerCase().includes(lower) || lower.includes(n.title.toLowerCase()))
-      .sort((a, b) => b.title.length - a.title.length);
-    const hit = hits[0];
-    if (hit) {
-      const es = edgesOf(hit.id).slice(0, 6);
-      const kind = kindById[hit.kind];
-      const view: View = kind?.level !== undefined ? 'domain' : 'overview';
-      const rel = es.map((e) => `${e.src === hit.id ? '' : title(e.src) + ' '}${edgeTypeById[e.type]?.label ?? e.type}${e.src === hit.id ? ' ' + title(e.dst) : ''}`).join('; ');
-      return {
-        op: 'hit', id: hit.id, label: kind?.label ?? hit.kind, title: hit.title, description: hit.description,
-        quote: quote(hit), related: rel, view, level: kind?.level, pointIds: [hit.id, ...es.map((e) => other(e, hit.id))], edgeIds: es.map((e) => e.id), suspect,
-      };
-    }
+    const hit = titleCandidates(q, state.graph.nodes)[0];
+    if (hit) return buildHit(hit, suspect);
     return { op: 'not-found', text: q, suspect };
   }
   const items = ctx.screen.items;
@@ -81,8 +86,45 @@ function toCues(out: DescribeScreenOut, callId: string): Cue[] {
   ];
 }
 
+/** 'find-by-title': ask Jev only the query text and the pre-filtered candidates' ids/titles/kinds —
+ * never the whole graph, never descriptions. Null when there's nothing to disambiguate (empty
+ * query, or the pre-filter found nothing) — the stub's 'not-found'/'screen' path is already right. */
+function questions(input: DescribeScreenIn): S1Request | null {
+  const q = input.text.trim();
+  if (!q) return null;
+  const candidates = titleCandidates(q, state.graph.nodes);
+  if (!candidates.length) return null;
+  return {
+    state: { text: q, candidates: candidates.map((c) => ({ id: c.id, title: c.title, kind: c.kind })) },
+    questions: {
+      node: {
+        type: 'choice',
+        instructions: "Which of these nodes does the user's text refer to? Pick none if the text refers to nothing listed.",
+        criteria: {
+          ...Object.fromEntries(candidates.map((c) => [c.id, c.title])),
+          none: 'None of these is what the text refers to',
+        },
+      },
+    },
+  };
+}
+
+function decide(answers: S1Answers, input: DescribeScreenIn, ctx: Context): DescribeScreenOut {
+  const q = input.text.trim();
+  const suspect = suspectSentence(ctx);
+  const answer = answers.node;
+  const choice = answer && answer.type === 'choice' ? answer.choice : 'none';
+  if (choice === 'none') return { op: 'not-found', text: q, suspect };
+  const hit = nodeById(choice);
+  if (!hit) return { op: 'not-found', text: q, suspect };
+  return buildHit(hit, suspect);
+}
+
+const decision: DecisionSpec<DescribeScreenIn, DescribeScreenOut> = { id: 'find-by-title', questions, decide };
+
 export const describeScreen: AIFunctionImpl<DescribeScreenIn, DescribeScreenOut> = {
   context: { digest: (ctx) => `view=${ctx.view} screenItems=${ctx.screen.items.length} selection=${ctx.selectedId ?? 'none'}` },
   stub,
   toCues,
+  decision,
 };

@@ -10,7 +10,9 @@ import { dirname, join } from 'node:path';
 import { agentById } from '../../src/agents.ts';
 import { applySpec, asSubagent, tierOverrideEnvKey } from './from-spec.ts';
 import { diffChangedFiles } from './tools.ts';
-import { precheckDiff } from './precheck.ts';
+import { precheckDiff, tierFor } from './precheck.ts';
+import { askSystem1, system1Available } from '../system1.ts';
+import { answerConfidence } from '../../src/ai/decisionConfig.ts';
 import { busRef } from '../bus-ref.ts';
 import { Observer } from './observer.ts';
 import { Planner } from './planner.ts';
@@ -30,7 +32,7 @@ try {
 /** Append one task's verdict to `src/reality.json`, preserving `results`/`metrics` (and every
  * other task's verdict). `run_review` runs inside this Node server process (docs/AGENT-RUNTIME.md
  * §7), so writing with `fs` here is the whole mechanism — nothing round-trips through the bus. */
-function writeVerdict(taskId: string, record: { verdict: string; reasons: string[]; at: string; scopeOk?: boolean }) {
+function writeVerdict(taskId: string, record: { verdict: string; reasons: string[]; at: string; scopeOk?: boolean; risk?: { score: number; confidence: number } }) {
   const path = join(LFP, 'src', 'reality.json');
   let reality: { results?: unknown; metrics?: unknown; verdicts?: Record<string, unknown> } = {};
   try {
@@ -61,23 +63,80 @@ const dispatchTask = defineTool({
   },
 });
 
+/** Read `src/graph.json` fresh (it can change between calls) just far enough to name the titles
+ * of the tests this task targets and the rules those tests verify — the only two facts `risk`
+ * below is allowed to see besides the file lists. Never throws; an unreadable/malformed graph
+ * just yields no titles, so the risk question falls back to judging on file counts alone. */
+function reviewContextOf(taskId: string): { tests: string[]; rules: string[] } {
+  try {
+    const graph = JSON.parse(readFileSync(join(LFP, 'src', 'graph.json'), 'utf8')) as { nodes: any[]; edges: any[] };
+    const tests = graph.edges.filter((e) => e.src === taskId && e.type === 'targets').map((e) => graph.nodes.find((n) => n.id === e.dst)).filter(Boolean);
+    const ruleIds = new Set<string>();
+    for (const t of tests) for (const e of graph.edges) if (e.src === t.id && e.type === 'verifies') ruleIds.add(e.dst);
+    const rules = Array.from(ruleIds).map((rid) => graph.nodes.find((n: any) => n.id === rid)).filter(Boolean);
+    return { tests: tests.map((t: any) => t.title), rules: rules.map((r: any) => r.title) };
+  } catch {
+    return { tests: [], rules: [] };
+  }
+}
+
+/** The four levels a `risk` score answer is an index into — routine/moderate/sensitive/high-risk
+ * (`precheck.ts::tierFor` reads "sensitive" as `levels - 2`, i.e. index 2 here). */
+const RISK_LEVELS = ['routine', 'moderate', 'sensitive', 'high-risk'];
+
+/** Ask Jev how risky this diff looks to review, given only file counts/paths, the targeted tests'
+ * titles and the rules they verify — never the diff itself (S1 reads literally and gets worse
+ * with irrelevant material). Returns undefined on any error or when System One is unavailable, so
+ * `precheck.ts::tierFor` falls back to today's scope-only behaviour. */
+async function askReviewRisk(taskId: string, precheck: { scopeOk: boolean; extraFiles: string[] }, fileCount: number): Promise<{ score: number; confidence: number; levels: number } | undefined> {
+  if (!system1Available()) return undefined;
+  try {
+    const { tests, rules } = reviewContextOf(taskId);
+    const state = { fileCount, scopeOk: precheck.scopeOk, extraFiles: precheck.extraFiles.slice(0, 20), tests, rules };
+    const reply = await askSystem1(state, {
+      risk: {
+        type: 'score',
+        instructions: 'How risky is this change to review, given only which files it touched relative to the tests it targets and the rules those tests verify? routine = only files the targeted tests point at; moderate = a few files nearby; sensitive = shared or kernel code; high-risk = many unrelated files or the kernel itself.',
+        criteria: [
+          'routine: only the files the targeted tests point at',
+          'moderate: a few nearby files',
+          'sensitive: shared or kernel code',
+          'high-risk: many unrelated files or the kernel itself',
+        ],
+      },
+    });
+    const ans = reply.answers.risk as { type: 'score'; score: number; confidence: number };
+    const risk = { score: ans.score, confidence: answerConfidence(ans as any), levels: RISK_LEVELS.length };
+    console.log(`[system1] reviewer-tier score=${risk.score} conf=${risk.confidence.toFixed(2)} → ${tierFor(precheck.scopeOk, risk)}`);
+    return risk;
+  } catch (err) {
+    console.log(`[system1] reviewer-tier: unavailable (${(err as Error).message}) → scope-only`);
+    return undefined;
+  }
+}
+
 /** Run the reviewer on a finished task and return its verdict tool output (or its text if it never
  * called verdict). Precheck first (docs/AGENT-RUNTIME.md §8, rule-based): `git diff --name-only` in
- * the worktree against the task's `codeRefs` decides the reviewer's tier — mid when the diff stays
- * inside them, strong otherwise (via the `TIER_OVERRIDE_REVIEWER` env var `from-spec.ts::modelFor`
- * reads; `Reviewer()` itself never changes). The verdict, once it arrives, is written into
- * `src/reality.json.verdicts[taskId]` here (server-side, see `writeVerdict` above) and published
- * as a `reality` bus message — the browser has no handler for it yet, so it is a no-op there. */
+ * the worktree against the task's `codeRefs` decides scope; v4.3 also asks Jev (System One) how
+ * risky the touched files look next to the targeted tests/rules (`askReviewRisk` above), and
+ * `precheck.ts::tierFor(scopeOk, risk)` folds both into the reviewer's tier — mid unless the diff
+ * reaches outside scope, or Jev confidently reads it as sensitive-or-worse (via the
+ * `TIER_OVERRIDE_REVIEWER` env var `from-spec.ts::modelFor` reads; `Reviewer()` itself never
+ * changes). The verdict, once it arrives, is written into `src/reality.json.verdicts[taskId]` here
+ * (server-side, see `writeVerdict` above), alongside `scopeOk` and `risk`, and published as a
+ * `reality` bus message — the browser has no handler for it yet, so it is a no-op there. */
 const runReview = defineTool({
   name: 'run_review',
-  description: "Ask the reviewer agent to judge a finished task: pass the task id, the rule/test brief, the worktree path (cwd), and the task's codeRefs. Runs a rule-based precheck (changed files vs. codeRefs) to pick mid or strong tier, records the verdict in reality.json, and returns it.",
+  description: "Ask the reviewer agent to judge a finished task: pass the task id, the rule/test brief, the worktree path (cwd), and the task's codeRefs. Runs a rule-based precheck (changed files vs. codeRefs) plus, when System One is on, a risk read of the touched files, to pick mid or strong tier, records the verdict (with scopeOk and risk) in reality.json, and returns it.",
   input: v.object({ taskId: v.string(), brief: v.string(), cwd: v.optional(v.string()), codeRefs: v.optional(v.array(v.string())) }),
   async run({ data }: any) {
     const cwd = data.cwd ?? process.cwd();
     const changedFiles = await diffChangedFiles(cwd);
     const precheck = precheckDiff(changedFiles, data.codeRefs ?? []);
+    const risk = await askReviewRisk(data.taskId, precheck, changedFiles.length);
+    const tier = tierFor(precheck.scopeOk, risk);
     const envKey = tierOverrideEnvKey('reviewer');
-    if (precheck.scopeOk) process.env[envKey] = 'mid';
+    if (tier === 'mid') process.env[envKey] = 'mid';
     else delete process.env[envKey];
     const brief = [
       data.brief,
@@ -85,9 +144,11 @@ const runReview = defineTool({
       '## Precheck (rule-based, not a model judgement)',
       `Changed files: ${changedFiles.join(', ') || '(none)'}`,
       precheck.scopeOk
-        ? "Stays inside the task's codeRefs — running at mid tier."
-        : `Touches files outside the task's codeRefs (${precheck.extraFiles.join(', ') || 'no codeRefs given'}) — running at strong tier.`,
-    ].join('\n');
+        ? "Stays inside the task's codeRefs."
+        : `Touches files outside the task's codeRefs (${precheck.extraFiles.join(', ') || 'no codeRefs given'}).`,
+      risk ? `System One reads the risk as "${RISK_LEVELS[risk.score] ?? risk.score}" (confidence ${risk.confidence.toFixed(2)}).` : null,
+      `Running at ${tier} tier.`,
+    ].filter(Boolean).join('\n');
     try {
       const reviewer = init(Reviewer, { id: `reviewer:${data.taskId}` });
       const receipt = await reviewer.dispatch(brief);
@@ -98,11 +159,17 @@ const runReview = defineTool({
         },
       });
       if (verdict && typeof verdict === 'object') {
-        const record = { verdict: (verdict as any).verdict, reasons: (verdict as any).reasons ?? [], at: new Date().toISOString(), scopeOk: precheck.scopeOk };
+        const record = {
+          verdict: (verdict as any).verdict,
+          reasons: (verdict as any).reasons ?? [],
+          at: new Date().toISOString(),
+          scopeOk: precheck.scopeOk,
+          ...(risk ? { risk: { score: risk.score, confidence: risk.confidence } } : {}),
+        };
         writeVerdict(data.taskId, record);
         void (busRef as any).publishReality?.({ taskId: data.taskId, ...record });
       }
-      return { output: { taskId: data.taskId, verdict, text: reply.text, scopeOk: precheck.scopeOk, extraFiles: precheck.extraFiles } };
+      return { output: { taskId: data.taskId, verdict, text: reply.text, scopeOk: precheck.scopeOk, extraFiles: precheck.extraFiles, tier, risk: risk ?? null } };
     } finally {
       delete process.env[envKey];
     }

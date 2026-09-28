@@ -204,12 +204,12 @@ function flowsMd() {
 // ── AI-FUNCTIONS.md ──────────────────────────────────────────────────────────
 function aiFunctionsMd() {
   const out = [BANNER, '# AI functions\n'];
-  out.push('| id | version | purpose | context needs | feedback | provenance |');
-  out.push('| --- | --- | --- | --- | --- | --- |');
+  out.push('| id | version | purpose | context needs | System One | feedback | provenance |');
+  out.push('| --- | --- | --- | --- | --- | --- | --- |');
   for (const f of AI_FUNCTIONS) {
     const prov = f.source.kind === 'said' ? `said S${f.source.statements.join(', S')}` : `inferred: ${f.source.reason}`;
     out.push(
-      `| ${f.id} | ${f.version} | ${f.purpose} | ${f.context.needs.join(', ')} | ${f.feedback.map((fb) => fb.label).join(' / ')} | ${prov} |`,
+      `| ${f.id} | ${f.version} | ${f.purpose} | ${f.context.needs.join(', ')} | ${f.hasDecision ? 'yes' : '—'} | ${f.feedback.map((fb) => fb.label).join(' / ')} | ${prov} |`,
     );
   }
   out.push('');
@@ -219,6 +219,7 @@ function aiFunctionsMd() {
     out.push(`- **Version:** ${f.version}`);
     out.push(`- **Context needs:** ${f.context.needs.join(', ')}`);
     out.push(`- **Output:** ${f.output}`);
+    out.push(`- **System One:** ${f.hasDecision ? 'declares a typed decision (AGENT-RUNTIME.md §9); the stub answers below the threshold' : 'no — code or a generating model'}`);
     out.push(`- **Feedback options:** ${f.feedback.map((fb) => fb.label).join(', ')}`);
     out.push('');
     out.push('**Prompt:**\n');

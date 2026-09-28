@@ -129,6 +129,10 @@ const ConsolidateQuestionsSchema = v.object({
 const ContradictionSchema = v.object({ subjects: v.array(v.string()), prompt: v.string(), produces: v.string() });
 const FindContradictionsSchema = v.object({ contradictions: v.array(ContradictionSchema) });
 
+/** v4.3 router: which function should take the fall-through text. */
+export const RouteUtteranceSchema = v.object({ fn: v.string() });
+export type RouteUtteranceOut = v.InferOutput<typeof RouteUtteranceSchema>;
+
 export const OUTPUT_SCHEMAS: Record<string, v.GenericSchema> = {
   'describe-screen': DescribeScreenSchema,
   'next-decision': NextDecisionSchema,
@@ -143,6 +147,7 @@ export const OUTPUT_SCHEMAS: Record<string, v.GenericSchema> = {
   'raise-question': RaiseQuestionSchema,
   'consolidate-questions': ConsolidateQuestionsSchema,
   'find-contradictions': FindContradictionsSchema,
+  'route-utterance': RouteUtteranceSchema,
 };
 
 export function schemaFor(id: string): v.GenericSchema {

@@ -39,6 +39,22 @@ const verdicts = computed(() => {
   }));
 });
 
+// ── System One decisions & matches (Reference: v4.3 — Jev cross-checks vs. the code) ──
+const decisions = computed(() => {
+  const d = (realityData as any).decisions ?? {};
+  return Object.entries(d as Record<string, Record<string, { value: unknown; confidence: number; agreedWithCode: boolean; at: string }>>).map(([id, rows]) => {
+    const entries = Object.values(rows ?? {});
+    const count = entries.length;
+    const meanConfidence = count ? entries.reduce((s, r) => s + (r.confidence ?? 0), 0) / count : 0;
+    const agreedPct = count ? Math.round((entries.filter((r) => r.agreedWithCode).length / count) * 100) : 0;
+    return { id, count, meanConfidence, agreedPct };
+  });
+});
+const matchCount = computed(() => {
+  const m = (realityData as any).matches ?? {};
+  return Object.values(m as Record<string, Record<string, number>>).reduce((sum, byTest) => sum + Object.keys(byTest ?? {}).length, 0);
+});
+
 // ── Edge shapes table (Reference: 1-C) ──
 const edgeShapes = computed(() => {
   const needs = new Map<string, { edge: string; dir: string; min: number; produces?: string }[]>();
@@ -200,6 +216,21 @@ async function copyCalls() {
       </tbody>
     </table>
 
+    <h2>System One decisions <span class="small">Jev cross-checks vs. what the code decided</span></h2>
+    <p class="small mono" data-testid="ref-matches">{{ matchCount > 0 ? `${matchCount} cached condition matches` : '— 0 cached condition matches' }}</p>
+    <table data-testid="ref-decisions">
+      <thead><tr><th>Decision</th><th>Count</th><th>Mean confidence</th><th>Agreed with code</th></tr></thead>
+      <tbody>
+        <tr v-for="d in decisions" :key="d.id">
+          <td class="mono">{{ d.id }}</td>
+          <td>{{ d.count }}</td>
+          <td class="mono">{{ d.count ? d.meanConfidence.toFixed(2) : '—' }}</td>
+          <td class="mono">{{ d.count ? `${d.agreedPct}%` : '—' }}</td>
+        </tr>
+        <tr v-if="!decisions.length"><td colspan="4" class="small">—</td></tr>
+      </tbody>
+    </table>
+
     <h2>Edge shapes <span class="small">from/to kinds per edge type, and kind needs</span></h2>
     <table data-testid="ref-edge-shapes">
       <thead><tr><th>Type</th><th>From kinds</th><th>To kinds</th><th>Kernel</th><th>Hint</th><th>Kind needs</th></tr></thead>
@@ -249,17 +280,22 @@ async function copyCalls() {
         <input type="radio" value="stub" v-model="state.aiRuntime" /> stub
         <input type="radio" value="flue" v-model="state.aiRuntime" /> flue
       </label>
+      <label class="mono small" data-testid="ref-system1" :title="state.system1Ready ? 'A System One client is on the bus' : 'No System One client on the bus — decisions fall back to code'">
+        <input type="checkbox" v-model="state.system1" /> system1
+        <span :data-ready="state.system1Ready">{{ state.system1Ready ? state.system1Mode : 'off' }}</span>
+      </label>
       <button @click="copyCalls">Copy calls JSON</button>
       <span class="small">Total cost: ${{ totalCostUsd.toFixed(4) }}</span>
     </div>
     <table data-testid="ref-ai-calls">
-      <thead><tr><th>At</th><th>Fn</th><th>Version</th><th>Runtime</th><th>Status</th><th>Model</th><th>Cost</th><th>Context digest</th><th>Input</th><th>Output</th><th>Rating</th><th>Outcome</th></tr></thead>
+      <thead><tr><th>At</th><th>Fn</th><th>Version</th><th>Runtime</th><th>Confidence</th><th>Status</th><th>Model</th><th>Cost</th><th>Context digest</th><th>Input</th><th>Output</th><th>Rating</th><th>Outcome</th></tr></thead>
       <tbody>
         <tr v-for="c in calls" :key="c.id">
           <td class="mono small">{{ new Date(c.at).toLocaleString() }}</td>
           <td class="mono">{{ c.fn }}</td>
           <td class="mono">{{ c.version }}</td>
-          <td class="mono">{{ c.runtime }}</td>
+          <td class="mono" :data-fallback="c.fallback ?? ''">{{ c.runtime }}<span v-if="c.fallback" class="small"> ({{ c.fallback }})</span></td>
+          <td class="mono small">{{ c.confidence !== undefined ? c.confidence.toFixed(2) : '—' }}</td>
           <td class="mono small">{{ c.status ?? '—' }}</td>
           <td class="mono small">{{ c.model ?? '—' }}</td>
           <td class="mono small">{{ c.costUsd !== undefined ? '$' + c.costUsd.toFixed(4) : '—' }}</td>

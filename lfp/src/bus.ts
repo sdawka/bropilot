@@ -16,7 +16,16 @@ export type BusMessage =
   | { kind: 'ai-response'; id: string; output?: unknown; error?: string; model?: string; usage?: { input: number; output: number; costUsd: number }; from: string }
   // Published by agent/server.mjs for every agent turn (not a browser-originated ai-request), so
   // Kernel.vue's AI-calls table can show model/cost for Talk turns too.
-  | { kind: 'aicall'; fn: string; model?: string; usage?: { input: number; output: number; costUsd: number }; conversationId: string; at: number; from: string };
+  | { kind: 'aicall'; fn: string; model?: string; usage?: { input: number; output: number; costUsd: number }; conversationId: string; at: number; from: string }
+  // System One seam (AGENT-RUNTIME.md §9, v4.3): typed questions out, typed answers back. Separate
+  // from ai-request because the wire shape is state + a question map, not prompt + one schema.
+  | { kind: 'system1-request'; id: string; fn: string; state: unknown; questions: Record<string, unknown>; from: string }
+  | { kind: 'system1-response'; id: string; answers?: Record<string, unknown>; error?: string; model?: string; ms?: number; usage?: { input: number; output: number; costUsd: number }; from: string }
+  // Sent by agent/server.mjs at connect and in reply to every main-screen hello: is a System One
+  // client (real key or FAKE_S1) answering on this bus?
+  | { kind: 'system1-ready'; ready: boolean; mode: 'live' | 'fake' | 'off'; from: string }
+  // v4.2: run_review's verdict broadcast (the browser ignored it until v4.3).
+  | { kind: 'reality'; taskId?: string; verdict?: 'serves-intent' | 'overfits' | 'unclear'; reasons?: string[]; at?: string; scopeOk?: boolean; from: string };
 
 export interface Transport { send(m: BusMessage): void; onMessage(fn: (m: BusMessage) => void): void; close(): void; readonly label: string }
 

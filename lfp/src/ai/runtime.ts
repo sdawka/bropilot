@@ -2,8 +2,50 @@
 // tracked. `runAI` is the only way any Director should call an AI function (S128, S131).
 import { state, persist, describe, type AICall } from '../store.ts';
 import { applyCues, type Context, type Cue } from '../director.ts';
-import type { AIFunctionDef } from './types.ts';
+import type { AIFunctionDef, S1Request } from './types.ts';
 import { backendFor } from './backend.ts';
+import { decideGated, system1Enabled } from './system1.ts';
+
+/** The System One path: ask Jev the function's typed questions, let `decide()` make the answer
+ * when the (weakest) confidence clears the threshold, else the stub answers exactly as before.
+ * Same shape as the flue path — an immediate placeholder cue, the real cues when the answer lands —
+ * but a fallback is never a failure: the stub's answer is the pre-v4.3 answer, so the call stays
+ * `ok` and only its `runtime`/`fallback`/`confidence` columns say what happened. */
+function runDecision<I, O>(fn: AIFunctionDef<I, O>, req: S1Request, input: I, ctx: Context, callId: string): Cue[] {
+  const dec = fn.decision!;
+  const pendingSayId = `${callId}-s0`;
+  const pending: AICall = {
+    id: callId,
+    fn: fn.id,
+    version: fn.version,
+    runtime: 'system1',
+    at: Date.now(),
+    contextDigest: fn.context.digest(ctx),
+    input: inputText(input),
+    output: '',
+    cueIds: [pendingSayId],
+    status: 'pending',
+  };
+  state.aiCalls.push(pending);
+  persist();
+
+  const settle = (out: O, patch: Partial<AICall>) => {
+    const cues = fn.toCues(out, callId);
+    applyCues(cues);
+    updateCall(callId, { output: describeOutput(cues), cueIds: cues.flatMap(cueIdsOf), status: 'ok', ...patch });
+  };
+  decideGated(dec.id, req, dec.confidence).then(
+    (res) => {
+      if (res.ok) settle(dec.decide(res.answers, input, ctx), { runtime: 'system1', confidence: res.confidence, model: res.model, costUsd: res.costUsd });
+      else settle(fn.stub(input, ctx), { runtime: 'stub', fallback: 'low-confidence', confidence: res.confidence, model: res.model, costUsd: res.costUsd });
+    },
+    (err: unknown) => {
+      const reason = err instanceof Error ? err.message : String(err);
+      settle(fn.stub(input, ctx), { runtime: 'stub', fallback: /timed out/.test(reason) ? 'timeout' : 'error' });
+    },
+  );
+  return [{ t: 'say', id: pendingSayId, text: 'Deciding…' }];
+}
 
 const genId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 
@@ -53,6 +95,16 @@ export function runAI<I, O>(fn: AIFunctionDef<I, O>, input: I, ctx: Context): Cu
   const callId = genId(`call-${fn.id}`);
   const backend = backendFor(state.aiRuntime);
 
+  // System One first (v4.3, AGENT-RUNTIME.md §9): a function that declares a `decision` and has a
+  // System One client on the bus is decided by Jev, whatever `aiRuntime` says — classification is
+  // orthogonal to generation. `questions()` returning null means there was nothing worth asking.
+  let nothingToAsk = false;
+  if (fn.decision && system1Enabled()) {
+    const req = fn.decision.questions(input, ctx);
+    if (req) return runDecision(fn, req, input, ctx, callId);
+    nothingToAsk = true;
+  }
+
   if (backend.kind === 'stub') {
     const out = fn.stub(input, ctx);
     const cues = fn.toCues(out, callId);
@@ -67,6 +119,7 @@ export function runAI<I, O>(fn: AIFunctionDef<I, O>, input: I, ctx: Context): Cu
       output: describeOutput(cues),
       cueIds: cues.flatMap(cueIdsOf),
       status: 'ok',
+      ...(nothingToAsk ? { fallback: 'nothing-to-ask' as const } : {}),
     };
     state.aiCalls.push(call);
     persist();

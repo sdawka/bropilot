@@ -86,6 +86,12 @@ Business-level expectations: one test kind, result source varies. Staleness on e
 
 orchestrate sonnet and haiku agents to implement these`,
   },
+  {
+    id: 'brief-13',
+    title: 'System One for classification (2026-09-27)',
+    date: '2026-09-27',
+    text: `research system one AI like Jev, and see how we can use it in our project here to boost efficiency and effectiveness. especially classification tasks. Act everywhere it fits.`,
+  },
 ];
 
 /** Exact substrings (case-sensitive) of a brief, one per statement. */
@@ -102,6 +108,7 @@ export const ANCHORS: Record<number, string> = {
   116: 'give more of the feeling of being a series of questions with downstream effects', 117: 'the primary interaction mode because the AI will surface what\'s the most important undecided things or next thing to focus on', 118: 'centralize the interaction mode as a talk about it kinda panel', 119: 'This panel should be aware of which tab is currently active and what\'s on the screen', 120: 'the ability to talk about what is on the screen and maybe even highlight different cards and stuff', 121: 'plan how to centralize our architecture this way because the back end flow also matters', 122: 'we are prototyping here. Architecture matters but can be simplistic, UI is barebones', 123: 'Flue is the agent, now', 124: 'The panel is the primary input — commentary and pointer', 125: 'Read mode when the panel is closed', 126: 'The panel and the mirror are two channels to the same functionality',
   127: 'You can stub the AI responses', 128: 'all the AI functions are cleanly separated so that we can improve their prompts, what context they need', 129: 'track the efficacy of whatever these AI functions are', 130: 'makes sense. Doesn\'t make sense. Bad question', 131: 'additional columns on the response that it comes from that lets us know', 132: 'we should mainly be documenting and architecting', 133: 'missing a sort of architecture diagram on the various levels. Use vue flow', 134: 'the channels through which molecules or whatever enter the cell or exit the molecules here are payloads', 135: 'We see dedicated boxes for domain entities', 136: 'there\'s a unique circuit that loops through the inside of the cell', 137: 'the domain entities are touched by various circuits', 138: 'we also have the actual data model layer hidden at the back', 139: 'the various infrastructure deployables, such as the cache, if any, or multiple services, if any, all connecting starting from the user\'s client device', 140: 'all of these architecture diagrams should also represent information flow', 141: 'the flows from the other space of the overview should correspond to flows here so that if I wanna see one flow in particular, everything else is grayed out', 142: 'consolidate as much as possible so that things are represented from common sources of truth', 143: 'Declare once in kernel, render in-app + emit markdown', 144: 'In the browser, runtime-swappable',
   145: 'somtimes it will be edits instead of new nodes', 146: 'rules on the meta level of the relations between nodes as well as the nodes encoding rules', 147: 'Tests in a codebase test-suite sense are more for tying expectations of representation to reality', 148: 'Tests of the meta level being followed are also needed where agents surface questions and clarification requests to the user', 149: 'one test kind, result source varies', 150: 'Staleness on edit: transitive with early cutoff', 151: 'A condition is one line of the rule text', 152: 'After the suite is green the task needs a reviewer agent', 153: 'orchestrate sonnet and haiku agents to implement these',
+  154: 'especially classification tasks',
 };
 
 const SENTENCE_RE = /[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g;

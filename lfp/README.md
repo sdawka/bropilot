@@ -13,13 +13,13 @@ npm run build
 
 _Overwritten after every accomplishment; only the current state lives here._
 
-**Latest (2026-09-22, `v4`): v4.2 shipped — consolidation pass, contradictions, task lifecycle gate, reviewer precheck.** Violations sharing a subject (or an invariant across siblings) now raise ONE parent question that covers them all, with the per-violation children hidden until the parent is answered; `consolidate-questions` rewrites the parent into one sentence; `find-contradictions` raises `contradiction`-sourced questions; a task marked done without a reviewer verdict is itself a violation; `run_review` prechecks the diff scope, picks the reviewer tier from it, and records the verdict into `reality.json`. Build, `smoke`, `smoke:mirror` green with zero console errors.
+**Latest (2026-09-27, `v4`): v4.3 shipped — System One (TypeSafe Jev) decides the classifications, code keeps the strings.** Routing of free text, node-by-title, duplicate and contradiction detection, the stub review verdict, edit-vs-new, the reviewer tier, the pre-dispatch "is done measurable?" gate and observe-time condition↔test matching all ask Jev first (typed choice / score / noul with confidence) and fall back to exactly the old code below a per-decision threshold. The key lives on the agent server; the browser ships typed questions over the bus. `docs/AGENT-RUNTIME.md` §9 has the rule and the seam. Build, `smoke` (with `FAKE_S1=1`), `smoke:mirror` green.
 
 Todos for you:
-1. Put `OPENROUTER_API_KEY=...` in `lfp/.env`, run `npm run agent`, switch Reference → runtime to `flue`, and try one Talk turn — the live model path has never run (no key on this machine).
-2. Check the model slugs in `TIER_MODELS` (`src/agents.ts`) against your OpenRouter account.
-3. Try the consolidation flow by hand: `#kernel` → Open items; pick a tier-3 item tagged "answers N gaps", press "Ask as one question", answer it, and confirm the children close.
-4. The browser ignores the `reality` bus message the server publishes after a verdict; reload to see a new verdict in Reference → Verdicts. Say if you want it live.
+1. Put `TYPESAFE_API_KEY=...` in `lfp/.env`, run `npm run agent` and confirm it prints `system1: live`; then `npm run dev`, tick **system1** on Reference and try `contradictions` plus one free-text turn (e.g. "what is still missing here") — the Reference call table should show `system1` runtime, a confidence and `jev-1.13.0`.
+2. Run `npm run observe` once with the key and look at `reality.json.matches` / the Reference `ref-decisions` table; that is the calibration signal for the thresholds in `src/ai/decisionConfig.ts`.
+3. Jev is early access: if `@typesafe-ai/sdk` reshapes its request or answers, only `agent/system1.ts` should need to change.
+4. Still open from v4.2: `OPENROUTER_API_KEY` for the live Flue path and the `TIER_MODELS` slugs in `src/agents.ts`.
 
 ## What Bropilot v4 is (the brief, condensed)
 A **business requirements orchestrator**. A user answers a structured series of questions; each answer stages downstream effects on a representation graph; the user reviews and **commits**; an agentic team (Flue later; implementation detail) makes the committed things happen in reality. The graph is the **representation layer** (problem, hypothesis, solution spaces). The coded, deployed, used system is the **reality layer** (stubbed for now; shape planned). Bropilot must be describable in Bropilot.
@@ -57,7 +57,7 @@ Browser edits (answers, commits) live in `localStorage` (`bropilot:lfp:v1`). "Co
 - Directors speak the Cue protocol in `src/director.ts` (now including `revalidate` and `raise`). `src/directors/scripted.ts` has the tours (used until an agent connects); `src/directors/remote.ts` forwards user turns to whichever agent said hello.
 
 ### Running with the agent
-- `npm run agent` starts `agent/server.mjs`: a LAN relay on `:5200` (same as the old `relay.mjs`), plus — when `ANTHROPIC_API_KEY` is set — a Flue "Talk" session that drives the screen through the Cue protocol (`agent/talk.ts`, `agent/tools.ts`, one tool per Cue). Put the key in a gitignored `.env` at the project root (`ANTHROPIC_API_KEY=sk-ant-...`), or export it in the shell.
+- `npm run agent` starts `agent/server.mjs`: a LAN relay on `:5200` (same as the old `relay.mjs`), plus — when `OPENROUTER_API_KEY` is set — a Flue "Talk" session that drives the screen through the Cue protocol (`agent/agents/talk.ts`, `agent/agents/tools.ts`, one tool per Cue). Put the key in a gitignored `lfp/.env` (`OPENROUTER_API_KEY=sk-or-...`), or export it in the shell. `TYPESAFE_API_KEY` in the same file switches on System One (§9 of the runtime doc); `FAKE_AI=1` / `FAKE_S1=1` fake either without a key.
 - On the main screen, click **📡 relay…** and enter `localhost` (or the LAN IP printed by `npm run agent`, for the phone mirror), then reload. Without a key, `npm run agent` behaves exactly like a plain relay — the ScriptedDirector keeps driving tours; with a key, the first `hello` from the agent switches the main screen to `RemoteDirector` and every turn goes to Flue.
 - Also start `npm run dev` (or `npm run dev:lan` for the phone) so there is a main screen for the agent's cues to land on — the agent has no effect if no main screen tab is open.
 

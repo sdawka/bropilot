@@ -287,3 +287,21 @@ Look for two statements that disagree: (a) two nodes of the same kind that appea
 ```
 
 **Output:** One raise cue per contradiction found (or a single "no contradictions" say cue).
+
+### route-utterance
+
+**Purpose:** Routes free text that matched no Talk command to the registry function that should handle it (v4.3, System One).
+
+**Context needs:** screen, next
+
+**Prompt:**
+
+```
+The user typed (it matched none of the exact Talk commands): {{input}}
+Context:
+{{context}}
+
+Pick exactly one function to handle it: describe-screen (names what is on screen or explains a node), next-decision (what to do next), propose-followup (a sub-question), find-gaps (what is missing), consolidate-questions (fold the open gaps into one question), find-contradictions (what disagrees), review-change (judge a task), raise-question (a question for the user). When unsure, describe-screen.
+```
+
+**Output:** One registry function id; the router dispatches it with the original text.

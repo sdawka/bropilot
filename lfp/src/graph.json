@@ -3765,6 +3765,22 @@
         "kind": "inferred",
         "reason": "v4.2 plan: contradiction-detection wasn't named in a brief statement; grouped under the same \"consolidate to common sources of truth\" intent as consolidate-questions (S142)."
       }
+    },
+    {
+      "id": "external-typesafe",
+      "kind": "external",
+      "title": "TypeSafe API (Jev, System One)",
+      "status": "committed",
+      "source": {
+        "kind": "said",
+        "statements": [
+          154
+        ]
+      },
+      "description": "Typed classification answers (choice / score / noul) with calibrated confidence. Every decision-bearing AI function asks it first; below threshold the pre-v4.3 code answers.",
+      "props": {
+        "codeRef": "https://github.com/sdawka/bropilot/blob/v4/lfp/agent/system1.ts"
+      }
     }
   ],
   "edges": [
@@ -6454,6 +6470,13 @@
       "src": "module-director",
       "dst": "ai-function-find-contradictions",
       "type": "contains",
+      "status": "committed"
+    },
+    {
+      "id": "e444",
+      "src": "infra-agent-server",
+      "dst": "external-typesafe",
+      "type": "uses",
       "status": "committed"
     }
   ]
