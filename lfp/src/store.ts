@@ -2,9 +2,9 @@ import { reactive, computed } from 'vue';
 import seed from './graph.json';
 import reality from './reality.json';
 import { QUESTIONS, kindById, edgeTypeById, SPACES } from './kernel';
-import { checkInvariants, contentHash } from './checks.ts';
+import { checkInvariants, contentHash, repairOf, actOf, type Repair } from './checks.ts';
 import { groupViolations } from './consolidate.ts';
-import { LINKS, endpoints } from './ai/links.ts';
+import { endpoints, linkRulesFor } from './ai/links.ts';
 import type { Node, Graph, ScreenItem, Answer, AICall, Effect, Changeset, Commit, FollowUp, OpenItem, ViolationGroup } from './types';
 
 export type { Status, Node, Edge, Graph, ScreenItem, Answer, AICall, Effect, Changeset, Commit, FollowUp, Violation, OpenItem, ViolationGroup } from './types';
@@ -222,52 +222,143 @@ export function addFollowUp(parentId: string, prompt: string, kind: FollowUp['ki
   const f: FollowUp = { id: `f-${Date.now()}`, parentId, prompt, kind, produces: produces ?? root?.produces ?? 'context', answerIds: [], createdAt: Date.now() };
   state.followups.push(f); persist(); return f;
 }
-/** The orphan nodes a violation-raised follow-up is about: its own `orphans:<nodeId>` violation
- * and, for a consolidated parent, every covered one. */
-function orphanNodesOf(f: FollowUp): Node[] {
-  const vids = [...(f.raisedBy?.kind === 'violation' ? [f.raisedBy.ref] : []), ...(f.covers ?? [])];
-  const ids = [...new Set(vids.filter((v) => v.startsWith('orphans:')).map((v) => v.slice('orphans:'.length)))];
-  return ids.map(nodeById).filter((n): n is Node => !!n);
+/** The kernel checks as the store sees them: reality's System One matches, and the template
+ * questions answered so far (a need waits for the question that produces its kind). */
+function currentViolations() {
+  return checkInvariants(state.graph, { matches: (reality as RealityFile).matches ?? {} }, { answered: state.answers.map((a) => a.questionId) });
 }
 
-/** Orphan repair answered in code (checks.ts's orphans options): "Leave as a stub" defers; "Remove
- * it" stages a remove-node per orphan; candidate titles (case-insensitive, several via " / ") stage
- * the LINKS edge from every covered orphan whose rule targets that title's kind — the same edge
- * shape link-answer proposes. `null` = not an orphan follow-up or nothing matched: stage as before. */
-function orphanRepair(f: FollowUp, content: string, answerId: string): Changeset | 'defer' | null {
-  const orphans = orphanNodesOf(f);
-  if (!orphans.length) return null;
-  const said = content.trim().toLowerCase();
-  if (said === 'leave as a stub') return 'defer';
-  if (said === 'remove it') return { effects: orphans.map((n, i): Effect => ({ id: `ef-${i}`, op: 'remove-node', nodeId: n.id, answerId })), warnings: [] };
+/** The repairs of the violations a violation-raised follow-up is about: its own violation and,
+ * for a consolidated parent, every covered one (checks.ts::repairOf). */
+function repairsOf(f: FollowUp): Repair[] {
+  const vids = new Set([...(f.raisedBy?.kind === 'violation' ? [f.raisedBy.ref] : []), ...(f.covers ?? [])]);
+  return currentViolations().filter((v) => vids.has(v.id)).map((v) => repairOf(v, state.graph)).filter((r): r is Repair => !!r);
+}
+
+/** Need repair (v4.4), answered in code for every violation-raised follow-up (orphans, needs, a
+ * rule condition's test …); the option semantics live in checks.ts::OPTION_ACTS:
+ * - `defer` (Leave as a stub, Mark as intentionally absent for now, Defer …) → 'defer';
+ * - `remove` (Remove it, Remove the test, Retire the protocol) → a remove-node per subject;
+ * - `link`/`add` on the bare label, or titles that match nothing and may not add → a hint:
+ *   nothing answered, nothing staged, the user names the node instead;
+ * - a repair label with no act (Revalidate, Accept without review …) → recorded, nothing staged;
+ * - otherwise each item (splitItems) that is an existing title of a needed kind (any case) stages
+ *   the need's edge from every subject whose rule targets that kind; an item matching no title adds
+ *   a node of the needed kind AND its edge(s) in the same changeset, when the repair may add (a need
+ *   may, an orphan only links). A node is never staged alone.
+ * `null`: not a violation-raised follow-up — stage as a normal answer (stageFor). */
+function needRepair(f: FollowUp, content: string, answerId: string): Changeset | 'defer' | 'noted' | { hint: string } | null {
+  if (f.raisedBy?.kind === 'link') return linkRepair(f, content, answerId);
+  if (f.raisedBy?.kind !== 'violation') return null;
+  const act = actOf(content);
+  if (act === 'defer') return 'defer';
+  if (act === 'noted') return 'noted';
+  const repairs = repairsOf(f);
+  if (act === 'remove') {
+    const ids = [...new Set(repairs.length ? repairs.map((r) => r.subject) : (f.subjects ?? []).filter((id) => nodeById(id)))];
+    return { effects: ids.map((id, i): Effect => ({ id: `ef-${i}`, op: 'remove-node', nodeId: id, answerId })), warnings: [] };
+  }
+  const need = repairs.flatMap((r) => r.rules.map((rule) => rule.target))[0];
+  const hint = `Name the ${need ? kindById[need]?.label.toLowerCase() ?? need : 'node'}: pick one of the titles${repairs.some((r) => r.add) ? ', or type a new one to add it linked' : ''}.`;
+  if (act === 'link' || act === 'add') return { hint };
+  if (!repairs.length) return 'noted';
+  return stageLinks(repairs, content, answerId, hint);
+}
+
+/** The staging half of need repair: each item naming an existing node of a repair's target kind
+ * (restricted to `pool` when given) stages the rule's edge from each subject; a new title adds a
+ * node when a repair may add. Shared by violation and link follow-ups. */
+function stageLinks(repairs: Repair[], content: string, answerId: string, hint: string, pool?: Node[]): Changeset | { hint: string } {
   const key = (src: string, type: string, dst: string) => `${src}|${type}|${dst}`;
   const have = new Set(state.graph.edges.map((e) => key(e.src, e.type, e.dst)));
+  const taken = new Set(state.graph.nodes.map((n) => n.id));
   const effects: Effect[] = []; const warnings: string[] = [];
-  let matched = false;
-  for (const item of splitItems(content)) {
-    const hits = state.graph.nodes.filter((c) => c.title.toLowerCase() === item.toLowerCase() && orphans.some((n) => LINKS[n.kind]?.target === c.kind));
-    if (!hits.length) { warnings.push(`"${item}" matches no candidate; skipped.`); continue; }
-    matched = true;
-    for (const c of hits) for (const n of orphans) {
-      const rule = LINKS[n.kind];
-      if (!rule || rule.target !== c.kind || c.id === n.id) continue;
-      const { src, dst } = endpoints(rule, n.id, c.id);
+  const link = (r: Repair, targetId: string, targetKind: string) => {
+    for (const rule of r.rules) {
+      if (rule.target !== targetKind || targetId === r.subject) continue;
+      const { src, dst } = endpoints(rule, r.subject, targetId);
       if (have.has(key(src, rule.edge, dst))) continue;
       have.add(key(src, rule.edge, dst));
       effects.push({ id: `ef-${effects.length}`, op: 'add-edge', edge: { id: `e-${src}-${rule.edge}-${dst}`, src, dst, type: rule.edge, status: 'draft', answerId }, answerId });
     }
+  };
+  const targets = new Set(repairs.flatMap((r) => r.rules.map((rule) => rule.target)));
+  for (const item of splitItems(content)) {
+    const hits = (pool ?? state.graph.nodes).filter((c) => targets.has(c.kind) && c.title.toLowerCase() === item.toLowerCase());
+    if (hits.length) { for (const c of hits) for (const r of repairs) link(r, c.id, c.kind); continue; }
+    const adders = repairs.filter((r) => r.add && r.rules.length);
+    if (!adders.length) { warnings.push(`"${item}" matches no candidate; skipped.`); continue; }
+    const kind = adders[0].rules[0].target;
+    const props = adders.length === 1 ? adders[0].props : undefined;
+    const node: Node = { id: uniqueId(`${kind}-${kebab(item)}`, taken), kind, title: item, status: 'draft', answerId, ...(props ? { props } : {}) };
+    effects.push({ id: `ef-${effects.length}`, op: 'add-node', node, answerId });
+    for (const r of adders) link(r, node.id, kind);
   }
-  if (!matched) return null;
-  if (!effects.length) warnings.push('Nothing to stage.');
+  if (!effects.length) return warnings.length ? { hint: `${warnings.join(' ')} ${hint}` } : { effects, warnings: ['Nothing to stage: already linked.'] };
   return { effects, warnings };
+}
+
+// ── link follow-ups (v4.5): link-answer's uncertain pairs, asked ────────────────────────────────
+// link-answer (ai/functions/link-answer.ts) leaves a pair uncertain when Jev is unsure (or the stub
+// sees 2+ candidates). Each uncertain node gets ONE follow-up `f-link-<nodeId>` (raisedBy 'link'),
+// raised once the node is committed: 'Does "<title>" relate to any of these?', options = the
+// uncertain candidates' titles + "None of these". One pick answers it (the simpler of the two
+// designs — options are single clicks, no multi-select): a title stages that edge through the need
+// repair path; typing several titles separated by " / " stages each; "None of these" (or "Done")
+// answers it with nothing staged. subjects = [node, ...candidates]. Dropped (unanswered) when the
+// node is removed, gets an edge to one of the candidates, or no candidate is left (syncRaised).
+export const LINK_NONE = 'None of these';
+/** answerId → nodeId → uncertain candidate ids, for nodes still in the staged changeset. */
+const pendingLinks = new Map<string, Record<string, string[]>>();
+const linkedTo = (a: string, b: string) => state.graph.edges.some((e) => (e.src === a && e.dst === b) || (e.src === b && e.dst === a));
+const linkCandidates = (f: FollowUp) => (f.subjects ?? []).slice(1).map(nodeById).filter((c): c is Node => !!c);
+
+function raiseLink(nodeId: string, candidateIds: string[]) {
+  const node = nodeById(nodeId);
+  const id = `f-link-${nodeId}`;
+  if (!node || state.followups.some((f) => f.id === id)) return;
+  const cands = candidateIds.map(nodeById).filter((c): c is Node => !!c);
+  if (!cands.length || cands.some((c) => linkedTo(nodeId, c.id))) return; // already answered by an edge
+  state.followups.push({
+    id, parentId: parentFor([nodeId]), kind: 'thread', produces: cands[0].kind, answerIds: [], createdAt: Date.now(),
+    prompt: `Does "${node.title}" relate to any of these? Pick the one that applies.`,
+    raisedBy: { kind: 'link', ref: nodeId }, subjects: [nodeId, ...cands.map((c) => c.id)],
+    options: [...new Set(cands.map((c) => c.title)), LINK_NONE],
+  });
+}
+
+/** link-answer's `uncertain`, handed over from its toCues: a committed node is asked now (the user
+ * committed before Jev answered); a staged one waits for commit(). */
+export function noteUncertain(answerId: string, uncertain: Record<string, string[]>) {
+  const later: Record<string, string[]> = {};
+  for (const [nodeId, cands] of Object.entries(uncertain)) {
+    if (!cands.length) continue;
+    if (nodeById(nodeId)?.status === 'committed') raiseLink(nodeId, cands); else later[nodeId] = cands;
+  }
+  if (Object.keys(later).length) pendingLinks.set(answerId, { ...pendingLinks.get(answerId), ...later });
+  persist();
+}
+
+function linkRepair(f: FollowUp, content: string, answerId: string): Changeset | 'defer' | 'noted' | { hint: string } {
+  const said = content.trim().toLowerCase();
+  if (said === LINK_NONE.toLowerCase() || said === 'done') return 'noted';
+  if (actOf(content) === 'defer') return 'defer';
+  const node = nodeById(f.raisedBy!.ref);
+  const pool = linkCandidates(f);
+  if (!node || !pool.length) return 'noted';
+  const kinds = new Set(pool.map((c) => c.kind));
+  const repair: Repair = { subject: node.id, rules: linkRulesFor(node.kind).filter((r) => kinds.has(r.target)), add: false };
+  return stageLinks([repair], content, answerId, `Pick one of the titles, or "${LINK_NONE}".`, pool);
 }
 
 export function answerFollowUp(followUpId: string, content: string) {
   const f = state.followups.find((f) => f.id === followUpId)!;
   const a: Answer = { id: `a-${Date.now()}`, questionId: followUpId, content, at: Date.now() };
-  const repair = orphanRepair(f, content, a.id);
-  // "Leave as a stub" is the Now strip's Skip: deferred, nothing answered, nothing staged
+  const repair = needRepair(f, content, a.id);
+  // a deferral is the Now strip's Skip: deferred, nothing answered, nothing staged
   if (repair === 'defer') { f.deferred = true; persist(); return; }
+  // a bare "Add one"/"Link …" or a title that matches nothing: nothing answered, say what to type
+  if (typeof repair === 'object' && repair && 'hint' in repair) { state.staged = { effects: [], warnings: [repair.hint] }; persist(); return; }
   state.answers.push(a); f.answerIds.push(a.id);
   // a consolidated follow-up's answer also answers every violation it covers (child follow-ups
   // created by syncRaised() as `f-<violationId>`) so tier 3 doesn't re-surface them individually.
@@ -275,7 +366,7 @@ export function answerFollowUp(followUpId: string, content: string) {
     const child = state.followups.find((c) => c.id === `f-${vid}`);
     if (child && !child.answerIds.includes(a.id)) child.answerIds.push(a.id);
   }
-  state.staged = repair ?? stageFor(f.produces, content, a.id);
+  state.staged = repair === 'noted' ? null : repair ?? stageFor(f.produces, content, a.id);
   persist();
 }
 /** Replace a follow-up's prompt (and, if given, its options) — used by the `refine` cue after
@@ -360,12 +451,17 @@ function parentFor(subjects: string[]): string {
  * group's membership changes. An answered follow-up (`answerIds.length > 0`) always stays.
  * Call after hydrate/commit/directCommit/undo/revalidate. */
 export function syncRaised() {
-  const violations = checkInvariants(state.graph, { matches: (reality as RealityFile).matches ?? {} }).filter((v) => v.raise === 'question');
+  const violations = currentViolations().filter((v) => v.raise === 'question');
   const groups = groupViolations(violations, state.graph);
   const groupById = new Map<string, ViolationGroup>(groups.map((g) => [g.id, g]));
   const violationIds = new Set(violations.map((v) => v.id));
 
   state.followups = state.followups.filter((f) => {
+    if (f.raisedBy?.kind === 'link') {
+      if (f.answerIds.length > 0) return true;
+      const cands = linkCandidates(f);
+      return !!nodeById(f.raisedBy.ref) && cands.length > 0 && !cands.some((c) => linkedTo(f.raisedBy!.ref, c.id));
+    }
     if (f.raisedBy?.kind !== 'violation') return true;
     if (f.answerIds.length > 0) return true;
     const ref = f.raisedBy.ref;
@@ -429,7 +525,10 @@ export function syncRaised() {
 
 /** Everything open, ranked into four tiers: (1) agent questions blocking a task, (2) the next
  * template question, (3) violation-raised follow-ups (by the first subject's space, then
- * invariant order), (4) the rest — thread follow-ups with no answer yet. */
+ * invariant order), (4) the rest — thread follow-ups with no answer yet. Exception (v4.4): a
+ * violation follow-up about a node the latest answer committed ranks right after tier 1, ahead of
+ * the next template question, so a new bet's link question comes before the next question. Link
+ * follow-ups (v4.5) about such a node come right after those (tier 3); older ones are tier 4. */
 export function rankOpen(): OpenItem[] {
   const items: OpenItem[] = [];
 
@@ -440,9 +539,10 @@ export function rankOpen(): OpenItem[] {
   }
 
   const nq = nextQuestion.value;
+  const templateAt = items.length;
   if (nq) items.push({ id: nq.id, prompt: nq.prompt, produces: nq.produces, source: 'template', subjects: [], tier: 2 });
 
-  const violations = checkInvariants(state.graph, { matches: (reality as RealityFile).matches ?? {} });
+  const violations = currentViolations();
   const groups = groupViolations(violations.filter((v) => v.raise === 'question'), state.graph);
   const violationIndex = new Map(violations.map((v, i) => [v.id, i]));
   const violationsById = new Map(violations.map((v) => [v.id, v]));
@@ -467,12 +567,28 @@ export function rankOpen(): OpenItem[] {
       options: f.options ?? (f.raisedBy ? (groupById.get(f.raisedBy.ref)?.options ?? violationsById.get(f.raisedBy.ref)?.options) : undefined),
       covers: f.covers?.length,
     }));
-  items.push(...tier3);
+  const latest = state.answers.at(-1)?.id;
+  const fresh = new Set(latest ? state.graph.nodes.filter((n) => n.answerId === latest && n.status === 'committed').map((n) => n.id) : []);
+  const isFresh = (i: OpenItem) => i.subjects.some((id) => fresh.has(id));
+  // link follow-ups (v4.5): right after the template question while their node is from the latest
+  // committed answer, else tier 4. Hidden while the node's orphans follow-up is open (that one
+  // already offers the candidate titles; asking both would ask the same thing twice).
+  const orphanAsked = (nodeId: string) => state.followups.some((o) => o.raisedBy?.kind === 'violation' && o.answerIds.length === 0 && !o.deferred
+    && (o.raisedBy.ref === `orphans:${nodeId}` || (o.covers ?? []).includes(`orphans:${nodeId}`)));
+  const links = state.followups
+    .filter((f) => f.raisedBy?.kind === 'link' && f.answerIds.length === 0 && !f.deferred && !orphanAsked(f.raisedBy.ref))
+    .map((f) => ({ id: f.id, prompt: f.prompt, produces: f.produces, source: 'link' as const, subjects: f.subjects ?? [], options: f.options, fresh: fresh.has(f.raisedBy!.ref) }));
+  const asItem = ({ fresh: isNew, ...i }: (typeof links)[number]): OpenItem => ({ ...i, tier: isNew ? 3 : 4 });
+  items.splice(templateAt, 0, ...tier3.filter(isFresh));
+  // fresh link questions come right AFTER the template question: live session 9 (2026-09-28) put
+  // three of them ahead of it and the chain never moved past q-context.
+  items.push(...links.filter((l) => l.fresh).map(asItem));
+  items.push(...tier3.filter((i) => !isFresh(i)));
 
   const tier4 = state.followups
-    .filter((f) => f.answerIds.length === 0 && !f.deferred && f.raisedBy?.kind !== 'agent' && f.raisedBy?.kind !== 'violation')
+    .filter((f) => f.answerIds.length === 0 && !f.deferred && f.raisedBy?.kind !== 'agent' && f.raisedBy?.kind !== 'violation' && f.raisedBy?.kind !== 'link')
     .map((f) => ({ id: f.id, prompt: f.prompt, produces: f.produces, source: (f.raisedBy?.kind ?? 'template') as OpenItem['source'], subjects: f.subjects ?? [], tier: 4 as const }));
-  items.push(...tier4);
+  items.push(...tier4, ...links.filter((l) => !l.fresh).map(asItem));
 
   return items;
 }
@@ -500,7 +616,7 @@ export function upsertTerm(title: string, description: string, id?: string) {
 }
 export function removeNodeDirect(id: string) { directCommit([{ id: 'ef-0', op: 'remove-node', nodeId: id, answerId: 'direct' }], `remove ${id}`); }
 
-export function discardStaged() { state.staged = null; persist(); }
+export function discardStaged() { state.staged = null; pendingLinks.clear(); persist(); }
 
 /** One-line human description of a staged effect (moved here from Definition.vue so the Talk panel/Context can use it too). */
 export function describe(e: Effect): string {
@@ -529,6 +645,8 @@ export function commit(acceptedIds: Set<string>) {
   }
   state.commits.push({ id: `c-${Date.now()}`, at: Date.now(), effects: accepted, before });
   state.staged = null;
+  for (const e of accepted) if (e.op === 'add-node') { const c = pendingLinks.get(e.answerId)?.[e.node.id]; if (c) raiseLink(e.node.id, c); }
+  pendingLinks.clear();
   syncRaised();
   persist();
   return { applied: accepted.length, skipped };

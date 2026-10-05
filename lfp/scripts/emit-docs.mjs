@@ -426,8 +426,18 @@ Rules:
   \`context.gaps\` item, and say why.
 - Keep utterances to two sentences or fewer.
 - Quote the user's own words when staging a title or description.
-- Call \`read_graph\` before claiming anything that is not already visible in \`context.screen\` —
-  do not guess at graph contents.`;
+- Call \`read_graph\` before claiming anything that is not already visible in \`context.screen\` or
+  in the latest \`graph\` signal — do not guess at graph contents.
+- Advice ends in action. When you recommend a change (a rename, a new assumption, a missing edge, a
+  removal), stage it in the same turn — \`stage\`, or \`answer\` when it answers \`context.next\` —
+  and say what you staged. Never leave a recommendation only in words; the user approves or
+  discards it with one click. Still one utterance: stage, then \`say\` (or \`ask\`) once.
+- A message that starts \`[Critique point after …]\` is not from the user: the app sends it after the
+  founder commits a key answer. Read the latest \`graph\` signal, name the single weakest link in the
+  design in three sentences or fewer, and \`stage\` the one change that fixes it before your one
+  \`say\`. A critique that recommends a change without staging it is incomplete. If nothing is weak,
+  say so in one sentence and stage nothing. Use only \`point\`, \`stage\` and \`say\` there.
+- \`ask\` ends your turn. Make every other call (stage, point, navigate) before it or in the same batch.`;
 
 function agentPromptMd() {
   const out = [

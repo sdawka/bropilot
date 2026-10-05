@@ -6,10 +6,10 @@
 
 | Type | From | To | Hint |
 | --- | --- | --- | --- |
-| motivates | purpose | outcome | Is the reason the target exists (purpose → outcome). |
+| motivates | problem, purpose | outcome | Is the reason the target exists (purpose → outcome, problem → outcome). |
 | serves | capability, feature | audience, goal, outcome | Delivers value to an audience. |
 | satisfies | capability, feature | problem, usecase | Meets a problem-space statement. |
-| has | audience, capability, feature, problem | agent, context, flow, problem, usecase | Conceptual possession (audience has problem). |
+| has | audience, capability, feature, problem, usecase | agent, context, flow, problem, usecase | Conceptual possession (audience has problem, use case has problem). |
 | implements | agent, flow, screen | capability, feature, task | Realises a solution-space spec. |
 | contains | codebase, epic, module, repository, system | ai-function, asset, codebase, event, infra, module, protocol, rule, task, test, thing | Composition (screen contains component). |
 | exposes | module | interface, screen | Module exposes an interface. |
@@ -28,7 +28,6 @@
 | monitors | metric | outcome | Metric watches an outcome. |
 | supports | evidence | hypothesis | Evidence supports a hypothesis. STUB. |
 | refutes | evidence | hypothesis | Evidence refutes a hypothesis. STUB. |
-| in-stage | any | any | Tags any node with a lifecycle stage. |
 | carries | interface | thing | Interface carries a payload that is or derives from this thing ("molecules" entering/leaving through the interface's in/out). |
 | hosts | infra | module | Deployable (infra) hosts a module, at the deployment level. Additional to `contains` (module → infra), which the Modules grid still reads — do not repurpose that one. |
 

@@ -60,6 +60,9 @@ export interface AICall {
   confidence?: number;
   /** Why a System One decision was not used and the stub answered instead. */
   fallback?: 'low-confidence' | 'timeout' | 'error' | 'nothing-to-ask';
+  /** System One round trips spent (v4.5): 1 for a fan-out that carried every chained level. */
+  levels?: number;
+  fanout?: boolean;
 }
 
 export type Effect =
@@ -83,7 +86,7 @@ export interface FollowUp {
   answerIds: string[];
   createdAt: number;
   /** Where this follow-up came from, when it wasn't hand-added under a question in the tree. */
-  raisedBy?: { kind: 'template' | 'violation' | 'agent' | 'contradiction'; ref: string };
+  raisedBy?: { kind: 'template' | 'violation' | 'agent' | 'contradiction' | 'link'; ref: string };
   subjects?: string[]; // node ids the follow-up is about (mirrors Violation.subjects)
   deferred?: boolean;
   /** Violation ids this consolidated (parent) follow-up answers; set only on `by !== 'single'`
@@ -113,7 +116,7 @@ export interface OpenItem {
   id: string;
   prompt: string;
   produces: string;
-  source: 'template' | 'violation' | 'agent' | 'contradiction';
+  source: 'template' | 'violation' | 'agent' | 'contradiction' | 'link';
   subjects: string[];
   tier: 1 | 2 | 3 | 4;
   options?: string[];

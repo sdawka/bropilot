@@ -2,11 +2,12 @@
 // the Cue tools, the observer and planner as delegates, and two tools that run the builder and
 // reviewer as their own conversations (they need their own sandbox and budget, which delegates
 // cannot have). The clarifier is not an agent: it is the paragraph below about raise_question.
-import { useSubagent, defineTool, init } from '@flue/runtime';
+import { useSubagent, defineTool, init, useAgentStart, useAgentFinish, usePersistentState } from '@flue/runtime';
 import * as v from 'valibot';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { createHash } from 'node:crypto';
 import { agentById } from '../../src/agents.ts';
 import { applySpec, asSubagent, tierOverrideEnvKey } from './from-spec.ts';
 import { diffChangedFiles } from './tools.ts';
@@ -44,12 +45,56 @@ function writeVerdict(taskId: string, record: { verdict: string; reasons: string
   writeFileSync(path, JSON.stringify(reality, null, 2));
 }
 
-// Set by server.mjs at dispatch time (latest snapshot + context), never mid-response: a changed
-// instruction document makes Flue signal "System instructions updated" and the model answers it.
-let kernelDigest = '(no kernel snapshot yet — the main screen has not connected)';
-let screenLine = '(no context yet — waiting for the main screen)';
-export function setKernelDigest(text: string) { kernelDigest = text; }
-export function setScreenLine(text: string) { screenLine = text; }
+// What changes between turns never goes into the instructions. Any byte that moves in the system
+// prompt invalidates the provider's prompt cache for the whole history behind it (pi-ai puts one
+// Anthropic cache_control breakpoint on the system prompt, one on the last tool, one on the last
+// message), and Flue answers a changed instruction digest with a "System instructions updated"
+// signal the model replies to. So server.mjs hands the per-turn facts here right before dispatch,
+// and `useAgentStart` below appends them to the conversation as signals:
+//   screen — every turn: the catch-up note (controls the user applied) + the screen line;
+//   kernel — only when the kernel digest's hash differs from the last one this conversation saw;
+//   graph  — only when the committed graph's digest hash differs (titles by kind + edges).
+// The last-seen hashes live in usePersistentState, so they survive a server restart and a new
+// session conversation starts from nothing (and gets both).
+export interface TurnSignals { screen: string; kernel?: string; graph?: string; turn: number }
+let turnSignals: TurnSignals = { screen: '(no context yet — waiting for the main screen)', turn: 0 };
+export function setTurnSignals(next: Omit<TurnSignals, 'turn'>) { turnSignals = { ...next, turn: turnSignals.turn + 1 }; }
+
+const hash8 = (text: string) => createHash('sha1').update(text).digest('hex').slice(0, 8);
+
+const clipTitle = (t: string, n = 60) => { const s = String(t ?? '').replace(/\s+/g, ' ').trim(); return s.length > n ? `${s.slice(0, n - 1)}…` : s; };
+
+/** A compact committed-graph digest, capped at `maxLines`: one line per kind (`kind (n): Title
+ * [id]; …`, at most 8 per kind), then edges as `A —type→ B` by title. What does not fit is counted
+ * on the last line, so the model knows to call read_graph for the rest. */
+export function graphDigest(graph: { nodes: { id: string; kind: string; title: string }[]; edges: { src: string; dst: string; type: string }[] } | null | undefined, maxLines = 60): string {
+  if (!graph || !graph.nodes?.length) return '(empty graph)';
+  const byKind = new Map<string, { id: string; title: string }[]>();
+  for (const n of graph.nodes) {
+    if (!byKind.has(n.kind)) byKind.set(n.kind, []);
+    byKind.get(n.kind)!.push(n);
+  }
+  const PER_KIND = 8;
+  const lines: string[] = [`${graph.nodes.length} nodes, ${graph.edges.length} edges.`];
+  let hiddenKinds = 0;
+  for (const [kind, nodes] of byKind) {
+    if (lines.length >= Math.floor(maxLines * 0.6)) { hiddenKinds++; continue; }
+    const shown = nodes.slice(0, PER_KIND).map((n) => `${clipTitle(n.title, 50)} [${n.id}]`).join('; ');
+    lines.push(`${kind} (${nodes.length}): ${shown}${nodes.length > PER_KIND ? `; +${nodes.length - PER_KIND} more` : ''}`);
+  }
+  if (hiddenKinds) lines.push(`+${hiddenKinds} more kinds (read_graph by kind)`);
+  const title = new Map(graph.nodes.map((n) => [n.id, clipTitle(n.title, 40)]));
+  lines.push('Edges:');
+  const room = maxLines - lines.length - 1;
+  for (const e of graph.edges.slice(0, Math.max(0, room))) lines.push(`${title.get(e.src) ?? e.src} —${e.type}→ ${title.get(e.dst) ?? e.dst}`);
+  const hiddenEdges = graph.edges.length - Math.max(0, room);
+  if (hiddenEdges > 0) lines.push(`+${hiddenEdges} more edges (read_graph by id or title for the rest)`);
+  return lines.join('\n');
+}
+
+/** Tools that count as speaking to the user for the one-utterance contract (HEADER_RULES). */
+const SPEAKING_TOOLS = new Set(['say', 'ask', 'stage', 'answer', 'raise_question']);
+let nudgedTurn = -1; // the dispatch the contract signal was last appended for (at most once each)
 
 /** Run the builder on one work order in its own durable conversation (id = task id) and return its final text. */
 const dispatchTask = defineTool({
@@ -178,9 +223,42 @@ const runReview = defineTool({
 });
 
 export function Talk() {
-  const header = applySpec(agentById.talk, { extraTools: [dispatchTask, runReview] });
+  const header = applySpec(agentById.talk, { extraTools: [dispatchTask, runReview], compactionTier: 'cheap' });
   useSubagent(asSubagent(agentById.observer, Observer, 'Run the kernel checks and the test suite and summarise; use when the user asks what is failing or after a commit.'));
   useSubagent(asSubagent(agentById.planner, Planner, 'Turn the top open task-raising item into a staged epic and tasks; use when the user asks what to build next.'));
+
+  const [seen, setSeen] = usePersistentState<{ kernel?: string; graph?: string }>('signals:seen', {});
+  useAgentStart((ctx) => {
+    const { screen, kernel, graph } = turnSignals;
+    const next = { ...seen };
+    if (kernel) {
+      const h = hash8(kernel);
+      if (h !== seen.kernel) { ctx.append({ kind: 'signal', type: 'kernel', body: kernel, attributes: { hash: h } }); next.kernel = h; }
+    }
+    if (graph) {
+      const h = hash8(graph);
+      if (h !== seen.graph) { ctx.append({ kind: 'signal', type: 'graph', body: graph, attributes: { hash: h } }); next.graph = h; }
+    }
+    ctx.append({ kind: 'signal', type: 'screen', body: screen });
+    const sent = ['screen', next.kernel !== seen.kernel ? 'kernel' : '', next.graph !== seen.graph ? 'graph' : ''].filter(Boolean);
+    console.log(`[signals] ${sent.join(' + ')} (screen ${screen.length} chars${sent.includes('graph') ? `, graph ${graph!.length} chars` : ''})`);
+    if (next.kernel !== seen.kernel || next.graph !== seen.graph) setSeen(next);
+  });
+
+  // The contract, enforced once per dispatch: a response that is about to settle without saying,
+  // asking or staging anything gets one `contract` signal and another turn. server.mjs keeps its
+  // text/delegate fallbacks as the second line (a model that ignores this still reaches the screen).
+  useAgentFinish((ctx) => {
+    if (ctx.response.toolCalls.some((c) => !c.isError && SPEAKING_TOOLS.has(c.tool))) return;
+    if (nudgedTurn === turnSignals.turn) return;
+    nudgedTurn = turnSignals.turn;
+    ctx.append({
+      kind: 'signal',
+      type: 'contract',
+      body: 'You are about to end this response without calling say, ask or stage, so the user sees nothing. Call say now (or ask, or stage) with your answer in two sentences or fewer. Do not repeat tool calls you already made.',
+    });
+  });
+
   return `${header}
 
 ${PROMPT}
@@ -188,10 +266,11 @@ ${PROMPT}
 ## Clarification path (the "clarifier")
 When you, the builder, or the reviewer cannot derive a measurable done-criterion from a rule's lines and its tests, or a line admits several plausible readings, call raise_question: name the subject nodes, what is missing, and the readings considered. The task becomes blocked; when the user answers, resume it by calling dispatch_task again with the answer appended to the work order.
 
-## Kernel
-${kernelDigest}
-
-## Current screen
-${screenLine}`;
+## Signals: the screen, the kernel and the graph
+These instructions never change. What changes arrives in the conversation as signals right after each user message:
+- \`screen\` (every user message): what happened since your last turn (commits, discards, undos the user applied), then the current view, visible titles, the next open item, the staged changeset and any pending ask. This is the \`context\` the rules above refer to (\`context.screen\`, \`context.next\`, \`context.gaps\`). Your tool results carry the same context, fresher, after each call.
+- \`kernel\` (only when it changed): the kernel digest — the graph's kinds, edge rules and invariants.
+- \`graph\` (only when the committed graph changed): titles by kind with ids in brackets, and edges as \`A —type→ B\`. Use it before calling read_graph; call read_graph only for what the digest cut off or for a node's details.
+The most recent signal of each type is the truth; earlier ones are history.`;
 }
 Talk.agentName = 'Talk';

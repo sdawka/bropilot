@@ -20,7 +20,12 @@ export const S1_THRESHOLDS: Record<string, number> = {
   'condition-match': 0.85,
   'consolidate-pair': 0.75,
   'raise-parent': 0.65,
-  'link-answer': 0.6, // nouls per (node, audience) pair land at .61–.67 live (2026-09-28, three sessions); .7 sent every one to the stub
+  // link-answer gates per answer (v4.5): the single-target `choice` on its own confidence, each
+  // (new node, candidate) `noul` on |p−.5|·2. Separate keys: a noul threshold does not carry over
+  // to a choice (docs.typesafe.ai/model-jaggedness/jev-1.13). Live 2026-09-28: noul means .61–.67,
+  // single-target choices .36–.64.
+  'link-answer': 0.6,
+  'link-answer-pair': 0.55,
 };
 export const S1_DEFAULT_THRESHOLD = 0.7;
 export const thresholdFor = (id: string): number => S1_THRESHOLDS[id] ?? S1_DEFAULT_THRESHOLD;

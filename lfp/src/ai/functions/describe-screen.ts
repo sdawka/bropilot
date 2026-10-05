@@ -8,8 +8,9 @@ import { state, nodeById } from '../../store.ts';
 import { kindById, edgeTypeById, STATEMENTS } from '../../kernel.ts';
 import { contextFor } from '../../brief.ts';
 import { titleCandidates } from '../candidates.ts';
-import { nodeByTextRequest, nodeByTextNext, resolveNodeByText, pointableKinds } from '../ontology.ts';
+import { nodeByTextRequest, nodeByTextFanoutRequest, nodeByTextNext, resolveNodeByText, pointableKinds } from '../ontology.ts';
 import { thresholdFor } from '../decisionConfig.ts';
+import { withFanout } from '../system1.ts';
 import type { Cue, Context, View } from '../../director.ts';
 import type { AIFunctionImpl, DecisionSpec, S1Answers, S1Request } from '../types.ts';
 import type { Node } from '../../store.ts';
@@ -98,6 +99,13 @@ function questions(input: DescribeScreenIn): S1Request | null {
   if (!q || !pointableKinds(state.graph.nodes).length) return null; // empty graph: no kinds to choose from (Jev rejects an empty choice)
   return nodeByTextRequest(q, state.graph.nodes, titleCandidates(q, state.graph.nodes));
 }
+/** Fan-out: level 1 plus the node question for every pointable kind in one request — one round
+ * trip instead of two when it fits Jev's budget (withFanout, system1.ts). */
+function fanout(input: DescribeScreenIn): S1Request | null {
+  const q = input.text.trim();
+  if (!q || !pointableKinds(state.graph.nodes).length) return null;
+  return nodeByTextFanoutRequest(q, state.graph.nodes, titleCandidates(q, state.graph.nodes));
+}
 const next = (answers: S1Answers, input: DescribeScreenIn): S1Request | null => nodeByTextNext(input.text.trim(), state.graph.nodes, answers, CAND_THRESHOLD);
 const confidence = (answers: S1Answers) => resolveNodeByText(answers, CAND_THRESHOLD).confidence;
 
@@ -110,7 +118,7 @@ function decide(answers: S1Answers, input: DescribeScreenIn, ctx: Context): Desc
   return buildHit(hit, suspect);
 }
 
-const decision: DecisionSpec<DescribeScreenIn, DescribeScreenOut> = { id: 'find-by-title', questions, decide, next, confidence };
+const decision: DecisionSpec<DescribeScreenIn, DescribeScreenOut> = withFanout({ id: 'find-by-title', questions, decide, next, confidence, fanout });
 
 export const describeScreen: AIFunctionImpl<DescribeScreenIn, DescribeScreenOut> = {
   context: { digest: (ctx) => `view=${ctx.view} screenItems=${ctx.screen.items.length} selection=${ctx.selectedId ?? 'none'}` },

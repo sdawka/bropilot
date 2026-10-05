@@ -4,7 +4,7 @@
 // and because Jev's rate limits are still moving ("without notice while GPU capacity lands").
 import { askSystem1 } from './system1.ts';
 
-interface S1Request { kind: 'system1-request'; id: string; fn: string; state: unknown; questions: Record<string, unknown>; from?: string }
+interface S1Request { kind: 'system1-request'; id: string; fn: string; state: unknown; questions: Record<string, unknown>; from?: string; chain?: { level: number; fanout: boolean } }
 interface S1Response { kind: 'system1-response'; id: string; answers?: Record<string, unknown>; error?: string; model?: string; ms?: number; usage?: { input: number; output: number; costUsd: number } }
 
 let queue: Promise<void> = Promise.resolve();
@@ -24,7 +24,10 @@ async function processOne(msg: S1Request, send: (msg: S1Response) => void) {
   if (!n) { send({ kind: 'system1-response', id: msg.id, error: 'no questions' }); return; }
   try {
     const r = await askSystem1(msg.state, msg.questions);
-    console.log(`[system1] ${msg.fn} ${n} question${n === 1 ? '' : 's'} ${r.ms}ms ${r.model}`);
+    // A chained decision says where this request sits (src/ai/system1.ts decideGated): `level=1 fanout`
+    // is a whole two-level chain in one round trip; `level=1` then `level=2` is the sequential walk.
+    const lvl = msg.chain ? ` level=${msg.chain.level}${msg.chain.fanout ? ' fanout' : ''}` : '';
+    console.log(`[system1] ${msg.fn} ${n} question${n === 1 ? '' : 's'}${lvl} ${r.ms}ms ${r.model}`);
     send({ kind: 'system1-response', id: msg.id, answers: r.answers, model: r.model, ms: r.ms, usage: r.usage });
   } catch (err) {
     console.error(`[system1] ${msg.fn} failed:`, (err as Error).message ?? String(err));

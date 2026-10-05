@@ -7,7 +7,7 @@ import {
   revalidate, rankOpen, directCommit, refineFollowUp,
   type Effect, type FollowUp, type OpenItem,
 } from './store';
-import { QUESTIONS } from './kernel';
+import { QUESTIONS, kindById, edgeTypeById } from './kernel';
 import { computeGaps } from './ai/functions/find-gaps.ts';
 
 export type View = 'overview' | 'definition' | 'domain' | 'flows' | 'kernel';
@@ -73,6 +73,42 @@ let dwellTimer: ReturnType<typeof setTimeout> | null = null;
 const listeners = new Set<(cue: Cue) => void>();
 export function onCueApplied(fn: (cue: Cue) => void) { listeners.add(fn); return () => listeners.delete(fn); }
 
+/** Effects as the store applies them, from either the code's own Effect objects or an agent's flat
+ * `{op, kind, title}` / `{op, src|from, dst|to, type|edgeType}` / `{op, nodeId, patch}`. Unknown
+ * kinds, edge types and node ids (not in the graph nor added in this changeset) are dropped with a
+ * warning instead of poisoning the changeset. */
+export function normaliseEffects(raw: unknown[], staged: Effect[]): { effects: Effect[]; warnings: string[] } {
+  const effects: Effect[] = []; const warnings: string[] = [];
+  const known = new Set<string>([...state.graph.nodes.map((n) => n.id), ...staged.filter((e) => e.op === 'add-node').map((e) => (e as Extract<Effect, { op: 'add-node' }>).node.id)]);
+  const kebab = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
+  const nextId = () => `ef-${staged.length + effects.length}`;
+  for (const r of raw) {
+    const e = (r ?? {}) as Record<string, any>;
+    if (e.op === 'add-node') {
+      const node = e.node ?? (e.kind && e.title ? { id: `${e.kind}-${kebab(String(e.title))}`, kind: e.kind, title: String(e.title), ...(e.description ? { description: String(e.description) } : {}), status: 'draft' } : null);
+      if (!node?.id || !node.kind || !node.title) { warnings.push('An add-node effect had no kind and title; skipped.'); continue; }
+      if (!kindById[node.kind]) { warnings.push(`Unknown kind "${node.kind}"; skipped.`); continue; }
+      if (known.has(node.id)) { warnings.push(`"${node.title}" already exists; skipped.`); continue; }
+      known.add(node.id);
+      effects.push({ id: e.id ?? nextId(), op: 'add-node', node, answerId: e.answerId ?? '' });
+    } else if (e.op === 'add-edge') {
+      const edge = e.edge ?? { src: e.src ?? e.from, dst: e.dst ?? e.to, type: e.type ?? e.edgeType };
+      if (!edge.src || !edge.dst || !edge.type) { warnings.push('An add-edge effect had no src, dst and type; skipped.'); continue; }
+      if (!edgeTypeById[edge.type]) { warnings.push(`Unknown edge type "${edge.type}"; skipped.`); continue; }
+      const missing = [edge.src, edge.dst].find((id) => !known.has(id));
+      if (missing) { warnings.push(`No node "${missing}"; skipped.`); continue; }
+      if (state.graph.edges.some((x) => x.src === edge.src && x.dst === edge.dst && x.type === edge.type)) { warnings.push(`Edge ${edge.src} —${edge.type}→ ${edge.dst} already exists; skipped.`); continue; }
+      effects.push({ id: e.id ?? nextId(), op: 'add-edge', edge: { id: edge.id ?? `e-${edge.src}-${edge.type}-${edge.dst}`, src: edge.src, dst: edge.dst, type: edge.type, status: 'draft', ...(edge.answerId ? { answerId: edge.answerId } : {}) }, answerId: e.answerId ?? '' });
+    } else if (e.op === 'update-node' || e.op === 'remove-node') {
+      const nodeId = e.nodeId ?? e.id;
+      if (!nodeId || !known.has(nodeId)) { warnings.push(`No node "${nodeId ?? '?'}" to ${e.op === 'remove-node' ? 'remove' : 'update'}; skipped.`); continue; }
+      if (e.op === 'update-node') effects.push({ id: e.id && e.id !== nodeId ? e.id : nextId(), op: 'update-node', nodeId, patch: e.patch ?? {}, answerId: e.answerId ?? '' });
+      else effects.push({ id: e.id && e.id !== nodeId ? e.id : nextId(), op: 'remove-node', nodeId, answerId: e.answerId ?? '' });
+    } else warnings.push(`Unknown effect op "${e.op ?? '?'}"; skipped.`);
+  }
+  return { effects, warnings };
+}
+
 export function applyCue(cue: Cue) {
   switch (cue.t) {
     case 'say':
@@ -100,11 +136,31 @@ export function applyCue(cue: Cue) {
       state.tour = { steps: cue.steps, i: -1, dwellMs: cue.dwellMs ?? 0, paused: !(cue.dwellMs && cue.dwellMs > 0) };
       tourStep(1);
       break;
-    case 'stage':
-      state.staged = { effects: cue.effects, warnings: [cue.note] };
-      state.transcript.push({ who: 'agent', text: `Staged ${cue.effects.length} change${cue.effects.length === 1 ? '' : 's'}: ${cue.note}`, at: Date.now() });
+    case 'stage': {
+      // An agent's effects arrive in whatever shape the model chose (live 2026-09-28: a critique
+      // staged `{op:'add-edge', from, to, type}`; commit then threw on `e.edge.src` and the page
+      // was dead from there). Normalise to the Effect shape, drop what cannot be applied, and say so.
+      // the code's own changesets (answer, link-answer, need repair) arrive as full Effects with an
+      // answerId and replace what is staged, exactly as before
+      if (cue.effects.length && cue.effects.every((e) => e && typeof e === 'object' && 'answerId' in e)) {
+        state.staged = { effects: cue.effects, warnings: [cue.note] };
+        state.transcript.push({ who: 'agent', text: `Staged ${cue.effects.length} change${cue.effects.length === 1 ? '' : 's'}: ${cue.note}`, at: Date.now() });
+        persist();
+        break;
+      }
+      const { effects, warnings } = normaliseEffects(cue.effects as unknown[], state.staged?.effects ?? []);
+      if (!effects.length) {
+        state.transcript.push({ who: 'agent', text: `Nothing staged: ${warnings.join(' ') || 'no valid effects.'} (${cue.note})`, at: Date.now() });
+        persist();
+        break;
+      }
+      // an agent stage while the user's own answer is staged adds to that changeset, not over it
+      const prior = state.staged && state.staged.effects.some((e) => e.answerId) ? state.staged : null;
+      state.staged = { effects: [...(prior?.effects ?? []), ...effects], warnings: [...(prior?.warnings ?? []), cue.note, ...warnings] };
+      state.transcript.push({ who: 'agent', text: `Staged ${effects.length} change${effects.length === 1 ? '' : 's'}: ${cue.note}${warnings.length ? ` (${warnings.join(' ')})` : ''}`, at: Date.now() });
       persist();
       break;
+    }
     case 'glossary':
       if (cue.op === 'upsert') upsertTerm(cue.title, cue.description ?? '', cue.id);
       else if (cue.id) removeNodeDirect(cue.id);

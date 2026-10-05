@@ -27,9 +27,23 @@ export function modelFor(spec: AgentSpec, tierOverride?: AgentSpec['tier']): str
   return table[tier];
 }
 
-export function applySpec(spec: AgentSpec, opts: { cwd?: string; extraTools?: { name: string }[]; tierOverride?: AgentSpec['tier'] } = {}): string {
+/** The model id for a bare tier (no spec, no override): the same provider choice as `modelFor`. */
+export function modelForTier(tier: Exclude<AgentSpec['tier'], 'none'>): string {
+  return (process.env.OPENROUTER_API_KEY ? TIER_MODELS : DIRECT_MODELS)[tier];
+}
+
+export function applySpec(
+  spec: AgentSpec,
+  opts: { cwd?: string; extraTools?: { name: string }[]; tierOverride?: AgentSpec['tier']; compactionTier?: Exclude<AgentSpec['tier'], 'none'> } = {},
+): string {
   const model = modelFor(spec, opts.tierOverride);
-  if (model) useModel(model, spec.thinkingLevel ? { thinkingLevel: spec.thinkingLevel } : undefined);
+  // compactionTier: threshold compaction summarises on that tier instead of the session's model
+  // (agent-hooks-api.md CompactionConfig.model). Talk passes 'cheap': a summary does not need Sonnet.
+  const modelOpts = {
+    ...(spec.thinkingLevel ? { thinkingLevel: spec.thinkingLevel } : {}),
+    ...(opts.compactionTier ? { compaction: { model: modelForTier(opts.compactionTier) } } : {}),
+  };
+  if (model) useModel(model, Object.keys(modelOpts).length ? modelOpts : undefined);
   if (spec.sandbox === 'local') useSandbox(local({ cwd: opts.cwd ?? process.cwd() }));
   else if (spec.sandbox === 'remote') throw new Error(`agent ${spec.id}: remote sandbox is not configured yet (docs/AGENT-RUNTIME.md §6)`);
   // 'bash' (just-bash) is not installed in this prototype; treat as none.

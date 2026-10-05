@@ -237,7 +237,7 @@ export const KINDS: KindDef[] = [
   { id: 'problem', label: 'Problem', plural: 'Problems', space: 'problem', icon: '🧨', kernel: true, blurb: 'What stands in their way today.', source: said(30) },
   { id: 'outcome', label: 'Outcome', plural: 'Outcomes', space: 'problem', icon: '🌟', kernel: true, blurb: 'The change we want for the audience. Should be measurable.', fields: [{ key: 'metric', label: 'Success metric' }, { key: 'for', label: 'For', type: 'select', options: ['audience', 'business'] }], source: said(15, 30, 108) },
   // hypothesis
-  { id: 'hypothesis', label: 'Bet', plural: 'Bets', space: 'hypothesis', icon: '🎲', kernel: true, blurb: 'A bet linking what we build to an outcome; some are specific and testable, some are just bets.', fields: [{ key: 'verdict', label: 'Verdict', type: 'select', options: ['open', 'supported', 'refuted'] }], needs: [{ edge: 'references', dir: 'out', min: 1, ask: 'How would you know "{title}" holds? Name one metric.', produces: 'metric' }], source: said(25, 30, 78, 82) },
+  { id: 'hypothesis', label: 'Bet', plural: 'Bets', space: 'hypothesis', icon: '🎲', kernel: true, blurb: 'A bet linking what we build to an outcome; some are specific and testable, some are just bets.', fields: [{ key: 'verdict', label: 'Verdict', type: 'select', options: ['open', 'supported', 'refuted'] }], source: said(25, 30, 78, 82) }, // needs: from RELATIONS
   { id: 'assumption', label: 'Assumption', plural: 'Assumptions', space: 'hypothesis', icon: '💭', kernel: true, blurb: 'Taken as true until reality says otherwise.', source: said(30) },
   { id: 'goal', label: 'Goal', plural: 'Strategic goals', space: 'problem', icon: '🏁', kernel: true, fields: [{ key: 'for', label: 'For', type: 'select', options: ['audience', 'business'] }], blurb: 'An outcome we want, stated as a compound of metrics; for the audience or for ourselves as the business.', source: said(100, 108) },
   { id: 'metric', label: 'Metric', plural: 'Metrics', space: 'hypothesis', icon: '📏', kernel: true, blurb: 'How an outcome or hypothesis will be measured.', source: inferred('Outcomes and hypothesis validation (S15, S25) need a named measure; the brief never says "metric".') },
@@ -300,10 +300,10 @@ export interface EdgeTypeDef {
 // from/to below are derived from graph.json edge usage (2026-09-21); each entry's own `source`
 // still covers the edge type's existence per the brief.
 export const EDGE_TYPES: EdgeTypeDef[] = [
-  { id: 'motivates', label: 'motivates', category: 'intentional', kernel: true, hint: 'Is the reason the target exists (purpose → outcome).', from: ['purpose'], to: ['outcome'], source: said(9, 12) },
+  { id: 'motivates', label: 'motivates', category: 'intentional', kernel: true, hint: 'Is the reason the target exists (purpose → outcome, problem → outcome).', from: ['problem', 'purpose'], to: ['outcome'], source: said(9, 12) },
   { id: 'serves', label: 'serves', category: 'intentional', kernel: true, hint: 'Delivers value to an audience.', from: ['capability', 'feature'], to: ['audience', 'goal', 'outcome'], source: said(9, 13) },
   { id: 'satisfies', label: 'satisfies', category: 'intentional', kernel: true, hint: 'Meets a problem-space statement.', from: ['capability', 'feature'], to: ['problem', 'usecase'], source: inferred('Needed to connect capabilities back to problems; the brief implies it via "value proposition" (S12).') },
-  { id: 'has', label: 'has', category: 'structural', kernel: true, hint: 'Conceptual possession (audience has problem).', from: ['audience', 'capability', 'feature', 'problem'], to: ['agent', 'context', 'flow', 'problem', 'usecase'], source: inferred('Generic structural link; no direct quote.') },
+  { id: 'has', label: 'has', category: 'structural', kernel: true, hint: 'Conceptual possession (audience has problem, use case has problem).', from: ['audience', 'capability', 'feature', 'problem', 'usecase'], to: ['agent', 'context', 'flow', 'problem', 'usecase'], source: inferred('Generic structural link; no direct quote.') },
   { id: 'implements', label: 'implements', category: 'structural', kernel: true, hint: 'Realises a solution-space spec.', from: ['agent', 'flow', 'screen'], to: ['capability', 'feature', 'task'], source: said(33) },
   { id: 'contains', label: 'contains', category: 'structural', kernel: true, hint: 'Composition (screen contains component).', from: ['codebase', 'epic', 'module', 'repository', 'system'], to: ['ai-function', 'asset', 'codebase', 'event', 'infra', 'module', 'protocol', 'rule', 'task', 'test', 'thing'], source: said(36) },
   { id: 'exposes', label: 'exposes', category: 'structural', kernel: true, hint: 'Module exposes an interface.', from: ['module'], to: ['interface', 'screen'], source: said(35, 68) },
@@ -322,7 +322,6 @@ export const EDGE_TYPES: EdgeTypeDef[] = [
   { id: 'monitors', label: 'monitors', category: 'verification', kernel: true, hint: 'Metric watches an outcome.', from: ['metric'], to: ['outcome'], source: said(15, 39) },
   { id: 'supports', label: 'supports', category: 'verification', kernel: true, hint: 'Evidence supports a hypothesis. STUB.', from: ['evidence'], to: ['hypothesis'], source: said(25) },
   { id: 'refutes', label: 'refutes', category: 'verification', kernel: true, hint: 'Evidence refutes a hypothesis. STUB.', from: ['evidence'], to: ['hypothesis'], source: said(25) },
-  { id: 'in-stage', label: 'in stage', category: 'orchestration', kernel: true, hint: 'Tags any node with a lifecycle stage.', from: [], to: [], source: said(7) },
   { id: 'carries', label: 'carries', category: 'structural', kernel: true, hint: 'Interface carries a payload that is or derives from this thing ("molecules" entering/leaving through the interface\'s in/out).', from: ['interface'], to: ['thing'], source: said(134, 137) },
   { id: 'hosts', label: 'hosts', category: 'structural', kernel: true, hint: 'Deployable (infra) hosts a module, at the deployment level. Additional to `contains` (module → infra), which the Modules grid still reads — do not repurpose that one.', from: ['infra'], to: ['module'], source: said(139) },
 ];
@@ -345,20 +344,88 @@ export interface QuestionDef {
   source: Provenance;
 }
 
+// Order (v4.4, from four live sessions): q-summary unlocks last, after q-capability, so the paragraph
+// is written once the audience/problem/bets exist instead of being repeated later; q-assumption
+// follows q-hypothesis (an assumption usually underlies a bet). nextQuestion takes the first
+// unlocked, unanswered question in array order, so the array keeps its by-space display order.
 export const QUESTIONS: QuestionDef[] = [
   { id: 'q-name', prompt: 'What is it called?', help: 'One line.', space: 'basics', produces: 'name', unlocksAfter: [], kernel: true, source: said(29) },
   { id: 'q-purpose', prompt: 'What is it for? What real-world effect should it have?', help: 'One or two sentences. Not features.', space: 'basics', produces: 'purpose', unlocksAfter: ['q-name'], kernel: true, source: said(9, 29) },
-  { id: 'q-summary', prompt: 'Summarise it in a paragraph.', help: 'What you would want to read when picking this project out of a list.', space: 'basics', produces: 'summary', unlocksAfter: ['q-purpose'], kernel: true, source: said(49, 50) },
+  { id: 'q-summary', prompt: 'Summarise it in a paragraph.', help: 'What you would want to read when picking this project out of a list.', space: 'basics', produces: 'summary', unlocksAfter: ['q-capability'], kernel: true, source: said(49, 50) },
   { id: 'q-audience', prompt: 'Who is it for?', help: 'One audience per line.', space: 'problem', produces: 'audience', unlocksAfter: ['q-purpose'], kernel: true, source: said(30) },
   { id: 'q-context', prompt: 'In what situations do they meet this?', help: 'One context per line.', space: 'problem', produces: 'context', unlocksAfter: ['q-audience'], kernel: true, source: said(30) },
   { id: 'q-usecase', prompt: 'What are they trying to get done?', help: 'One use case per line.', space: 'problem', produces: 'usecase', unlocksAfter: ['q-audience'], kernel: true, source: said(30) },
   { id: 'q-problem', prompt: 'What gets in their way today?', help: 'One problem per line.', space: 'problem', produces: 'problem', unlocksAfter: ['q-audience'], kernel: true, source: said(30) },
   { id: 'q-outcome', prompt: 'What should be different for them afterwards?', help: 'One outcome per line. Each will get a purpose→motivates edge.', space: 'problem', produces: 'outcome', unlocksAfter: ['q-problem'], kernel: true, source: said(15, 30) },
   { id: 'q-hypothesis', prompt: 'What are you betting on?', help: 'One bet per line; make it testable if you can.', space: 'hypothesis', produces: 'hypothesis', unlocksAfter: ['q-outcome'], kernel: true, source: said(25, 30) },
-  { id: 'q-assumption', prompt: 'What are you taking for granted?', help: 'One assumption per line.', space: 'hypothesis', produces: 'assumption', unlocksAfter: ['q-outcome'], kernel: true, source: said(30) },
+  { id: 'q-assumption', prompt: 'What are you taking for granted?', help: 'One assumption per line.', space: 'hypothesis', produces: 'assumption', unlocksAfter: ['q-hypothesis'], kernel: true, source: said(30) },
   { id: 'q-metric', prompt: 'How will you know?', help: 'One metric per line.', space: 'hypothesis', produces: 'metric', unlocksAfter: ['q-outcome'], kernel: true, source: inferred('Follows from S15/S25; the brief has no explicit "how will you measure" question.') },
   { id: 'q-capability', prompt: 'What must it be able to do?', help: 'One capability per line.', space: 'solution', produces: 'capability', unlocksAfter: ['q-hypothesis'], kernel: true, source: said(30) },
 ];
+
+/** The template's answer order: nextQuestion (store.ts) takes the first unlocked, unanswered
+ * question in array order, so this replays it with every question answered in turn (v4.5). */
+export const TEMPLATE_ORDER: string[] = (() => {
+  const done: string[] = [];
+  while (done.length < QUESTIONS.length) {
+    const q = QUESTIONS.find((q) => !done.includes(q.id) && q.unlocksAfter.every((u) => done.includes(u)));
+    if (!q) throw new Error(`kernel: QUESTIONS has an unreachable question after ${done.join(', ')}`);
+    done.push(q.id);
+  }
+  return done;
+})();
+
+// ── Design-spine relations (v4.5) ───────────────────────────────────────────
+/** One (src kind, edge, dst kind) the design actually uses between template-produced nodes — the
+ * one table ai/links.ts derives LINKS/linkRulesFor from (what link-answer proposes, what orphan
+ * repair offers) and the founder-side `needs` below are derived from. EDGE_TYPES stays the shape
+ * vocabulary (what an edge may be); this is what the template makes.
+ * - `many`: one node may link to several of the other kind (one yes/no per pair), else one or none.
+ * - `at`: which end's arrival proposes the link (link-answer). It must be the end whose template
+ *   question comes later, so candidates always exist when the node arrives (asserted below);
+ *   `'both'` also proposes from the earlier end, for a re-answer (a new bet once metrics exist).
+ * - `need`: the src kind needs at least one such edge (checks.ts needs-cardinality, gated until the
+ *   dst's question was answered or a dst node exists); the text is the ask ("{title}" = src title). */
+export interface RelationDef { src: string; edge: string; dst: string; many?: boolean; at: 'src' | 'dst' | 'both'; need?: string }
+
+export const RELATIONS: RelationDef[] = [
+  { src: 'audience', edge: 'has', dst: 'context', many: true, at: 'dst' },
+  { src: 'audience', edge: 'has', dst: 'usecase', many: true, at: 'dst' },
+  { src: 'audience', edge: 'has', dst: 'problem', many: true, at: 'dst' },
+  { src: 'usecase', edge: 'has', dst: 'problem', many: true, at: 'dst' },
+  { src: 'problem', edge: 'motivates', dst: 'outcome', many: true, at: 'dst' },
+  { src: 'hypothesis', edge: 'references', dst: 'outcome', at: 'src' },
+  { src: 'metric', edge: 'monitors', dst: 'outcome', at: 'src' },
+  { src: 'hypothesis', edge: 'references', dst: 'metric', many: true, at: 'both', need: 'How would you know "{title}" holds? Name one metric.' },
+  { src: 'assumption', edge: 'references', dst: 'hypothesis', at: 'src' },
+  { src: 'capability', edge: 'satisfies', dst: 'problem', many: true, at: 'src' },
+  { src: 'capability', edge: 'satisfies', dst: 'usecase', many: true, at: 'src' },
+];
+
+// Consistency (dev only; Node scripts count as dev): every row is a shape EDGE_TYPES admits, both
+// ends are template-produced, and `at` names the later-asked end.
+if ((import.meta as { env?: { DEV?: boolean } }).env?.DEV !== false) {
+  const askedAt = (kind: string) => TEMPLATE_ORDER.findIndex((id) => QUESTIONS.find((q) => q.id === id)!.produces === kind);
+  for (const r of RELATIONS) {
+    const row = `RELATIONS ${r.src} —${r.edge}→ ${r.dst}`;
+    const et = EDGE_TYPES.find((e) => e.id === r.edge);
+    if (!et) throw new Error(`kernel: ${row} names unknown edge type "${r.edge}"`);
+    if (!et.from.includes(r.src) || !et.to.includes(r.dst)) throw new Error(`kernel: ${row} is not admitted by EDGE_TYPES.${r.edge} (from: ${et.from.join(', ')}; to: ${et.to.join(', ')})`);
+    const s = askedAt(r.src), d = askedAt(r.dst);
+    if (s < 0 || d < 0 || s === d) throw new Error(`kernel: ${row}: both ends must be produced by different template questions`);
+    const later = s > d ? 'src' : 'dst';
+    if (r.at !== 'both' && r.at !== later) throw new Error(`kernel: ${row}: proposed at the ${r.at} end, but the ${later} end is asked later (${TEMPLATE_ORDER.join(' → ')}); link-answer would find no candidates`);
+    if (r.need && !kindById[r.src]) throw new Error(`kernel: ${row}: need on unknown kind`);
+  }
+}
+
+// founder-side needs, derived: a row with `need` gives its src kind a needs row (kinds' own `needs`
+// in KINDS stay for the non-template kinds: module, rule, protocol, test, task)
+for (const r of RELATIONS) {
+  if (!r.need) continue;
+  const kind = kindById[r.src];
+  kind.needs = [...(kind.needs ?? []), { edge: r.edge, dir: 'out', min: 1, ask: r.need, produces: r.dst }];
+}
 
 // ── Domain levels (C4-style) ────────────────────────────────────────────────
 export interface LevelDef { level: 0 | 1 | 2 | 3; label: string; blurb: string; kinds: string[]; source: Provenance }

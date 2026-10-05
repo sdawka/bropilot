@@ -9,6 +9,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { networkInterfaces } from 'node:os';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
 
 const PORT = 5200;
 
@@ -69,6 +70,24 @@ if (process.env.OPENROUTER_API_KEY || process.env.ANTHROPIC_API_KEY) {
   console.log('  set FAKE_AI=1 instead to exercise ai-request/ai-response with canned output and no key (what smoke uses).');
 }
 
+// ── critique points (backlog item 7; AGENT-RUNTIME.md §3 "Critique points") ────────────────────
+// The main screen publishes `{ kind: 'critique', answerId, questionId, question, answer }` when a
+// commit newly commits the answer to q-outcome / q-capability / q-summary under the RemoteDirector.
+// It becomes one Talk turn whose message is this note (no user message). Same static prompt, same
+// signals, same tools: the note is the only thing that differs from a user turn. At most one per
+// answerId for the life of this process (the browser dedupes too).
+const clipNote = (text, n) => { const t = String(text ?? '').replace(/\s+/g, ' ').trim(); return t.length > n ? `${t.slice(0, n - 1)}…` : t; };
+function critiqueNote(msg) {
+  return `[Critique point after ${msg.questionId} — no user message. The founder just committed "${clipNote(msg.answer, 200)}" as the answer to "${clipNote(msg.question, 120)}". Read the graph digest (the latest graph signal), name the weakest link in the design in 3 sentences or fewer, and stage the one change that fixes it in this same turn: stage first, then say once what you staged and why. If nothing is weak, say so in one sentence and stage nothing. Use only point, stage and say; call read_graph only if the digest cut off a node you need.]`;
+}
+const critiqued = new Set(); // answerIds already critiqued
+/** True the first time an answerId is seen; logs and drops a repeat. */
+function claimCritique(msg) {
+  if (!msg?.answerId || critiqued.has(msg.answerId)) { console.log(`[critique] ${msg?.answerId ?? '(no answerId)'} already critiqued — dropped`); return false; }
+  critiqued.add(msg.answerId);
+  return true;
+}
+
 /** The System One service on a bus client: answers system1-request, announces itself with
  * system1-ready at connect and again for every main-screen hello (the browser may load after us). */
 async function attachSystem1(ws, send, onMainHello) {
@@ -112,6 +131,15 @@ async function runServicesOnly() {
     // it stays on the ScriptedDirector. Only the FAKE_AI service is an agent; System One alone is not.
     if (msg.kind === 'hello' && msg.role === 'main' && process.env.FAKE_AI === '1') ws.send(JSON.stringify({ kind: 'hello', role: 'agent', from: clientId }));
     if (handleS1(msg)) return;
+    // FAKE_AI has no Talk conversation: a critique point gets one canned say, so smoke can see the
+    // whole path (browser publish → server dedupe → cue in the transcript) without a key.
+    if (msg.kind === 'critique' && process.env.FAKE_AI === '1') {
+      if (!claimCritique(msg)) return;
+      console.log('[dispatch] reason=critique', JSON.stringify(critiqueNote(msg)));
+      console.log('[turn] fake reason=critique in=0 out=0 cost=$0.0000');
+      ws.send(JSON.stringify({ kind: 'cue', cue: { t: 'say', text: `Critique (fake) after ${msg.questionId}: nothing to stage.` }, msgId: `m-${Date.now().toString(36)}`, from: clientId }));
+      return;
+    }
     if (msg.kind === 'ai-request' && aiService) { console.log(`[ai-request] ${msg.fn} ${msg.id}`); aiService.handle(msg).catch((err) => console.error('[ai-service] handle failed:', err)); }
   });
 }
@@ -120,7 +148,7 @@ async function runAgent() {
   const { start, sqlite } = await import('@flue/runtime/node');
   const { init, observe } = await import('@flue/runtime');
   const { busRef } = await import('./bus-ref.ts');
-  const { Talk, setKernelDigest, setScreenLine } = await import('./talk.ts');
+  const { Talk, setTurnSignals, graphDigest } = await import('./talk.ts');
   const { Builder } = await import('./agents/builder.ts');
   const { Reviewer } = await import('./agents/reviewer.ts');
   const { modelFor } = await import('./agents/from-spec.ts');
@@ -138,12 +166,21 @@ async function runAgent() {
   // sessionId (store.ts; a new one on Reset to seed); a different one switches the conversation.
   // A snapshot without one (older browser) keeps the plain 'talk' id.
   let talk = init(Talk, { id: 'talk' });
+  let talkDispatched = false; // abort() on a handle that never ran anything is pointless
   let sessionId = null;
   let firstSnapshotSeen;
   const firstSnapshot = new Promise((resolve) => { firstSnapshotSeen = resolve; });
   function onSessionId(id) {
     if (typeof id !== 'string' || !id || id === sessionId) return;
     sessionId = id;
+    // Reset to seed: stop whatever the old design's conversation is still doing (the running head
+    // and anything queued behind it) before the new one starts. Its read() rejects with 'aborted',
+    // which handleUserTurn already catches. Durable, so a restart does not resume it either.
+    if (talkDispatched) {
+      const old = talk;
+      old.abort().then(() => console.log('[talk] previous conversation aborted')).catch((err) => console.log(`[talk] abort previous: ${err?.message ?? err}`));
+    }
+    talkDispatched = false;
     talk = init(Talk, { id: `talk:${id}` });
     sinceLastTurn.length = 0; // about the previous design
     console.log(`[talk] session ${id}`);
@@ -188,11 +225,26 @@ async function runAgent() {
 
   // Runtime events → stdout + an `aicall` bus message per model turn (fn = agent name, model, usage,
   // cost) so the main screen can record agent turns in state.aiCalls (Stage 3 reads this kind).
+  // cacheRead/cacheWrite show whether the prompt cache is hitting: `in` is the uncached remainder
+  // on Anthropic-format usage, so a warm turn reads most of its prompt from cache. `sys=` is a hash
+  // of the system prompt from the in-process turn_request event; it must not change between turns
+  // of one conversation (a change busts the cache for the whole history).
+  const sysHash = new Map(); // turnId -> 8-char hash
+  // Why the running Talk dispatch happened, for the [turn] line: user (a plain user turn), catch-up
+  // (a user turn that also carried the since-your-last-turn note) or critique (a critique point).
+  let dispatchReason = null;
   observe((ev) => {
-    if (ev.type === 'turn' && ev.response?.usage) {
+    if (ev.type === 'turn_request') {
+      const sp = ev.request?.input?.systemPrompt;
+      if (typeof sp === 'string') sysHash.set(ev.turnId, createHash('sha1').update(sp).digest('hex').slice(0, 8));
+    } else if (ev.type === 'turn' && ev.response?.usage) {
       const u = ev.response.usage;
-      console.log(`[turn] ${ev.agentName} ${ev.request?.requestedModel ?? ''} in=${u.input} out=${u.output} cost=$${(u.cost?.total ?? 0).toFixed(4)}`);
-      send({ kind: 'aicall', fn: ev.agentName, model: ev.request?.requestedModel ?? null, usage: { input: u.input, output: u.output, costUsd: u.cost?.total ?? 0 }, conversationId: ev.conversationId, at: Date.now() });
+      const sys = sysHash.get(ev.turnId);
+      sysHash.delete(ev.turnId);
+      const purpose = ev.purpose && ev.purpose !== 'agent' ? ` purpose=${ev.purpose}` : '';
+      const reason = dispatchReason && ev.agentName !== 'AiFunction' ? ` reason=${dispatchReason}` : '';
+      console.log(`[turn] ${ev.agentName} ${ev.request?.requestedModel ?? ''}${purpose}${reason} in=${u.input} out=${u.output} cacheRead=${u.cacheRead ?? 0} cacheWrite=${u.cacheWrite ?? 0} cost=$${(u.cost?.total ?? 0).toFixed(4)}${sys ? ` sys=${sys}` : ''}`);
+      send({ kind: 'aicall', fn: ev.agentName, model: ev.request?.requestedModel ?? null, usage: { input: u.input, output: u.output, cacheRead: u.cacheRead ?? 0, cacheWrite: u.cacheWrite ?? 0, costUsd: u.cost?.total ?? 0 }, conversationId: ev.conversationId, at: Date.now() });
     } else if (ev.type === 'tool') {
       console.log(`[tool] ${ev.agentName} ${ev.toolName ?? ''}${ev.isError ? ' ERROR' : ''}`);
     } else if (ev.type === 'task') {
@@ -220,11 +272,9 @@ async function runAgent() {
     ].join('\n');
   }
 
-  // The screen line goes into the re-rendered system prompt. Refreshing it on every context/ack
-  // (i.e. after every tool call) changed the prompt mid-response, and Flue then sends the model a
-  // "System instructions updated" signal it answers with a stray "Got it" turn — one extra paid
-  // turn per tool call. So: remember the latest context here, write it into the prompt only at
-  // dispatch time (below). Tools already return the fresh context as their output.
+  // The screen line is a `screen` signal appended at the start of each dispatched turn (see
+  // agents/talk.ts::useAgentStart), never part of the system prompt: remember the latest context
+  // here and hand it over at dispatch time (below). Tools already return the fresh context.
   function onContext(ctx) {
     if (!ctx) return;
     lastCtx = ctx;
@@ -345,6 +395,9 @@ async function runAgent() {
       case 'user':
         enqueueTurn(msg.turn);
         break;
+      case 'critique':
+        if (claimCritique(msg)) enqueueTurn({ critique: msg });
+        break;
       case 'ai-request':
         aiService.handle(msg).catch((err) => console.error('[ai-service] handle failed:', err));
         break;
@@ -369,21 +422,31 @@ async function runAgent() {
     // the model; their effect reaches it through onAppliedCue → takeSinceNote on the next turn.
     if ('control' in turn) return;
     let message;
-    if ('text' in turn) message = `User: ${turn.text}`;
+    if ('critique' in turn) message = critiqueNote(turn.critique);
+    else if ('text' in turn) message = `User: ${turn.text}`;
     else if ('choice' in turn) message = `User chose "${turn.choice}" for ask ${turn.forAsk}`;
     else if ('topic' in turn) message = `User selected topic: ${turn.topic}`;
     else return;
     // The first turn waits for the first snapshot: it carries the sessionId that picks the
     // conversation. Turns behind it wait in turnChain. No snapshot in 3 s: the current one.
     await Promise.race([firstSnapshot, new Promise((resolve) => setTimeout(resolve, 3000))]);
-    message = takeSinceNote() + message;
-    console.log('[dispatch]', JSON.stringify(message));
+    // The catch-up note and the screen line ride the `screen` signal; the kernel digest and the
+    // committed-graph digest ride `kernel`/`graph` signals only when their hash changed (Talk's
+    // useAgentStart decides). The user message itself stays exactly what the user did.
+    const since = takeSinceNote();
+    const reason = 'critique' in turn ? 'critique' : since ? 'catch-up' : 'user';
+    console.log(`[dispatch] reason=${reason}`, JSON.stringify(message), since ? `+ ${JSON.stringify(since.trim())}` : '');
 
     const convo = talk; // a session switch mid-turn must not split dispatch and read
     turnSaid = [];
     try {
-      setScreenLine(screenLineFrom(lastCtx));
-      if (latestSnapshot) setKernelDigest(latestSnapshot.kernel ?? '(empty kernel digest)');
+      setTurnSignals({
+        screen: since + screenLineFrom(lastCtx),
+        kernel: latestSnapshot ? latestSnapshot.kernel || '(empty kernel digest)' : undefined,
+        graph: latestSnapshot ? graphDigest(latestSnapshot.graph) : undefined,
+      });
+      talkDispatched = true;
+      dispatchReason = reason;
       const receipt = await convo.dispatch(message);
       const toolNames = new Map(); // toolCallId -> toolName (tool-output chunks carry only the id)
       let delegateOutput = null; // the last `task` (observer/planner) result in this response
@@ -424,7 +487,11 @@ async function runAgent() {
         }
       }
     } catch (err) {
-      console.error('[agent] turn failed:', err);
+      // A session switch aborts the old conversation (onSessionId); its read rejects here by design.
+      if (err?.outcome === 'aborted') console.log('[agent] turn aborted (session switched)');
+      else console.error('[agent] turn failed:', err);
+    } finally {
+      dispatchReason = null;
     }
   }
 }

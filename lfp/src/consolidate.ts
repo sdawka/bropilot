@@ -1,21 +1,23 @@
 // consolidate.ts — turns many small kernel violations into a handful of groups a human can answer
 // in one shot, instead of one-question-per-violation. Pure over Violation[]/Graph (no state, no side
-// effects), Node-runnable (imports only ./types.ts). store.ts::syncRaised() is the only caller.
+// effects), Node-runnable (imports only ./types.ts and ./checks.ts). store.ts::syncRaised() is the only caller.
 
 import type { Graph, Violation, ViolationGroup } from './types.ts';
+import { CANDIDATE_INVARIANTS, actOf, isRepairLabel } from './checks.ts';
 
 const COND_TAG = /^cond\d+$/;
 
-const ORPHAN_REPAIRS = ['Link it to something', 'Remove it', 'Leave as a stub'];
-
-/** Union of the members' options, first 4 — except an all-orphans group, whose options are the
- * union of its members' candidate titles (up to 6) followed by the repairs any member offers. */
+/** Union of the members' options, first 4 — except a group with a member whose options are
+ * candidate titles (orphans, needs: checks.ts CANDIDATE_INVARIANTS): the union of the candidate
+ * titles (up to 6) followed by every repair any member offers, so picking a title still links. */
 function optionsOf(members: Violation[]): string[] {
   const out: string[] = [];
   for (const m of members) for (const o of m.options) if (!out.includes(o)) out.push(o);
-  if (!members.every((m) => m.invariant === 'orphans')) return out.slice(0, 4);
-  const candidates = out.filter((o) => !ORPHAN_REPAIRS.includes(o)).slice(0, 6);
-  return [...candidates, ...ORPHAN_REPAIRS.filter((o) => out.includes(o))];
+  if (!members.some((m) => CANDIDATE_INVARIANTS.has(m.invariant))) return out.slice(0, 4);
+  const candidates = out.filter((o) => !isRepairLabel(o)).slice(0, 6);
+  const repairs = out.filter(isRepairLabel);
+  // a generic "link one" repair is redundant once titles are offered
+  return [...candidates, ...(candidates.length ? repairs.filter((o) => actOf(o) !== 'link') : repairs)];
 }
 function producesOf(members: Violation[]): string | undefined {
   return members.find((m) => m.produces)?.produces;

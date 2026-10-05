@@ -5,7 +5,7 @@ import { applyCues, tourStep, stopTour, pauseTour, currentContext, onCueApplied,
 import { publish, subscribe, bus, agentId } from '../bus';
 import { ScriptedDirector } from './scripted';
 import { RemoteDirector } from './remote';
-import { kernelDigest } from '../kernel';
+import { kernelDigest, QUESTIONS } from '../kernel';
 import { runAI } from '../ai/runtime.ts';
 import { aiFunction } from '../ai/index.ts';
 
@@ -101,6 +101,27 @@ export function publishContext() {
   publish({ kind: 'context', ctx: currentContext(topics(), bus().label) });
 }
 
+// ── critique points (backlog item 7: Sonnet's role is critique + stage) ──
+// After the founder commits the answer to one of these questions, the Talk agent gets one turn of
+// its own to name the weakest link and stage the fix. Only under the RemoteDirector (no agent, no
+// critique). "Newly committed" = an answer a committed node points at that no earlier commit had
+// committed, so a later unrelated commit, an undo + recommit, or a reload never re-fires it; the
+// server dedupes on answerId as well.
+const CRITIQUE_AFTER = new Set(['q-outcome', 'q-capability', 'q-summary']);
+let committedSeen: Set<string> | null = null;
+const committedAnswerIds = () => new Set(state.graph.nodes.filter((n) => n.status === 'committed' && n.answerId).map((n) => n.answerId as string));
+
+function critiqueNewlyCommitted() {
+  const now = committedAnswerIds();
+  const seen = committedSeen ?? new Set<string>();
+  const fresh = state.answers.filter((a) => now.has(a.id) && !seen.has(a.id));
+  committedSeen = new Set([...seen, ...now]);
+  if (!(director instanceof RemoteDirector) || !agentId) return;
+  const a = [...fresh].reverse().find((x) => CRITIQUE_AFTER.has(x.questionId));
+  if (!a) return;
+  publish({ kind: 'critique', answerId: a.id, questionId: a.questionId, question: QUESTIONS.find((q) => q.id === a.questionId)?.prompt ?? a.questionId, answer: a.content });
+}
+
 /** Call once from App.vue on the main screen. */
 export function startDirectorHost() {
   if (started) return; started = true;
@@ -123,9 +144,12 @@ export function startDirectorHost() {
     }
   });
   publish({ kind: 'hello', role: 'main' });
+  committedSeen = committedAnswerIds(); // what is already committed at load never gets a critique
   const offCues = onCueApplied((cue) => {
     publish({ kind: 'cue', cue });
     if (cue.t === 'commit' || cue.t === 'undo') publishSnapshot();
+    // after the snapshot, on the same transport: the server's critique turn reads the new graph
+    if (cue.t === 'commit') critiqueNewlyCommitted();
   });
   // keep mirrors (and the agent) in sync with what is on screen
   const stopWatch = watch(

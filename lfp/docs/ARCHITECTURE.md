@@ -344,4 +344,4 @@ Architecture-relevant invariants from the kernel (see the app's Reference tab fo
 - A task marked done or verified needs a reviewer verdict recorded in reality; the kernel asks for one rather than assuming it.
 - A task marked verified must have every targeted test passing and fresh; otherwise it raises as work still to do.
 
-_42 kinds, 25 edge types, 4 levels, 30 invariants, 12 kernel questions — see the Reference tab for the live versions._
+_42 kinds, 24 edge types, 4 levels, 30 invariants, 12 kernel questions — see the Reference tab for the live versions._

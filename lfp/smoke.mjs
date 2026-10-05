@@ -4,6 +4,24 @@ import { execSync, spawn } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 const out = process.env.OUT ?? '/tmp';
 
+/** Port 5200 must be free before a block spawns its own agent server: a block's `child.kill()`
+ * returns before the socket closes, so the next spawn raced it (EADDRINUSE) while the smoke's
+ * probe still connected to the dying server — the block then "never joined the bus" (2026-09-28). */
+async function waitPortFree(port = 5200, ms = 8000) {
+  const { createConnection } = await import('node:net');
+  const deadline = Date.now() + ms;
+  while (Date.now() < deadline) {
+    const free = await new Promise((resolve) => {
+      const c = createConnection({ port, host: '127.0.0.1' });
+      c.once('connect', () => { c.destroy(); resolve(false); });
+      c.once('error', () => resolve(true));
+    });
+    if (free) return true;
+    await new Promise((res) => setTimeout(res, 150));
+  }
+  return false;
+}
+
 // Test harness: wrap each test in t(testId, fn) to record pass/fail
 const results = {};
 async function t(testId, fn) {
@@ -332,7 +350,7 @@ await t('test-unlock', async () => {
   let skip = null;
   let agentLog = '';
   try {
-    child = spawn('node', ['agent/server.mjs'], { cwd: process.cwd(), env: { ...process.env, FAKE_AI: '1', OPENROUTER_API_KEY: '', ANTHROPIC_API_KEY: '', TYPESAFE_API_KEY: '' }, stdio: ['ignore', 'pipe', 'pipe'] });
+    await waitPortFree(); child = spawn('node', ['agent/server.mjs'], { cwd: process.cwd(), env: { ...process.env, FAKE_AI: '1', OPENROUTER_API_KEY: '', ANTHROPIC_API_KEY: '', TYPESAFE_API_KEY: '' }, stdio: ['ignore', 'pipe', 'pipe'] });
     child.stdout.on('data', (b) => (agentLog += b.toString()));
     child.stderr.on('data', (b) => (agentLog += b.toString()));
     let exited = false;
@@ -506,7 +524,7 @@ if (!process.env.REALITY_OUT) {
   // agent instead of the System One service alone — the check would silently skip.
   let child = null; let skip = null; let agentLog = '';
   try {
-    child = spawn('node', ['agent/server.mjs'], { cwd: process.cwd(), env: { ...process.env, FAKE_S1: '1', OPENROUTER_API_KEY: '', ANTHROPIC_API_KEY: '', TYPESAFE_API_KEY: '' }, stdio: ['ignore', 'pipe', 'pipe'] });
+    await waitPortFree(); child = spawn('node', ['agent/server.mjs'], { cwd: process.cwd(), env: { ...process.env, FAKE_S1: '1', OPENROUTER_API_KEY: '', ANTHROPIC_API_KEY: '', TYPESAFE_API_KEY: '' }, stdio: ['ignore', 'pipe', 'pipe'] });
     child.stdout.on('data', (b) => (agentLog += b.toString())); child.stderr.on('data', (b) => (agentLog += b.toString()));
     let exited = false; child.once('exit', () => { exited = true; });
     const ready = await new Promise((resolve) => {
@@ -558,6 +576,31 @@ if (!process.env.REALITY_OUT) {
       if (!/jev/.test(s1Hit.call.model ?? '') || !(s1Hit.call.confidence >= 0.65)) throw new Error(`describe-screen via Jev: expected a jev model and confidence >= .65, got ${s1Hit.call.model} ${s1Hit.call.confidence}`);
       if (stubHit.call.output !== s1Hit.call.output) throw new Error(`describe-screen via Jev: expected the same output as the stub for the same node, got\n  stub: ${stubHit.call.output}\n  s1:   ${s1Hit.call.output}`);
 
+      // ── fan-out (item 9, AGENT-RUNTIME.md §9 "Fan-out") ──────────────────────────────────────────
+      // A paraphrase with no substring candidate needs level 2 (node within the chosen kind). Under
+      // the budget the fan-out asks every kind's node question with level 1: one round trip, the
+      // server logs "find-by-title … level=1 fanout" once. A tiny budget forces the sequential walk:
+      // "level=1" then "level=2", and the same node (the fake picks the first kind, then its first node).
+      // The shared dev server may serve the walker as system1.ts?t=… after HMR, so the override
+      // imports the URL the page actually loaded (a bare path would be a second module instance).
+      const fanText = 'zzqx fanout probe';
+      const s1Lines = (from) => agentLog.slice(from).split('\n').filter((l) => /\[system1\] find-by-title/.test(l)).map((l) => /level=\d+( fanout)?/.exec(l)?.[0] ?? 'no-level');
+      const logAt1 = agentLog.length;
+      const fanOne = await run('describe-screen', { text: fanText });
+      const oneLevels = s1Lines(logAt1);
+      const s1Url = await p.evaluate(() => performance.getEntriesByType('resource').map((e) => e.name).filter((n) => /\/src\/ai\/system1\.ts(\?|$)/.test(n)).at(-1) ?? '/src/ai/system1.ts');
+      await p.evaluate(async (url) => { const m = await import(url); window.__fanBudget = { ...m.S1_FANOUT_BUDGET }; m.S1_FANOUT_BUDGET.total = 10; }, s1Url);
+      const logAt2 = agentLog.length;
+      const fanTwo = await run('describe-screen', { text: fanText });
+      const twoLevels = s1Lines(logAt2);
+      await p.evaluate(async (url) => { const m = await import(url); Object.assign(m.S1_FANOUT_BUDGET, window.__fanBudget); }, s1Url);
+      r.v43System1.fanout = { one: { runtime: fanOne.call.runtime, model: fanOne.call.model, levels: oneLevels }, two: { runtime: fanTwo.call.runtime, levels: twoLevels }, same: fanOne.call.output === fanTwo.call.output, output: fanOne.call.output.slice(0, 60) };
+      if (fanOne.call.runtime !== 'system1' || JSON.stringify(oneLevels) !== '["level=1 fanout"]') throw new Error(`fan-out: expected describe-screen via Jev in one round trip (server log "level=1 fanout"), got runtime ${fanOne.call.runtime}, levels ${JSON.stringify(oneLevels)}`);
+      if (/levels?=/.test(fanOne.call.model ?? '')) throw new Error(`fan-out: expected a clean model string, got ${fanOne.call.model}`);
+      if (fanTwo.call.runtime !== 'system1' || JSON.stringify(twoLevels) !== '["level=1","level=2"]') throw new Error(`fan-out over budget: expected the sequential walk (server log "level=1", "level=2"), got runtime ${fanTwo.call.runtime}, levels ${JSON.stringify(twoLevels)}`);
+      if (!r.v43System1.fanout.same || /couldn't find/.test(fanOne.call.output)) throw new Error(`fan-out: expected the same resolved node both ways, got\n  fanout: ${fanOne.call.output}\n  walk:   ${fanTwo.call.output}`);
+      // ── end fan-out ─────────────────────────────────────────────────────────────────────────────
+
       // C5 — a near-miss title (shares words, not equal) raises a contradiction the exact-match stub cannot.
       const contra = await p.evaluate(async () => {
         window.__lfp.state.staged = { effects: [{ id: 'ef-s1a', op: 'add-node', node: { id: 'task-smoke-lonely-near', kind: 'task', title: 'Smoke lonely task again', status: 'draft' }, answerId: 'smoke' }], warnings: [] };
@@ -599,39 +642,124 @@ if (!process.env.REALITY_OUT) {
       r.v43System1.review = { runtime: review.call.runtime, output: review.call.output.slice(0, 80), confidence: review.call.confidence };
       if (review.call.runtime !== 'system1' || !/serves/.test(review.call.output)) throw new Error(`review-change via Jev: expected runtime system1 and a serves-intent verdict, got ${JSON.stringify(review.call).slice(0, 300)}`);
 
-      // link-answer — a follow-up under q-context stages two context nodes; the function appends
-      // `has` edges from an audience to the same changeset. Context is a `many` kind, so Jev gets one
-      // noul per (new context, audience) pair (fake: yes) and every pair is linked; `#s1no` in the
-      // answer makes every noul a confident no (no edges, still runtime system1); the stub (system1
-      // off) links each to every audience.
-      const stageContexts = (content = 'Smoke late-night billing\nSmoke month-end close') => p.evaluate((content) => {
+      // link-answer (per pair, v4.5) — a follow-up under q-context stages two context nodes; the
+      // function appends `has` edges from an audience to the same changeset. Context is a `many`
+      // rule, so Jev gets one noul per (new context, audience) pair, each gated on its own confidence:
+      // the canned fake (.95) links every pair; `#s1no` is a confident no (no edges, nothing needs
+      // you); `#s1low` (.55, confidence .1) leaves every pair uncertain (no edges, both need you,
+      // still runtime system1: no call-level fallback). The stub (system1 off) links only a lone
+      // candidate, so with 2+ audiences it links nothing and says so. A q-metric answer with two
+      // committed bets gets bet —references→ metric from both (the metric's `in` rule).
+      const stageUnder = (parentId, content) => p.evaluate(({ parentId, content }) => {
         window.__lfp.applyCue({ t: 'discard' });
-        window.__lfp.applyCue({ t: 'followup', parentId: 'q-context', prompt: 'smoke: when else does it happen?', kind: 'sub' });
+        window.__lfp.applyCue({ t: 'followup', parentId, prompt: 'smoke: anything else?', kind: 'sub' });
         const fid = window.__lfp.state.followups.at(-1).id;
         window.__lfp.applyCue({ t: 'answer', questionId: fid, content });
         return window.__lfp.state.staged.effects[0].answerId;
-      }, content);
+      }, { parentId, content });
+      const stageContexts = (content = 'Smoke late-night billing\nSmoke month-end close') => stageUnder('q-context', content);
       const linkSummary = () => p.evaluate(() => {
         const s = window.__lfp.state; const aud = new Set(s.graph.nodes.filter((n) => n.kind === 'audience').map((n) => n.id));
         const effs = s.staged?.effects ?? [];
         return { nodes: effs.filter((e) => e.op === 'add-node').length, has: effs.filter((e) => e.op === 'add-edge' && e.edge.type === 'has' && aud.has(e.edge.src)).length, note: s.staged?.warnings?.[0] ?? '', audiences: aud.size };
       });
+      const callOf = (c) => ({ runtime: c.call.runtime, fallback: c.call.fallback, confidence: c.call.confidence });
       const s1AnswerId = await stageContexts();
       const s1Link = await run('link-answer', { answerId: s1AnswerId });
       const s1Links = await linkSummary();
       const noAnswerId = await stageContexts('Smoke refund dispute #s1no\nSmoke chargeback #s1no');
       const noLink = await run('link-answer', { answerId: noAnswerId });
       const noLinks = await linkSummary();
+      const lowAnswerId = await stageContexts('Smoke unclear billing #s1low\nSmoke unclear close #s1low');
+      const lowLink = await run('link-answer', { answerId: lowAnswerId });
+      const lowLinks = await linkSummary();
+      // q-metric: two committed bets (added for this check, removed after) → references from both
+      await p.evaluate(() => {
+        const g = window.__lfp.state.graph;
+        for (const id of ['hyp-smoke-a', 'hyp-smoke-b']) if (!g.nodes.some((n) => n.id === id)) g.nodes.push({ id, kind: 'hypothesis', title: `Smoke bet ${id.slice(-1)}`, status: 'committed' });
+      });
+      const metricAnswerId = await stageUnder('q-metric', 'Smoke weekly active shops');
+      const metricLink = await run('link-answer', { answerId: metricAnswerId });
+      const metricLinks = await p.evaluate(() => {
+        const s = window.__lfp.state; const bets = s.graph.nodes.filter((n) => n.kind === 'hypothesis').map((n) => n.id);
+        const effs = s.staged?.effects ?? []; const metric = effs.find((e) => e.op === 'add-node' && e.node.kind === 'metric')?.node.id;
+        const refs = effs.filter((e) => e.op === 'add-edge' && e.edge.type === 'references' && e.edge.dst === metric && bets.includes(e.edge.src)).map((e) => e.edge.src);
+        return { bets: bets.length, refs: refs.length, fromSmokeBets: ['hyp-smoke-a', 'hyp-smoke-b'].filter((id) => refs.includes(id)).length, note: s.staged?.warnings?.[0] ?? '' };
+      });
+      await p.evaluate(() => {
+        window.__lfp.applyCue({ t: 'discard' });
+        const g = window.__lfp.state.graph; g.nodes = g.nodes.filter((n) => !n.id.startsWith('hyp-smoke-'));
+      });
       await p.evaluate(() => { window.__lfp.state.system1 = false; });
       const stubAnswerId = await stageContexts();
       const stubLink = await run('link-answer', { answerId: stubAnswerId }, 100);
       const stubLinks = await linkSummary();
       await p.evaluate(() => { window.__lfp.state.system1 = true; window.__lfp.applyCue({ t: 'discard' }); });
-      r.v43System1.linkAnswer = { s1: { runtime: s1Link.call.runtime, confidence: s1Link.call.confidence, ...s1Links }, no: { runtime: noLink.call.runtime, confidence: noLink.call.confidence, ...noLinks }, stub: { runtime: stubLink.call.runtime, ...stubLinks } };
-      if (s1Link.call.runtime !== 'system1' || s1Links.nodes !== 2 || s1Links.audiences < 2 || s1Links.has !== 2 * s1Links.audiences) throw new Error(`link-answer via Jev: expected runtime system1 and one audience→has edge per (new context, audience) noul (${2 * s1Links.audiences}), got ${JSON.stringify(r.v43System1.linkAnswer.s1)}; call ${JSON.stringify(s1Link.call).slice(0, 300)}`);
-      if (noLink.call.runtime !== 'system1' || noLinks.nodes !== 2 || noLinks.has !== 0) throw new Error(`link-answer via Jev, #s1no: expected runtime system1 and no has edges, got ${JSON.stringify(r.v43System1.linkAnswer.no)}; call ${JSON.stringify(noLink.call).slice(0, 300)}`);
-      if (!/linked 2 of 2 new nodes/.test(s1Links.note)) throw new Error(`link-answer via Jev: expected the note "linked 2 of 2 new nodes", got "${s1Links.note}"`);
-      if (stubLink.call.runtime !== 'stub' || stubLinks.has !== 2 * stubLinks.audiences) throw new Error(`link-answer stub: expected runtime stub and every audience→has edge for both contexts (${2 * stubLinks.audiences}), got ${JSON.stringify(r.v43System1.linkAnswer.stub)}`);
+      r.v43System1.linkAnswer = { s1: { ...callOf(s1Link), ...s1Links }, no: { ...callOf(noLink), ...noLinks }, low: { ...callOf(lowLink), ...lowLinks }, metric: { ...callOf(metricLink), ...metricLinks }, stub: { runtime: stubLink.call.runtime, ...stubLinks } };
+      const la = r.v43System1.linkAnswer;
+      if (la.s1.runtime !== 'system1' || la.s1.nodes !== 2 || la.s1.audiences < 2 || la.s1.has !== 2 * la.s1.audiences) throw new Error(`link-answer via Jev: expected runtime system1 and one audience→has edge per (new context, audience) noul (${2 * la.s1.audiences}), got ${JSON.stringify(la.s1)}; call ${JSON.stringify(s1Link.call).slice(0, 300)}`);
+      if (!/^linked 2 of 2 new nodes\./.test(la.s1.note)) throw new Error(`link-answer via Jev: expected the note "linked 2 of 2 new nodes." with nothing needing you, got "${la.s1.note}"`);
+      if (la.no.runtime !== 'system1' || la.no.nodes !== 2 || la.no.has !== 0 || /need/.test(la.no.note)) throw new Error(`link-answer via Jev, #s1no: expected runtime system1, no has edges and nothing needing you, got ${JSON.stringify(la.no)}; call ${JSON.stringify(noLink.call).slice(0, 300)}`);
+      if (la.low.runtime !== 'system1' || la.low.fallback || la.low.nodes !== 2 || la.low.has !== 0 || !/linked 0 of 2 new nodes; 2 need you/.test(la.low.note)) throw new Error(`link-answer via Jev, #s1low: expected runtime system1 (no fallback), no has edges and "linked 0 of 2 new nodes; 2 need you", got ${JSON.stringify(la.low)}`);
+      if (la.metric.runtime !== 'system1' || la.metric.fromSmokeBets !== 2 || la.metric.refs !== la.metric.bets) throw new Error(`link-answer via Jev, q-metric: expected bet —references→ metric from every committed bet (${la.metric.bets}), got ${JSON.stringify(la.metric)}`);
+      if (la.stub.runtime !== 'stub' || la.stub.has !== 0 || !/linked 0 of 2 new nodes; 2 need you/.test(la.stub.note)) throw new Error(`link-answer stub: expected runtime stub, no all-to-all has edges with ${la.stub.audiences} audiences, and "linked 0 of 2 new nodes; 2 need you", got ${JSON.stringify(la.stub)}`);
+
+      // ── v4.5 spine relations + uncertain link follow-ups (owner: spine; kernel.ts RELATIONS) ──────
+      // One table: an outcome answer links problem —motivates→ outcome, a capability answer links
+      // capability —satisfies→ usecase. An uncertain pair (#s1low) becomes one link follow-up after
+      // commit (options = the candidate titles + "None of these", ranked right after the next template
+      // question), and picking a title stages that edge. A lone node whose related kinds have no node
+      // raises no orphan.
+      {
+        const spine = {};
+        const outcomeAnswerId = await stageUnder('q-outcome', 'Smoke fewer missed deadlines');
+        await run('link-answer', { answerId: outcomeAnswerId });
+        spine.outcome = await p.evaluate(() => {
+          const s = window.__lfp.state; const probs = new Set(s.graph.nodes.filter((n) => n.kind === 'problem').map((n) => n.id));
+          const effs = s.staged?.effects ?? []; const o = effs.find((e) => e.op === 'add-node' && e.node.kind === 'outcome')?.node.id;
+          return { motivates: effs.filter((e) => e.op === 'add-edge' && e.edge.type === 'motivates' && e.edge.dst === o && probs.has(e.edge.src)).length, problems: probs.size };
+        });
+        const capAnswerId = await stageUnder('q-capability', 'Smoke draft the week plan');
+        await run('link-answer', { answerId: capAnswerId });
+        spine.capability = await p.evaluate(() => {
+          const s = window.__lfp.state; const ucs = new Set(s.graph.nodes.filter((n) => n.kind === 'usecase').map((n) => n.id));
+          const effs = s.staged?.effects ?? []; const c = effs.find((e) => e.op === 'add-node' && e.node.kind === 'capability')?.node.id;
+          return { satisfiesUsecase: effs.filter((e) => e.op === 'add-edge' && e.edge.type === 'satisfies' && e.edge.src === c && ucs.has(e.edge.dst)).length, usecases: ucs.size };
+        });
+        const lowOutcomeId = await stageUnder('q-outcome', 'Smoke calmer month end #s1low');
+        await run('link-answer', { answerId: lowOutcomeId });
+        spine.uncertain = await p.evaluate(async () => {
+          const s = window.__lfp.state;
+          const node = s.staged.effects.find((e) => e.op === 'add-node' && e.node.kind === 'outcome').node;
+          window.__lfp.applyCue({ t: 'commit' });
+          const f = s.followups.find((x) => x.id === `f-link-${node.id}`);
+          const problems = [...new Set(s.graph.nodes.filter((n) => n.kind === 'problem').map((n) => n.title))];
+          const ranked = window.__lfp.rankOpen(); const at = ranked.findIndex((i) => i.id === f?.id); const tmpl = ranked.findIndex((i) => i.source === 'template');
+          const pick = problems[0];
+          if (f) window.__lfp.applyCue({ t: 'answer', questionId: f.id, content: pick });
+          const pickedId = s.graph.nodes.find((n) => n.kind === 'problem' && n.title === pick)?.id;
+          const staged = (s.staged?.effects ?? []).filter((e) => e.op === 'add-edge' && e.edge.type === 'motivates' && e.edge.src === pickedId && e.edge.dst === node.id).length;
+          const out = { raised: !!f, raisedBy: f?.raisedBy?.kind, options: f?.options ?? [], problems, at, tmpl, tier: ranked[at]?.tier, staged, answered: f?.answerIds.length ?? 0 };
+          window.__lfp.applyCue({ t: 'discard' });
+          s.graph.nodes = s.graph.nodes.filter((n) => n.id !== node.id); s.graph.edges = s.graph.edges.filter((e) => e.src !== node.id && e.dst !== node.id);
+          s.followups = s.followups.filter((x) => x.id !== `f-link-${node.id}`);
+          return out;
+        });
+        spine.lonely = await p.evaluate(async () => {
+          const checks = await import('/src/checks.ts');
+          const g = { nodes: [{ id: 'capability-smoke-alone', kind: 'capability', title: 'Smoke alone', status: 'committed' }], edges: [] };
+          return checks.checkInvariants(g).filter((v) => v.invariant === 'orphans').length;
+        });
+        await p.evaluate(() => window.__lfp.applyCue({ t: 'discard' }));
+        r.v45Spine = spine;
+        const u = spine.uncertain;
+        if (!(spine.outcome.motivates >= 1)) throw new Error(`spine: expected the q-outcome answer to stage problem —motivates→ outcome, got ${JSON.stringify(spine.outcome)}`);
+        if (!(spine.capability.satisfiesUsecase >= 1)) throw new Error(`spine: expected the q-capability answer to stage capability —satisfies→ usecase, got ${JSON.stringify(spine.capability)}`);
+        if (!u.raised || u.raisedBy !== 'link' || JSON.stringify(u.options) !== JSON.stringify([...u.problems, 'None of these'])) throw new Error(`spine: expected one link follow-up with the problem titles + "None of these", got ${JSON.stringify(u)}`);
+        if (u.tier !== 3 || (u.tmpl >= 0 && u.at !== u.tmpl + 1)) throw new Error(`spine: expected the fresh link follow-up at tier 3 right after the next template question, got ${JSON.stringify(u)}`);
+        if (u.staged !== 1 || u.answered !== 1) throw new Error(`spine: expected picking a title to answer the link follow-up and stage that motivates edge, got ${JSON.stringify(u)}`);
+        if (spine.lonely !== 0) throw new Error(`spine: expected no orphan raised for a capability with no problem/usecase to link to, got ${spine.lonely}`);
+      }
 
       // Reference shows the confidence column and the system1 toggle.
       await p.goto('http://localhost:5199/#kernel'); await p.waitForSelector('[data-testid=ref-system1]', { timeout: 5000 });
@@ -702,7 +830,7 @@ if (!process.env.REALITY_OUT) {
   const { WebSocket: NodeWebSocket } = await import('ws');
   let child = null; let skip = null; let agentLog = ''; let sock = null;
   try {
-    child = spawn('node', ['agent/server.mjs'], { cwd: process.cwd(), env: { ...process.env, FAKE_AI: '1', OPENROUTER_API_KEY: '', ANTHROPIC_API_KEY: '', TYPESAFE_API_KEY: '' }, stdio: ['ignore', 'pipe', 'pipe'] });
+    await waitPortFree(); child = spawn('node', ['agent/server.mjs'], { cwd: process.cwd(), env: { ...process.env, FAKE_AI: '1', OPENROUTER_API_KEY: '', ANTHROPIC_API_KEY: '', TYPESAFE_API_KEY: '' }, stdio: ['ignore', 'pipe', 'pipe'] });
     child.stdout.on('data', (b) => (agentLog += b.toString())); child.stderr.on('data', (b) => (agentLog += b.toString()));
     let exited = false; child.once('exit', () => { exited = true; });
     const ready = await new Promise((resolve) => {
@@ -779,7 +907,7 @@ if (!process.env.REALITY_OUT) {
         const deferred = S.followups.filter((f) => f.id !== fid && f.answerIds.length === 0 && !f.deferred).map((f) => f.id);
         for (const f of S.followups) if (deferred.includes(f.id)) f.deferred = true;
         const top = L.rankOpen()[0];
-        return { fid, deferred, top: top?.id, options: top?.options ?? [], outcome: S.graph.nodes.find((n) => n.kind === 'outcome')?.id };
+        return { fid, deferred, top: top?.id, options: top?.options ?? [], outcomes: S.graph.nodes.filter((n) => n.kind === 'outcome').map((n) => n.title) };
       });
       await p.waitForTimeout(300);
       const outcomeTitle = orphan.options[0];
@@ -797,7 +925,8 @@ if (!process.env.REALITY_OUT) {
         window.__lfp.applyCue({ t: 'commit' });
       }, orphan);
       r.sharedRouter.orphanOption = { top: orphan.top, options: orphan.options, staged: repaired, busMsgs: seen.map((m) => m.kind) };
-      if (orphan.top !== orphan.fid || orphan.options.length !== 5 || orphan.options.slice(-2).join('|') !== 'Remove it|Leave as a stub') throw new Error(`orphan follow-up: expected ${orphan.fid} on the Now strip with 3 outcome titles + Remove it + Leave as a stub, got ${JSON.stringify(r.sharedRouter.orphanOption)}`);
+      // a metric's LINKS rules target outcomes then bets: the outcome titles come first (cap 6), then the repairs
+      if (orphan.top !== orphan.fid || orphan.options.length !== 8 || !orphan.outcomes.includes(outcomeTitle) || orphan.options.slice(-2).join('|') !== 'Remove it|Leave as a stub') throw new Error(`orphan follow-up: expected ${orphan.fid} on the Now strip with outcome titles first, 6 candidates + Remove it + Leave as a stub, got ${JSON.stringify(r.sharedRouter.orphanOption)}`);
       if (repaired.length !== 1 || !repaired[0].startsWith('add-edge:metric-smoke-orphan-monitors-')) throw new Error(`orphan option: expected exactly one staged monitors edge from the orphan metric, got ${JSON.stringify(repaired)}`);
       if (seen.length) throw new Error(`orphan option: expected no user turn and no ai-request on the bus, saw ${seen.map((m) => m.kind).join(', ')}`);
       if (errors.length) throw new Error(`shared router: expected zero page errors, got: ${errors.join('; ')}`);
@@ -898,6 +1027,284 @@ if (!process.env.REALITY_OUT) {
   if (grouped.linked?.length !== 2 || !grouped.linked.every((e) => /^metric-smoke-orphan-[ab]-monitors-outcome-/.test(e))) throw new Error(`orphan group: expected a picked title (any case) to stage a monitors edge from both orphans, got ${JSON.stringify(grouped.linked)}`);
   if (grouped.removed?.join('|') !== 'remove-node:metric-smoke-orphan-a|remove-node:metric-smoke-orphan-b') throw new Error(`orphan group: expected "Remove it" to stage a remove-node per orphan, got ${JSON.stringify(grouped.removed)}`);
   if (!grouped.stub?.deferred || grouped.stub.newAnswers !== 0 || grouped.stub.staged) throw new Error(`orphan group: expected "Leave as a stub" to defer with no answer and nothing staged, got ${JSON.stringify(grouped.stub)}`);
+
+  // need repair (v4.4, from four live sessions: "How would you know '<bet>' holds? Name one metric."
+  // never closed): a bet with no link, committed after two metrics, ranks right after the committed
+  // answer (ahead of the next template question, here q-summary with the summary node set aside);
+  // its follow-up offers both metric titles; a title stages only the references edge; a new title
+  // stages the metric AND the edge; "Mark as intentionally absent for now" and "Defer" defer with
+  // nothing staged; "Add one" stages nothing. No repair label ever becomes a node title.
+  const need = await p.evaluate(() => {
+    const L = window.__lfp, S = L.state;
+    L.applyCue({ t: 'discard' });
+    const outcome = S.graph.nodes.find((n) => n.kind === 'outcome');
+    S.staged = { effects: ['a', 'b'].flatMap((x) => [
+      { id: `ef-nm${x}`, op: 'add-node', node: { id: `metric-smoke-need-${x}`, kind: 'metric', title: `Smoke need metric ${x.toUpperCase()}`, status: 'draft' }, answerId: 'smoke' },
+      { id: `ef-nme${x}`, op: 'add-edge', edge: { id: `e-smoke-need-${x}`, src: `metric-smoke-need-${x}`, dst: outcome.id, type: 'monitors', status: 'draft' }, answerId: 'smoke' },
+    ]), warnings: [] };
+    L.applyCue({ t: 'commit' });
+    const summary = S.graph.nodes.find((n) => n.kind === 'summary');
+    const summaryEdges = S.graph.edges.filter((e) => e.src === summary?.id || e.dst === summary?.id);
+    if (summary) { S.graph.nodes = S.graph.nodes.filter((n) => n !== summary); S.graph.edges = S.graph.edges.filter((e) => !summaryEdges.includes(e)); }
+    L.applyCue({ t: 'answer', questionId: 'q-hypothesis', content: 'Smoke bet needs a metric' });
+    const bet = S.staged?.effects.find((e) => e.op === 'add-node')?.node;
+    L.applyCue({ t: 'commit' });
+    const ranked = L.rankOpen();
+    const nonAgent = ranked.filter((i) => i.tier !== 1);
+    const vid = `needs-cardinality:${bet?.id}`;
+    const fu = S.followups.find((f) => f.raisedBy?.kind === 'violation' && f.answerIds.length === 0 && (f.raisedBy.ref === vid || (f.covers ?? []).includes(vid)));
+    const item = fu && ranked.find((i) => i.id === fu.id);
+    const out = { bet: bet?.id, followup: fu?.id ?? null, top: nonAgent[0]?.id, betAt: ranked.findIndex((i) => i.id === fu?.id), summaryAt: ranked.findIndex((i) => i.id === 'q-summary'), options: item?.options ?? [] };
+    if (summary) { S.graph.nodes.push(summary); S.graph.edges.push(...summaryEdges); }
+    if (!fu) return out;
+    const ops = () => (S.staged?.effects ?? []).map((e) => (e.op === 'add-edge' ? `add-edge:${e.edge.src}-${e.edge.type}-${e.edge.dst}` : e.op === 'add-node' ? `add-node:${e.node.kind}:${e.node.title}` : `${e.op}:${e.nodeId ?? ''}`));
+    L.applyCue({ t: 'answer', questionId: fu.id, content: 'smoke need metric a' });
+    out.linked = ops();
+    L.applyCue({ t: 'discard' });
+    L.applyCue({ t: 'answer', questionId: fu.id, content: 'Smoke brand-new metric' });
+    out.added = ops();
+    L.applyCue({ t: 'discard' });
+    const answers = S.answers.length;
+    L.applyCue({ t: 'answer', questionId: fu.id, content: 'Add one' });
+    out.addOne = { newAnswers: S.answers.length - answers, ops: ops(), warning: S.staged?.warnings?.[0] ?? null };
+    L.applyCue({ t: 'discard' });
+    L.applyCue({ t: 'answer', questionId: fu.id, content: 'Mark as intentionally absent for now' });
+    out.absent = { deferred: !!fu.deferred, newAnswers: S.answers.length - answers, staged: !!S.staged };
+    fu.deferred = false;
+    L.applyCue({ t: 'answer', questionId: fu.id, content: 'Defer' });
+    out.defer = { deferred: !!fu.deferred, newAnswers: S.answers.length - answers, staged: !!S.staged };
+    // "Defer" on a rule condition's test question defers too (it used to stage a test titled "Defer")
+    const cond = S.followups.find((f) => f.raisedBy?.kind === 'violation' && f.answerIds.length === 0 && !f.deferred && [f.raisedBy.ref, ...(f.covers ?? [])].some((v) => v.startsWith('rule-condition-has-test:')));
+    if (cond) { L.applyCue({ t: 'answer', questionId: cond.id, content: 'Defer' }); out.condDefer = { deferred: !!cond.deferred, staged: !!S.staged }; cond.deferred = false; }
+    out.literalTitles = S.graph.nodes.filter((n) => ['add one', 'defer', 'mark as intentionally absent for now'].includes(n.title.toLowerCase())).map((n) => n.id);
+    S.staged = { effects: [bet.id, 'metric-smoke-need-a', 'metric-smoke-need-b'].map((id, i) => ({ id: `ef-nr${i}`, op: 'remove-node', nodeId: id, answerId: 'smoke' })), warnings: [] };
+    L.applyCue({ t: 'commit' });
+    return out;
+  });
+  r.talkConsolidation.needRepair = need;
+  if (!need.followup) throw new Error(`need repair: expected an open follow-up covering needs-cardinality:${need.bet}, got ${JSON.stringify(need)}`);
+  if (need.top !== need.followup || need.summaryAt < 0 || need.betAt > need.summaryAt) throw new Error(`rankOpen: expected the new bet's follow-up first after the agent tier and ahead of q-summary, got ${JSON.stringify(need)}`);
+  if (!need.options.includes('Smoke need metric A') || !need.options.includes('Smoke need metric B') || need.options.includes('Add one')) throw new Error(`need repair: expected both metric titles as options (and no "Add one"), got ${JSON.stringify(need.options)}`);
+  if (need.linked?.join('|') !== `add-edge:${need.bet}-references-metric-smoke-need-a`) throw new Error(`need repair: expected a picked metric title to stage only the bet's references edge, got ${JSON.stringify(need.linked)}`);
+  if (need.added?.length !== 2 || need.added[0] !== 'add-node:metric:Smoke brand-new metric' || !new RegExp(`^add-edge:${need.bet}-references-metric-smoke-brand-new-metric`).test(need.added[1])) throw new Error(`need repair: expected a new metric title to stage the metric and its references edge, got ${JSON.stringify(need.added)}`);
+  if (need.addOne?.newAnswers !== 0 || need.addOne.ops.length || !need.addOne.warning) throw new Error(`need repair: expected "Add one" to stage nothing, record no answer and say what to type, got ${JSON.stringify(need.addOne)}`);
+  if (!need.absent?.deferred || need.absent.newAnswers !== 0 || need.absent.staged) throw new Error(`need repair: expected "Mark as intentionally absent for now" to defer with nothing staged, got ${JSON.stringify(need.absent)}`);
+  if (!need.defer?.deferred || need.defer.newAnswers !== 0 || need.defer.staged) throw new Error(`need repair: expected "Defer" to defer with nothing staged, got ${JSON.stringify(need.defer)}`);
+  if (need.condDefer && (!need.condDefer.deferred || need.condDefer.staged)) throw new Error(`need repair: expected "Defer" on a rule-condition question to defer, got ${JSON.stringify(need.condDefer)}`);
+  if (need.literalTitles?.length) throw new Error(`need repair: repair labels became node titles: ${need.literalTitles.join(', ')}`);
+
+  // the need waits for the chain: a bet raises "needs a metric" only once q-metric was answered or a metric exists
+  const gate = JSON.parse(execSync(`node --input-type=module -e "
+    import { checkInvariants } from './src/checks.ts';
+    const graph = { nodes: [{ id: 'h', kind: 'hypothesis', title: 'A bet', status: 'committed' }], edges: [] };
+    const needs = (g, answered) => checkInvariants(g, {}, { answered }).filter((v) => v.invariant === 'needs-cardinality').length;
+    const withMetric = { nodes: [...graph.nodes, { id: 'm', kind: 'metric', title: 'A metric', status: 'committed' }], edges: [] };
+    console.log(JSON.stringify({ early: needs(graph, ['q-hypothesis']), answered: needs(graph, ['q-hypothesis', 'q-metric']), withMetric: needs(withMetric, []) }));
+  "`, { cwd: process.cwd(), stdio: 'pipe' }).toString());
+  r.talkConsolidation.needGate = gate;
+  if (gate.early !== 0 || gate.answered !== 1 || gate.withMetric !== 1) throw new Error(`need gate: expected 0 before q-metric, 1 once answered, 1 when a metric exists, got ${JSON.stringify(gate)}`);
 }
+
+// ── BEGIN router-advice + critique points (owner: router agent, 2026-09-28) ──────────────────────
+// (a) under the RemoteDirector, advice/judgement text reaches the agent: route-utterance's `agent`
+// key is the fallback, and a next-decision answer on "why/which … would you" text is overridden to
+// the fallback too (the live failure: "Next: Summarise it in a paragraph."). FAKE_S1 honours
+// `#s1pick:<key>`, so both branches are deterministic. (b) committing a new q-outcome answer
+// publishes exactly one `critique` bus message; the FAKE_AI service answers it with one canned say
+// that lands in the transcript, and a replayed critique for the same answerId is dropped by the
+// server. (c) exact commands still never publish a user turn or a critique.
+{
+  const { WebSocket: NodeWebSocket } = await import('ws');
+  let child = null; let skip = null; let agentLog = ''; let sock = null;
+  try {
+    await waitPortFree(); child = spawn('node', ['agent/server.mjs'], { cwd: process.cwd(), env: { ...process.env, FAKE_AI: '1', FAKE_S1: '1', OPENROUTER_API_KEY: '', ANTHROPIC_API_KEY: '', TYPESAFE_API_KEY: '' }, stdio: ['ignore', 'pipe', 'pipe'] });
+    child.stdout.on('data', (b) => (agentLog += b.toString())); child.stderr.on('data', (b) => (agentLog += b.toString()));
+    let exited = false; child.once('exit', () => { exited = true; });
+    const ready = await new Promise((resolve) => {
+      const deadline = Date.now() + 4000;
+      const tryConnect = () => {
+        if (exited || /EADDRINUSE/i.test(agentLog)) { resolve('busy'); return; }
+        if (Date.now() > deadline) { resolve('timeout'); return; }
+        const ws = new NodeWebSocket('ws://localhost:5200');
+        ws.once('open', () => { ws.close(); resolve('ready'); }); ws.once('error', () => setTimeout(tryConnect, 250));
+      };
+      tryConnect();
+    });
+    if (ready === 'ready') {
+      const deadline2 = Date.now() + 6000;
+      while (!/fake-AI service connected/.test(agentLog) && Date.now() < deadline2) await new Promise((res) => setTimeout(res, 100));
+      if (!/fake-AI service connected/.test(agentLog)) skip = 'FAKE_AI service never joined the bus within 6s — skipped the advice/critique check';
+    } else skip = ready === 'busy' ? 'port 5200 already in use — skipped the advice/critique check' : 'FAKE_AI agent server did not accept a connection within 4s — skipped the advice/critique check';
+  } catch (e) { skip = `failed to spawn agent/server.mjs: ${e.message} — skipped the advice/critique check`; }
+
+  if (skip) { r.adviceCritique = { skipped: skip }; child?.kill(); }
+  else {
+    const s1Before = await p.evaluate(() => window.__lfp.state.system1);
+    try {
+      await p.goto('http://localhost:5199/#overview?relay=localhost'); await p.reload(); await p.waitForSelector('[data-testid=talk-panel]');
+      await p.waitForTimeout(1500);
+      await p.evaluate(() => { const S = window.__lfp.state; S.aiRuntime = 'stub'; S.system1 = true; window.__lfp.applyCue({ t: 'discard' }); });
+      const seen = [];
+      sock = new NodeWebSocket('ws://localhost:5200');
+      await new Promise((res, rej) => { sock.once('open', res); sock.once('error', rej); });
+      // listen only: saying hello as an agent here would make this socket the page's agentId and hide the fake's replies
+      sock.on('message', (d) => { try { const m = JSON.parse(d.toString()); if (m.kind === 'user' || m.kind === 'critique') seen.push(m); } catch { /* not json */ } });
+      const env0 = await p.evaluate(() => ({ director: window.__lfp.currentDirector().topics().map((t) => t.id).join(','), s1: window.__lfp.state.system1Ready }));
+      r.adviceCritique = { env: env0 };
+      if (env0.director !== 'chat' || !env0.s1) throw new Error(`advice/critique: expected the RemoteDirector with System One ready, got ${JSON.stringify(env0)}`);
+
+      const typeLine = async (text) => { await p.locator('[data-testid=talk-input]').fill(text); await p.locator('[data-testid=talk-input]').press('Enter'); await p.waitForTimeout(1200); };
+      const routed = async (text) => {
+        seen.length = 0;
+        const before = await p.evaluate(() => window.__lfp.state.aiCalls.length);
+        await typeLine(text);
+        const out = await p.evaluate((before) => ({ route: window.__lfp.state.aiCalls.slice(before).filter((c) => c.fn === 'route-utterance').map((c) => c.output), say: window.__lfp.state.say?.text ?? null }), before);
+        return { ...out, users: seen.filter((m) => m.kind === 'user').map((m) => m.turn?.text) };
+      };
+      const q = 'which of the three capabilities would you build first, and why?';
+      const viaAgent = await routed(`${q} #s1pick:agent`);
+      const viaGuard = await routed(`${q} #s1pick:next-decision`);
+      r.adviceCritique.advice = { viaAgent, viaGuard };
+      if (viaAgent.route[0] !== 'agent' || viaAgent.users.length !== 1) throw new Error(`advice: route-utterance "agent" must publish the turn to the agent, got ${JSON.stringify(viaAgent)}`);
+      if (viaGuard.route[0] !== 'next-decision' || viaGuard.users.length !== 1 || viaGuard.say?.startsWith('Next:')) throw new Error(`advice: next-decision on "why/which … would you" text must fall back to the agent, got ${JSON.stringify(viaGuard)}`);
+
+      // (c) exact commands stay local
+      seen.length = 0;
+      await typeLine('gaps'); await typeLine('what next');
+      r.adviceCritique.exact = seen.map((m) => m.kind);
+      if (seen.length) throw new Error(`exact commands: expected no user turn and no critique on the bus, saw ${seen.map((m) => m.kind).join(', ')}`);
+
+      // (b) one critique per newly committed q-outcome answer
+      seen.length = 0;
+      await p.evaluate(() => { window.__lfp.applyCue({ t: 'answer', questionId: 'q-outcome', content: 'Smoke critique outcome' }); });
+      await p.waitForTimeout(800); // link-answer may append its edges first
+      await p.evaluate(() => window.__lfp.applyCue({ t: 'commit' }));
+      await p.waitForTimeout(1000);
+      // a second, unrelated commit must not critique the same answer again
+      await p.evaluate(() => { const S = window.__lfp.state; const n = S.graph.nodes.find((x) => x.title === 'Smoke critique outcome'); S.staged = { effects: [{ id: 'ef-crit-u', op: 'update-node', nodeId: n.id, patch: { description: 'smoke' }, answerId: 'smoke' }], warnings: [] }; window.__lfp.applyCue({ t: 'commit' }); });
+      await p.waitForTimeout(600);
+      const critiques = seen.filter((m) => m.kind === 'critique');
+      // a replayed critique for the same answer is dropped by the server (no second say)
+      if (critiques[0]) sock.send(JSON.stringify({ ...critiques[0], from: 'smoke-replay' }));
+      await p.waitForTimeout(600);
+      const landed = await p.evaluate(() => window.__lfp.state.transcript.filter((t) => t.who === 'agent' && t.text.startsWith('Critique (fake) after q-outcome')).length);
+      r.adviceCritique.critique = { published: critiques.map((m) => ({ q: m.questionId, a: m.answer, id: m.answerId })), landed, dropped: /already critiqued — dropped/.test(agentLog), reasonLogged: /\[turn\] fake reason=critique/.test(agentLog) };
+      if (critiques.length !== 1 || critiques[0].questionId !== 'q-outcome' || critiques[0].answer !== 'Smoke critique outcome') throw new Error(`critique: expected exactly one critique for the q-outcome answer, got ${JSON.stringify(r.adviceCritique.critique)}`);
+      if (landed !== 1) throw new Error(`critique: expected the fake agent's reply once in the transcript, got ${landed}`);
+      if (!r.adviceCritique.critique.dropped || !r.adviceCritique.critique.reasonLogged) throw new Error(`critique: expected the server to log reason=critique and drop the replay, got ${JSON.stringify(r.adviceCritique.critique)}`);
+      if (errors.length) throw new Error(`advice/critique: expected zero page errors, got: ${errors.join('; ')}`);
+    } finally {
+      await p.evaluate((s1Before) => {
+        const L = window.__lfp, S = L.state;
+        L.applyCue({ t: 'discard' });
+        const ids = S.graph.nodes.filter((n) => n.title === 'Smoke critique outcome').map((n) => n.id);
+        if (ids.length) { S.staged = { effects: ids.map((id, i) => ({ id: `ef-crit-rm${i}`, op: 'remove-node', nodeId: id, answerId: 'smoke' })), warnings: [] }; L.applyCue({ t: 'commit' }); }
+        localStorage.removeItem('bropilot:relay'); S.aiRuntime = 'stub'; S.system1 = s1Before;
+      }, s1Before).catch(() => {});
+      sock?.close(); child?.kill();
+    }
+  }
+}
+// ── END router-advice + critique points ────────────────────────────────────────────────────────────
+
+// ── BEGIN talk-ux (owner: talk-ux agent, 2026-09-28) ─────────────────────────────────────────────────
+// Honest gaps, readable staged edges, progress chip, Approve & next, transcript autoscroll, phone width.
+await t('test-talk-ux', async () => {
+  await p.goto('http://localhost:5199/#overview'); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForSelector('.card');
+  await p.evaluate(() => { window.__lfp.state.panelOpen = true; window.__lfp.state.aiRuntime = 'stub'; });
+  await p.waitForSelector('[data-testid=talk-progress]');
+  const say = async (text) => { await p.locator('[data-testid=talk-input]').fill(text); await p.locator('[data-testid=talk-send]').click(); await p.waitForTimeout(500); };
+  r.talkUx = {};
+  // 1. gaps names the next template question and counts groups
+  await say('gaps');
+  const gapsText = await p.evaluate(() => window.__lfp.state.transcript.filter((m) => m.who === 'agent').at(-1)?.text ?? '');
+  const nextPrompt = await p.evaluate(() => window.__lfp.nextQuestion.value?.prompt ?? '');
+  r.talkUx.gapsText = gapsText.slice(0, 200);
+  if (/^No gaps found/.test(gapsText)) throw new Error(`gaps: still says "No gaps found." with open work: ${gapsText}`);
+  if (nextPrompt && !gapsText.includes(`next: "${nextPrompt}"`)) throw new Error(`gaps: expected the next template question "${nextPrompt}" named, got: ${gapsText.slice(0, 200)}`);
+  if (!/\d+ gap groups?/.test(gapsText)) throw new Error(`gaps: expected a gap-group count, got: ${gapsText.slice(0, 200)}`);
+  // the seed answers every template question: drop the summary so one is left, and ask again
+  await p.evaluate(() => { const S = window.__lfp.state; S.graph.nodes = S.graph.nodes.filter((n) => n.kind !== 'summary'); });
+  await say('gaps');
+  const gapsText2 = await p.evaluate(() => window.__lfp.state.transcript.filter((m) => m.who === 'agent').at(-1)?.text ?? '');
+  const nextPrompt2 = await p.evaluate(() => window.__lfp.nextQuestion.value?.prompt ?? '');
+  r.talkUx.gapsTextWithQuestion = gapsText2.slice(0, 160);
+  if (!nextPrompt2 || !/^1 template question left \(next: "/.test(gapsText2) || !gapsText2.includes(nextPrompt2)) throw new Error(`gaps: expected "1 template question left (next: …)" naming "${nextPrompt2}", got: ${gapsText2.slice(0, 200)}`);
+  // 3. progress chip
+  r.talkUx.progress = await p.locator('[data-testid=talk-progress]').innerText();
+  if (!/^Q \d+\/\d+ · \d+ gaps?/.test(r.talkUx.progress)) throw new Error(`progress chip: unexpected text ${r.talkUx.progress}`);
+  // 2. a staged edge renders with titles (dst resolved from the add-node in the same changeset)
+  const purposeTitle = await p.evaluate(() => {
+    const S = window.__lfp.state; const a = S.graph.nodes.find((x) => x.kind === 'purpose');
+    window.__lfp.applyCue({ t: 'stage', note: 'add-edge | add-edge', effects: [
+      { id: 'ux-0', op: 'add-node', node: { id: 'outcome-ux-smoke', kind: 'outcome', title: 'UX smoke outcome', status: 'draft' }, answerId: 'smoke' },
+      { id: 'ux-1', op: 'add-edge', edge: { id: 'e-ux-smoke', src: a.id, dst: 'outcome-ux-smoke', type: 'motivates', status: 'draft' }, answerId: 'smoke' },
+    ] });
+    return a.title;
+  });
+  await p.waitForTimeout(200);
+  const effectsText = await p.locator('[data-testid=talk-staged-effects]').innerText();
+  const noteText = await p.locator('[data-testid=talk-staged-note]').innerText();
+  const stagedLine = await p.evaluate(() => [...window.__lfp.state.transcript].reverse().find((m) => m.text.startsWith('Staged '))?.text ?? '');
+  r.talkUx.staged = { effectsText, noteText, stagedLine };
+  if (!effectsText.includes(`${purposeTitle} —motivates→ UX smoke outcome`)) throw new Error(`staged edge: expected titles, got ${effectsText}`);
+  if (/add-edge/.test(noteText) || /add-edge/.test(stagedLine)) throw new Error(`staged note: bare op names left: ${noteText} / ${stagedLine}`);
+  // 4. Approve & next commits and reveals the next Now item
+  await p.locator('[data-testid=talk-approve-next]').click(); await p.waitForTimeout(800);
+  r.talkUx.approveNext = await p.evaluate(() => {
+    const now = document.querySelector('[data-testid=talk-now]'); const panel = document.querySelector('[data-testid=talk-panel]');
+    const nr = now.getBoundingClientRect(), pr = panel.getBoundingClientRect();
+    const S = window.__lfp.state; const next = window.__lfp.rankOpen()[0];
+    return { staged: !!S.staged, committed: S.graph.nodes.some((n) => n.id === 'outcome-ux-smoke'), nowVisible: nr.top >= pr.top - 1 && nr.top < pr.bottom, nextSource: next?.source, inputFocused: document.activeElement?.getAttribute('data-testid') === 'talk-input' };
+  });
+  const an = r.talkUx.approveNext;
+  if (an.staged || !an.committed || !an.nowVisible) throw new Error(`approve & next: ${JSON.stringify(an)}`);
+  if (an.nextSource === 'template' && !an.inputFocused) throw new Error(`approve & next: a template question should open "Answer it", got ${JSON.stringify(an)}`);
+  // 5. transcript sticks to the bottom after a reply
+  for (let i = 0; i < 6; i++) await say('what next');
+  r.talkUx.transcriptGap = await p.evaluate(() => { const el = document.querySelector('[data-testid=talk-transcript]'); return Math.round(el.scrollHeight - el.scrollTop - el.clientHeight); });
+  if (r.talkUx.transcriptGap > 2) throw new Error(`transcript: expected scrolled to bottom, ${r.talkUx.transcriptGap}px left`);
+  // 8. phone width: no horizontal page scroll with the Talk panel open
+  const ph = await b.newPage({ viewport: { width: 390, height: 844 } });
+  try {
+    await ph.goto('http://localhost:5199/#overview'); await ph.waitForSelector('.card');
+    await ph.evaluate(() => { window.__lfp.state.panelOpen = true; }); await ph.waitForTimeout(300);
+    r.talkUx.phoneScrollWidth = await ph.evaluate(() => document.documentElement.scrollWidth);
+  } finally { await ph.close(); }
+  if (r.talkUx.phoneScrollWidth > 390) throw new Error(`phone: page scrollWidth ${r.talkUx.phoneScrollWidth} > 390`);
+});
+// ── END talk-ux ──────────────────────────────────────────────────────────────────────────────────────
+
+// ── BEGIN stage-normalise (main loop, 2026-09-28) ────────────────────────────────────────────────────
+// An agent's stage cue arrives in the model's own shape; live session 10 froze the page when a
+// critique staged `{op:'add-edge', from, to, type}` and commit threw. The director normalises.
+await t('test-stage-normalise', async () => {
+  await p.goto('http://localhost:5199/#overview'); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForSelector('.card');
+  r.stageNormalise = await p.evaluate(() => {
+    const s = window.__lfp.state; const before = { nodes: s.graph.nodes.length, edges: s.graph.edges.length };
+    const problem = s.graph.nodes.find((n) => n.kind === 'problem'); const outcome = s.graph.nodes.find((n) => n.kind === 'outcome');
+    window.__lfp.applyCue({ t: 'stage', effects: [
+      { op: 'add-edge', from: problem.id, to: outcome.id, type: 'motivates' },
+      { op: 'add-edge', src: 'nope-1', dst: outcome.id, type: 'motivates' },
+      { op: 'add-edge', src: problem.id, dst: outcome.id, type: 'no-such-type' },
+      { op: 'add-node', kind: 'outcome', title: 'Smoke normalised outcome' },
+      { op: 'add-edge', src: problem.id, dst: 'outcome-smoke-normalised-outcome', type: 'motivates' },
+      { op: 'teleport' },
+    ], note: 'smoke flat effects' });
+    const staged = s.staged ? s.staged.effects.map((e) => `${e.op}:${e.op === 'add-edge' ? `${e.edge.src}-${e.edge.type}-${e.edge.dst}` : e.node?.id ?? e.nodeId}`) : null;
+    const warnings = s.staged?.warnings ?? [];
+    window.__lfp.applyCue({ t: 'commit' });
+    const after = { nodes: s.graph.nodes.length, edges: s.graph.edges.length };
+    window.__lfp.applyCue({ t: 'stage', effects: [{ op: 'add-edge', from: 'x', to: 'y', type: 'motivates' }], note: 'all bad' });
+    const nothing = s.transcript.at(-1)?.text ?? '';
+    return { before, staged, warnings, after, stagedAfterBad: !!s.staged, nothing };
+  });
+  const x = r.stageNormalise;
+  if (!x.staged || x.staged.length !== 3) throw new Error(`stage-normalise: expected 3 valid effects (edge, node, edge to the new node), got ${JSON.stringify(x.staged)}`);
+  if (x.warnings.length < 4) throw new Error(`stage-normalise: expected a warning per dropped effect (3 bad + note), got ${JSON.stringify(x.warnings)}`);
+  if (x.after.nodes !== x.before.nodes + 1 || x.after.edges !== x.before.edges + 2) throw new Error(`stage-normalise: commit should add 1 node + 2 edges, got ${JSON.stringify(x)}`);
+  if (x.stagedAfterBad || !/^Nothing staged/.test(x.nothing)) throw new Error(`stage-normalise: an all-invalid stage must stage nothing and say so, got ${JSON.stringify({ staged: x.stagedAfterBad, nothing: x.nothing })}`);
+});
+// ── END stage-normalise ──────────────────────────────────────────────────────────────────────────────
 
 r.errors = errors; console.log(JSON.stringify(r, null, 1)); await b.close();

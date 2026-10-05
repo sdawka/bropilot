@@ -303,9 +303,9 @@ async function copyCalls() {
           <td :title="c.input">{{ truncate(c.input) }}</td>
           <td :title="c.output">{{ truncate(c.output) }}</td>
           <td>
-            <span v-if="c.rating" class="tag">{{ c.rating.value }}</span>
+            <span v-if="c.rating" class="tag" data-testid="ref-rated">{{ fnById[c.fn]?.feedback.find((f) => f.value === c.rating!.value)?.label ?? c.rating.value }}</span>
             <span v-else class="ratebar">
-              <button v-for="opt in fnById[c.fn]?.feedback ?? []" :key="opt.value" class="small" @click="rateCall(c.id, opt.value)">{{ opt.label }}</button>
+              <button v-for="opt in fnById[c.fn]?.feedback ?? []" :key="opt.value" class="small" :data-testid="`ref-rate-${opt.value}`" @click="rateCall(c.id, opt.value)">{{ opt.label }}</button>
             </span>
           </td>
           <td class="mono small">

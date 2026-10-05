@@ -3,10 +3,10 @@
 // Never auto-repairs anything; every violation carries repair options and a `raise` kind so
 // store.ts::syncRaised() can turn it into a FollowUp the user answers.
 
-import { KINDS, kindById, edgeTypeById } from './kernel.ts';
+import { KINDS, QUESTIONS, kindById, edgeTypeById, type KindDef, type NeedDef } from './kernel.ts';
 import type { Graph, Node, Violation } from './types.ts';
 import { thresholdFor } from './ai/decisionConfig.ts';
-import { LINKS } from './ai/links.ts';
+import { linkRulesFor, type LinkRule } from './ai/links.ts';
 
 /** A rule's conditions: its description split on newlines, trimmed, non-empty — or, when it has
  * no description, one condition equal to its title (v4.1 decision: "a condition is one line of
@@ -41,13 +41,92 @@ const OPTIONS: Record<string, string[]> = {
   'protocol-realised': ['Add a realising practice', 'Mark as a planned change', 'Retire the protocol'],
   'test-without-passing-fresh-result-and-no-task': ['Create a task targeting this test', 'Add it to an existing epic', 'Mark as accepted risk'],
   orphans: ['Link it to something', 'Remove it', 'Leave as a stub'],
-  // a kind with a LINKS rule and candidates offers the candidate titles instead of "Link it to
-  // something"; store.ts::answerFollowUp turns a picked title into the edge (orphanRepair)
-  'orphans-linkable': ['Remove it', 'Leave as a stub'],
   'suspect-edges-pending': ['Revalidate', 'Re-edit the neighbour', 'Ignore for now'],
   'task-done-without-verdict': ['Run the reviewer', 'Set status back to running', 'Accept without review'],
   'task-verified-without-green': ['Re-run the suite', 'Set status back to running'],
 };
+
+/** The repairs offered after the candidate titles when an invariant has candidates: the generic
+ * "link one" option is replaced by the titles themselves, and "add one" by typing a new title. */
+const LINKABLE_REPAIRS: Record<string, string[]> = {
+  orphans: ['Remove it', 'Leave as a stub'],
+  'needs-cardinality': ['Mark as intentionally absent for now'],
+  'test-has-rule': ['Convert to a standalone health check', 'Remove the test'],
+  'protocol-realised': ['Mark as a planned change', 'Retire the protocol'],
+};
+/** Invariants whose options are candidate node titles followed by repairs (consolidate.ts keeps
+ * those whole instead of cutting a group's options to 4). */
+export const CANDIDATE_INVARIANTS = new Set(Object.keys(LINKABLE_REPAIRS));
+
+/** What picking a repair option does, in one place (store.ts::answerFollowUp reads it; no option
+ * string matching lives there). `link`/`add` on the label itself stage nothing: the user names the
+ * node (a candidate title links it, a new title adds it with the needed edge). `defer` is the Now
+ * strip's Skip: deferred, no answer, nothing staged. `remove` stages remove-node for the subject.
+ * An option not in this table (Revalidate, Accept without review …) is recorded as the answer and
+ * stages nothing. */
+export const OPTION_ACTS: Record<string, { act: 'link' | 'add' | 'defer' | 'remove' }> = {
+  'Link it to something': { act: 'link' },
+  'Link an existing node': { act: 'link' },
+  'Link to the rule it verifies': { act: 'link' },
+  'Merge into an existing test': { act: 'link' },
+  'Add one': { act: 'add' },
+  'Write a test for this condition': { act: 'add' },
+  'Add a realising practice': { act: 'add' },
+  'Leave as a stub': { act: 'defer' },
+  'Mark as intentionally absent for now': { act: 'defer' },
+  'Defer': { act: 'defer' },
+  'Mark as a planned change': { act: 'defer' },
+  'Ignore for now': { act: 'defer' },
+  'Remove it': { act: 'remove' },
+  'Remove the test': { act: 'remove' },
+  'Retire the protocol': { act: 'remove' },
+};
+const ACT_BY_LABEL = new Map(Object.entries(OPTION_ACTS).map(([label, a]) => [label.toLowerCase(), a.act]));
+/** Every repair label any invariant offers (lower-cased): used to tell candidate titles from repairs. */
+const REPAIR_LABELS = new Set([...Object.values(OPTIONS).flat(), ...Object.keys(OPTION_ACTS)].map((l) => l.toLowerCase()));
+
+/** The act of an answer that is exactly a repair label (case-insensitive); `'noted'` for a repair
+ * label with no act; `null` when the answer is not a repair label (a title, or free text). */
+export function actOf(answer: string): 'link' | 'add' | 'defer' | 'remove' | 'noted' | null {
+  const said = answer.trim().toLowerCase();
+  return ACT_BY_LABEL.get(said) ?? (REPAIR_LABELS.has(said) ? 'noted' : null);
+}
+export const isRepairLabel = (label: string) => REPAIR_LABELS.has(label.trim().toLowerCase());
+
+/** Which invariant a kind's `needs` row raises as (rule's own row is skipped: rule-condition-has-test
+ * is the finer per-line check that replaces it). */
+function needInvariant(kind: KindDef, need: NeedDef): string | null {
+  if (kind.id === 'rule') return null;
+  if (kind.id === 'test' && need.edge === 'verifies') return 'test-has-rule';
+  if (kind.id === 'protocol' && need.edge === 'realises') return 'protocol-realised';
+  return 'needs-cardinality';
+}
+
+/** Up to 6 titles of nodes of `kinds` other than `selfId`: kind by kind in the order given (a
+ * metric orphan offers outcomes before bets), newest first within a kind. */
+function candidateTitles(graph: Graph, kinds: string[], selfId: string): string[] {
+  return [...new Set(kinds)].flatMap((k) => graph.nodes.filter((c) => c.kind === k && c.id !== selfId).reverse()).slice(0, 6).map((c) => c.title);
+}
+
+/** How a violation is repaired by naming nodes: the subject, the edge rules from the subject to
+ * the needed kind(s) (same shape as LINKS, so ai/links.ts::endpoints applies), whether a typed
+ * title that matches no node may add one (a need can; an orphan only links), and props for an
+ * added node (a test's condition line). `null`: not repaired by naming nodes (edge-shape, …). */
+export interface Repair { subject: string; rules: LinkRule[]; add: boolean; props?: Record<string, string> }
+export function repairOf(v: Violation, graph: Graph): Repair | null {
+  const subject = graph.nodes.find((n) => n.id === v.subjects[0]);
+  if (!subject) return null;
+  if (v.invariant === 'orphans') return { subject: subject.id, rules: linkRulesFor(subject.kind), add: false };
+  if (v.invariant === 'rule-condition-has-test') {
+    const i = Number(/^cond(\d+)$/.exec(v.subjects[1] ?? '')?.[1] ?? -1);
+    const cond = conditionsOf(subject)[i];
+    return { subject: subject.id, rules: [{ edge: 'verifies', dir: 'in', target: 'test' }], add: true, props: cond ? { condition: cond } : undefined };
+  }
+  const kind = kindById[subject.kind];
+  const need = kind?.needs?.find((n) => needInvariant(kind, n) === v.invariant && n.produces === v.produces && n.produces);
+  if (!need?.produces) return null;
+  return { subject: subject.id, rules: [{ edge: need.edge, dir: need.dir, target: need.produces }], add: true };
+}
 
 /** Every test a task targets reports a fresh, passing result (v4.2, S152: the reviewer gate).
  * `store.ts::applyReality` merges `reality.json`'s test-result props and edge `trace` before this
@@ -97,7 +176,15 @@ export function conditionPairs(graph: Graph): {
   return out;
 }
 
-export function checkInvariants(graph: Graph, reality: RealityMatches = {}): Violation[] {
+/** `answered`: ids of template questions answered at least once (store.ts passes them). A need
+ * whose kind a template question produces waits until that question was answered or the graph
+ * already has a node of the kind, so "the bet needs a metric" waits for q-metric (v4.4). */
+export function checkInvariants(graph: Graph, reality: RealityMatches = {}, opts: { answered?: Iterable<string> } = {}): Violation[] {
+  const answered = new Set(opts.answered ?? []);
+  const needReady = (kindId: string) => {
+    const q = QUESTIONS.find((q) => q.produces === kindId);
+    return !q || answered.has(q.id) || graph.nodes.some((n) => n.kind === kindId);
+  };
   const byId = Object.fromEntries(graph.nodes.map((n) => [n.id, n])) as Record<string, Node>;
   const violations: Violation[] = [];
 
@@ -124,15 +211,13 @@ export function checkInvariants(graph: Graph, reality: RealityMatches = {}): Vio
   // ── needs-cardinality: KindDef.needs, generic engine ────────────────────────────────────────
   // rule's own needs entry is skipped here — rule-condition-has-test below is the finer-grained
   // per-line check that replaces it for rules.
+  // Options: up to 6 titles of the needed kind, then the repairs (store.ts turns a title into the edge).
   for (const kind of KINDS) {
     if (!kind.needs) continue;
     for (const need of kind.needs) {
-      const invariantId =
-        kind.id === 'rule' ? null :
-        kind.id === 'test' && need.edge === 'verifies' ? 'test-has-rule' :
-        kind.id === 'protocol' && need.edge === 'realises' ? 'protocol-realised' :
-        'needs-cardinality';
+      const invariantId = needInvariant(kind, need);
       if (!invariantId) continue;
+      if (need.produces && !needReady(need.produces)) continue;
       for (const n of graph.nodes.filter((n) => n.kind === kind.id)) {
         const count = graph.edges.filter((e) => {
           if (e.type !== need.edge) return false;
@@ -144,12 +229,13 @@ export function checkInvariants(graph: Graph, reality: RealityMatches = {}): Vio
           return true;
         }).length;
         if (count < need.min) {
+          const candidates = need.produces ? candidateTitles(graph, [need.produces], n.id) : [];
           violations.push({
             id: `${invariantId}:${n.id}`,
             invariant: invariantId,
             subjects: [n.id],
             message: need.ask.replace('{title}', n.title),
-            options: OPTIONS[invariantId],
+            options: candidates.length ? [...candidates, ...LINKABLE_REPAIRS[invariantId]] : OPTIONS[invariantId],
             raise: 'question',
             produces: need.produces,
           });
@@ -203,18 +289,21 @@ export function checkInvariants(graph: Graph, reality: RealityMatches = {}): Vio
   }
 
   // ── orphans: same rule as store.ts's dogfood check (singular kinds and terms may stand alone) ─
-  // Options for a kind with a LINKS rule: up to 6 titles of the rule's target kind, then the repairs.
+  // Options: up to 6 titles of the kinds it can be linked with (both directions), then the repairs.
+  // A kind with link rules is raised only once something to link to exists — an audience committed
+  // before any context is not a gap yet, it is the template still running (2026-09-28).
   for (const n of graph.nodes) {
     if (kindById[n.kind]?.singular || n.kind === 'term') continue;
     if (!graph.edges.some((e) => e.src === n.id || e.dst === n.id)) {
-      const rule = LINKS[n.kind];
-      const candidates = rule ? graph.nodes.filter((c) => c.kind === rule.target && c.id !== n.id).slice(0, 6).map((c) => c.title) : [];
+      const rules = linkRulesFor(n.kind);
+      const candidates = candidateTitles(graph, rules.map((r) => r.target), n.id);
+      if (rules.length && !candidates.length) continue;
       violations.push({
         id: `orphans:${n.id}`,
         invariant: 'orphans',
         subjects: [n.id],
         message: `"${n.title}" (${n.kind}) has no edges at all.`,
-        options: candidates.length ? [...candidates, ...OPTIONS['orphans-linkable']] : OPTIONS.orphans,
+        options: candidates.length ? [...candidates, ...LINKABLE_REPAIRS.orphans] : OPTIONS.orphans,
         raise: 'question',
       });
     }

@@ -59,20 +59,37 @@ export function nodeByTextRequest(text: string, nodes: NodeLike[], candidates: N
   }
   return req;
 }
-/** Level 2, or null when level 1 already resolved (a confident candidate, or no kind). */
+/** Fan-out (AGENT-RUNTIME.md §9, "Fan-out"): level 1 plus the level-2 node question for *every*
+ * pointable kind, in one request, under the answer key `node-<kind>`. Level 2 depends only on the
+ * kind *choice* (never on a string level 1 produced), so every branch can be asked up front; the
+ * resolver reads only the chosen kind's branch. The walker (system1.ts) sends this instead of level 1
+ * when it fits Jev's budget, else walks level by level. */
+export const nodeKey = (kind: string) => `node-${kind}`;
+export function nodeByTextFanoutRequest(text: string, nodes: NodeLike[], candidates: NodeLike[]): S1Request {
+  const req = nodeByTextRequest(text, nodes, candidates);
+  for (const k of pointableKinds(nodes)) req.questions[nodeKey(k.id)] = nodeRequest(text, k.id, nodes).questions.node;
+  return req;
+}
+/** The level-2 answer for the chosen kind: the sequential walk's `node`, or the fan-out's `node-<kind>`. */
+const nodeAnswerFor = (answers: S1Answers, kind: string) => answers[nodeKey(kind)] ?? answers.node;
+
+/** Level 2, or null when level 1 already resolved (a confident candidate, or no kind) or the
+ * fan-out already answered the chosen kind's branch. */
 export function nodeByTextNext(text: string, nodes: NodeLike[], answers: S1Answers, candidateThreshold: number): S1Request | null {
   const c = answers.cand;
   if (c && c.type === 'choice' && c.choice !== NONE && answerConfidence(c) >= candidateThreshold) return null;
   const k = resolveKind(answers);
-  return k.kind ? nodeRequest(text, k.kind, nodes) : null;
+  if (!k.kind || nodeAnswerFor(answers, k.kind)) return null;
+  return nodeRequest(text, k.kind, nodes);
 }
 export function resolveNodeByText(answers: S1Answers, candidateThreshold: number): { id: string | null; confidence: number; via: 'candidates' | 'kind' | 'none' } {
   const c = answers.cand;
   if (c && c.type === 'choice' && c.choice !== NONE && answerConfidence(c) >= candidateThreshold) return { id: c.choice, confidence: answerConfidence(c), via: 'candidates' };
   const k = resolveKind(answers);
   if (!k.kind) return { id: null, confidence: k.confidence, via: 'none' };
-  const n = resolveNode(answers);
-  if (!answers.node) return { id: null, confidence: k.confidence, via: 'kind' }; // level 2 never ran
+  const branch = nodeAnswerFor(answers, k.kind);
+  if (!branch) return { id: null, confidence: k.confidence, via: 'kind' }; // level 2 never ran
+  const n = resolveNode({ node: branch });
   // A real pick within the kind confirms the kind (a wrong kind answers none at level 2), so it
   // stands on its own confidence: "H5" is a vague kind (≈0.5) but an unambiguous bet (≈0.97).
   // A none keeps the weaker of the two — it is only a not-found if the kind was right.

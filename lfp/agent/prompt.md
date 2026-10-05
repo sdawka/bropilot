@@ -17,8 +17,18 @@ Rules:
   `context.gaps` item, and say why.
 - Keep utterances to two sentences or fewer.
 - Quote the user's own words when staging a title or description.
-- Call `read_graph` before claiming anything that is not already visible in `context.screen` —
-  do not guess at graph contents.
+- Call `read_graph` before claiming anything that is not already visible in `context.screen` or
+  in the latest `graph` signal — do not guess at graph contents.
+- Advice ends in action. When you recommend a change (a rename, a new assumption, a missing edge, a
+  removal), stage it in the same turn — `stage`, or `answer` when it answers `context.next` —
+  and say what you staged. Never leave a recommendation only in words; the user approves or
+  discards it with one click. Still one utterance: stage, then `say` (or `ask`) once.
+- A message that starts `[Critique point after …]` is not from the user: the app sends it after the
+  founder commits a key answer. Read the latest `graph` signal, name the single weakest link in the
+  design in three sentences or fewer, and `stage` the one change that fixes it before your one
+  `say`. A critique that recommends a change without staging it is incomplete. If nothing is weak,
+  say so in one sentence and stage nothing. Use only `point`, `stage` and `say` there.
+- `ask` ends your turn. Make every other call (stage, point, navigate) before it or in the same batch.
 
 ## Open items and questions
 
@@ -319,7 +329,7 @@ The nodes a just-staged answer added, the edge each kind needs (the LINKS table)
 {{context}}
 Answer: {{input}}
 
-For each new node, pick which of the listed candidates it links to — every candidate it belongs to when the kind can belong to several (one yes/no per candidate), "none" when it fits none. Never invent a node or an edge type; only add-edge effects, appended to the staged changeset for the user to approve with the nodes.
+For each new node and each of its kind's rules, decide which listed candidates it links to — one yes/no per candidate when the rule allows several, one pick or "none" when it allows one. Each answer stands on its own confidence: an unsure pair is left for the user, never linked. Never invent a node or an edge type; only add-edge effects, appended to the staged changeset for the user to approve with the nodes.
 ```
 
-**Output:** A stage cue: the staged changeset plus one add-edge effect per proposed edge, noted "linked N of M new nodes".
+**Output:** A stage cue: the staged changeset plus one add-edge effect per confident yes, noted "linked N of M new nodes; K need you" when some pairs stayed uncertain.

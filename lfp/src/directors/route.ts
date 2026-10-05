@@ -5,7 +5,7 @@
 //
 // Order: a pending two-step ask claims the next line; else an exact command regex; else, when
 // System One is on, `route-utterance` (Jev) picks a registry function. Anything nobody claims —
-// including route-utterance choosing `describe-screen`, a low-confidence answer, a timeout or an
+// including route-utterance choosing `agent` or `describe-screen`, a low-confidence answer, a timeout or an
 // error — goes to the caller's `fallback`: describe-screen for ScriptedDirector, "publish the turn to
 // the agent" for RemoteDirector. So exact commands and confident routes run locally on both.
 import { applyCues } from '../director.ts';
@@ -14,6 +14,15 @@ import { runAI } from '../ai/runtime.ts';
 import { aiFunction } from '../ai/index.ts';
 import { decideGated, system1Enabled } from '../ai/system1.ts';
 import { state, persist, nodeById, type AICall } from '../store.ts';
+
+/** Advice, judgement and open design questions ("which … would you build first, and why?", "should
+ * we …", "what do you think"). route-utterance offers an `agent` key for these; this is the
+ * deterministic backstop when Jev still picks next-decision (the live failure of 2026-09-28): a
+ * next-decision answer on such text goes to the fallback instead. The bare "what next" commands
+ * never reach here (exact regex above). */
+const JUDGEMENT = /\b(why|which\b.*\b(would|should|first|better|best)|should (we|i)|would you|do you think|recommend|opinion|compare|versus|trade-?offs?|pros and cons|worth)\b/i;
+/** "what should I do next?" is still next-decision: a `next` with no `why` keeps the classification. */
+const isJudgement = (text: string) => JUDGEMENT.test(text) && (/\bwhy\b/i.test(text) || !/\bnext\b/i.test(text));
 
 /** What to do with text neither a regex nor a confident route-utterance answer claims. Its cues are
  * returned synchronously on the fast path, or applied via applyCues when route-utterance settles. */
@@ -157,12 +166,15 @@ export class Router {
   }
 
   /** Dispatches the function route-utterance classified, with the args each one needs — mirrors
-   * the args the regex branches above already pass their own functions. `describe-screen` (and a
-   * review with no task in view) is not a claim: it goes to the fallback. */
+   * the args the regex branches above already pass their own functions. `agent`, `describe-screen`
+   * (and a review with no task in view, or next-decision on JUDGEMENT text) are not claims: they go
+   * to the fallback. */
   private dispatch(fn: string, text: string, fallback: Fallback): Cue[] {
     const ctx = this.ctx();
     switch (fn) {
-      case 'next-decision': return runAI(aiFunction('next-decision'), undefined, ctx);
+      case 'next-decision':
+        if (isJudgement(text)) return fallback(text);
+        return runAI(aiFunction('next-decision'), undefined, ctx);
       case 'propose-followup': return runAI(aiFunction('propose-followup'), {}, ctx);
       case 'find-gaps': return runAI(aiFunction('find-gaps'), undefined, ctx);
       case 'find-contradictions': return runAI(aiFunction('find-contradictions'), undefined, ctx);
@@ -176,6 +188,9 @@ export class Router {
         return fallback(text);
       }
       case 'raise-question': return runAI(aiFunction('raise-question'), { missing: text }, ctx);
+      // advice / judgement / an open question: the director's fallback (the agent under Remote,
+      // describe-screen under Scripted) — never a local function that answers with a list item
+      case 'agent':
       case 'describe-screen':
       default:
         return fallback(text);

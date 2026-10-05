@@ -109,17 +109,19 @@ useScreen((): ScreenItem[] => {
     </header>
 
     <section v-if="showBasics" class="basics-panel">
-      <div v-for="k in basicsKinds" :key="k.id" class="kind-group">
+      <template v-for="k in basicsKinds" :key="k.id">
+      <p v-if="!byKind[k.id]?.length" class="kind-empty" :title="k.blurb" data-testid="kind-empty">{{ k.icon }} {{ k.plural }} · none yet</p>
+      <div v-else class="kind-group">
         <h3>
           <span>{{ k.icon }} {{ k.plural }}</span>
           <span class="tags"><span class="tag" :class="k.kernel ? 'kernel' : 'ext'">{{ k.kernel ? 'kernel' : 'template' }}</span><Prov :source="k.source" /></span>
         </h3>
-        <p v-if="!byKind[k.id]?.length" class="empty">{{ k.blurb }}</p>
         <button v-for="n in byKind[k.id]" :key="n.id" class="card" :data-node-id="n.id" :class="[n.status, cardClass(n.id)]" @click="select(n.id)">
           <span class="title">{{ n.title }}</span>
           <span class="meta"><span class="status">{{ n.status }}</span><Prov :source="n.source" /></span>
         </button>
       </div>
+      </template>
     </section>
 
     <div class="board-host" ref="wrap">
@@ -131,12 +133,13 @@ useScreen((): ScreenItem[] => {
           <p>{{ sp.blurb }}</p>
           <Prov :source="sp.source" />
         </header>
-        <div v-for="k in nonDomainKinds(sp.id)" :key="k.id" class="kind-group">
+        <template v-for="k in nonDomainKinds(sp.id)" :key="k.id">
+        <p v-if="!byKind[k.id]?.length" class="kind-empty" :title="k.blurb" data-testid="kind-empty">{{ k.icon }} {{ k.plural }} · none yet</p>
+        <div v-else class="kind-group">
           <h3>
             <span>{{ k.icon }} {{ k.plural }}</span>
             <span class="tags"><span class="tag" :class="k.kernel ? 'kernel' : 'ext'">{{ k.kernel ? 'kernel' : 'template' }}</span><Prov :source="k.source" /></span>
           </h3>
-          <p v-if="!byKind[k.id]?.length" class="empty">{{ k.blurb }}</p>
           <button v-for="n in byKind[k.id]" :key="n.id" class="card" :data-node-id="n.id" :class="[n.status, cardClass(n.id)]" @click="select(n.id)">
             <span class="title">{{ n.title }}</span>
             <span class="chips" v-if="crossLinks(n.id).length">
@@ -146,6 +149,7 @@ useScreen((): ScreenItem[] => {
             <span class="meta"><span class="status">{{ n.status }}</span><Prov :source="n.source" /></span>
           </button>
         </div>
+        </template>
 
         <div v-if="sp.id === 'solution'" class="kind-group domain-summary">
           <h3><span>🗺️ Domain</span></h3>
@@ -179,6 +183,8 @@ useScreen((): ScreenItem[] => {
 .project-header h1 { font-size: 1.3rem; margin-bottom: .1rem; }
 .project-header .subtitle { color: var(--muted); font-size: .9rem; margin: 0; }
 .basics-panel { display: grid; grid-template-columns: repeat(3, minmax(200px, 1fr)); gap: .8rem; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: .7rem; margin-bottom: .8rem; }
+.kind-empty { margin: .5rem 0 0; font-size: .78rem; color: var(--muted); opacity: .75; }
+.basics-panel .kind-empty { margin: 0; }
 .domain-summary { border-top: 1px dashed var(--line); padding-top: .5rem; margin-top: 1rem; }
 .domain-counts { display: flex; flex-wrap: wrap; gap: .4rem .8rem; font-size: .78rem; }
 .domain-count { color: var(--muted); }

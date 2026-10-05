@@ -18,7 +18,7 @@
 | consolidate-questions | 0.1 | Rewrites a group of related violation follow-ups as one question a user can answer in a single sentence. | next | — | Makes sense / Doesn't make sense / Bad question | said S113, S142 |
 | find-contradictions | 0.1 | Scans the graph for two statements that disagree: same-titled nodes of one kind, or rules governing the same thing with opposing conditions. | graph | yes | Makes sense / Doesn't make sense / Bad question | inferred: v4.2 plan: contradiction-detection wasn't named in a brief statement; grouped under the same "consolidate to common sources of truth" intent as consolidate-questions (S142). |
 | route-utterance | 0.1 | Routes free text that matched no Talk command to the registry function that should handle it (v4.3, System One). | screen, next | yes | Makes sense / Doesn't make sense / Bad question | inferred: v4.3: the Talk router was ten anchored regexes with a describe-screen fallback; Jev classifies the fall-through (S154). |
-| link-answer | 0.2 | Proposes the edges for the nodes a just-staged answer added (audience has context, bet references outcome, …) and appends them to the same staged changeset, so no template answer lands as orphans (v4.3). | graph | yes | Makes sense / Doesn't make sense / Bad question | inferred: v4.3 design session (2026-09-28): answering the template staged nodes but no edges, so the orphans invariant raised ~29 gaps at once. |
+| link-answer | 0.3 | Proposes the edges for the nodes a just-staged answer added (audience has context, bet references outcome, …) and appends them to the same staged changeset, so no template answer lands as orphans (v4.3). | graph | yes | Makes sense / Doesn't make sense / Bad question | inferred: v4.3 design session (2026-09-28): answering the template staged nodes but no edges, so the orphans invariant raised ~29 gaps at once. |
 
 ## describe-screen
 
@@ -299,9 +299,9 @@ Pick exactly one function to handle it: describe-screen (names what is on screen
 
 Proposes the edges for the nodes a just-staged answer added (audience has context, bet references outcome, …) and appends them to the same staged changeset, so no template answer lands as orphans (v4.3).
 
-- **Version:** 0.2
+- **Version:** 0.3
 - **Context needs:** graph
-- **Output:** A stage cue: the staged changeset plus one add-edge effect per proposed edge, noted "linked N of M new nodes".
+- **Output:** A stage cue: the staged changeset plus one add-edge effect per confident yes, noted "linked N of M new nodes; K need you" when some pairs stayed uncertain.
 - **System One:** declares a typed decision (AGENT-RUNTIME.md §9); the stub answers below the threshold
 - **Feedback options:** Makes sense, Doesn't make sense, Bad question
 
@@ -312,5 +312,5 @@ The nodes a just-staged answer added, the edge each kind needs (the LINKS table)
 {{context}}
 Answer: {{input}}
 
-For each new node, pick which of the listed candidates it links to — every candidate it belongs to when the kind can belong to several (one yes/no per candidate), "none" when it fits none. Never invent a node or an edge type; only add-edge effects, appended to the staged changeset for the user to approve with the nodes.
+For each new node and each of its kind's rules, decide which listed candidates it links to — one yes/no per candidate when the rule allows several, one pick or "none" when it allows one. Each answer stands on its own confidence: an unsure pair is left for the user, never linked. Never invent a node or an edge type; only add-edge effects, appended to the staged changeset for the user to approve with the nodes.
 ```

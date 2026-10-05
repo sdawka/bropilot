@@ -30,7 +30,12 @@ function cueTool<TInput extends v.GenericSchema | undefined>(
   description: string,
   input: TInput,
   build: (data: TInput extends v.GenericSchema ? v.InferOutput<TInput> : Record<string, never>) => unknown,
+  opts: { terminate?: boolean } = {},
 ) {
+  // `terminate: true` ends the response once this tool's batch settles (guide/tools.md), so the
+  // model does not pay for an empty closing turn after it. A batch terminates only when every
+  // result in it does, so `stage` + `ask` in one batch still gets its next turn.
+  const end: { terminate?: boolean } = opts.terminate ? { terminate: true } : {};
   return defineTool({
     name,
     description,
@@ -38,8 +43,8 @@ function cueTool<TInput extends v.GenericSchema | undefined>(
     async run({ data }: any) {
       const cue = build(data ?? {});
       const result = await busRef.publishCue(cue);
-      if (!result) return { output: 'no main screen: nothing is listening on the bus right now' };
-      return { output: compactCtx(result.ctx) };
+      if (!result) return { output: 'no main screen: nothing is listening on the bus right now', ...end };
+      return { output: compactCtx(result.ctx), ...end };
     },
   });
 }
@@ -87,8 +92,16 @@ const sequence = cueTool(
 
 const stage = cueTool(
   'stage',
-  "Propose data changes (add/update/remove nodes, add edges). They land in the changeset for the user to approve via `commit`; nothing commits without approval. Quote the user's own words in staged titles.",
-  v.object({ effects: v.array(v.any()), note: v.string() }),
+  "Propose data changes (add/update/remove nodes, add edges). They land in the changeset for the user to approve via `commit`; nothing commits without approval. Quote the user's own words in staged titles. Effect shapes: {op:'add-node', kind, title, description?} · {op:'add-edge', src, dst, type} with node ids from the graph signal and an edge type that kind pair admits · {op:'update-node', nodeId, patch:{title?, description?}} · {op:'remove-node', nodeId}. Anything else is rejected.",
+  v.object({
+    effects: v.array(v.variant('op', [
+      v.object({ op: v.literal('add-node'), kind: v.string(), title: v.string(), description: v.optional(v.string()) }),
+      v.object({ op: v.literal('add-edge'), src: v.string(), dst: v.string(), type: v.string() }),
+      v.object({ op: v.literal('update-node'), nodeId: v.string(), patch: v.object({ title: v.optional(v.string()), description: v.optional(v.string()) }) }),
+      v.object({ op: v.literal('remove-node'), nodeId: v.string() }),
+    ])),
+    note: v.string(),
+  }),
   (d) => ({ t: 'stage', effects: d.effects, note: d.note }),
 );
 
@@ -101,9 +114,10 @@ const glossary = cueTool(
 
 const ask = cueTool(
   'ask',
-  'Ask the user one question, optionally with options. Use this or `say`, never both in one turn.',
+  'Ask the user one question, optionally with options. Use this or `say`, never both in one turn. Ends your turn: make every other call (stage, point, navigate) before or alongside it.',
   v.object({ text: v.string(), options: v.optional(v.array(v.string())), id: v.optional(v.string()) }),
   (d) => ({ t: 'ask', text: d.text, options: d.options, id: d.id ?? genId('a') }),
+  { terminate: true },
 );
 
 const answer = cueTool(

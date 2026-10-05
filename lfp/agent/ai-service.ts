@@ -9,14 +9,18 @@
 //    agent/agents/from-spec.ts::modelFor does (mid for answer-to-effects/review-change, cheap else).
 //
 // Requests are drained one at a time (see `queue` below): each gets its own one-shot `AiFunction`
-// instance (`aifn:<request id>`) whose harness tool runs `harness.prompt(text, { result: schema })`
-// (node_modules/@flue/runtime/docs/guide/tools.md, "A harness tool can stage inputs, run focused
-// model work, and validate the result behind one tool call" — the API this file uses; see the
-// report for why the alternative, a model-called `result` tool, wasn't needed). The schema itself
-// isn't JSON-serialisable, so it can't travel through Flue's `initialData` (which is durably
-// recorded); instead it rides a module-level `current` slot, valid only because requests are
-// strictly sequential — the queue is what makes that safe.
-import { init, useModel, useTool, defineTool, observe } from '@flue/runtime';
+// instance (`aifn:<request id>`). The request's prompt is the dispatched message, and the agent's
+// only tool is `result`, whose input schema is `{ result: <the function's output schema> }` and
+// whose return carries `terminate: true` — so a well-behaved request is exactly one model turn
+// (tools.md: terminate ends the turn once the batch settles; input validation failures go back to
+// the model, which retries). The v4.2 shape ran `harness.prompt(text, { result })` inside a
+// `run_prompt` tool: three model calls per request (the call to run_prompt, the scratch prompt,
+// the closing "then stop" turn). The schema is wrapped because output schemas include
+// `v.variant` unions and a tool input must be a top-level object. The schema itself isn't
+// JSON-serialisable, so it can't travel through Flue's `initialData` (which is durably recorded);
+// instead it rides a module-level `current` slot, valid only because requests are strictly
+// sequential — the queue is what makes that safe.
+import { init, useModel, useTool, useAgentFinish, defineTool, observe } from '@flue/runtime';
 import * as v from 'valibot';
 import { aiFunctionById } from '../src/ai/registry.ts';
 import { TIER_MODELS, DIRECT_MODELS } from '../src/agents.ts';
@@ -46,6 +50,14 @@ function modelForFn(fn: string): string {
   return table[MID_TIER_FNS.has(fn) ? 'mid' : 'cheap'];
 }
 
+// Reasoning effort per function. Flue's default is 'medium' when useModel names none; a registry
+// function is a single structured answer to a fully specified prompt, so the default here is
+// 'off'. src/ai/registry.ts has no tier/thinking field (AIFunctionMeta), so the exceptions live
+// here, keyed by fn id: review-change judges whether a diff serves a rule's intent.
+type Thinking = 'off' | 'minimal' | 'low' | 'medium' | 'high';
+const THINKING_BY_FN: Record<string, Thinking> = { 'review-change': 'low' };
+const thinkingForFn = (fn: string): Thinking => THINKING_BY_FN[fn] ?? 'off';
+
 // FAKE_AI canned output — deterministic, no model call. Each shape satisfies the matching schema in
 // src/ai/schemas.ts (the browser validates every ai-response against it), so the seam is exercised
 // end to end with no key: request → bus → this service → response → schema check → toCues.
@@ -58,37 +70,46 @@ const FAKE_OUTPUT: Record<string, unknown> = {
 };
 
 // ── the one-shot structured-function agent ──────────────────────────────────────────────────────
-let current: { model: string; promptText: string; schema: unknown } | null = null;
+let current: { model: string; thinking: Thinking; schema: unknown; output?: unknown; nudged?: boolean } | null = null;
 
 export function AiFunction() {
   if (!current) throw new Error('AiFunction rendered with no pending request');
-  const { model, promptText, schema } = current;
-  useModel(model);
+  const slot = current;
+  useModel(slot.model, { thinkingLevel: slot.thinking });
   useTool(
     defineTool({
-      name: 'run_prompt',
-      description:
-        'Run the pending structured request in your own scratch conversation and return the validated result. Call this exactly once, with no arguments, then stop.',
-      harness: true,
-      input: v.object({}),
-      async run({ harness }: any) {
-        const { data } = await harness.prompt(promptText, schema ? { result: schema } : undefined);
-        return { output: data ?? {} };
+      name: 'result',
+      description: 'Return your answer to the request. Put the whole answer object under `result`. Call this exactly once; it ends the call.',
+      input: v.object({ result: (slot.schema as v.GenericSchema) ?? v.any() }),
+      async run({ data }: any) {
+        slot.output = data.result ?? {};
+        return { output: 'recorded', terminate: true };
       },
     }) as any,
   );
-  return 'You are a structured single-purpose function runner for one Bropilot AI function call. Call run_prompt exactly once with no arguments, then stop.';
+  // One retry when the model answered in prose instead of calling `result` (the harness's own
+  // `finish` did the same follow-up). Once only: the browser shows the stub on failure anyway.
+  useAgentFinish((ctx) => {
+    if (slot.output !== undefined || slot.nudged) return;
+    slot.nudged = true;
+    ctx.append({ kind: 'signal', type: 'contract', body: 'You did not call `result`. Call it now with your answer under `result`; no prose.' });
+  });
+  return 'You are a structured single-purpose function runner for one Bropilot AI function call. The user message is the request. Answer it by calling the `result` tool exactly once, with your answer object under its `result` argument. Do not reply in prose.';
 }
 AiFunction.agentName = 'AiFunction';
 
-// The `turn` event for this render's model call — captured by the same `observe()` mechanism
-// server.mjs already uses for Talk (see its `[turn]` log line). Safe to key off "most recent" only
-// because requests are processed strictly one at a time (the queue below).
-let lastUsage: { input: number; output: number; costUsd: number } | null = null;
+// Every `turn` event of the running request, summed — normally one. The event's conversationId is
+// Flue's internal id (conv_…), not the instance id, so the match is "an AiFunction turn while a
+// request is in flight": safe only because requests run strictly one at a time (the queue below).
+let usageFor: { input: number; output: number; cacheRead: number; costUsd: number; turns: number } | null = null;
 observe((ev: any) => {
-  if (ev.type === 'turn' && ev.agentName === 'AiFunction' && ev.response?.usage) {
+  if (ev.type === 'turn' && ev.agentName === 'AiFunction' && ev.response?.usage && usageFor) {
     const u = ev.response.usage;
-    lastUsage = { input: u.input, output: u.output, costUsd: u.cost?.total ?? 0 };
+    usageFor.input += u.input ?? 0;
+    usageFor.output += u.output ?? 0;
+    usageFor.cacheRead += u.cacheRead ?? 0;
+    usageFor.costUsd += u.cost?.total ?? 0;
+    usageFor.turns += 1;
   }
 });
 
@@ -137,22 +158,22 @@ async function processOne(msg: AiRequest, send: (msg: AiResponse) => void) {
   }
 
   const model = modelForFn(msg.fn);
-  current = { model, promptText: msg.prompt, schema };
-  lastUsage = null;
+  const conversationId = `aifn:${msg.id}`;
+  current = { model, thinking: thinkingForFn(msg.fn), schema };
+  usageFor = { input: 0, output: 0, cacheRead: 0, costUsd: 0, turns: 0 };
   try {
-    const instance = init(AiFunction, { id: `aifn:${msg.id}` });
-    const receipt = await instance.dispatch('run_prompt');
-    let output: unknown;
-    await instance.read(receipt, {
-      onEvent(chunk: any) {
-        if (chunk.type === 'tool-output' && chunk.toolName === 'run_prompt') output = chunk.output;
-      },
-    });
-    if (output === undefined) throw new Error('model never called run_prompt');
-    send({ kind: 'ai-response', id: msg.id, output, model, usage: lastUsage ?? undefined });
+    const instance = init(AiFunction, { id: conversationId });
+    const receipt = await instance.dispatch(msg.prompt);
+    await instance.read(receipt);
+    const output = current.output;
+    if (output === undefined) throw new Error('model never called result');
+    const u = usageFor;
+    console.log(`[ai-request] ${msg.fn} done: turns=${u.turns} in=${u.input} out=${u.output} cacheRead=${u.cacheRead} cost=$${u.costUsd.toFixed(4)} thinking=${current.thinking}`);
+    send({ kind: 'ai-response', id: msg.id, output, model, usage: { input: u.input, output: u.output, costUsd: u.costUsd } });
   } catch (err) {
     send({ kind: 'ai-response', id: msg.id, error: (err as Error).message ?? String(err) });
   } finally {
     current = null;
+    usageFor = null;
   }
 }

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue';
-import { state, rateCall, nodeById, persist, describe, rankOpen } from '../store';
+import { state, rateCall, nodeById, persist, rankOpen } from '../store';
 import { kindById } from '../kernel';
+import type { Effect } from '../types';
+import { gapSummary } from '../ai/functions/find-gaps';
 import { applyCue, type Context, type UserTurn } from '../director';
 import type { OpenItem } from '../types';
 import { aiFunctionById } from '../ai/registry';
@@ -11,6 +13,9 @@ const props = defineProps<{ ctx: Context | null; send: (t: UserTurn) => void; ba
 const text = ref('');
 const inputEl = ref<HTMLInputElement | null>(null);
 const answering = ref<string | null>(null); // OpenItem id the next free-text turn should answer
+
+const nowEl = ref<HTMLElement | null>(null);
+const transcriptEl = ref<HTMLElement | null>(null);
 
 const tierLabel: Record<OpenItem['tier'], string> = { 1: 'Blocking', 2: 'Next question', 3: 'Gap', 4: 'Open thread' };
 
@@ -23,6 +28,63 @@ const placeholder = computed(() => {
   const kind = item ? kindById[item.produces] : undefined;
   return kind && !kind.singular ? 'Answer… (separate items with " / ")' : 'Answer…';
 });
+
+// ── staged effects, readable (2026-09-28: edges showed as a bare "add-edge") ──
+/** One effect as a line; node titles resolve from the graph or from add-node effects in the same changeset. */
+function describeEffect(e: Effect, all: Effect[]): string {
+  const title = (id: string) => nodeById(id)?.title
+    ?? all.flatMap((x) => (x.op === 'add-node' && x.node.id === id ? [x.node.title] : []))[0]
+    ?? id;
+  if (e.op === 'add-node') return `add ${kindById[e.node.kind]?.label ?? e.node.kind} "${e.node.title}"`;
+  if (e.op === 'update-node') return `update ${title(e.nodeId)} → "${e.patch.title ?? e.patch.description ?? ''}"`;
+  if (e.op === 'remove-node') return `remove ${title(e.nodeId)}`;
+  if (e.op === 'add-edge') {
+    const edge = (e.edge ?? e) as unknown as { src: string; dst: string; type: string }; // tolerate a flat agent-staged edge
+    return `${title(edge.src)} —${edge.type}→ ${title(edge.dst)}`;
+  }
+  return (e as Effect).op;
+}
+/** The staged list: from the live changeset when this window has it, else the context's strings (Mirror). */
+const effectLines = computed<string[]>(() => {
+  const st = props.ctx?.staged;
+  if (!st) return [];
+  const live = state.staged?.effects;
+  if (live && live.length === st.ids.length && live.every((e, i) => e.id === st.ids[i])) return live.map((e) => describeEffect(e, live));
+  return st.effects;
+});
+const BARE_OPS = /^\s*(add-edge|add-node|update-node|remove-node)(\s*[|,;+]\s*(add-edge|add-node|update-node|remove-node))*\s*\.?\s*$/;
+/** A note that is only op names ("add-edge | add-edge") says nothing: show the effects instead. */
+const stagedNote = computed(() => {
+  const note = props.ctx?.staged?.note ?? '';
+  return BARE_OPS.test(note) ? '' : note; // the list below already says it
+});
+// the transcript's "Staged N changes: <note>" line gets the same repair once the changeset lands
+watch(() => props.ctx?.staged?.ids.join(','), () => {
+  const st = props.ctx?.staged;
+  if (!st || props.bare) return;
+  const last = [...state.transcript].reverse().find((m) => m.who === 'agent' && m.text.startsWith('Staged '));
+  if (!last) return;
+  const m = last.text.match(/^(Staged (\d+) changes?: )(.*)$/s);
+  if (m && Number(m[2]) === st.count && BARE_OPS.test(m[3])) last.text = m[1] + effectLines.value.join('; ');
+});
+
+// ── progress chip (Q answered/total · gaps · skipped) ──
+const progress = computed(() => (props.bare ? null : gapSummary()));
+function revealNow() {
+  const el = nowEl.value; if (!el) return;
+  el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+}
+
+// ── transcript autoscroll: only when the reader is already near the bottom ──
+watch(() => [state.transcript.length, state.transcript.at(-1)?.text], () => {
+  const el = transcriptEl.value; if (!el) return;
+  const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight <= 80;
+  if (nearBottom) nextTick(() => { el.scrollTop = el.scrollHeight; });
+});
+
+/** Options stack one per line when any is long (2026-09-28: long options crowded the strip). */
+const stackOptions = (opts?: string[]) => !!opts?.some((o) => o.length > 28);
 
 function answerIt(item: OpenItem) {
   answering.value = item.id;
@@ -68,6 +130,8 @@ watch(() => props.ctx?.staged?.ids.join(','), () => { editedOriginals.value = ne
 function recordOutcome(outcome: 'approved' | 'discarded') {
   const call = stagedCall.value ? state.aiCalls.find((c) => c.id === stagedCall.value!.id) : null;
   if (!call) return;
+  const all = state.staged?.effects ?? [];
+  const describe = (e: Effect) => describeEffect(e, all);
   const changed = [...editedOriginals.value.entries()].filter(([i, before]) => state.staged && describe(state.staged.effects[i]) !== before);
   if (outcome === 'approved' && changed.length) {
     const dist = Math.max(...changed.map(([i, before]) => {
@@ -80,7 +144,19 @@ function recordOutcome(outcome: 'approved' | 'discarded') {
   }
   persist();
 }
-function approveStaged() { recordOutcome('approved'); control('approve'); }
+function approveStaged() { recordOutcome('approved'); control('approve'); nextTick(revealNow); }
+/** Approve, then bring the next Now item up (and open "Answer it" for a template question). */
+const advancing = ref(false);
+function approveAndNext() { advancing.value = true; approveStaged(); setTimeout(() => { advancing.value = false; }, 3000); }
+watch(() => [props.ctx?.staged?.ids.join(',') ?? '', props.ctx?.next?.id ?? ''], () => {
+  if (!advancing.value || props.ctx?.staged) return;
+  advancing.value = false;
+  nextTick(() => {
+    revealNow();
+    const next = props.ctx?.next;
+    if (next && next.source === 'template' && !next.options?.length) answerIt(next);
+  });
+});
 function discardChangeset() { recordOutcome('discarded'); control('discard'); }
 
 /** The AI call that produced the current utterance (say/ask), if any (S128–S131). */
@@ -125,6 +201,9 @@ function close() { state.panelOpen = false; }
   <aside class="agent-sidebar" :class="{ bare }" data-testid="talk-panel" v-if="bare || state.panelOpen">
     <div class="head">
       <h2>🪞 Talk</h2>
+      <button v-if="progress" class="progress" data-testid="talk-progress" title="Template questions answered · open gap groups · skipped groups — click to show the Now strip" @click="revealNow">
+        Q {{ progress.questionsAnswered }}/{{ progress.questionsTotal }} · {{ progress.groups }} gap{{ progress.groups === 1 ? '' : 's' }}<template v-if="progress.skipped"> · {{ progress.skipped }} skipped</template><template v-if="progress.followups"> · {{ progress.followups }} follow-up{{ progress.followups === 1 ? '' : 's' }}</template>
+      </button>
       <button class="close" v-if="!bare" @click="close">×</button>
     </div>
 
@@ -135,7 +214,7 @@ function close() { state.panelOpen = false; }
     <template v-else>
       <div class="ask card" data-testid="talk-utterance" v-if="ctx.ask">
         <p>{{ ctx.ask.text }}</p>
-        <div class="options" v-if="ctx.ask.options?.length">
+        <div class="options" :class="{ stack: stackOptions(ctx.ask.options) }" v-if="ctx.ask.options?.length">
           <button v-for="o in ctx.ask.options" :key="o" class="primary" @click="choose(o, ctx.ask!.id)">{{ o }}</button>
         </div>
       </div>
@@ -144,11 +223,12 @@ function close() { state.panelOpen = false; }
       </div>
 
       <div class="feedback" data-testid="talk-feedback" v-if="utteranceCall">
-        <p class="small tracking" data-testid="talk-tracking">{{ utteranceCall.fn }} · {{ utteranceCall.version }} · {{ utteranceCall.runtime }}</p>
-        <p class="small" v-if="utteranceCall.rating">{{ metaFor(utteranceCall.fn)?.feedback.find((f) => f.value === utteranceCall!.rating!.value)?.label ?? utteranceCall.rating.value }}</p>
-        <div class="row" v-else>
-          <button v-for="f in metaFor(utteranceCall.fn)?.feedback ?? []" :key="f.value" :data-testid="`talk-feedback-${f.value}`" @click="rate(utteranceCall!.id, f.value)">{{ f.label }}</button>
-        </div>
+        <span class="small tracking" data-testid="talk-tracking">{{ utteranceCall.fn }} · {{ utteranceCall.version }} · {{ utteranceCall.runtime }}</span>
+        <span class="small rated" v-if="utteranceCall.rating">· {{ metaFor(utteranceCall.fn)?.feedback.find((f) => f.value === utteranceCall!.rating!.value)?.label ?? utteranceCall.rating.value }}</span>
+        <span class="rate" v-else>
+          <span class="small">rate:</span>
+          <button v-for="f in metaFor(utteranceCall.fn)?.feedback ?? []" :key="f.value" class="link" :data-testid="`talk-feedback-${f.value}`" @click="rate(utteranceCall!.id, f.value)">{{ f.label }}</button>
+        </span>
       </div>
 
       <p class="small pointing" v-if="ctx.pointing.length">pointing at: {{ ctx.pointing.join(', ') }}</p>
@@ -161,24 +241,26 @@ function close() { state.panelOpen = false; }
         </div>
       </div>
 
-      <div class="now" data-testid="talk-now">
+      <div class="now" ref="nowEl" data-testid="talk-now">
         <template v-if="ctx.staged">
-          <p class="small">{{ ctx.staged.count }} change{{ ctx.staged.count === 1 ? '' : 's' }} staged — {{ ctx.staged.note }}</p>
-          <ul class="effects">
-            <li v-for="(e, i) in ctx.staged.effects" :key="i" class="small">
+          <p class="small" data-testid="talk-staged-note">{{ ctx.staged.count }} change{{ ctx.staged.count === 1 ? '' : 's' }} staged<template v-if="stagedNote"> — {{ stagedNote }}</template></p>
+          <ul class="effects" data-testid="talk-staged-effects">
+            <li v-for="(e, i) in effectLines" :key="i" class="small">
               <input v-if="editingIdx === i" v-model="editText" class="effect-edit" @keyup.enter="finishEdit(i)" @blur="finishEdit(i)" />
               <span v-else @dblclick="startEdit(i, e)">{{ e }}</span>
             </li>
           </ul>
           <div class="feedback" data-testid="talk-feedback" v-if="stagedCall">
-            <p class="small tracking" data-testid="talk-tracking">{{ stagedCall.fn }} · {{ stagedCall.version }} · {{ stagedCall.runtime }}</p>
-            <p class="small" v-if="stagedCall.rating">{{ metaFor(stagedCall.fn)?.feedback.find((f) => f.value === stagedCall!.rating!.value)?.label ?? stagedCall.rating.value }}</p>
-            <div class="row" v-else>
-              <button v-for="f in metaFor(stagedCall.fn)?.feedback ?? []" :key="f.value" :data-testid="`talk-feedback-${f.value}`" @click="rate(stagedCall!.id, f.value)">{{ f.label }}</button>
-            </div>
+            <span class="small tracking" data-testid="talk-tracking">{{ stagedCall.fn }} · {{ stagedCall.version }} · {{ stagedCall.runtime }}</span>
+            <span class="small rated" v-if="stagedCall.rating">· {{ metaFor(stagedCall.fn)?.feedback.find((f) => f.value === stagedCall!.rating!.value)?.label ?? stagedCall.rating.value }}</span>
+            <span class="rate" v-else>
+              <span class="small">rate:</span>
+              <button v-for="f in metaFor(stagedCall.fn)?.feedback ?? []" :key="f.value" class="link" :data-testid="`talk-feedback-${f.value}`" @click="rate(stagedCall!.id, f.value)">{{ f.label }}</button>
+            </span>
           </div>
           <div class="row">
             <button class="primary" data-testid="talk-approve" @click="approveStaged">Approve</button>
+            <button v-if="!bare" class="primary" data-testid="talk-approve-next" @click="approveAndNext">Approve &amp; next</button>
             <button data-testid="talk-discard" @click="discardChangeset">Discard</button>
           </div>
         </template>
@@ -193,8 +275,9 @@ function close() { state.panelOpen = false; }
             <div class="chips" v-if="ctx.next.subjects.length">
               <button v-for="sid in ctx.next.subjects" :key="sid" class="tag chip" :data-node-id="sid" @click="pointAt(sid)">{{ nodeById(sid)?.title ?? sid }}</button>
             </div>
-            <div class="row" v-if="ctx.next.options?.length">
+            <div class="row options" :class="{ stack: stackOptions(ctx.next.options) }" v-if="ctx.next.options?.length">
               <button v-for="o in ctx.next.options" :key="o" data-testid="talk-next-option" @click="props.send({ choice: o, forAsk: ctx.next!.id })">{{ o }}</button>
+              <button v-if="ctx.next.source !== 'template'" class="ghost" data-testid="talk-next-skip" @click="skip(ctx.next)">Skip</button>
             </div>
             <div class="row" v-else-if="!bare">
               <button class="primary" data-testid="talk-answer-it" @click="answerIt(ctx.next)">Answer it</button>
@@ -218,7 +301,7 @@ function close() { state.panelOpen = false; }
         </div>
       </div>
 
-      <div class="transcript" v-if="!bare">
+      <div class="transcript" ref="transcriptEl" data-testid="talk-transcript" v-if="!bare">
         <p v-for="(m, i) in state.transcript" :key="i" class="msg" :class="m.who">
           <span class="who small">{{ m.who === 'agent' ? '🪞' : 'you' }}</span>
           <span>{{ m.text }}</span>
@@ -243,6 +326,8 @@ function close() { state.panelOpen = false; }
 .agent-sidebar.bare { position: static; inset: auto; width: 100%; max-width: 560px; height: auto; background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto; }
 .head { display: flex; align-items: center; gap: .5rem; }
 .head h2 { margin: 0; flex: 1; }
+.progress { font-size: .72rem; color: var(--muted); border-radius: 999px; padding: .1rem .55rem; white-space: nowrap; }
+.progress:hover { color: var(--ink); border-color: var(--ink); }
 .close { border: none; font-size: 1.1rem; background: none; padding: 0 .3rem; }
 
 .card { border: 1px solid var(--line); border-radius: 8px; padding: .6rem .8rem; }
@@ -250,13 +335,20 @@ function close() { state.panelOpen = false; }
 .ask { background: #eef0fb; border-color: var(--kernel); }
 .say { background: var(--bg); }
 .options { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.options.stack { flex-direction: column; align-items: stretch; }
+.options.stack button { text-align: left; white-space: normal; }
+.talk-next .options { margin-top: 0; }
 
 .pointing { margin: 0; }
 
-.feedback { display: flex; flex-direction: column; gap: .3rem; }
+.feedback { display: flex; flex-wrap: wrap; align-items: baseline; gap: .15rem .4rem; }
 .feedback .tracking { color: var(--muted); }
-.feedback .row { flex-wrap: wrap; }
+.feedback .rate { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .35rem; }
+button.link { border: none; background: none; padding: 0; font-size: .75rem; color: var(--muted); text-decoration: underline dotted; }
+button.link:hover { color: var(--ink); }
 
+.now.flash { animation: flash .9s ease; }
+@keyframes flash { 0% { box-shadow: 0 0 0 3px var(--inferred); } 100% { box-shadow: 0 0 0 0 transparent; } }
 .now { display: flex; flex-direction: column; gap: .4rem; background: #fbeee4; border-radius: 8px; padding: .5rem .7rem; }
 .now p { margin: 0; }
 .effects { margin: 0; padding-left: 1.1rem; }
@@ -270,7 +362,7 @@ function close() { state.panelOpen = false; }
 .suspect-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 
 .tour { display: flex; flex-direction: column; gap: .35rem; }
-.row { display: flex; gap: .4rem; }
+.row { display: flex; flex-wrap: wrap; gap: .4rem; }
 
 .chips { display: flex; flex-wrap: wrap; gap: .35rem; }
 .chip { cursor: pointer; }
@@ -284,4 +376,7 @@ function close() { state.panelOpen = false; }
 
 .composer { display: flex; gap: .4rem; }
 .composer input { flex: 1; font: inherit; padding: .35rem .5rem; border: 1px solid var(--line); border-radius: 6px; }
+@media (max-width: 640px) {
+  .agent-sidebar:not(.bare) { z-index: 6; left: .5rem; right: .5rem; width: auto; top: .5rem; bottom: .5rem; padding: .7rem; }
+}
 </style>

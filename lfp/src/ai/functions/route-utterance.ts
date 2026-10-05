@@ -22,6 +22,10 @@ function toCues(_out: RouteUtteranceOut, _callId: string): Cue[] {
 
 // 'describe-screen' listed first: FAKE_S1 (agent/system1.ts) picks the first criteria key when
 // confident, and describe-screen is the correct safe default for unsure/ambiguous text.
+// `agent` (2026-09-28, live session): "which of the three capabilities would you build first, and
+// why?" was classified next-decision and got "Next: Summarise it in a paragraph." Advice, judgement
+// and open questions about the design now have their own key; route.ts sends it to the director's
+// fallback (the Talk agent under RemoteDirector, describe-screen under ScriptedDirector).
 const decision: DecisionSpec<RouteUtteranceIn, RouteUtteranceOut> = {
   id: 'route-utterance',
   questions: (input: RouteUtteranceIn, ctx: Context) => ({
@@ -29,10 +33,11 @@ const decision: DecisionSpec<RouteUtteranceIn, RouteUtteranceOut> = {
     questions: {
       fn: {
         type: 'choice',
-        instructions: 'Which one function should handle what the user typed? The text matched none of the exact Talk commands. Pick describe-screen when unsure or when the text names a thing on screen.',
+        instructions: 'Which one function should handle what the user typed? The text matched none of the exact Talk commands. Pick agent when the user wants advice, an opinion, a judgement, a comparison or reasoning about the design (questions like why, which would you, should we, how would you, what do you think) — those need a written reply, not a list item. Pick next-decision only when the user asks which open question to answer next. Pick describe-screen when unsure or when the text names a thing on screen.',
         criteria: {
           'describe-screen': 'Name or explain what is on screen or a node the text mentions',
-          'next-decision': 'The user asks what to do next',
+          agent: 'The user asks for advice, an opinion, a comparison, reasoning, or anything needing a written reply',
+          'next-decision': 'The user asks only which open question to work on next ("what next?", "what now?"), not which option, feature or design choice is better or why',
           'propose-followup': 'The user asks for a sub-question or follow-up',
           'find-gaps': 'The user asks what is missing or incomplete',
           'consolidate-questions': 'The user asks to fold the open gaps into one question',

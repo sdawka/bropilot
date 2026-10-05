@@ -8,6 +8,11 @@ export type BusMessage =
   | { kind: 'cue'; cue: Cue; msgId?: string; from: string }
   | { kind: 'context'; ctx: Context; from: string }
   | { kind: 'user'; turn: UserTurn; from: string }
+  // Critique point (backlog item 7, AGENT-RUNTIME.md §3): published by directors/index.ts when a
+  // commit newly commits the answer to q-outcome, q-capability or q-summary under the
+  // RemoteDirector. agent/server.mjs dispatches it as a Talk turn with a system note instead of a
+  // user message; it dedupes on answerId (at most one critique per answer).
+  | { kind: 'critique'; answerId: string; questionId: string; question: string; answer: string; from: string }
   | { kind: 'hello'; role: 'main' | 'mirror' | 'agent'; from: string }
   | { kind: 'ack'; msgId: string; ctx: Context; from: string }
   // sessionId: the design session (store.ts); the agent server starts a fresh conversation when it changes.

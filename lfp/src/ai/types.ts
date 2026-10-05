@@ -29,8 +29,12 @@ export interface AIFunctionMeta {
 // The wire shape is the TypeSafe SDK's own question/answer shape, so the browser builds questions,
 // the bus carries them verbatim, and agent/system1.ts passes them straight to `client.systemOne`.
 
+/** A noul outcome description: plain text, or the structured form TypeSafe recommends when the
+ * yes/no boundary is subtle (docs.typesafe.ai/primitives/advanced). The SDK's EntryType admits both. */
+export type S1Criterion = string | { definition: string; examples: string[] };
+
 export type S1Question =
-  | { type: 'noul'; instructions: string; criteria?: { true?: string; false?: string } }
+  | { type: 'noul'; instructions: string; criteria?: { true?: S1Criterion; false?: S1Criterion } }
   | { type: 'choice'; instructions: string; criteria: Record<string, string> }
   | { type: 'score'; instructions: string; criteria: string[] };
 
@@ -51,10 +55,19 @@ export interface DecisionSpec<I, O> {
   decide: (answers: S1Answers, input: I, ctx: Context) => O;
   /** Override the default confidence (the weakest answer) when only some answers gate the decision. */
   confidence?: (answers: S1Answers) => number;
+  /** 'answer' (v4.5): `decide` gates each answer against its own threshold(s) and keeps the
+   * uncertain ones out of the result, so the call never falls back to the stub for low confidence;
+   * `confidence` is then only recorded. Default 'call': the whole call is gated (above). */
+  gate?: 'call' | 'answer';
   /** Chained levels (ontology.ts): given every answer so far, the next dependent request, or null
    * when the chain is complete. Sibling branches go in one request; only a level that needs an
    * earlier answer costs another round trip. */
   next?: (answers: S1Answers, input: I, ctx: Context) => S1Request | null;
+  /** Fan-out (§9): every level at once — level 1 plus the dependent questions for *each* level-1
+   * option, keyed so `decide` reads only the branch the level-1 choice selected. Null when a level
+   * depends on a string an earlier level produces (not just a choice). Used instead of `questions`
+   * only when it fits Jev's budget (system1.ts `withFanout`), else the chain walks via `next`. */
+  fanout?: (input: I, ctx: Context) => S1Request | null;
 }
 
 /** Implementation: the code half, browser-only. */

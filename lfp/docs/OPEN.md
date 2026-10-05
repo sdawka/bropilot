@@ -11,154 +11,154 @@
 How would you know "H1 Structured questions beat free chat for spec quality" holds? Name one metric.
 
 **Subjects:** hypothesis-h1
-**Options:** Add one, Link an existing node, Mark as intentionally absent for now
+**Options:** Commits after first deploy, Share of hypotheses with a verdict, Time to first agent-executed commit, Mark as intentionally absent for now
 
 ### needs-cardinality:hypothesis-h2
 
 How would you know "H2 A committed representation executed by agents beats hand-driving an IDE agent" holds? Name one metric.
 
 **Subjects:** hypothesis-h2
-**Options:** Add one, Link an existing node, Mark as intentionally absent for now
+**Options:** Commits after first deploy, Share of hypotheses with a verdict, Time to first agent-executed commit, Mark as intentionally absent for now
 
 ### needs-cardinality:hypothesis-h3
 
 How would you know "H3 An explicit reality loop causes real iteration" holds? Name one metric.
 
 **Subjects:** hypothesis-h3
-**Options:** Add one, Link an existing node, Mark as intentionally absent for now
+**Options:** Commits after first deploy, Share of hypotheses with a verdict, Time to first agent-executed commit, Mark as intentionally absent for now
 
 ### needs-cardinality:hypothesis-h4
 
 How would you know "H4 One ontology holds web app, course and info product" holds? Name one metric.
 
 **Subjects:** hypothesis-h4
-**Options:** Add one, Link an existing node, Mark as intentionally absent for now
+**Options:** Commits after first deploy, Share of hypotheses with a verdict, Time to first agent-executed commit, Mark as intentionally absent for now
 
 ### needs-cardinality:hypothesis-h5
 
 How would you know "H5 Bropilot can describe itself with no special cases" holds? Name one metric.
 
 **Subjects:** hypothesis-h5
-**Options:** Add one, Link an existing node, Mark as intentionally absent for now
+**Options:** Commits after first deploy, Share of hypotheses with a verdict, Time to first agent-executed commit, Mark as intentionally absent for now
 
 ### needs-cardinality:hypothesis-h6
 
 How would you know "H6 Guiding with standard constraints and procedures, asking for simple choices and offering options, gives baseline quality and greatly reduces the user's burden" holds? Name one metric.
 
 **Subjects:** hypothesis-h6
-**Options:** Add one, Link an existing node, Mark as intentionally absent for now
+**Options:** Commits after first deploy, Share of hypotheses with a verdict, Time to first agent-executed commit, Mark as intentionally absent for now
 
 ### needs-cardinality:hypothesis-h7
 
 How would you know "H7 Talking about the product, the way this loop works, changes the representation and culminates in changed or added tests that then get fulfilled" holds? Name one metric.
 
 **Subjects:** hypothesis-h7
-**Options:** Add one, Link an existing node, Mark as intentionally absent for now
+**Options:** Commits after first deploy, Share of hypotheses with a verdict, Time to first agent-executed commit, Mark as intentionally absent for now
 
 ### needs-cardinality:hypothesis-h8
 
 How would you know "H8 A one-thing-at-a-time companion that can point at the main screen and edit the data beats filling in forms" holds? Name one metric.
 
 **Subjects:** hypothesis-h8
-**Options:** Add one, Link an existing node, Mark as intentionally absent for now
+**Options:** Commits after first deploy, Share of hypotheses with a verdict, Time to first agent-executed commit, Mark as intentionally absent for now
 
 ### needs-cardinality:module-definition
 
 What does "Definition" expose to the rest of the system? Name its interface.
 
 **Subjects:** module-definition
-**Options:** Add one, Link an existing node, Mark as intentionally absent for now
+**Options:** Bus: BroadcastChannel (same machine) or LAN relay (phone), Director protocol: say / navigate / point / sequence / stage / glossary / ask, Agent bus: hello / cue / ack / snapshot over the bus, Action queue for agents (stub), Store RPC: answer / commit / undo / exportJson, Mark as intentionally absent for now
 
 ### needs-cardinality:module-reality
 
 What does "Reality (stub)" expose to the rest of the system? Name its interface.
 
 **Subjects:** module-reality
-**Options:** Add one, Link an existing node, Mark as intentionally absent for now
+**Options:** Bus: BroadcastChannel (same machine) or LAN relay (phone), Director protocol: say / navigate / point / sequence / stage / glossary / ask, Agent bus: hello / cue / ack / snapshot over the bus, Action queue for agents (stub), Store RPC: answer / commit / undo / exportJson, Mark as intentionally absent for now
 
 ### needs-cardinality:module-metrics
 
 What does "Metrics collection (stub)" expose to the rest of the system? Name its interface.
 
 **Subjects:** module-metrics
-**Options:** Add one, Link an existing node, Mark as intentionally absent for now
+**Options:** Bus: BroadcastChannel (same machine) or LAN relay (phone), Director protocol: say / navigate / point / sequence / stage / glossary / ask, Agent bus: hello / cue / ack / snapshot over the bus, Action queue for agents (stub), Store RPC: answer / commit / undo / exportJson, Mark as intentionally absent for now
 
 ### needs-cardinality:module-sales
 
 What does "Sales (stub)" expose to the rest of the system? Name its interface.
 
 **Subjects:** module-sales
-**Options:** Add one, Link an existing node, Mark as intentionally absent for now
+**Options:** Bus: BroadcastChannel (same machine) or LAN relay (phone), Director protocol: say / navigate / point / sequence / stage / glossary / ask, Agent bus: hello / cue / ack / snapshot over the bus, Action queue for agents (stub), Store RPC: answer / commit / undo / exportJson, Mark as intentionally absent for now
 
 ### needs-cardinality:module-delivery
 
 What does "Delivery & implementation (stub)" expose to the rest of the system? Name its interface.
 
 **Subjects:** module-delivery
-**Options:** Add one, Link an existing node, Mark as intentionally absent for now
+**Options:** Bus: BroadcastChannel (same machine) or LAN relay (phone), Director protocol: say / navigate / point / sequence / stage / glossary / ask, Agent bus: hello / cue / ack / snapshot over the bus, Action queue for agents (stub), Store RPC: answer / commit / undo / exportJson, Mark as intentionally absent for now
 
 ### needs-cardinality:module-marketing
 
 What does "Marketing & promotion (stub)" expose to the rest of the system? Name its interface.
 
 **Subjects:** module-marketing
-**Options:** Add one, Link an existing node, Mark as intentionally absent for now
+**Options:** Bus: BroadcastChannel (same machine) or LAN relay (phone), Director protocol: say / navigate / point / sequence / stage / glossary / ask, Agent bus: hello / cue / ack / snapshot over the bus, Action queue for agents (stub), Store RPC: answer / commit / undo / exportJson, Mark as intentionally absent for now
 
 ### needs-cardinality:module-automation
 
 What does "Automation (the product automation zone)" expose to the rest of the system? Name its interface.
 
 **Subjects:** module-automation
-**Options:** Add one, Link an existing node, Mark as intentionally absent for now
+**Options:** Bus: BroadcastChannel (same machine) or LAN relay (phone), Director protocol: say / navigate / point / sequence / stage / glossary / ask, Agent bus: hello / cue / ack / snapshot over the bus, Action queue for agents (stub), Store RPC: answer / commit / undo / exportJson, Mark as intentionally absent for now
 
 ### protocol-realised:protocol-security-audit
 
 What practice realises "Regular security audit" today, or is this a planned change?
 
 **Subjects:** protocol-security-audit
-**Options:** Add a realising practice, Mark as a planned change, Retire the protocol
+**Options:** A change to how Bropilot works changes its own graph in the same commit, Enrich spaces left to right, Every kernel item carries said/inferred provenance, Run smoke.mjs before every commit, Commit and push to v4 at every step, Mark as a planned change, Retire the protocol
 
 ### protocol-realised:protocol-changelog-blog
 
 What practice realises "Changelog published as a blog post on the marketing page" today, or is this a planned change?
 
 **Subjects:** protocol-changelog-blog
-**Options:** Add a realising practice, Mark as a planned change, Retire the protocol
+**Options:** A change to how Bropilot works changes its own graph in the same commit, Enrich spaces left to right, Every kernel item carries said/inferred provenance, Run smoke.mjs before every commit, Commit and push to v4 at every step, Mark as a planned change, Retire the protocol
 
 ### test-has-rule:test-page-loads
 
 Which rule does "lfp page loads and renders the Overview" verify?
 
 **Subjects:** test-page-loads
-**Options:** Link to the rule it verifies, Convert to a standalone health check, Remove the test
+**Options:** What the director points at is what the main screen highlights; the context published back is what is on screen, Agent changes go through the commit gate; only glossary takes the escape hatch, The mirror shows at most one utterance or question at a time, Committed Terms are used verbatim by other nodes, A Thread belongs to one Question; sub-questions are project-specific, Every Node has exactly one Kind; a Kind belongs to one Space, Convert to a standalone health check, Remove the test
 
 ### test-has-rule:test-marketing-exists
 
 Which rule does "marketing module exists: a landing page is live" verify?
 
 **Subjects:** test-marketing-exists
-**Options:** Link to the rule it verifies, Convert to a standalone health check, Remove the test
+**Options:** What the director points at is what the main screen highlights; the context published back is what is on screen, Agent changes go through the commit gate; only glossary takes the escape hatch, The mirror shows at most one utterance or question at a time, Committed Terms are used verbatim by other nodes, A Thread belongs to one Question; sub-questions are project-specific, Every Node has exactly one Kind; a Kind belongs to one Space, Convert to a standalone health check, Remove the test
 
 ### test-has-rule:test-sales-exists
 
 Which rule does "sales module exists: a way to buy or book exists" verify?
 
 **Subjects:** test-sales-exists
-**Options:** Link to the rule it verifies, Convert to a standalone health check, Remove the test
+**Options:** What the director points at is what the main screen highlights; the context published back is what is on screen, Agent changes go through the commit gate; only glossary takes the escape hatch, The mirror shows at most one utterance or question at a time, Committed Terms are used verbatim by other nodes, A Thread belongs to one Question; sub-questions are project-specific, Every Node has exactly one Kind; a Kind belongs to one Space, Convert to a standalone health check, Remove the test
 
 ### test-has-rule:test-delivery-exists
 
 Which rule does "delivery module exists: an onboarding guide is published" verify?
 
 **Subjects:** test-delivery-exists
-**Options:** Link to the rule it verifies, Convert to a standalone health check, Remove the test
+**Options:** What the director points at is what the main screen highlights; the context published back is what is on screen, Agent changes go through the commit gate; only glossary takes the escape hatch, The mirror shows at most one utterance or question at a time, Committed Terms are used verbatim by other nodes, A Thread belongs to one Question; sub-questions are project-specific, Every Node has exactly one Kind; a Kind belongs to one Space, Convert to a standalone health check, Remove the test
 
 ### test-has-rule:test-mirror-exists
 
 Which rule does "mirror screen loads and waits for the main screen" verify?
 
 **Subjects:** test-mirror-exists
-**Options:** Link to the rule it verifies, Convert to a standalone health check, Remove the test
+**Options:** What the director points at is what the main screen highlights; the context published back is what is on screen, Agent changes go through the commit gate; only glossary takes the escape hatch, The mirror shows at most one utterance or question at a time, Committed Terms are used verbatim by other nodes, A Thread belongs to one Question; sub-questions are project-specific, Every Node has exactly one Kind; a Kind belongs to one Space, Convert to a standalone health check, Remove the test
 
 ### rule-condition-has-test:rule-kernel-additive+cond0
 

@@ -125,3 +125,22 @@ textarea { width: 100%; font: inherit; padding: .5rem; border: 1px solid var(--l
 
 /* glossary button + drawer host */
 .top .glossary-btn { font-weight: 600; }
+
+/* phone width (2026-09-28): no horizontal page scroll at 390px — panels go full width over the
+ * page, the top bar wraps, wide grids and tables scroll inside themselves */
+@media (max-width: 640px) {
+  :root { --side-w: calc(100vw - 1rem); }
+  html, body { overflow-x: hidden; }
+  .top { flex-wrap: wrap; gap: .4rem .8rem; padding: .5rem; }
+  .top nav, .top .actions { flex-wrap: wrap; }
+  .top .actions { margin-left: 0; gap: .3rem; }
+  .view { padding: .5rem; }
+  .view.panel-open, .view.panel-open.two { margin-right: 0; }
+  .inspector, .inspector.beside { right: .5rem; left: .5rem; width: auto; }
+  .board { grid-template-columns: 1fr !important; overflow-x: visible; }
+  .basics-panel { grid-template-columns: 1fr !important; }
+  .path, .flows { grid-template-columns: 1fr; }
+  table { display: block; overflow-x: auto; }
+  .statements { columns: 1; }
+  .pop { width: min(440px, 90vw); }
+}
