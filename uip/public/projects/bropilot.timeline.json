@@ -1,0 +1,319 @@
+{
+  "project": "bropilot",
+  "entries": [
+    {
+      "id": "bropilot-t1",
+      "at": "2026-10-03T09:02:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:extractor",
+        "name": "extractor"
+      },
+      "nodeRefs": [
+        "system-bropilot",
+        "module-representation",
+        "module-representation",
+        "module-definition"
+      ],
+      "type": "commit",
+      "summary": "extract: modules and their contents",
+      "effects": [
+        "realises +1 · Bropilot",
+        "realises +1 · Representation",
+        "contains +1 · Representation",
+        "contains +1 · Definition"
+      ]
+    },
+    {
+      "id": "bropilot-t2",
+      "at": "2026-10-03T09:06:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:extractor",
+        "name": "extractor"
+      },
+      "nodeRefs": [
+        "infra-localstorage",
+        "thing-node",
+        "thing-edge"
+      ],
+      "type": "commit",
+      "summary": "extract: things and rules",
+      "effects": [
+        "contains +1 · localStorage (bropilot:lfp:v1)",
+        "contains +1 · Node",
+        "contains +1 · Edge"
+      ]
+    },
+    {
+      "id": "bropilot-t3",
+      "at": "2026-10-03T10:05:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:planner",
+        "name": "planner"
+      },
+      "nodeRefs": [
+        "audience-untrained-builder",
+        "audience-untrained-builder",
+        "audience-untrained-builder"
+      ],
+      "type": "changeset",
+      "changeset": {
+        "id": "cs-bropilot-11",
+        "number": 11,
+        "title": "Link Untrained builder to what it serves",
+        "author": {
+          "kind": "agent",
+          "id": "agent:planner",
+          "name": "planner"
+        },
+        "status": "committed",
+        "effects": [
+          {
+            "id": "fx-11-1",
+            "op": "add-edge",
+            "edge": {
+              "id": "e4",
+              "src": "audience-untrained-builder",
+              "dst": "problem-no-constraints",
+              "type": "has"
+            },
+            "verdict": "accepted"
+          },
+          {
+            "id": "fx-11-2",
+            "op": "add-edge",
+            "edge": {
+              "id": "e5",
+              "src": "audience-untrained-builder",
+              "dst": "problem-unstructured-articulation",
+              "type": "has"
+            },
+            "verdict": "accepted"
+          },
+          {
+            "id": "fx-11-3",
+            "op": "add-edge",
+            "edge": {
+              "id": "e6",
+              "src": "audience-untrained-builder",
+              "dst": "problem-functions-neglected",
+              "type": "has"
+            },
+            "verdict": "rejected",
+            "reason": "already implied by the capability"
+          }
+        ],
+        "checks": {
+          "ok": 3,
+          "warn": 0,
+          "messages": []
+        },
+        "blast": "adds 3 edges in Product and User",
+        "createdAt": "2026-10-03T10:05:00.000Z"
+      }
+    },
+    {
+      "id": "bropilot-t4",
+      "at": "2026-10-03T10:40:00.000Z",
+      "author": {
+        "kind": "human",
+        "id": "you",
+        "name": "You"
+      },
+      "nodeRefs": [
+        "audience-untrained-builder",
+        "audience-untrained-builder",
+        "audience-untrained-builder"
+      ],
+      "type": "commit",
+      "summary": "accepted #11 (2 of 3 effects)",
+      "effects": [
+        "has · Untrained builder → Vibe-coding tools have no constraints or template",
+        "has · Untrained builder → Knowing the next question to ask is the scarce skill"
+      ]
+    },
+    {
+      "id": "bropilot-t5",
+      "at": "2026-10-03T11:30:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:engineer",
+        "name": "engineer"
+      },
+      "nodeRefs": [
+        "task-unlock-test"
+      ],
+      "type": "task",
+      "taskId": "task-unlock-test",
+      "status": "running"
+    },
+    {
+      "id": "bropilot-t6",
+      "at": "2026-10-03T12:01:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:tester",
+        "name": "tester"
+      },
+      "nodeRefs": [
+        "test-page-loads"
+      ],
+      "type": "test",
+      "ok": true,
+      "testId": "test-page-loads",
+      "title": "lfp page loads and renders the Overview"
+    },
+    {
+      "id": "bropilot-t7",
+      "at": "2026-10-03T12:02:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:tester",
+        "name": "tester"
+      },
+      "nodeRefs": [
+        "test-unlock"
+      ],
+      "type": "test",
+      "ok": false,
+      "testId": "test-unlock",
+      "title": "a question unlocks only after its unlocksAfter are answered"
+    },
+    {
+      "id": "bropilot-t8",
+      "at": "2026-10-03T13:15:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:engineer",
+        "name": "engineer"
+      },
+      "nodeRefs": [
+        "task-unlock-test"
+      ],
+      "type": "commit",
+      "summary": "wip on Write the unlock-order test in smoke.mjs",
+      "effects": [
+        "targets · Write the unlock-order test in smoke.mjs → a question unlocks only after its unlocksAfter are answered"
+      ]
+    },
+    {
+      "id": "bropilot-t9",
+      "at": "2026-10-03T14:10:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:reviewer",
+        "name": "reviewer"
+      },
+      "nodeRefs": [
+        "ai-function-review-change",
+        "module-director"
+      ],
+      "type": "changeset",
+      "changeset": {
+        "id": "cs-bropilot-12",
+        "number": 12,
+        "title": "Split Review change into triage + verdict",
+        "author": {
+          "kind": "agent",
+          "id": "agent:reviewer",
+          "name": "reviewer"
+        },
+        "status": "open",
+        "effects": [
+          {
+            "id": "fx-12-1",
+            "op": "add-node",
+            "node": {
+              "id": "ai-function-triage-change",
+              "kind": "ai-function",
+              "title": "Triage change",
+              "status": "draft",
+              "description": "Proposed by the reviewer agent as a narrower ai-function."
+            },
+            "verdict": "pending"
+          },
+          {
+            "id": "fx-12-2",
+            "op": "add-edge",
+            "edge": {
+              "id": "e-contains-ai-function-triage-change",
+              "src": "module-director",
+              "dst": "ai-function-triage-change",
+              "type": "contains",
+              "status": "draft"
+            },
+            "verdict": "pending"
+          },
+          {
+            "id": "fx-12-3",
+            "op": "update-node",
+            "node": {
+              "id": "ai-function-review-change",
+              "kind": "ai-function",
+              "title": "Review change",
+              "status": "committed",
+              "props": {
+                "version": "0.1",
+                "runtime": "stub",
+                "status": "deprecated"
+              },
+              "source": {
+                "kind": "said",
+                "statements": [
+                  152
+                ]
+              }
+            },
+            "before": {
+              "props": {
+                "version": "0.1",
+                "runtime": "stub"
+              }
+            },
+            "verdict": "pending"
+          },
+          {
+            "id": "fx-12-4",
+            "op": "remove-edge",
+            "edge": {
+              "id": "e-contains-ai-function-review-change",
+              "src": "module-director",
+              "dst": "ai-function-review-change",
+              "type": "contains",
+              "status": "committed"
+            },
+            "verdict": "pending"
+          }
+        ],
+        "checks": {
+          "ok": 3,
+          "warn": 1,
+          "messages": [
+            "Director (the agent you talk to) loses its contains edge to Review change"
+          ]
+        },
+        "blast": "touches 1 ai-function and Director (the agent you talk to) · 1 edge(s) re-pointed",
+        "createdAt": "2026-10-03T14:10:00.000Z"
+      }
+    },
+    {
+      "id": "bropilot-t10",
+      "at": "2026-10-03T14:30:00.000Z",
+      "author": {
+        "kind": "s1",
+        "id": "s1",
+        "name": "S1"
+      },
+      "nodeRefs": [
+        "event-user-turn",
+        "thing-project",
+        "thing-layer",
+        "thing-template"
+      ],
+      "type": "message",
+      "text": "linked 3 of 4 new nodes · 1 needs you"
+    }
+  ]
+}

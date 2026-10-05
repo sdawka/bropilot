@@ -1,0 +1,585 @@
+{
+ "runs": {
+  "fake": {
+   "model": "fake",
+   "url": null,
+   "at": "2026-10-05T04:06:44.777Z",
+   "reviewedOnly": false,
+   "n": 30,
+   "flagPrecision": 0.727,
+   "flagRecall": 0.4,
+   "strictRecall": 0,
+   "solidPrecision": 1,
+   "retypeAccuracy": 0,
+   "meanConf": 0.395,
+   "meanMs": 0.267,
+   "fakeShare": 1,
+   "usd": 0.000765,
+   "perCheck": {
+    "sol-edge": {
+     "n": 16,
+     "flagPrecision": 0,
+     "flagRecall": 0
+    },
+    "sol-evidence": {
+     "n": 8,
+     "flagPrecision": 1,
+     "flagRecall": 1
+    },
+    "sol-implements": {
+     "n": 2,
+     "flagPrecision": null,
+     "flagRecall": 0
+    },
+    "sol-monitors": {
+     "n": 2,
+     "flagPrecision": 0,
+     "flagRecall": 0
+    },
+    "sol-realises": {
+     "n": 1,
+     "flagPrecision": null,
+     "flagRecall": 0
+    },
+    "sol-verifies": {
+     "n": 1,
+     "flagPrecision": null,
+     "flagRecall": 0
+    }
+   },
+   "rows": [
+    {
+     "id": "true-01",
+     "project": "bropilot",
+     "label": "true",
+     "checkId": "sol-edge",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": true
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 2,
+     "evidence": "\"Director protocol: say / navigate / point / sequence / stage / glossary / ask\" carries \"User turn\": unclear (0.30)"
+    },
+    {
+     "id": "true-02",
+     "project": "ledgerly",
+     "label": "true",
+     "checkId": "sol-edge",
+     "verdict": "weak",
+     "finding": "doubtful",
+     "confidence": 0.44,
+     "retype": null,
+     "expect": {
+      "solid": true
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 1,
+     "evidence": "\"Median days-to-paid under 14 by end of Q2\" combines \"Forecast error at 30 days\": doubtful (0.44)"
+    },
+    {
+     "id": "true-03",
+     "project": "tidepool",
+     "label": "true",
+     "checkId": "sol-edge",
+     "verdict": "solid",
+     "finding": "holds",
+     "confidence": 0.72,
+     "retype": null,
+     "expect": {
+      "solid": true
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Verified record\" defines \"Record verified\": holds (0.72)"
+    },
+    {
+     "id": "true-04",
+     "project": "bropilot",
+     "label": "true",
+     "checkId": "sol-edge",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": true
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Store RPC: answer / commit / undo / exportJson\" emits \"EffectsStaged\": unclear (0.30)"
+    },
+    {
+     "id": "true-05",
+     "project": "ledgerly",
+     "label": "true",
+     "checkId": "sol-edge",
+     "verdict": "weak",
+     "finding": "doubtful",
+     "confidence": 0.44,
+     "retype": null,
+     "expect": {
+      "solid": true
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Invoice numbers are sequential with no gaps\" governs \"Invoice\": doubtful (0.44)"
+    },
+    {
+     "id": "true-06",
+     "project": "tidepool",
+     "label": "true",
+     "checkId": "sol-edge",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": true
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Marine biologist running a monitoring site\" has \"Verify a week of volunteer records in one sitting\": unclear (0.30)"
+    },
+    {
+     "id": "true-07",
+     "project": "bropilot",
+     "label": "true",
+     "checkId": "sol-implements",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": true
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Mirror (phone: one thing at a time)\" implements \"Guided articulation path\": unclear (0.30)"
+    },
+    {
+     "id": "true-08",
+     "project": "ledgerly",
+     "label": "true",
+     "checkId": "sol-edge",
+     "verdict": "solid",
+     "finding": "holds",
+     "confidence": 0.72,
+     "retype": null,
+     "expect": {
+      "solid": true
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Accountant: quarterly export is missing the VAT column\" measures \"Export the quarter for the accountant\": holds (0.72)"
+    },
+    {
+     "id": "true-09",
+     "project": "tidepool",
+     "label": "true",
+     "checkId": "sol-monitors",
+     "verdict": "weak",
+     "finding": "doubtful",
+     "confidence": 0.44,
+     "retype": null,
+     "expect": {
+      "solid": true
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Record acceptance rate\" monitors \"Volunteer records are accepted into the dataset\": doubtful (0.44)"
+    },
+    {
+     "id": "true-10",
+     "project": "ledgerly",
+     "label": "true",
+     "checkId": "sol-edge",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": true
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Clients pay late and chasing them feels awkward\" motivates \"Invoices are paid within terms\": unclear (0.30)"
+    },
+    {
+     "id": "retype-01",
+     "project": "bropilot",
+     "label": "retype",
+     "checkId": "sol-evidence",
+     "verdict": "weak",
+     "finding": "agrees",
+     "confidence": 0.5,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "supports"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"This lfp loop: 6 briefs → 137 nodes, 6 tests, 4 fulfilled, 2 targeted by tasks\" refutes \"H7 Talking about the product, the way this loop works, changes the representati…\": agrees (0.50)"
+    },
+    {
+     "id": "retype-02",
+     "project": "ledgerly",
+     "label": "retype",
+     "checkId": "sol-evidence",
+     "verdict": "weak",
+     "finding": "agrees",
+     "confidence": 0.5,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "supports"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 1,
+     "evidence": "\"Pilot cohort paid 6 days faster with reminders on\" refutes \"Polite automatic reminders shorten days-to-paid more than manual chasing\": agrees (0.50)"
+    },
+    {
+     "id": "retype-03",
+     "project": "tidepool",
+     "label": "retype",
+     "checkId": "sol-evidence",
+     "verdict": "weak",
+     "finding": "agrees",
+     "confidence": 0.5,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "supports"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Spring pilot: abandoned surveys fell from 31% to 12% offline\" refutes \"Offline-first capture halves abandoned surveys\": agrees (0.50)"
+    },
+    {
+     "id": "retype-04",
+     "project": "bropilot",
+     "label": "retype",
+     "checkId": "sol-edge",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "references"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 1,
+     "evidence": "\"Bropilot sustains itself: paying users cover its running cost\" combines \"Commits after first deploy\": unclear (0.30)"
+    },
+    {
+     "id": "retype-05",
+     "project": "ledgerly",
+     "label": "retype",
+     "checkId": "sol-evidence",
+     "verdict": "weak",
+     "finding": "agrees",
+     "confidence": 0.5,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "refutes"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 1,
+     "evidence": "\"Interviews: freelancers ignore forecasts beyond 30 days\" supports \"A 60-day forecast reduces end-of-month cash anxiety\": agrees (0.50)"
+    },
+    {
+     "id": "retype-06",
+     "project": "tidepool",
+     "label": "retype",
+     "checkId": "sol-evidence",
+     "verdict": "weak",
+     "finding": "agrees",
+     "confidence": 0.5,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "refutes"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Reminder cohort returned no more often than control\" supports \"Low-tide reminders double repeat visits\": agrees (0.50)"
+    },
+    {
+     "id": "retype-07",
+     "project": "bropilot",
+     "label": "retype",
+     "checkId": "sol-implements",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "references"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Glossary drawer\" implements \"Share and export a system\": unclear (0.30)"
+    },
+    {
+     "id": "retype-08",
+     "project": "ledgerly",
+     "label": "retype",
+     "checkId": "sol-evidence",
+     "verdict": "weak",
+     "finding": "unrelated",
+     "confidence": 0.5,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "refutes"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Only 1 in 5 trial users connected a bank feed\" supports \"A 60-day forecast reduces end-of-month cash anxiety\": looks unrelated (0.50)"
+    },
+    {
+     "id": "retype-09",
+     "project": "tidepool",
+     "label": "retype",
+     "checkId": "sol-evidence",
+     "verdict": "weak",
+     "finding": "agrees",
+     "confidence": 0.5,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "refutes"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Suggestions were wrong on 40% of juvenile crabs\" supports \"Photo ID suggestions lift verification acceptance above 80%\": agrees (0.50)"
+    },
+    {
+     "id": "retype-10",
+     "project": "ledgerly",
+     "label": "retype",
+     "checkId": "sol-evidence",
+     "verdict": "weak",
+     "finding": "agrees",
+     "confidence": 0.5,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "supports"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 1,
+     "evidence": "\"Pay-link invoices: 41% paid same week vs 22% without\" refutes \"A one-click pay link doubles same-week payments\": agrees (0.50)"
+    },
+    {
+     "id": "broken-01",
+     "project": "bropilot",
+     "label": "broken",
+     "checkId": "sol-verifies",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "none"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"simulated random answer/commit/undo sequences never leave a draft committed\" verifies \"The mirror shows at most one utterance or question at a time\": unclear (0.30)"
+    },
+    {
+     "id": "broken-02",
+     "project": "ledgerly",
+     "label": "broken",
+     "checkId": "sol-edge",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "none"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Invoices API\" carries \"Cash forecast\": unclear (0.30)"
+    },
+    {
+     "id": "broken-03",
+     "project": "tidepool",
+     "label": "broken",
+     "checkId": "sol-edge",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "none"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Low-tide reminders double repeat visits\" references \"Volunteer records are accepted into the dataset\": unclear (0.30)"
+    },
+    {
+     "id": "broken-04",
+     "project": "bropilot",
+     "label": "broken",
+     "checkId": "sol-realises",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "none"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"lfp/src/store.ts\" realises \"Director (the agent you talk to)\": unclear (0.30)"
+    },
+    {
+     "id": "broken-05",
+     "project": "ledgerly",
+     "label": "broken",
+     "checkId": "sol-monitors",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "none"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Forecast error at 30 days\" monitors \"Invoices are paid within terms\": unclear (0.30)"
+    },
+    {
+     "id": "broken-06",
+     "project": "tidepool",
+     "label": "broken",
+     "checkId": "sol-edge",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "none"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 1,
+     "evidence": "\"Volunteers will photograph every quadrat\" references \"Low-tide reminders double repeat visits\": unclear (0.30)"
+    },
+    {
+     "id": "broken-07",
+     "project": "bropilot",
+     "label": "broken",
+     "checkId": "sol-edge",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "none"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"A change to how Bropilot works changes its own graph in the same commit\" governs \"lfp/src/kernel.ts\": unclear (0.30)"
+    },
+    {
+     "id": "broken-08",
+     "project": "ledgerly",
+     "label": "broken",
+     "checkId": "sol-edge",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "none"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Collections\" has \"Forecast agent\": unclear (0.30)"
+    },
+    {
+     "id": "broken-09",
+     "project": "tidepool",
+     "label": "broken",
+     "checkId": "sol-edge",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "none"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Volunteer engagement\" has \"ID suggestion agent\": unclear (0.30)"
+    },
+    {
+     "id": "broken-10",
+     "project": "bropilot",
+     "label": "broken",
+     "checkId": "sol-edge",
+     "verdict": "unknown",
+     "finding": "unclear",
+     "confidence": 0.3,
+     "retype": null,
+     "expect": {
+      "solid": false,
+      "retype": "none"
+     },
+     "fake": true,
+     "model": "fake",
+     "ms": 0,
+     "evidence": "\"Untrained builder\" has \"Products ship without a stated real-world effect\": unclear (0.30)"
+    }
+   ]
+  }
+ },
+ "at": "2026-10-05T04:06:44.777Z"
+}

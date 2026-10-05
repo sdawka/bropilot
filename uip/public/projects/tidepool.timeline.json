@@ -1,0 +1,315 @@
+{
+  "project": "tidepool",
+  "entries": [
+    {
+      "id": "tidepool-t1",
+      "at": "2026-09-30T09:02:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:extractor",
+        "name": "extractor"
+      },
+      "nodeRefs": [
+        "module-field-capture-app",
+        "module-sync-service",
+        "module-field-capture-app",
+        "module-sync-service"
+      ],
+      "type": "commit",
+      "summary": "extract: modules and their contents",
+      "effects": [
+        "realises +1 · Field capture app",
+        "realises +1 · Sync service",
+        "contains +1 · Field capture app",
+        "contains +1 · Sync service"
+      ]
+    },
+    {
+      "id": "tidepool-t2",
+      "at": "2026-09-30T09:06:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:extractor",
+        "name": "extractor"
+      },
+      "nodeRefs": [
+        "event-record-verified",
+        "event-survey-synced",
+        "task-queue-photos-for-background-upload"
+      ],
+      "type": "commit",
+      "summary": "extract: things and rules",
+      "effects": [
+        "contains +1 · Record verified",
+        "contains +1 · Survey synced",
+        "contains +1 · Queue photos for background upload"
+      ]
+    },
+    {
+      "id": "tidepool-t3",
+      "at": "2026-09-30T10:05:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:planner",
+        "name": "planner"
+      },
+      "nodeRefs": [
+        "audience-weekend-shore-volunteer",
+        "audience-weekend-shore-volunteer",
+        "audience-weekend-shore-volunteer"
+      ],
+      "type": "changeset",
+      "changeset": {
+        "id": "cs-tidepool-11",
+        "number": 11,
+        "title": "Link Weekend shore volunteer to what it serves",
+        "author": {
+          "kind": "agent",
+          "id": "agent:planner",
+          "name": "planner"
+        },
+        "status": "committed",
+        "effects": [
+          {
+            "id": "fx-11-1",
+            "op": "add-edge",
+            "edge": {
+              "id": "e25",
+              "src": "audience-weekend-shore-volunteer",
+              "dst": "usecase-log-a-transect-survey-during-one-low",
+              "type": "has",
+              "status": "committed"
+            },
+            "verdict": "accepted"
+          },
+          {
+            "id": "fx-11-2",
+            "op": "add-edge",
+            "edge": {
+              "id": "e26",
+              "src": "audience-weekend-shore-volunteer",
+              "dst": "problem-field-data-is-lost-when-phones-have-no",
+              "type": "has",
+              "status": "committed"
+            },
+            "verdict": "accepted"
+          },
+          {
+            "id": "fx-11-3",
+            "op": "add-edge",
+            "edge": {
+              "id": "e27",
+              "src": "audience-weekend-shore-volunteer",
+              "dst": "context-rocky-intertidal-sites-with-no-mobile",
+              "type": "has",
+              "status": "committed"
+            },
+            "verdict": "rejected",
+            "reason": "already implied by the capability"
+          }
+        ],
+        "checks": {
+          "ok": 3,
+          "warn": 0,
+          "messages": []
+        },
+        "blast": "adds 3 edges in Product and User",
+        "createdAt": "2026-09-30T10:05:00.000Z"
+      }
+    },
+    {
+      "id": "tidepool-t4",
+      "at": "2026-09-30T10:40:00.000Z",
+      "author": {
+        "kind": "human",
+        "id": "you",
+        "name": "You"
+      },
+      "nodeRefs": [
+        "audience-weekend-shore-volunteer",
+        "audience-weekend-shore-volunteer",
+        "audience-weekend-shore-volunteer"
+      ],
+      "type": "commit",
+      "summary": "accepted #11 (2 of 3 effects)",
+      "effects": [
+        "has · Weekend shore volunteer → Log a transect survey during one low tide",
+        "has · Weekend shore volunteer → Field data is lost when phones have no signal"
+      ]
+    },
+    {
+      "id": "tidepool-t5",
+      "at": "2026-09-30T11:30:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:engineer",
+        "name": "engineer"
+      },
+      "nodeRefs": [
+        "task-queue-photos-for-background-upload"
+      ],
+      "type": "task",
+      "taskId": "task-queue-photos-for-background-upload",
+      "status": "running"
+    },
+    {
+      "id": "tidepool-t6",
+      "at": "2026-09-30T12:01:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:tester",
+        "name": "tester"
+      },
+      "nodeRefs": [
+        "test-photo-uploaded-after-reconnect-keeps-its"
+      ],
+      "type": "test",
+      "ok": true,
+      "testId": "test-photo-uploaded-after-reconnect-keeps-its",
+      "title": "Photo uploaded after reconnect keeps its GPS fix"
+    },
+    {
+      "id": "tidepool-t7",
+      "at": "2026-09-30T12:02:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:tester",
+        "name": "tester"
+      },
+      "nodeRefs": [
+        "test-observation-logged-40-m-off-site-is"
+      ],
+      "type": "test",
+      "ok": false,
+      "testId": "test-observation-logged-40-m-off-site-is",
+      "title": "Observation logged 40 m off-site is flagged"
+    },
+    {
+      "id": "tidepool-t8",
+      "at": "2026-09-30T13:15:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:engineer",
+        "name": "engineer"
+      },
+      "nodeRefs": [
+        "task-queue-photos-for-background-upload"
+      ],
+      "type": "commit",
+      "summary": "wip on Queue photos for background upload",
+      "effects": [
+        "targets · Queue photos for background upload → Observation logged 40 m off-site is flagged"
+      ]
+    },
+    {
+      "id": "tidepool-t9",
+      "at": "2026-09-30T14:10:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:reviewer",
+        "name": "reviewer"
+      },
+      "nodeRefs": [
+        "ai-function-suggest-species-from-a-field-photo",
+        "module-verification-service"
+      ],
+      "type": "changeset",
+      "changeset": {
+        "id": "cs-tidepool-12",
+        "number": 12,
+        "title": "Split Suggest species from a field photo into a v2",
+        "author": {
+          "kind": "agent",
+          "id": "agent:reviewer",
+          "name": "reviewer"
+        },
+        "status": "open",
+        "effects": [
+          {
+            "id": "fx-12-1",
+            "op": "add-node",
+            "node": {
+              "id": "ai-function-suggest-species-from-a-field-photo-v2",
+              "kind": "ai-function",
+              "title": "Suggest species from a field photo (v2)",
+              "status": "draft",
+              "description": "Proposed by the reviewer agent as a narrower ai-function."
+            },
+            "verdict": "pending"
+          },
+          {
+            "id": "fx-12-2",
+            "op": "add-edge",
+            "edge": {
+              "id": "e-contains-ai-function-suggest-species-from-a-field-photo-v2",
+              "src": "module-verification-service",
+              "dst": "ai-function-suggest-species-from-a-field-photo-v2",
+              "type": "contains",
+              "status": "draft"
+            },
+            "verdict": "pending"
+          },
+          {
+            "id": "fx-12-3",
+            "op": "update-node",
+            "node": {
+              "id": "ai-function-suggest-species-from-a-field-photo",
+              "kind": "ai-function",
+              "title": "Suggest species from a field photo",
+              "status": "committed",
+              "source": {
+                "kind": "inferred",
+                "note": "uip seed"
+              },
+              "props": {
+                "status": "deprecated"
+              }
+            },
+            "before": {
+              "props": {}
+            },
+            "verdict": "pending"
+          },
+          {
+            "id": "fx-12-4",
+            "op": "remove-edge",
+            "edge": {
+              "id": "e74",
+              "src": "module-verification-service",
+              "dst": "ai-function-suggest-species-from-a-field-photo",
+              "type": "contains",
+              "status": "committed"
+            },
+            "verdict": "pending"
+          }
+        ],
+        "checks": {
+          "ok": 3,
+          "warn": 1,
+          "messages": [
+            "Verification service loses its contains edge to Suggest species from a field photo"
+          ]
+        },
+        "blast": "touches 1 ai-function and Verification service · 1 edge(s) re-pointed",
+        "createdAt": "2026-09-30T14:10:00.000Z"
+      }
+    },
+    {
+      "id": "tidepool-t10",
+      "at": "2026-09-30T14:30:00.000Z",
+      "author": {
+        "kind": "s1",
+        "id": "s1",
+        "name": "S1"
+      },
+      "nodeRefs": [
+        "rule-surveys-start-no-earlier-than-90-minutes",
+        "rule-a-record-has-exactly-one-final-verdict",
+        "event-survey-synced",
+        "event-record-verified"
+      ],
+      "type": "message",
+      "text": "linked 3 of 4 new nodes · 1 needs you"
+    }
+  ]
+}

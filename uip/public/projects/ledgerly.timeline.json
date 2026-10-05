@@ -1,0 +1,315 @@
+{
+  "project": "ledgerly",
+  "entries": [
+    {
+      "id": "ledgerly-t1",
+      "at": "2026-10-02T09:02:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:extractor",
+        "name": "extractor"
+      },
+      "nodeRefs": [
+        "module-invoicing-service",
+        "module-payments-service",
+        "module-invoicing-service",
+        "module-payments-service"
+      ],
+      "type": "commit",
+      "summary": "extract: modules and their contents",
+      "effects": [
+        "realises +1 · Invoicing service",
+        "realises +1 · Payments service",
+        "contains +1 · Invoicing service",
+        "contains +1 · Payments service"
+      ]
+    },
+    {
+      "id": "ledgerly-t2",
+      "at": "2026-10-02T09:06:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:extractor",
+        "name": "extractor"
+      },
+      "nodeRefs": [
+        "event-invoice-sent",
+        "event-payment-received",
+        "ai-function-match-a-bank-deposit-to-an-open-invoice"
+      ],
+      "type": "commit",
+      "summary": "extract: things and rules",
+      "effects": [
+        "contains +1 · Invoice sent",
+        "contains +1 · Payment received",
+        "contains +1 · Match a bank deposit to an open invoice"
+      ]
+    },
+    {
+      "id": "ledgerly-t3",
+      "at": "2026-10-02T10:05:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:planner",
+        "name": "planner"
+      },
+      "nodeRefs": [
+        "audience-independent-freelancer",
+        "audience-independent-freelancer",
+        "audience-independent-freelancer"
+      ],
+      "type": "changeset",
+      "changeset": {
+        "id": "cs-ledgerly-11",
+        "number": 11,
+        "title": "Link Independent freelancer to what it serves",
+        "author": {
+          "kind": "agent",
+          "id": "agent:planner",
+          "name": "planner"
+        },
+        "status": "committed",
+        "effects": [
+          {
+            "id": "fx-11-1",
+            "op": "add-edge",
+            "edge": {
+              "id": "e25",
+              "src": "audience-independent-freelancer",
+              "dst": "usecase-send-an-invoice-the-day-work-is",
+              "type": "has",
+              "status": "committed"
+            },
+            "verdict": "accepted"
+          },
+          {
+            "id": "fx-11-2",
+            "op": "add-edge",
+            "edge": {
+              "id": "e26",
+              "src": "audience-independent-freelancer",
+              "dst": "problem-clients-pay-late-and-chasing-them-feels",
+              "type": "has",
+              "status": "committed"
+            },
+            "verdict": "accepted"
+          },
+          {
+            "id": "fx-11-3",
+            "op": "add-edge",
+            "edge": {
+              "id": "e27",
+              "src": "audience-independent-freelancer",
+              "dst": "problem-no-idea-whether-next-months-rent-is",
+              "type": "has",
+              "status": "committed"
+            },
+            "verdict": "rejected",
+            "reason": "already implied by the capability"
+          }
+        ],
+        "checks": {
+          "ok": 3,
+          "warn": 0,
+          "messages": []
+        },
+        "blast": "adds 3 edges in Product and User",
+        "createdAt": "2026-10-02T10:05:00.000Z"
+      }
+    },
+    {
+      "id": "ledgerly-t4",
+      "at": "2026-10-02T10:40:00.000Z",
+      "author": {
+        "kind": "human",
+        "id": "you",
+        "name": "You"
+      },
+      "nodeRefs": [
+        "audience-independent-freelancer",
+        "audience-independent-freelancer",
+        "audience-independent-freelancer"
+      ],
+      "type": "commit",
+      "summary": "accepted #11 (2 of 3 effects)",
+      "effects": [
+        "has · Independent freelancer → Send an invoice the day work is delivered",
+        "has · Independent freelancer → Clients pay late and chasing them feels awkward"
+      ]
+    },
+    {
+      "id": "ledgerly-t5",
+      "at": "2026-10-02T11:30:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:engineer",
+        "name": "engineer"
+      },
+      "nodeRefs": [
+        "task-import-bank-transactions-nightly"
+      ],
+      "type": "task",
+      "taskId": "task-import-bank-transactions-nightly",
+      "status": "running"
+    },
+    {
+      "id": "ledgerly-t6",
+      "at": "2026-10-02T12:01:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:tester",
+        "name": "tester"
+      },
+      "nodeRefs": [
+        "test-overpayment-is-rejected-with-a-refund"
+      ],
+      "type": "test",
+      "ok": true,
+      "testId": "test-overpayment-is-rejected-with-a-refund",
+      "title": "Overpayment is rejected with a refund prompt"
+    },
+    {
+      "id": "ledgerly-t7",
+      "at": "2026-10-02T12:02:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:tester",
+        "name": "tester"
+      },
+      "nodeRefs": [
+        "test-concurrent-sends-keep-invoice-numbers"
+      ],
+      "type": "test",
+      "ok": false,
+      "testId": "test-concurrent-sends-keep-invoice-numbers",
+      "title": "Concurrent sends keep invoice numbers sequential"
+    },
+    {
+      "id": "ledgerly-t8",
+      "at": "2026-10-02T13:15:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:engineer",
+        "name": "engineer"
+      },
+      "nodeRefs": [
+        "task-import-bank-transactions-nightly"
+      ],
+      "type": "commit",
+      "summary": "wip on Import bank transactions nightly",
+      "effects": [
+        "targets · Import bank transactions nightly → Concurrent sends keep invoice numbers sequential"
+      ]
+    },
+    {
+      "id": "ledgerly-t9",
+      "at": "2026-10-02T14:10:00.000Z",
+      "author": {
+        "kind": "agent",
+        "id": "agent:reviewer",
+        "name": "reviewer"
+      },
+      "nodeRefs": [
+        "ai-function-match-a-bank-deposit-to-an-open-invoice",
+        "module-payments-service"
+      ],
+      "type": "changeset",
+      "changeset": {
+        "id": "cs-ledgerly-12",
+        "number": 12,
+        "title": "Split Match a bank deposit to an open invoice into a v2",
+        "author": {
+          "kind": "agent",
+          "id": "agent:reviewer",
+          "name": "reviewer"
+        },
+        "status": "open",
+        "effects": [
+          {
+            "id": "fx-12-1",
+            "op": "add-node",
+            "node": {
+              "id": "ai-function-match-a-bank-deposit-to-an-open-invoice-v2",
+              "kind": "ai-function",
+              "title": "Match a bank deposit to an open invoice (v2)",
+              "status": "draft",
+              "description": "Proposed by the reviewer agent as a narrower ai-function."
+            },
+            "verdict": "pending"
+          },
+          {
+            "id": "fx-12-2",
+            "op": "add-edge",
+            "edge": {
+              "id": "e-contains-ai-function-match-a-bank-deposit-to-an-open-invoice-v2",
+              "src": "module-payments-service",
+              "dst": "ai-function-match-a-bank-deposit-to-an-open-invoice-v2",
+              "type": "contains",
+              "status": "draft"
+            },
+            "verdict": "pending"
+          },
+          {
+            "id": "fx-12-3",
+            "op": "update-node",
+            "node": {
+              "id": "ai-function-match-a-bank-deposit-to-an-open-invoice",
+              "kind": "ai-function",
+              "title": "Match a bank deposit to an open invoice",
+              "status": "committed",
+              "source": {
+                "kind": "inferred",
+                "note": "uip seed"
+              },
+              "props": {
+                "status": "deprecated"
+              }
+            },
+            "before": {
+              "props": {}
+            },
+            "verdict": "pending"
+          },
+          {
+            "id": "fx-12-4",
+            "op": "remove-edge",
+            "edge": {
+              "id": "e80",
+              "src": "module-payments-service",
+              "dst": "ai-function-match-a-bank-deposit-to-an-open-invoice",
+              "type": "contains",
+              "status": "committed"
+            },
+            "verdict": "pending"
+          }
+        ],
+        "checks": {
+          "ok": 3,
+          "warn": 1,
+          "messages": [
+            "Payments service loses its contains edge to Match a bank deposit to an open invoice"
+          ]
+        },
+        "blast": "touches 1 ai-function and Payments service · 1 edge(s) re-pointed",
+        "createdAt": "2026-10-02T14:10:00.000Z"
+      }
+    },
+    {
+      "id": "ledgerly-t10",
+      "at": "2026-10-02T14:30:00.000Z",
+      "author": {
+        "kind": "s1",
+        "id": "s1",
+        "name": "S1"
+      },
+      "nodeRefs": [
+        "rule-a-payment-never-exceeds-the-open-balance",
+        "rule-tax-rate-is-frozen-once-an-invoice-is",
+        "event-invoice-sent",
+        "event-payment-received"
+      ],
+      "type": "message",
+      "text": "linked 3 of 4 new nodes · 1 needs you"
+    }
+  ]
+}

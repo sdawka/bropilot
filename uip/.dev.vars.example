@@ -1,0 +1,5 @@
+# Copy to .dev.vars (gitignored). Key names only; never commit values.
+# Workers AI model for System One (default @cf/cloudflare/clef-flash)
+S1_MODEL=
+# Reserved for a Jev-over-OpenRouter fallback; unused in v1
+OPENROUTER_API_KEY=
