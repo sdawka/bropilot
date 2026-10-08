@@ -17,7 +17,7 @@ npm run dev:worker
 
 Open <http://127.0.0.1:8791>. The Worker serves the built Vue UI and executes the Rust core as Wasm. Its configuration dry run does not deploy remotely. For UI development after building, `npm run dev` starts Vite with an API proxy to the running local Worker.
 
-Create a local World, open Work, create a Move and choose the working or broken-health example. Submit the candidate, request verification and inspect the four actual checks in Evaluations. A passing candidate can be promoted; a failing candidate remains blocked. Promotion changes the canonical source revision; it does not deploy the candidate.
+Choose **Try a realization** to open a local Worker-app World, then **Start a Move**. The working example is ready to use; a broken-health example and source editing are also available. **Submit candidate**, then **Run checks** to inspect the four actual checks in Evaluations. World and revision switching live under **World context**. A passing candidate can be promoted; a failing candidate remains blocked. Promotion changes the canonical source revision; it does not deploy the candidate.
 
 `dev:worker` supervises the Worker and a separately credentialed verifier. Local SQLite state and private session credentials live under ignored `.local-session/`; state survives restarts. The verifier accepts bounded `worker.ts`/`public/` source bundles, builds in memory and runs isolated workerd without package installation, platform credentials or outbound network. The deployable Worker configuration disables these local mutation routes. This is local operator access, not hosted collaborator authentication or a Git/Cloudflare Artifacts adapter.
 

@@ -41,3 +41,5 @@
 - **2026-10-08T08:10:01-04:00** — Review and merge the older PRs, subject to the existing requirement that every CI check is green.
 
 - **2026-10-08T08:10:01-04:00** — Implement the next candidate-verification slice and try it locally first; consolidate ongoing work onto one branch and one PR for iteration, avoiding additional task-sized PRs.
+
+- **2026-10-08T09:19:34-04:00** — Use a large blank canvas, intentional components and a centered, delightful experience as continuing UI principles; remove inputs for choices already settled in the plan.

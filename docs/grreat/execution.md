@@ -4,11 +4,11 @@
 ## Now
 
 - Goal: [[goals]]. Milestone: deterministic candidate-verification slice across M1 contracts, M2 persistence/submission and M3 verification.
-- Next action: Try the local create → submit → verify → promote flow; continue iteration on this single branch/PR. Hosted authentication, provider-backed source versions and deployment need a later slice.
+- Next action: Review the centered workspace in the local preview and continue refinement on PR #9; scoped Task Packets and hosted collaborator authentication remain the next platform slice.
 - Working state: `feat/candidate-verification`, isolated worktree `/private/tmp/bropilot-world-foundation`, based on merged main `733f6b9`. Older PRs #5–#8 merged with all checks green; #1 closed as superseded, branch preserved. [PR #9](https://github.com/sdawka/bropilot/pull/9) is the single open iterative PR; hosted check results remain on that PR.
 - Blockers: No local implementation blocker. Git/Artifacts provider storage, hosted verifier/authentication, model checks, payments and deployment remain outside this slice. GRREAT sync remains pending credentials.
-- Latest verification: Build/check pass: 37 Rust, 6 UI, 17 verifier, 16 actual Worker and 12 desktop/mobile browser tests. Final shared-limit cases, clippy and strict mobile-width checks also pass; independent review findings resolved. [[journals/2026-10-08]] has evidence and limits.
-- Last updated: 2026-10-08T08:56:27-04:00.
+- Latest verification: Build/dry run and check pass: 37 Rust, 6 UI, 17 verifier, 16 actual Worker and 18 desktop/mobile browser tests (94 total). Centered canvas, on-demand context/evidence, candidate reload and historical-revision mutation/evidence boundaries verified; independent review clear. [[journals/2026-10-08]] has evidence and limits.
+- Last updated: 2026-10-08T09:41:44-04:00.
 
 ## Foundation implementation contract
 
