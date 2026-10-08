@@ -7,8 +7,8 @@
 - Next action: Review [PR #7](https://github.com/sdawka/bropilot/pull/7), stacked on adoption PR #6; verify remote CI before integration. Then define persistence and scoped agent/Task Packet contracts before M2.
 - Working state: Isolated worktree `/private/tmp/bropilot-world-foundation`, based on `28d9eea`; original untracked lockfile and prototypes preserved.
 - Blockers: None for this increment. GRREAT sync remains pending credentials. Provider selection, real calendar effects, trusted verification and promotion remain later work.
-- Latest verification: `npm run build` and `npm run check` pass: 23 Rust tests, 5 UI tests, 11 actual workerd HTTP/parity tests and 8 desktop/mobile browser tests; contract drift, formatting, lint and type checks pass. Independent review is clear. Evidence: [[journals/2026-10-08]]. PR #7 is open; remote CI is running.
-- Last updated: 2026-10-08T02:20:11-04:00.
+- Latest verification: `npm run build` and `npm run check` pass: 23 Rust tests, 5 UI tests, 11 actual workerd HTTP/parity tests and 8 desktop/mobile browser tests; contract drift, formatting, lint and type checks pass. Independent review is clear. Evidence: [[journals/2026-10-08]]. PR #7 is open; both hosted Foundation CI runs passed on `a970f5d` (application source `e20c4e9`).
+- Last updated: 2026-10-08T02:25:11-04:00.
 
 ## Foundation implementation contract
 
