@@ -23,3 +23,5 @@
 - **2026-10-08T01:21:03-04:00** — The first personal-assistant workflow includes organizing goals, identifying next actions and reviewing progress.
 
 - **2026-10-08T01:22:07-04:00** — Use Automatic mode for routine assistant changes to goals, plans and organized information, governed by explicit rules.
+
+- **2026-10-08T01:28:06-04:00** — Use a calendar-connected personal assistant that breaks goals into tasks and places them on the calendar as a concrete example workflow; develop illustrative scenarios and routine-change rules.

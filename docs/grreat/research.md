@@ -31,7 +31,28 @@ Proposed capability families: conversation and clarification; inspectable person
 
 **Accepted workflow scope:** capture scattered intentions → clarify goals and success criteria → identify next actions → revisit actual progress and revise. Routine structured changes use Automatic mode under explicit rules; operation coverage and prioritization details remain design questions. Keep reported progress and observed evidence attributable; do not infer completion from an agent assertion or observation alone. The selected mode is Automatic. Define which operations are routine, what grounds a change, and when missing context or authority prevents applying it; do not substitute a blanket review gate for the chosen mode.
 
-**Proposed Theory:** clearer priorities and lower-friction capture may reduce organizing effort and improve follow-through. Candidate indicators are user-rated clarity/effort, ability to identify a useful next action, and evidence against the user’s own goal criteria. This is a hypothesis, not an established benefit. External systems, rule coverage, consent scope, reminder behavior and meaningful acceptance examples still need selection.
+**Proposed Theory:** clearer priorities and lower-friction capture may reduce organizing effort and improve follow-through. Candidate indicators are user-rated clarity/effort, ability to identify a useful next action, and evidence against the user’s own goal criteria. This is a hypothesis, not an established benefit. Calendar connection and concrete scheduling examples are now selected. Provider, exact rule coverage, consent scope, reminder behavior and final acceptance criteria still need definition.
+
+## Calendar-connected example scenarios and draft rules
+
+The user selected calendar connection, goal breakdown and scheduling as the concrete example. The scenarios and defaults below are assistant-authored proposals, not additional user decisions; no provider or external write is implied. User activity deadlines belong to the product scenario, not the Bropilot delivery plan.
+
+| Scenario | Assistant behavior | Observable acceptance example |
+| --- | --- | --- |
+| Goal to calendar: “Help me learn French; I can spend three 25-minute sessions a week.” | Clarify the intended learning outcome if missing; split the goal into manageable practice tasks; schedule linked blocks around actual availability and permitted hours. | Three non-overlapping blocks appear in the selected calendar, linked to their goal/tasks with a visible next action. Existing appointments are preserved. Calendar occupancy does not establish learning success. |
+| Dependency-aware project: “Finish my portfolio homepage by Friday.” | Break down content, layout, implementation and review; estimate effort, preserve prerequisites and place work in available slots before the stated target. Explain insufficient capacity and offer scope or target changes. | Tasks retain dependency order and calendar links. A full calendar produces an explicit infeasibility finding rather than hidden overlaps, unapproved out-of-hours work or an invented completion promise. |
+| Replan and review: a meeting takes a planned practice slot, then the user reports another task unfinished. | Detect the clash, move the assistant-owned block to a permitted available slot, and revise the remaining plan using the user's progress report. Explain changes concisely and retain actual history. | The conflicting block is rescheduled once, repeated notifications create no duplicates, reported unfinished work remains unfinished, and the calendar and task plan agree after reconciliation. |
+
+Draft rules for Automatic routine changes:
+
+- Schedule within the selected calendars, permitted hours, capacity and goal constraints; respect busy time, task dependencies, stated priorities and deadlines. Keep uncertain duration estimates visible.
+- Automatically create or adjust assistant-owned task blocks within that scope. Preserve unrelated events and explicit user overrides; sending invitations or changing other people's commitments needs separately defined authority.
+- Retain stable links between goals, tasks and calendar blocks. Reconcile retries and external edits without duplicate events or silent overwrite of newer user changes. Provider-specific behavior must be verified.
+- Record progress with its source. Elapsed calendar time is not task completion; a reported completion is a user report, not independent proof of a beneficiary outcome.
+- If capacity, meaning, permission or freshness prevents a valid change, record the unresolved issue and request only the missing decision. Do not replace the selected Automatic mode with a review step for every routine action.
+- Keep an understandable change history and a way to undo assistant-owned scheduling changes, subject to the calendar adapter's actual capabilities. On partial calendar failure, expose unsynchronized state and resume safely rather than claiming the plan was fully applied.
+
+Suggested first demonstration: goal capture and three scheduled practice blocks, a calendar conflict that triggers an automatic revision, and a progress review that updates remaining work. Candidate managed Things are the assistant interface, goal/task planning service, calendar adapter and progress/context store; the user's real calendar is an external system whose effects are observable and individually reconciled, not part of atomic source promotion. These are proposed model boundaries to qualify in M1.
 
 ## Questions that affect the next milestone
 
