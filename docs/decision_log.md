@@ -25,3 +25,15 @@
 - **2026-10-08T01:22:07-04:00** — Use Automatic mode for routine assistant changes to goals, plans and organized information, governed by explicit rules.
 
 - **2026-10-08T01:28:06-04:00** — Use a calendar-connected personal assistant that breaks goals into tasks and places them on the calendar as a concrete example workflow; develop illustrative scenarios and routine-change rules.
+
+- **2026-10-08T01:44:24-04:00** — Implement the approved foundation plan: a Rust domain core and fresh UI shell developed in parallel, with layout and clearly marked placeholders; use UIP/LFP only as loose inspiration.
+
+- **2026-10-08T01:44:24-04:00** — Use a portable Rust core for domain behavior, with TypeScript Cloudflare storage/API adapters and a Vue UI; verify the Workers/Wasm compilation and loading path.
+
+- **2026-10-08T07:59:18-04:00** — Formalize criteria-linked executable checks for Thing implementations, using a full-stack Worker web app with artifact-existence and health-check criteria as the basic example.
+
+- **2026-10-08T07:59:18-04:00** — Realizing a Move submits a new implementation/artifact version as a candidate and tests that version against the relevant hooks.
+
+- **2026-10-08T07:59:18-04:00** — Support deterministic checks and LLM/decision-model checks, including combinations; reserve checks with significant cost for selected Realization candidates.
+
+- **2026-10-08T07:59:18-04:00** — Include optional contributor-funded platform verification for open-source Worlds, considering Cloudflare-compatible header-based agent payments. No specific payment provider or protocol was selected.

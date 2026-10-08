@@ -1,0 +1,13 @@
+import { execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+const root = fileURLToPath(new URL('../', import.meta.url));
+execFileSync('wasm-pack', ['build', 'crates/core-wasm', '--target', 'bundler', '--release', '--out-dir', '../../packages/core-wasm'], { cwd: root, stdio: 'inherit' });
+const entry = new URL('../packages/core-wasm/bropilot_core_wasm.js', import.meta.url);
+const generated = readFileSync(entry, 'utf8');
+const original = 'import * as wasm from "./bropilot_core_wasm_bg.wasm";';
+if (!generated.includes(original)) throw new Error('Unexpected wasm-bindgen output: review the Worker bridge before building.');
+const bridge = `import wasmModule from "./bropilot_core_wasm_bg.wasm";
+import * as imports from "./bropilot_core_wasm_bg.js";
+const wasm = new WebAssembly.Instance(wasmModule, { "./bropilot_core_wasm_bg.js": imports }).exports;`;
+writeFileSync(entry, generated.replace(original, bridge));

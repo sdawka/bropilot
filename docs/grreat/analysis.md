@@ -13,3 +13,15 @@
 | Remote GRREAT app mirror | Direct-RPC preview returned `pending`, reason `missing_credentials`, 0 applied records, 0 conflicts | Credentials required; no checkpoint or remote records created |
 
 Refresh the relevant criteria at each milestone, with exact tested state and journal evidence. Preserve dated reviews and reasons for changed criteria. Adoption completion does not establish application, deployment or beneficiary-outcome completion.
+
+## Foundation increment review
+
+| Success criterion | Evidence and tested state | Remaining gap |
+| --- | --- | --- |
+| Portable authoritative core with attributable readiness | Rust-generated contracts and four assistant snapshots; compiled Ascent rules, bounded inference, typed references, supported pack/Thing Template validation, completeness and exact-input SHA-256 binding. 23 Rust tests pass on `feat/world-foundation`; [[journals/2026-10-08]] records integrated evidence. | Task Packet/agent protocol, trusted Assays and persistent manifests are not implemented; M1 remains broader than this increment. |
+| Native and Cloudflare runtime agree | 11 actual workerd HTTP tests pass, including exact native/Wasm comparison for all fixtures/query modes, errors, bounds and sequential isolation. Production build and Worker dry run pass. | No remote resource provisioning or deployment verified. |
+| Usable revision-pinned workspace layout | Vue shell has six views, hierarchy/breadcrumb navigation, selection and shared inspector. 5 UI tests and 8 desktop/mobile browser tests pass; independent review is clear. | Detailed renderers/editors, real Work/Evaluation/History activity and M2/M3 integration remain placeholders. |
+| Candidate-verification contract | Requirements sections 3.1–3.3 now define criteria-linked protected hooks, immutable submissions, deterministic-first execution and selective costly checks; section 9.1 records optional contributor funding. | Contract only: storage/submission, runners, candidate evidence, promotion and payments are unimplemented. |
+| Delivery and mirror | Local build/check gates pass; [PR #7](https://github.com/sdawka/bropilot/pull/7) is open on implementation commit `e20c4e9`; both hosted Foundation CI runs passed on `a970f5d` (push and PR). Direct-RPC sync preview remains `pending`, `missing_credentials`, zero applied/conflicts. | Do not mark the full release or mirror complete. |
+
+Specification readiness in these fixtures does not establish calendar connectivity, successful deployment or achieved beneficiary outcomes.
