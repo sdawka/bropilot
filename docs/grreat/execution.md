@@ -4,11 +4,11 @@
 ## Now
 
 - Goal: [[goals]]. Milestone: M1 foundation increment and M4 workspace layout locally verified; full milestones remain open.
-- Next action: Deliver `feat/world-foundation` for review, then define persistence and the scoped agent/Task Packet protocol before implementing M2.
+- Next action: Review [PR #7](https://github.com/sdawka/bropilot/pull/7), stacked on adoption PR #6; verify remote CI before integration. Then define persistence and scoped agent/Task Packet contracts before M2.
 - Working state: Isolated worktree `/private/tmp/bropilot-world-foundation`, based on `28d9eea`; original untracked lockfile and prototypes preserved.
 - Blockers: None for this increment. GRREAT sync remains pending credentials. Provider selection, real calendar effects, trusted verification and promotion remain later work.
-- Latest verification: `npm run build` and `npm run check` pass: 23 Rust tests, 5 UI tests, 11 actual workerd HTTP/parity tests and 8 desktop/mobile browser tests; contract drift, formatting, lint and type checks pass. Independent review is clear. Evidence: [[journals/2026-10-08]]. Remote CI/PR delivery pending.
-- Last updated: 2026-10-08T02:17:07-04:00.
+- Latest verification: `npm run build` and `npm run check` pass: 23 Rust tests, 5 UI tests, 11 actual workerd HTTP/parity tests and 8 desktop/mobile browser tests; contract drift, formatting, lint and type checks pass. Independent review is clear. Evidence: [[journals/2026-10-08]]. PR #7 is open; remote CI is running.
+- Last updated: 2026-10-08T02:20:11-04:00.
 
 ## Foundation implementation contract
 
@@ -29,7 +29,7 @@ This is the accepted first build, not completion of the minimum deployed platfor
 - [x] Native and actual workerd/Wasm responses agree for shared fixtures, including errors and sequential query isolation.
 - [x] UI selection/navigation/deep links and desktop/mobile controls work; actual Rust readiness is displayed; unavailable activity is explicit.
 - [x] Rust tests/lint, TypeScript checks, production builds, browser tests and contract-drift checks pass; independent review is integrated.
-- [ ] Push and open a PR; never merge with any failing CI check. Update Now/journal/Analysis against observed evidence. GRREAT authenticated sync remains pending when credentials are absent.
+- [x] Push and open a PR; never merge with any failing CI check. Update Now/journal/Analysis against observed evidence. GRREAT authenticated sync remains pending when credentials are absent.
 
 ## Work history
 
