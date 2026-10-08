@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test';
 
 async function createRealization(page: import('@playwright/test').Page) {
-  await page.goto('/');
+  await page.goto('/?map=text');
   await page.getByRole('button', { name: 'Try a realization', exact: true }).click();
   await expect(page).toHaveURL(/\/worlds\/worker-app-[^/]+\/revisions\/[^/]+\/work/);
+  expect(new URL(page.url()).searchParams.get('map')).toBe('text');
   return new URL(page.url()).pathname.split('/')[2]!;
 }
 
@@ -29,9 +30,13 @@ test('a local owner verifies a preloaded working candidate, reloads it, and prom
   await page.screenshot({ path: `.test-artifacts/local-evaluations-${testInfo.project.name}.png`, fullPage: true });
   await page.getByRole('button', { name: 'Promote candidate', exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/worlds/${worldId}/revisions/[^/]+/overview`));
+  expect(new URL(page.url()).searchParams.get('map')).toBe('text');
   await expect(page.getByText('Canonical version', { exact: true })).toBeVisible();
   await page.reload();
+  expect(new URL(page.url()).searchParams.get('map')).toBe('text');
   await expect(page.getByText('Canonical version', { exact: true })).toBeVisible();
+  await page.getByRole('link', { name: 'Map', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Text', exact: true })).toHaveAttribute('aria-pressed', 'true');
 
   await page.getByRole('button', { name: 'World context', exact: true }).click();
   const context = page.getByRole('dialog', { name: 'World context' });

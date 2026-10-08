@@ -6,6 +6,7 @@ import type { ModelObject, WorldCommand, WorldState } from '@bropilot/contracts'
 import { readRouteState, routeQuery } from '../route-state';
 import { views, type WorkspaceView } from '../router';
 import { getExamples, getLocalKit, getLocalWorld, getLocalWorlds, liveWorldApi, sendWorldCommand, startLocalSession, type Example, type WorkspaceResult, type WorldSummary } from '../services/world-api';
+import WorldMap from '../components/WorldMap.vue';
 import { createLoadFence } from '../load-fence';
 import { ancestry, hierarchyPath } from '../hierarchy';
 
@@ -89,13 +90,14 @@ const assayNames: Record<string, string> = { 'artifact.exists': 'Source exists',
 
 function id(prefix: string) { return `${prefix}-${crypto.randomUUID()}`; }
 function changeView(view: WorkspaceView) { return router.push({ name: 'world', params: { worldId: state.value.worldId, revisionId: state.value.revisionId, view }, query: route.query }); }
+function setMapMode(mapMode: 'visual' | 'text') { return router.replace({ query: { ...route.query, map: mapMode } }); }
 function select(objectId?: string) {
   search.value = '';
   return router.replace({ query: routeQuery({ ...state.value, selected: objectId, path: hierarchyPath(objects.value, objectId) }) });
 }
 function navigate(worldId: string, revisionId: string, preserveSelection = false) {
   contextDialog.value?.close();
-  return router.push({ name: 'world', params: { worldId, revisionId, view: state.value.view }, query: preserveSelection ? route.query : {} });
+  return router.push({ name: 'world', params: { worldId, revisionId, view: state.value.view }, query: preserveSelection ? route.query : { map: state.value.mapMode } });
 }
 function closeContextBackdrop(event: MouseEvent) {
   const dialog = contextDialog.value;
@@ -168,7 +170,7 @@ async function command(commandValue: WorldCommand, nextView?: WorkspaceView) {
     if (disposed || state.value.worldId !== worldId) return;
     localState.value = response.state;
     if (response.result.kind === 'candidatePromoted') {
-      await router.push({ name: 'world', params: { worldId, revisionId: response.result.revisionId, view: 'overview' }, query: {} });
+      await router.push({ name: 'world', params: { worldId, revisionId: response.result.revisionId, view: 'overview' }, query: { map: state.value.mapMode } });
     } else if (nextView) await changeView(nextView);
   } catch (cause) {
     if (!disposed && state.value.worldId === worldId) commandError.value = cause instanceof Error ? cause.message : 'The change could not be saved.';
@@ -184,7 +186,7 @@ async function createWorld() {
     if (!response.ok || body.status !== 'ok') throw new Error(body.message ?? 'The example World could not be created.');
     const worldId = creation.worldId;
     creation = undefined;
-    await router.push({ name: 'world', params: { worldId, revisionId: body.state.desired.revisionId, view: 'work' }, query: {} });
+    await router.push({ name: 'world', params: { worldId, revisionId: body.state.desired.revisionId, view: 'work' }, query: { map: state.value.mapMode } });
   } catch (cause) { commandError.value = cause instanceof Error ? cause.message : 'The example World could not be created.'; }
   finally { pending.value = ''; }
 }
@@ -259,14 +261,15 @@ onBeforeUnmount(() => { disposed = true; workspaceFence.next(); localFence.next(
         </section>
 
         <section v-else-if="state.view === 'map'" class="workspace">
-          <header class="view-heading"><h1>Inside this World</h1><p>Explore its Things and how they fit together.</p></header>
+          <header class="view-heading" :class="{ 'visual-heading': state.mapMode === 'visual' }"><h1 :class="{ 'sr-only': state.mapMode === 'visual' }">Inside this World</h1><p :class="{ 'sr-only': state.mapMode === 'visual' }">Explore its Things and how they fit together.</p><div class="map-toggle" role="group" aria-label="Map representation"><button :aria-pressed="state.mapMode === 'visual'" @click="setMapMode('visual')">Visual</button><button :aria-pressed="state.mapMode === 'text'" @click="setMapMode('text')">Text</button></div></header>
           <div class="structure-toolbar">
             <div class="crumbs"><template v-for="(item, index) in ancestors" :key="item.id"><ChevronRight v-if="index" :size="13" /><button @click="select(item.id)">{{ item.title }}</button></template></div>
             <button class="icon-button" aria-label="Search hierarchy" @click="openSearch"><Search :size="16" /></button>
           </div>
           <label v-if="searchOpen" class="search-field"><span class="sr-only">Search World objects</span><input ref="searchInput" v-model="search" type="search" placeholder="Find a Thing, goal, or operation" aria-label="Search World objects" /><button class="icon-button" aria-label="Close search" @click="searchOpen = false; search = ''"><X :size="16" /></button></label>
-          <ul class="tree"><li v-for="object in children" :key="object.id"><button class="object-row" :aria-pressed="selected?.id === object.id" @click="select(object.id)"><span class="row-icon" aria-hidden="true" /><span class="object-copy"><span>{{ object.title }}</span><span v-if="search" class="object-path">{{ objectPath(object) }}</span></span><small>{{ object.kind }}</small><ChevronRight :size="15" /></button></li></ul>
-          <p v-if="!children.length" class="empty-note">{{ search ? 'No objects match this search.' : 'This is the most detailed level of this object.' }}</p>
+          <WorldMap v-if="state.mapMode === 'visual' && current" :focus="current" :objects="objects" :relations="snapshot.relations" :search="search" @select="select" />
+          <ul v-else class="tree"><li v-for="object in children" :key="object.id"><button class="object-row" :aria-pressed="selected?.id === object.id" @click="select(object.id)"><span class="row-icon" aria-hidden="true" /><span class="object-copy"><span>{{ object.title }}</span><span v-if="search" class="object-path">{{ objectPath(object) }}</span></span><small>{{ object.kind }}</small><ChevronRight :size="15" /></button></li></ul>
+          <p v-if="state.mapMode === 'text' && !children.length" class="empty-note">{{ search ? 'No objects match this search.' : 'This is the most detailed level of this object.' }}</p>
         </section>
 
         <section v-else-if="state.view === 'work' && isLocal" class="workspace">
