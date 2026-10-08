@@ -25,3 +25,9 @@ Refresh the relevant criteria at each milestone, with exact tested state and jou
 | Delivery and mirror | Local build/check gates pass; [PR #7](https://github.com/sdawka/bropilot/pull/7) is open on implementation commit `e20c4e9`; both hosted Foundation CI runs passed on `a970f5d` (push and PR). Direct-RPC sync preview remains `pending`, `missing_credentials`, zero applied/conflicts. | Do not mark the full release or mirror complete. |
 
 Specification readiness in these fixtures does not establish calendar connectivity, successful deployment or achieved beneficiary outcomes.
+
+## Local candidate-verification review
+
+- Implemented and locally verified: pure Rust role/idempotency/lease/hash/CAS transitions; SQLite Durable Object state and immutable revision snapshots; separate local owner/implementer/verifier credentials; isolated workerd Assays; UI submission, actual evidence and promotion. Passing conformance remains separate from model readiness, unknown outcomes and deployment.
+- Evidence: [[journals/2026-10-08]] records 88 passing tests, build/check gates, restart/concurrency failures rejected, independent review fixes and actual mobile geometry. Existing personal-assistant examples remain read-only.
+- Remaining: hosted collaborator authentication, scoped Task Packets/agent workspaces, Git/Cloudflare Artifacts resolution, candidate comparison/composition, model/payment Assays and deployment. The content-backed local source bundle and loopback owner session do not establish those capabilities. GRREAT direct-RPC preview remains pending missing credentials, zero applied/conflicts.

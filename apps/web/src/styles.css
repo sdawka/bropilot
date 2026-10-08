@@ -1,5 +1,5 @@
 :root { color: #17263d; background: #f5f8fc; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif; font-synthesis: none; }
-* { box-sizing: border-box; } body { margin: 0; min-width: 320px; } button, input, select { font: inherit; } button { cursor: pointer; }
+* { box-sizing: border-box; } body { margin: 0; min-width: 320px; } button, input, select, textarea { font: inherit; } button { cursor: pointer; } textarea { display:block; width:100%; min-height:120px; resize:vertical; } code,.panel p { overflow-wrap:anywhere; word-break:break-word; }
 .shell { min-height: 100vh; display: grid; grid-template-columns: 244px minmax(0, 1fr); }
 .side { background: #101f35; color: #e8f1ff; padding: 20px 14px; display: flex; flex-direction: column; gap: 24px; }
 .brand { font-weight: 760; letter-spacing: -.03em; font-size: 19px; }.brand span { color: #80b8ff; }
@@ -12,3 +12,6 @@
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #275fc9; outline-offset: 3px; }
 .crumbs button { border: 0; background: transparent; color: #31557d; padding: 4px; text-align: left; }
 .inspector { overflow-wrap: anywhere; }
+.context label { min-width: 0; max-width: 100%; }
+.context h1 { overflow-wrap: anywhere; }
+.context select, .context input { min-width: 0; width: 100%; }

@@ -5,7 +5,8 @@
   "type": "module",
   "workspaces": [
     "apps/*",
-    "packages/contracts"
+    "packages/contracts",
+    "packages/local-verifier"
   ],
   "engines": {
     "node": ">=22.12.0"
@@ -14,16 +15,18 @@
     "contracts:generate": "cargo run --locked -p bropilot-contract-gen",
     "contracts:check": "node scripts/check-contracts.mjs",
     "build:wasm": "node scripts/build-wasm.mjs",
+    "build:verifier": "node scripts/build-runner-manifest.mjs",
     "build:web": "npm run build --workspace @bropilot/web",
-    "build": "npm run build:wasm && npm run build:web && npm run build --workspace @bropilot/worker",
+    "build": "npm run build:wasm && npm run build:verifier && npm run build:web && npm run build --workspace @bropilot/worker",
     "typecheck": "npm run typecheck --workspace @bropilot/web && npm run typecheck --workspace @bropilot/worker",
     "test:core": "cargo test --workspace --locked",
     "test:web": "npm run test --workspace @bropilot/web",
-    "test:worker": "cargo build --locked -p bropilot-query && node --test tests/worker.test.mjs",
+    "test:worker": "npm run build:verifier && cargo build --locked -p bropilot-query && node --test --test-concurrency=1 tests/worker.test.mjs tests/realization.test.mjs",
+    "test:verifier": "node --test packages/local-verifier/test/*.test.mjs",
     "test:e2e": "playwright test",
-    "test": "npm run test:core && npm run test:web && npm run test:worker",
+    "test": "npm run test:core && npm run test:web && npm run test:verifier && npm run test:worker",
     "dev": "npm run dev --workspace @bropilot/web",
-    "dev:worker": "npm run dev --workspace @bropilot/worker",
+    "dev:worker": "node scripts/dev-local.mjs",
     "check": "npm run contracts:check && cargo fmt --all -- --check && cargo clippy --workspace --all-targets --locked -- -D warnings && npm run typecheck && npm test && npm run test:e2e"
   },
   "devDependencies": {

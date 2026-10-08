@@ -37,3 +37,7 @@
 - **2026-10-08T07:59:18-04:00** — Support deterministic checks and LLM/decision-model checks, including combinations; reserve checks with significant cost for selected Realization candidates.
 
 - **2026-10-08T07:59:18-04:00** — Include optional contributor-funded platform verification for open-source Worlds, considering Cloudflare-compatible header-based agent payments. No specific payment provider or protocol was selected.
+
+- **2026-10-08T08:10:01-04:00** — Review and merge the older PRs, subject to the existing requirement that every CI check is green.
+
+- **2026-10-08T08:10:01-04:00** — Implement the next candidate-verification slice and try it locally first; consolidate ongoing work onto one branch and one PR for iteration, avoiding additional task-sized PRs.

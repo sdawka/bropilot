@@ -1444,6 +1444,8 @@ pub fn handle_request(input: &str) -> String {
 }
 
 pub mod fixtures;
+pub mod realization;
+pub use realization::handle_world_command;
 
 /// Returns the complete public TypeScript wire contract from Rust definitions.
 #[must_use]
@@ -1459,7 +1461,7 @@ pub fn typescript_contract() -> String {
             output
         }};
     }
-    declarations!(
+    let mut output = declarations!(
         Source,
         SourceKind,
         VersionRef,
@@ -1496,5 +1498,7 @@ pub fn typescript_contract() -> String {
         WorkspaceResult,
         CoreResult,
         CoreResponse,
-    )
+    );
+    output.push_str(&realization::typescript_contract());
+    output
 }

@@ -17,6 +17,21 @@
       "enabled": true
     }
   },
+  "vars": {
+    "LOCAL_WORKSPACE": "disabled"
+  },
+  "durable_objects": {
+    "bindings": [
+      { "name": "WORLD_AUTHORITY", "class_name": "WorldAuthority" },
+      { "name": "LOCAL_WORLD_DIRECTORY", "class_name": "LocalWorldDirectory" }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["WorldAuthority", "LocalWorldDirectory"]
+    }
+  ],
   "rules": [
     {
       "type": "CompiledWasm",

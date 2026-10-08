@@ -71,3 +71,51 @@ export type WorkspaceResult = { snapshot: WorldSnapshot, readiness: ReadinessEva
 export type CoreResult = { "kind": "workspace", snapshot: WorldSnapshot, readiness: ReadinessEvaluation, } | { "kind": "readiness", evaluation: ReadinessEvaluation, } | { "kind": "children", objects: Array<ModelObject>, };
 
 export type CoreResponse = { "status": "ok", apiVersion: number, result: CoreResult, } | { "status": "error", apiVersion: number, code: string, message: string, };
+
+export type Actor = "owner" | "implementer" | "verifier";
+
+export type SourceBundle = { files: { [key in string]?: string }, };
+
+export type HttpContract = { method: string, path: string, status: number, contentType: string, responseShape: string, };
+
+export type WebAppKit = { kitId: string, version: string, entrypoint: string, assetsDirectory: string, requiredAsset: string, health: HttpContract, frontend: HttpContract, backend: HttpContract, runnerRef: string, runnerHash: string, };
+
+export type AssayDefinition = { assayId: string, criterionId: string, method: string, mandatory: boolean, runnerRef: string, runnerHash: string, };
+
+export type AssayPlan = { planId: string, version: string, planHash: string, assays: Array<AssayDefinition>, };
+
+export type MoveStatus = "open" | "promoted";
+
+export type Move = { moveId: string, title: string, baseRevisionId: string, desiredRevisionId: string, contractHash: string, planHash: string, status: MoveStatus, createdBy: Actor, createdAtMs: number, };
+
+export type Candidate = { candidateId: string, moveId: string, desiredRevisionId: string, baseRevisionId: string, source: SourceBundle, sourceDigest: string, contractHash: string, submittedBy: Actor, submittedAtMs: number, };
+
+export type ExecutionStatus = "completed" | "error" | "notRun";
+
+export type AssayResult = "pass" | "fail" | "unknown";
+
+export type AssayObservation = { assayId: string, executionStatus: ExecutionStatus, result: AssayResult, summary: string, raw?: string, };
+
+export type VerificationAggregate = "ready" | "blocked" | "unknown";
+
+export type RunStatus = "queued" | "running" | "completed" | "error";
+
+export type RunLease = { leaseId: string, verifierId: string, claimedAtMs: number, expiresAtMs: number, };
+
+export type AssayEvaluation = { verifierId: string, attempt: number, sourceDigest: string, contractHash: string, planHash: string, buildDigest?: string, observations: Array<AssayObservation>, aggregate: VerificationAggregate, completedAtMs: number, };
+
+export type VerificationRun = { runId: string, candidateId: string, sourceDigest: string, contractHash: string, planHash: string, status: RunStatus, aggregate: VerificationAggregate, attempt: number, activeLease?: RunLease, evaluations: Array<AssayEvaluation>, };
+
+export type WorldRevisionRecord = { revisionId: string, parentRevisionId?: string, candidateId?: string, createdBy: Actor, createdAtMs: number, };
+
+export type IdempotencyReceipt = { requestId: string, commandHash: string, result: WorldCommandResult, };
+
+export type WorldState = { worldId: string, title: string, desired: WorldSnapshot, headRevisionId: string, kit: WebAppKit, assayPlan: AssayPlan, moves: Array<Move>, candidates: Array<Candidate>, runs: Array<VerificationRun>, revisions: Array<WorldRevisionRecord>, receipts: Array<IdempotencyReceipt>, };
+
+export type WorldCommand = { "kind": "createWorld", worldId: string, title: string, runnerHash: string, requestId: string, } | { "kind": "createMove", moveId: string, title: string, requestId: string, } | { "kind": "submitCandidate", moveId: string, candidateId: string, source: SourceBundle, requestId: string, } | { "kind": "startVerification", candidateId: string, requestId: string, } | { "kind": "claimRun", runId: string, leaseId: string, verifierId: string, runnerHash: string, requestId: string, } | { "kind": "completeRun", runId: string, leaseId: string, sourceDigest: string, contractHash: string, planHash: string, buildDigest: string | null, observations: Array<AssayObservation>, requestId: string, } | { "kind": "promote", candidateId: string, expectedHeadRevisionId: string, requestId: string, };
+
+export type WorldCommandRequest = { apiVersion: number, state: WorldState | null, actor: Actor, nowMs: number, command: WorldCommand, };
+
+export type WorldCommandResult = { "kind": "worldCreated", worldId: string, revisionId: string, moveId: string, } | { "kind": "moveCreated", moveId: string, } | { "kind": "candidateSubmitted", candidateId: string, sourceDigest: string, } | { "kind": "verificationStarted", runId: string, reused: boolean, } | { "kind": "runClaimed", runId: string, attempt: number, leaseExpiresAtMs: number, } | { "kind": "runCompleted", runId: string, aggregate: VerificationAggregate, } | { "kind": "candidatePromoted", candidateId: string, revisionId: string, };
+
+export type WorldCommandResponse = { "status": "ok", apiVersion: number, state: WorldState, result: WorldCommandResult, } | { "status": "error", apiVersion: number, code: string, message: string, };

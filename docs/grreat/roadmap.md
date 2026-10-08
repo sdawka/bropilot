@@ -2,7 +2,7 @@
 # Define the foundation
 
 - Supports: [[goals]].
-- Current focus: The Rust/UI foundation is verified in PR #7. Formalize and then build the deterministic candidate-verification slice in requirements section 3.3: one web-app Thing, immutable Move/Realization submission, protected existence/build/health/surface Assays and trusted pinned evidence. This spans M1 contracts, M2 persistence/submission and M3 verification; it does not complete the broader milestones.
+- Current focus: Foundation and specification PRs #5–#8 are merged. The deterministic candidate-verification slice in requirements section 3.3 is locally implemented and verified on `feat/candidate-verification`: one web-app Thing, immutable submission, protected existence/build/health/surface Assays and CAS promotion. Iterate locally on this one branch/PR. This spans M1–M4 without completing the broader milestones; hosted authentication, Task Packets and Git/Artifacts adapters remain next protocol work.
 - Plan by dependencies and acceptance criteria, without dates or duration estimates. The adoption record is established; the product milestones below are not implemented or verified by that documentation work.
 
 | Milestone | Dependency | Completion criteria and evidence |

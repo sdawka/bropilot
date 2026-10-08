@@ -3,12 +3,12 @@
 
 ## Now
 
-- Goal: [[goals]]. Milestone: M1 candidate/Assay contracts leading into M2 submission and M3 verification; the Rust/UI foundation increment is complete.
-- Next action: Review [specification PR #8](https://github.com/sdawka/bropilot/pull/8), stacked on foundation PR #7, and the clarified criteria/Assay/hook contract in [requirements sections 3.1–3.3 and 9.1](../world-platform-plan-and-requirements.md), then plan the deterministic web-app submission → existence/build/health checks → trusted evidence slice. Implementing that slice is not part of this documentation change.
-- Working state: `docs/assay-contract`, stacked on verified foundation `11e1c0d`, isolated worktree `/private/tmp/bropilot-world-foundation`. Original lockfile and prototypes preserved.
-- Blockers: Candidate persistence/submission, protected runner bindings and verifier execution remain unimplemented. Payment protocol/provider, funding lifecycle and account eligibility remain unselected; funded checks are optional. GRREAT sync remains pending credentials.
-- Latest verification: Foundation build/check and both hosted CI runs passed on `11e1c0d`: 23 Rust, 5 UI, 11 workerd and 8 browser tests. This change is specification-only: GRREAT protocol/context, 25 relative links, Word-source preservation and whitespace checks pass; Specification PR #8 is open; hosted checks are tracked on that PR. Evidence: [[journals/2026-10-08]].
-- Last updated: 2026-10-08T08:00:27-04:00.
+- Goal: [[goals]]. Milestone: deterministic candidate-verification slice across M1 contracts, M2 persistence/submission and M3 verification.
+- Next action: Try the local create → submit → verify → promote flow; continue iteration on this single branch/PR. Hosted authentication, provider-backed source versions and deployment need a later slice.
+- Working state: `feat/candidate-verification`, isolated worktree `/private/tmp/bropilot-world-foundation`, based on merged main `733f6b9`. Older PRs #5–#8 merged with all checks green; #1 closed as superseded, branch preserved. Single iterative PR delivery pending.
+- Blockers: No local implementation blocker. Git/Artifacts provider storage, hosted verifier/authentication, model checks, payments and deployment remain outside this slice. GRREAT sync remains pending credentials.
+- Latest verification: Build/check pass: 37 Rust, 6 UI, 17 verifier, 16 actual Worker and 12 desktop/mobile browser tests. Final shared-limit cases, clippy and strict mobile-width checks also pass; independent review findings resolved. [[journals/2026-10-08]] has evidence and limits.
+- Last updated: 2026-10-08T08:50:09-04:00.
 
 ## Foundation implementation contract
 
@@ -34,3 +34,17 @@ This is the accepted first build, not completion of the minimum deployed platfor
 ## Work history
 
 - [[journals/2026-10-08]] — initial adoption, source conversion and validation evidence.
+
+## Candidate-verification implementation plan
+
+Spec: [requirements sections 3.1–3.3](../world-platform-plan-and-requirements.md). Use the existing isolated branch and one PR; try the actual flow locally first.
+
+Architecture: Rust applies pure `WorldCommandRequest {apiVersion,state,actor,nowMs,command}` transitions and generates contracts. A per-World SQLite Durable Object atomically persists each accepted transition. A separately credentialed local verifier builds bounded, content-backed source bundles and executes actual workerd checks; candidate code receives no platform credentials, host filesystem or outbound capability. Registered executable hashes bind protected hooks to run evidence. The initial Worker app Kit is `worker.ts` plus `public/index.html`, `/health` and `/api/message` contracts.
+
+- [x] Rust (`crates/world-core/src/realization.rs`, tests, Wasm/CLI forwarding, generated contracts): create World/Move, immutable submit, queue/claim/complete and CAS promotion. Test role spoofing, exact replay versus changed request IDs, competing candidate stale bases, digest/contract mismatch, expired verifier leases and missing/failed evidence. Keep model readiness separate from candidate conformance.
+- [x] Persistence/API (`apps/worker/src/world-authority.ts`, local auth/routes): inject authenticated role/time and registered runner hash; atomically store state/revisions/idempotency. Implement owner/implementer/verifier capabilities for the local operator; remotely deployed configuration rejects this local mutation surface. HTTP tests prove persistence across Worker restart, World separation, unauthorized evidence/promotion, malformed/oversize input and exact retries.
+- [x] Verifier (`packages/local-verifier/`): protected runner hash, bounded in-memory build, isolated workerd preview and attributable existence/build/health/surface observations. Test missing files, compile and health failure, source/runner mismatch, network denial, response/deadline bounds and cleanup. Source is an immutable content-backed bundle for this local slice; do not claim unimplemented Git/Artifacts resolution.
+- [x] Workspace (`apps/web/`, new local browser tests): create a World, submit working/broken candidates, request/poll real runs, inspect evidence and promote only an eligible exact candidate. Show no invented activity or deployment. Verify reload, desktop/mobile geometry and server-side rejection paths.
+- [x] Primary integration: fresh patched Wasm and registered-runner manifest, local development process/separate credentials, complete build/check and independent whole-branch review. Merge older current PRs only with all checks green, preserve historical branches, prepare this locally verified branch for one iterative PR; delivery is recorded in Now.
+
+Boundary: no remote deployment, paid/model Assay execution, calendar effects or general package-install/shell execution. Those follow this tested protocol rather than blocking it.

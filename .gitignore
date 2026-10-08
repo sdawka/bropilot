@@ -13,3 +13,5 @@
 /packages/core-wasm/
 /.test-artifacts/
 /apps/worker/worker-configuration.d.ts
+/.local-session/
+/apps/worker/src/runner-manifest.ts

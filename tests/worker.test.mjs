@@ -40,6 +40,17 @@ test('catalog lists four explicit example revisions', async () => {
   assert.ok(catalog.every(item => item.worldId && item.revisionId && item.scenario));
 });
 
+test('deployable configuration exposes no local mutation authority', async () => {
+  const session = await fetch(`${origin}/api/v1/local/session`);
+  assert.deepEqual(await session.json(), { enabled: false });
+  assert.equal(session.headers.get('set-cookie'), null);
+  const response = await fetch(`${origin}/api/v1/worlds`, {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ worldId: 'remote', title: 'Unavailable', requestId: 'default-disabled' }),
+  });
+  assert.equal(response.status, 404);
+});
+
 test('unknown pinned revisions stay unavailable', async () => {
   const response = await fetch(`${origin}/api/v1/worlds/assistant/revisions/not-a-revision`);
   assert.equal(response.status, 404);

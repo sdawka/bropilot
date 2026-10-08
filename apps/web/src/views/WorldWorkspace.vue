@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ChevronRight, CircleHelp, GitBranch } from '@lucide/vue';
 import { readRouteState, routeQuery } from '../route-state';
 import { views, type WorkspaceView } from '../router';
-import { getExamples, liveWorldApi, type Example, type WorkspaceResult } from '../services/world-api';
+import { getExamples, getLocalKit, getLocalWorld, getLocalWorlds, liveWorldApi, sendWorldCommand, startLocalSession, type Example, type WorkspaceResult, type WorldSummary } from '../services/world-api';
+import type { WorldCommand, WorldState } from '@bropilot/contracts';
 import { createLoadFence } from '../load-fence';
 import { ancestry, hierarchyPath } from '../hierarchy';
 
@@ -16,6 +17,9 @@ const unavailable = ref(false);
 const error = ref<string>();
 const workspace = ref<WorkspaceResult>();
 const examples = ref<Example[]>([]);
+const localEnabled = ref(false); const localWorlds = ref<WorldSummary[]>([]); const localState = ref<WorldState>(); const commandError = ref('');
+const localFence = createLoadFence(); let pollTimer: number | undefined;
+const newWorldId = ref(''); const newWorldTitle = ref(''); const moveTitle = ref('Implement local candidate'); const worker = ref(''); const indexHtml = ref('');
 const fence = createLoadFence();
 const snapshot = computed(() => workspace.value?.snapshot);
 const readiness = computed(() => workspace.value?.readiness);
@@ -35,6 +39,11 @@ const title = computed(() => snapshot.value?.title ?? state.value.worldId);
 const environment = computed(() => snapshot.value?.environment.title ?? 'Environment unknown');
 const phase = computed(() => snapshot.value?.phase ?? 'Phase unknown');
 const purpose = computed(() => snapshot.value?.purpose.statement ?? 'Purpose has not been recorded.');
+const isLocal = computed(() => !!localState.value);
+const currentMove = computed(() => localState.value?.moves.find((move) => move.status === 'open'));
+const currentCandidate = computed(() => currentMove.value ? localState.value?.candidates.filter((candidate) => candidate.moveId === currentMove.value!.moveId).at(-1) : undefined);
+const currentRun = computed(() => currentCandidate.value ? localState.value?.runs.filter((run) => run.candidateId === currentCandidate.value!.candidateId).at(-1) : undefined);
+const canPromote = computed(() => !!(currentCandidate.value && currentRun.value?.aggregate === 'ready' && currentCandidate.value.baseRevisionId === localState.value?.headRevisionId && currentMove.value?.baseRevisionId === localState.value?.headRevisionId));
 
 function objectTitle(object: { id: string; title: string }) { return object.title; }
 function objectId(object: { id: string }) { return object.id; }
@@ -55,8 +64,16 @@ async function load() {
   finally { if (fence.current(token)) loading.value = false; }
 }
 async function loadExamples() { try { examples.value = await getExamples(); } catch { examples.value = []; } }
+async function loadLocal() { const token = localFence.next(); try { const enabled = await startLocalSession(); const worlds = await getLocalWorlds(); const world = worlds.find((item) => item.worldId === state.value.worldId); const local = world ? await getLocalWorld(state.value.worldId) : undefined; if (!localFence.current(token)) return; localEnabled.value = enabled.enabled; localWorlds.value = worlds; localState.value = local; } catch { if (localFence.current(token)) { localEnabled.value = false; localState.value = undefined; } } }
 function switchRevision(event: Event) { const found = examples.value.find((example) => `${example.worldId}/${example.revisionId}` === (event.target as HTMLSelectElement).value); if (found) router.push({ name: 'world', params: { worldId: found.worldId, revisionId: found.revisionId, view: state.value.view }, query: routeQuery(state.value) }); }
-onMounted(() => { void load(); void loadExamples(); }); watch(() => `${state.value.worldId}/${state.value.revisionId}`, load);
+function switchWorld(event: Event) { const world = localWorlds.value.find((item) => item.worldId === (event.target as HTMLSelectElement).value); if (world) router.push({ name: 'world', params: { worldId: world.worldId, revisionId: world.desiredRevisionId, view: 'overview' }, query: {} }); }
+function id(prefix: string) { return `${prefix}-${crypto.randomUUID()}`; }
+async function command(command: WorldCommand) { try { commandError.value = ''; const response = await sendWorldCommand(state.value.worldId, command); localState.value = response.state; if (command.kind === 'promote' && response.result.kind === 'candidatePromoted') router.push({ name: 'world', params: { worldId: state.value.worldId, revisionId: response.result.revisionId, view: 'overview' }, query: {} }); } catch (error) { commandError.value = error instanceof Error ? error.message : 'Command failed.'; } }
+async function createWorld() { if (!newWorldId.value || !newWorldTitle.value) return; try { const response = await fetch('/api/v1/worlds', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ worldId: newWorldId.value, title: newWorldTitle.value, requestId: id('create') }) }); const body = await response.json(); if (!response.ok || body.status === 'error') throw new Error(body.message ?? 'Create World failed.'); await loadLocal(); router.push({ name: 'world', params: { worldId: newWorldId.value, revisionId: body.state.desired.revisionId, view: 'work' } }); } catch (error) { commandError.value = error instanceof Error ? error.message : 'Create World failed.'; } }
+async function fillKit(kind: 'working' | 'brokenHealth') { const kit = await getLocalKit(); worker.value = kit.sources[kind].files['worker.ts'] ?? ''; indexHtml.value = kit.sources[kind].files['public/index.html'] ?? ''; }
+onMounted(() => { void load(); void loadExamples(); void loadLocal(); }); watch(() => `${state.value.worldId}/${state.value.revisionId}`, () => { void load(); void loadLocal(); });
+watch(currentRun, (run) => { window.clearTimeout(pollTimer); if (run && (run.status === 'queued' || run.status === 'running')) pollTimer = window.setTimeout(() => void loadLocal(), 750); });
+onBeforeUnmount(() => { localFence.next(); window.clearTimeout(pollTimer); });
 </script>
 
 <template>
@@ -71,7 +88,7 @@ onMounted(() => { void load(); void loadExamples(); }); watch(() => `${state.val
     <main class="content">
       <header class="context">
         <h1>{{ title }}</h1>
-        <label>World<select :value="state.worldId" aria-label="World"><option :value="state.worldId">{{ state.worldId }}</option></select></label>
+        <label>World<select :value="state.worldId" aria-label="World" @change="switchWorld"><option :value="state.worldId">{{ state.worldId }}</option><option v-for="world in localWorlds.filter((item) => item.worldId !== state.worldId)" :key="world.worldId" :value="world.worldId">{{ world.title }}</option></select></label>
         <label>Revision<select :value="`${state.worldId}/${state.revisionId}`" aria-label="Revision" @change="switchRevision"><option :value="`${state.worldId}/${state.revisionId}`">{{ state.revisionId }}</option><option v-for="example in examples.filter((item) => `${item.worldId}/${item.revisionId}` !== `${state.worldId}/${state.revisionId}`)" :key="example.revisionId" :value="`${example.worldId}/${example.revisionId}`">{{ example.title }} · {{ example.revisionId }}</option></select></label>
         <label>Search<input v-model="search" type="search" placeholder="Objects and kinds" aria-label="Search World objects" /></label>
         <div class="context-meta">
@@ -80,7 +97,10 @@ onMounted(() => { void load(); void loadExamples(); }); watch(() => `${state.val
         </div>
       </header>
 
-      <p class="example"><strong>Read-only example.</strong> Calendar is not connected and no live agent activity is shown.</p>
+      <p v-if="!isLocal" class="example"><strong>Read-only example.</strong> Calendar is not connected and no live agent activity is shown.</p>
+      <p v-else class="example"><strong>Local World.</strong> Candidate and verification state below comes from the local runner. Deployment has not been performed.</p>
+      <form v-if="localEnabled && !isLocal" class="panel" @submit.prevent="createWorld"><strong>Create local World</strong> <input v-model="newWorldId" required placeholder="World id" aria-label="New World id" /> <input v-model="newWorldTitle" required placeholder="Title" aria-label="New World title" /> <button type="submit">Create</button></form>
+      <p v-if="commandError" class="example"><strong>Command error.</strong> {{ commandError }}</p>
       <p v-if="invalidSelected" class="example"><strong>Pinned object unavailable.</strong> {{ invalidSelected }} does not exist in this revision; the link remains unchanged.</p>
       <div v-if="loading" class="panel">Loading the pinned revision…</div>
       <div v-else-if="unavailable" class="panel"><h2>Pinned revision unavailable</h2><p class="placeholder">{{ state.worldId }} / {{ state.revisionId }} could not be found. It has not been replaced with the latest revision.</p></div>
@@ -96,6 +116,8 @@ onMounted(() => { void load(); void loadExamples(); }); watch(() => `${state.val
             <div class="lens" aria-label="Map lens"><button v-for="lens in ['structure', 'causal', 'change', 'risk', 'observed', 'candidate']" :key="lens" :class="{ active: state.lens === lens }" @click="setLens(lens)">{{ lens }}</button></div>
             <article class="panel"><h2>Focused map</h2><p class="placeholder">The {{ state.lens || 'structure' }} lens is reserved for the connected graph renderer. Direction, relationship type, and uncertainty will appear when the revision supplies them.</p></article>
           </template>
+          <template v-else-if="state.view === 'work' && isLocal"><p class="section-title">Local candidate work</p><article class="panel"><p>Move: {{ currentMove?.title ?? 'No open Move' }}</p><button v-if="!currentMove" @click="command({ kind: 'createMove', moveId: id('move'), title: moveTitle, requestId: id('request') })">Create Move</button><template v-else><p><button @click="fillKit('working')">Working example</button> <button @click="fillKit('brokenHealth')">Broken health example</button></p><label>worker.ts<textarea v-model="worker" /></label><label>public/index.html<textarea v-model="indexHtml" /></label><button @click="command({ kind: 'submitCandidate', moveId: currentMove.moveId, candidateId: id('candidate'), source: { files: { 'worker.ts': worker, 'public/index.html': indexHtml } }, requestId: id('request') })">Submit immutable candidate</button><details v-if="currentCandidate"><summary>Immutable candidate {{ currentCandidate.candidateId }}</summary><p>Source digest: {{ currentCandidate.sourceDigest }}</p><p>Contract hash: {{ currentCandidate.contractHash }}</p></details><button v-if="currentCandidate" @click="command({ kind: 'startVerification', candidateId: currentCandidate.candidateId, requestId: id('request') })">Request verification</button><p v-if="currentRun" aria-label="Verification status">Run {{ currentRun.status }} · {{ currentRun.aggregate }}</p></template></article></template>
+          <template v-else-if="state.view === 'evaluations' && isLocal"><p class="section-title">Verification</p><article class="panel"><template v-for="run in localState?.runs" :key="run.runId"><p><strong aria-label="Verification status">{{ run.status }} · {{ run.aggregate }}</strong> attempt {{ run.attempt }}</p><details v-for="evaluation in run.evaluations" :key="evaluation.verifierId + evaluation.attempt"><summary>{{ evaluation.verifierId }} · {{ evaluation.aggregate }}</summary><p>Source {{ evaluation.sourceDigest }} · contract {{ evaluation.contractHash }} · plan {{ evaluation.planHash }} · build {{ evaluation.buildDigest ?? 'unavailable' }}</p><p v-for="observation in evaluation.observations" :key="observation.assayId">{{ observation.assayId }} · {{ observation.executionStatus }} · {{ observation.result }} — {{ observation.summary }}<code v-if="observation.raw">{{ observation.raw }}</code></p></details></template><button v-if="canPromote" @click="command({ kind: 'promote', candidateId: currentCandidate!.candidateId, expectedHeadRevisionId: localState!.headRevisionId, requestId: id('request') })">Promote candidate</button></article></template>
           <template v-else><p class="section-title">{{ state.view }}</p><article class="panel"><h2>{{ state.view[0].toUpperCase() + state.view.slice(1) }} workspace</h2><p class="placeholder">Detailed {{ state.view }} editors, comparison, and activity are not connected in this foundation. This view preserves the World, revision, and selection context.</p></article></template>
 
           <p class="section-title">Hierarchy</p><article class="panel"><p v-if="current" class="crumbs">Viewing {{ current.title }}</p><ul class="tree"><li v-for="object in children" :key="objectId(object)"><button :aria-pressed="state.selected === objectId(object)" @click="select(objectId(object))"><GitBranch :size="14" /> {{ objectTitle(object) }} <small>· {{ object.kind }}</small></button></li><li v-if="!children.length" class="placeholder">No matching child objects in this revision.</li></ul></article>
