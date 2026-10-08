@@ -1,0 +1,29 @@
+{
+  "apiVersion": 1,
+  "fixtures": [
+    {
+      "id": "assistant-valid",
+      "title": "Ready assistant",
+      "description": "All declared foundation obligations are satisfied.",
+      "snapshotPath": "./assistant-valid.json"
+    },
+    {
+      "id": "assistant-missing",
+      "title": "Missing evaluation plan",
+      "description": "A required link is absent in a complete scope.",
+      "snapshotPath": "./assistant-missing.json"
+    },
+    {
+      "id": "assistant-conflict",
+      "title": "Conflicting assistant",
+      "description": "A forbidden dependency cycle and incompatible policies block readiness.",
+      "snapshotPath": "./assistant-conflict.json"
+    },
+    {
+      "id": "assistant-unknown",
+      "title": "Unknown assistant",
+      "description": "A mandatory relation scope is incomplete, so readiness remains unknown.",
+      "snapshotPath": "./assistant-unknown.json"
+    }
+  ]
+}
