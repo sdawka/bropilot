@@ -5,6 +5,8 @@
 
 ## Established requirements
 
+- The example World is a personal assistant. The domain component is Thing; Cloudflare Artifacts remains the versioned storage product. See [explicit decisions](../decision_log.md).
+
 - The collaboration protocol is World → Move → Realizations → Evaluations → Promotion. Immutable World manifests pin model and implementation inputs; deployment and observation are separate actions.
 - Readiness combines typed facts, deterministic rules and bounded semantic review. Missing information is unknown unless a declared completion obligation requires it. Model answers propose interpretations; deterministic policy governs acceptance.
 - The Cloudflare design assigns the canonical head to a World Durable Object, versioned workspaces to Artifacts, and discovery indexes to D1. Other services are adopted when their capabilities are needed, not as a mandatory stack checklist.
@@ -21,11 +23,11 @@
 
 Resolve section 12's boundaries through focused design or research, preserving answers in the appropriate existing record:
 
-1. Define the smallest initial system ontology, World/Artifact Templates, Kit, Rule Pack and example web-app scenario, including readiness and demonstration criteria.
+1. Define the smallest initial system ontology, World/Thing Templates, Kit, Rule Pack and personal assistant scenario, including readiness and demonstration criteria.
 2. Specify typed fact storage, declarative rule interface and evaluator. Ascent is a candidate, not a selected Workers implementation. Verify execution limits and provenance for derived findings.
 3. Define semantic-to-source mappings, Task Packet format and harness-neutral CLI/API operations, including stale packet detection, scoped credentials and on-demand context expansion.
 4. Establish the verifier trust boundary, protected Assay storage, exact-input evidence freshness and permission enforcement. Resolve composition compatibility and conflict handling before promotion implementation.
 5. Verify current Artifacts fork/token/event capabilities and the minimum deployment adapter; choose additional Cloudflare services only as required. Define collaborator authentication and domain capabilities.
 6. Refine workspace interactions, especially semantic zoom, synchronized hierarchy, proposed model edits and candidate review. Prototype options remain unselected design evidence.
 
-Non-code and external Artifacts retain capability declarations and explicit limits; complete external-effect orchestration is deferred. The exact example app and its acceptance contract are still to be defined. Remote GRREAT synchronization is pending authenticated preview and receipts, not assumed complete.
+Non-code and external Things retain capability declarations and explicit limits; complete external-effect orchestration is deferred. The example World is a personal assistant; its Purpose, initial capabilities and acceptance contract still need definition. Remote GRREAT synchronization is pending authenticated preview and receipts, not assumed complete.

@@ -11,3 +11,7 @@
 - **2026-10-08T00:38:43-04:00** — Convert the Word requirements to canonical, versioned Markdown; preserve the original Word file unchanged as a source snapshot.
 
 - **2026-10-08T00:38:43-04:00** — Implement the approved GRREAT adoption plan, including the requirements conversion, canonical project records, validation and pull request.
+
+- **2026-10-08T00:49:30-04:00** — Use a personal assistant as the example World for initial end-to-end acceptance; this supersedes the unspecified small real web-app example.
+
+- **2026-10-08T00:49:30-04:00** — Rename the domain concept Artifact to Thing. Rationale: avoid confusion with the Cloudflare Artifacts offering; keep the Cloudflare product name unchanged.

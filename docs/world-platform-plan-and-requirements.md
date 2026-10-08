@@ -1,14 +1,15 @@
 # World Platform Plan and Requirements
 
-We are building a platform for people and agents to define Worlds with a purpose in their Environment, realize changes concurrently, evaluate implementations and outcomes, and decide what becomes canonical. The shared model preserves intent, structure, causal hypotheses, implementations and observations across multiple Artifacts. Git and Cloudflare Artifacts provide versioned storage; our platform provides the collaboration and realization protocol.
+We are building a platform for people and agents to define Worlds with a purpose in their Environment, realize changes concurrently, evaluate implementations and outcomes, and decide what becomes canonical. The shared model preserves intent, structure, causal hypotheses, implementations and observations across multiple Things. Git and Cloudflare Artifacts provide versioned storage; our platform provides the collaboration and realization protocol.
 
 ## Authority and accepted release decisions
 
-This Markdown document is the canonical, editable plan and requirements. It was converted on 2026-10-08T00:39:47-04:00 from the unchanged [Word source snapshot](../world-platform-plan-and-requirements.docx) (SHA-256 `57aac97fd48a388a3b64ab3baec0977f30b637165bb40da88552fd1e41943e06`). The Word file is a historical source snapshot, not a second editable authority. The imported requirements below are preserved; later changes should update this document and retain decision history in [the decision log](decision_log.md).
+This Markdown document is the canonical, editable plan and requirements. It was converted on 2026-10-08T00:39:47-04:00 from the unchanged [Word source snapshot](../world-platform-plan-and-requirements.docx) (SHA-256 `57aac97fd48a388a3b64ab3baec0977f30b637165bb40da88552fd1e41943e06`). The Word file is a historical source snapshot, not a second editable authority. The initial conversion preserved source content; this canonical text now incorporates subsequent user decisions. Later changes should update this document and retain decision history in [the decision log](decision_log.md).
 
 - Plan and execute by dependencies and acceptance criteria, without timelines. The competition date in section 1 is retained as source context and does not govern the roadmap.
 - The first deployed version serves invited collaborators and their local agents.
-- A small real web app anchors initial end-to-end acceptance.
+- A personal assistant World anchors initial end-to-end acceptance.
+- The independently versionable domain component is named **Thing**, distinct from the **Cloudflare Artifacts** storage product.
 - LFP and UIP provide exploratory evidence; this document governs the first Cloudflare-deployed version.
 
 Provider capabilities and the source document's reported reference-verification date have not been independently reverified during this adoption. Verify the relevant integrations before relying on them in implementation.
@@ -29,21 +30,21 @@ The competition requires Workers and Artifacts, concurrent agent work, a 5–10 
 
 ## 2 Core objects
 
-**World.** The system we construct: an application, product, document system, campaign or other intervention. It contains Artifacts, relationships, policies and a stated Purpose relative to one or more Environments. Record its boundary, what it controls, what it can influence and what remains external. A World may begin with only its Purpose and an incomplete model.
+**World.** The system we construct: an application, product, document system, campaign or other intervention. It contains Things, relationships, policies and a stated Purpose relative to one or more Environments. Record its boundary, what it controls, what it can influence and what remains external. A World may begin with only its Purpose and an incomplete model.
 
-**Environment.** A typed component instantiated or referenced through a World or Artifact template. It models users and beneficiary groups, their needs and behaviours, third-party surfaces, organizations, other systems, resources and operating conditions. Its objects have stable identities and links to interfaces and Theory claims. Preserve provenance, assumptions, observations and uncertainty. Shared Environment models may be referenced by multiple Worlds; the model does not control external reality.
+**Environment.** A typed component instantiated or referenced through a World or Thing template. It models users and beneficiary groups, their needs and behaviours, third-party surfaces, organizations, other systems, resources and operating conditions. Its objects have stable identities and links to interfaces and Theory claims. Preserve provenance, assumptions, observations and uncertainty. Shared Environment models may be referenced by multiple Worlds; the model does not control external reality.
 
-**Purpose.** A typed component whose shape and requirements are defined by the template. It states whose need is addressed, the intended change in the Environment, why it matters, constraints and success criteria. Link it to beneficiaries, outcomes and indicators in the Theory. Artifact templates can inherit or refine the World's Purpose. Changes are versioned without redefining historical success.
+**Purpose.** A typed component whose shape and requirements are defined by the template. It states whose need is addressed, the intended change in the Environment, why it matters, constraints and success criteria. Link it to beneficiaries, outcomes and indicators in the Theory. Thing templates can inherit or refine the World's Purpose. Changes are versioned without redefining historical success.
 
-**Artifact.** An independently versionable part of a World: a frontend, backend module, database schema, document, campaign or external service. Most managed Artifacts use Cloudflare Artifacts repositories; external Artifacts use adapters and explicit references. A domain Artifact is distinct from the Cloudflare storage product.
+**Thing.** An independently versionable part of a World: a frontend, backend module, database schema, document, campaign or external service. Most managed Things use Cloudflare Artifacts repositories; external Things use adapters and explicit references. A domain Thing is distinct from the Cloudflare Artifacts storage product.
 
-**Ontology.** A typed definition of allowed entities, properties, relationships, operations and constraints. The platform's system ontology defines World, Artifact, Template, Purpose, Environment, Ontology, Theory and the realization protocol itself. World and Artifact templates specialize that ontology and include a domain ontology, such as routes, APIs, data entities, roles and external interfaces for a webapp. Their instances contain the corresponding content and relationships. The Theory expresses expected causal links among those instances.
+**Ontology.** A typed definition of allowed entities, properties, relationships, operations and constraints. The platform's system ontology defines World, Thing, Template, Purpose, Environment, Ontology, Theory and the realization protocol itself. World and Thing templates specialize that ontology and include a domain ontology, such as routes, APIs, data entities, roles and external interfaces for a webapp. Their instances contain the corresponding content and relationships. The Theory expresses expected causal links among those instances.
 
-**Template.** A versioned, reusable specification of a World or Artifact type within the system ontology. It defines the shapes, relationships, required fields, defaults and constraints for Purpose, Environment, domain Ontology and Theory, alongside rules, acceptance conditions and lifecycle extensions. Creating a World or Artifact instantiates this structure. Artifact templates can inherit shared context by reference and refine it locally; composition validates compatibility with the containing World. These components are part of the template's model, rather than independent attachments.
+**Template.** A versioned, reusable specification of a World or Thing type within the system ontology. It defines the shapes, relationships, required fields, defaults and constraints for Purpose, Environment, domain Ontology and Theory, alongside rules, acceptance conditions and lifecycle extensions. Creating a World or Thing instantiates this structure. Thing templates can inherit shared context by reference and refine it locally; composition validates compatibility with the containing World. These components are part of the template's model, rather than independent attachments.
 
-**Theory.** A typed, versioned component defined by the template, expressing how the World or Artifact should contribute to its Purpose in its Environment. A logic model links inputs, activities, outputs and outcomes; hypotheses describe mechanisms, beneficiaries, assumptions, external influences, risks and unintended effects. Link claims to indicators, evaluation methods and observations. Representing a causal link does not establish its truth. [12]
+**Theory.** A typed, versioned component defined by the template, expressing how the World or Thing should contribute to its Purpose in its Environment. A logic model links inputs, activities, outputs and outcomes; hypotheses describe mechanisms, beneficiaries, assumptions, external influences, risks and unintended effects. Link claims to indicators, evaluation methods and observations. Representing a causal link does not establish its truth. [12]
 
-**World Revision.** An immutable manifest pinning Template versions, Artifact revisions, domain ontology versions, Purpose, Theory, referenced Environment model revisions, Genome, Rule Packs, Assays and configuration. Separate desired revisions from realized compositions and deployed instances. Branching a World branches its manifest; unchanged Artifacts can remain shared by reference. Selecting parallel Artifacts creates a composition requiring validation. Pinning or branching an Environment model does not freeze or duplicate actual users and external systems; observations retain their time and context.
+**World Revision.** An immutable manifest pinning Template versions, Thing revisions, domain ontology versions, Purpose, Theory, referenced Environment model revisions, Genome, Rule Packs, Assays and configuration. Separate desired revisions from realized compositions and deployed instances. Branching a World branches its manifest; unchanged Things can remain shared by reference. Selecting parallel Things creates a composition requiring validation. Pinning or branching an Environment model does not freeze or duplicate actual users and external systems; observations retain their time and context.
 
 **Move.** The requested change and its reason. It records intent, base World Revision, desired semantic delta, affected ontology nodes and Theory claims, expected contribution to Purpose, dependencies, invariants, acceptance criteria, required evidence, authorized roles and scope, risk, candidate Realizations and final decision. It is the reviewable change object replacing a purely file-oriented pull request.
 
@@ -69,7 +70,7 @@ Assays produce observations about the Phenome; Evaluations interpret those obser
 
 Rules attach globally or to specific ontology sections. Versioned Rule Packs group concerns such as security, authentication, observability, accessibility, performance and Cloudflare production readiness. Conflicting requirements or incompatible pack versions block actionability until resolved.
 
-A **Kit** packages a World or Artifact Template with compatible Rule Packs, implementation scaffolding, standards, examples, Assays, semantic decision questions, context mappings and execution instructions. The Template defines the model; the Kit supplies reusable means to populate, validate and realize it. Pack rules may require telemetry, access controls, feature flags, deployment records or thresholds; integrations provide those capabilities.
+A **Kit** packages a World or Thing Template with compatible Rule Packs, implementation scaffolding, standards, examples, Assays, semantic decision questions, context mappings and execution instructions. The Template defines the model; the Kit supplies reusable means to populate, validate and realize it. Pack rules may require telemetry, access controls, feature flags, deployment records or thresholds; integrations provide those capabilities.
 
 The Theory must connect each intended outcome to beneficiary groups, relevant World activities or capabilities, causal hypotheses and assumptions. Record an indicator, baseline where available, target or expected direction, time horizon, data source and evaluation method. Keep outputs, such as a delivered feature, distinct from outcomes, such as users completing a task more reliably. [12]
 
@@ -85,7 +86,7 @@ Identify contradictions, missing decisions, unresolved dependencies and incomple
 
 Trace Purpose to Theory claims, Environment objects, requirements, components or source where known, and to Assays and Evaluations.
 
-Cover realistic user flows, negative cases, cross-Artifact contracts, permissions and relevant regression behaviour.
+Cover realistic user flows, negative cases, cross-Thing contracts, permissions and relevant regression behaviour.
 
 Report **pass, fail, unknown, stale or waived**, with provenance. Waivers require explicit policy, scope, reason and expiry.
 
@@ -131,7 +132,7 @@ Pin the Template, fact snapshot, rule versions, accepted interpretations and mod
 
 ## 6 Immediate context for every agent
 
-Our structured Artifacts are reusable context. Maintain versioned ontologies, Purpose, Theory, Environment models, specifications, Rule Packs, Assays, architectural decisions, interfaces, dependency maps, source mappings and Evaluations. Cloudflare recommends isolated repositories and forks from trusted baselines, which supports this handoff model. [5]
+Our structured Things are reusable context. Maintain versioned ontologies, Purpose, Theory, Environment models, specifications, Rule Packs, Assays, architectural decisions, interfaces, dependency maps, source mappings and Evaluations. Cloudflare recommends isolated repositories and forks from trusted baselines, which supports this handoff model. [5]
 
 Before execution, the platform compiles a **Task Packet** for the assigned role containing:
 
@@ -159,17 +160,17 @@ Immediate context means an agent receives a prepared starting point. It must sti
 
 ## 7 Lifecycle
 
-1. **Empty World:** choose or define a World Template, instantiate its Purpose, Environment, domain Ontology and Theory, and add Artifacts through their Templates.
+1. **Empty World:** choose or define a World Template, instantiate its Purpose, Environment, domain Ontology and Theory, and add Things through their Templates.
 
 2. **Unrealized World:** extract conversation into a desired revision of the World, Purpose and Theory, linked to Environment objects. Preserve intent, hypotheses, assumptions and open questions.
 
 3. **Actionable Unrealized World:** a Readiness Evaluation confirms consistency, correctness under the declared model contract and minimum completeness for the Template, Kit and Move scope. Required rules, Assays, dependencies and permissions are in place.
 
-4. **Parallel realization:** register task roles, prepare packets and fork implementation Artifacts. Local agents claim work, act independently, checkpoint and push candidates.
+4. **Parallel realization:** register task roles, prepare packets and fork implementation Things. Local agents claim work, act independently, checkpoint and push candidates.
 
 5. **Verification:** observe repository changes, run checks and record Evaluations against exact candidate compositions. Reviewer or repair roles may be local or hosted.
 
-6. **Selection and composition:** compare competing Realizations or combine compatible changes across Artifacts. Revalidate the resulting composition and resolve conflicts.
+6. **Selection and composition:** compare competing Realizations or combine compatible changes across Things. Revalidate the resulting composition and resolve conflicts.
 
 7. **Promotion:** apply policy, obtain required approval and atomically advance the World head to an immutable manifest.
 
@@ -192,7 +193,7 @@ The platform tracks ontology nodes, operations, contracts, Theory claims, Enviro
 | Evidence conflict | A candidate or composed World fails an applicable Assay; repair or reject |
 | Soft semantic conflict | A model predicts interference; require additional evidence or review |
 
-Compare candidates against the same relevant acceptance contract. Validate combined Artifacts as a composition; individually passing candidates are insufficient. For example, guest authorization and bulk deletion can conflict through the shared delete capability even when Git merges cleanly. This illustrates semantic checking, without prescribing the competition implementation.
+Compare candidates against the same relevant acceptance contract. Validate combined Things as a composition; individually passing candidates are insufficient. For example, guest authorization and bulk deletion can conflict through the shared delete capability even when Git merges cleanly. This illustrates semantic checking, without prescribing the competition implementation.
 
 Promotion atomically changes the manifest, not every repository or external system. The World authority must compare the expected base head with the current head, reject stale promotion, and revalidate affected compositions when other work lands. Make claims, event handling, verification and promotion idempotent; tolerate duplicates, retries, delayed events and abandoned agents.
 
@@ -204,7 +205,7 @@ Separate specification authoring, Assay authoring, implementation, verification 
 
 Define acceptance criteria and protected Assays before implementation where practical. Implementers receive the contract but cannot rewrite the protected oracle or declare their own evidence trusted. Record who produced and verified each result; distinguish self-reported local results from evidence produced by an authorized verifier. Prefer deterministic execution checks over model judgments when behaviour is testable.
 
-An agent capability specifies World, Move, Realization, role, readable Artifacts and Environment data, writable workspace repositories, operations, scope and expiry. Changes to Purpose, Theory, Environment models, Genome or rules, and verification or deployment, require explicit authority. Repo-scoped, short-lived tokens support storage isolation. [5, 6]
+An agent capability specifies World, Move, Realization, role, readable Things and Environment data, writable workspace repositories, operations, scope and expiry. Changes to Purpose, Theory, Environment models, Genome or rules, and verification or deployment, require explicit authority. Repo-scoped, short-lived tokens support storage isolation. [5, 6]
 
 Cloudflare repo tokens do not enforce file-level or semantic permissions inside a writable repo. Separate protected material into read-only repositories, validate candidate diffs against scope, and block promotion of unauthorized changes. CLI instructions alone cannot enforce permissions on a user's computer. Production secrets and authority must stay behind independently authorized services.
 
@@ -216,13 +217,13 @@ The UI must help a user decide what to build, understand why it matters, coordin
 
 The Overview shows Purpose, beneficiaries, outcomes, model readiness, deployment and phase state, active Moves, blockers and decisions needing attention. Separate model readiness, implementation conformance and outcome progress. Show timestamps and unknown states; link each status to its rule, claim, Evaluation or next action. An unresolved model obligation is distinct from a failed build or an untested outcome hypothesis.
 
-The Map supports semantic zoom through World, Artifact, subsystem and operation, with the surrounding Environment and a clear system boundary. Offer structure, causal relationships, change activity, risk, observed reality and candidate overlays as distinct views of shared objects. Use a focused diagram with breadcrumbs, filtering, search and a synchronized hierarchy; preserve selection when changing views. Keep relationship direction, type and uncertainty visible.
+The Map supports semantic zoom through World, Thing, subsystem and operation, with the surrounding Environment and a clear system boundary. Offer structure, causal relationships, change activity, risk, observed reality and candidate overlays as distinct views of shared objects. Use a focused diagram with breadcrumbs, filtering, search and a synchronized hierarchy; preserve selection when changing views. Keep relationship direction, type and uncertainty visible.
 
 The Theory view connects Purpose and beneficiary groups to activities, outputs, outcomes and causal hypotheses. Selecting a link reveals its mechanism, assumptions, indicator, evaluation method and supporting or challenging observations. Permit editing through a proposed revision. Summarize gaps without treating the diagram as a validated causal model.
 
 The Work view organizes Moves by status and semantic scope, with concurrent Realizations beneath each Move. Show role, local or hosted execution, claims, checkpoints, affected objects, proposed changes and blockers. Start-work produces a task-specific CLI command or skill handoff and scoped credentials. Report only activity actually received from the agent or repository; disconnected agents remain unknown rather than displaying invented progress.
 
-Candidate review compares semantic deltas, source changes, previews and Evaluations against the same target contract. Composition lets users select Artifact versions while displaying dependency and rule effects. A promotion panel identifies the exact manifest, current base, required checks, stale or missing evidence, authorization and decision rationale. Revalidate before advancing the head; show deployment and rollout as separate subsequent actions.
+Candidate review compares semantic deltas, source changes, previews and Evaluations against the same target contract. Composition lets users select Thing versions while displaying dependency and rule effects. A promotion panel identifies the exact manifest, current base, required checks, stale or missing evidence, authorization and decision rationale. Revalidate before advancing the head; show deployment and rollout as separate subsequent actions.
 
 The Evaluations view links questions and criteria to methods, raw observations, interpretations, provenance and limitations. History records Moves, purpose and Theory revisions, Environment model changes, promotions, phase changes and deployments. An outcome finding or changed assumption can create a prefilled Move referencing the relevant claim and observations.
 
@@ -232,7 +233,7 @@ The primary creation flow is Template selection → Purpose, Environment, domain
 
 ## 11 Cloudflare architecture
 
-The Workers control plane, Artifacts storage and World authority support the core protocol. Store the system ontology, Templates and their instantiated Purpose, Environment, domain Ontology and Theory as versioned meta-Artifacts, with identities and relationship indexes in D1. Observations retain their time and context without claiming control of external state. Adopt other services when the corresponding capabilities are needed; every integration is not required in the minimum version.
+The Workers control plane, Artifacts storage and World authority support the core protocol. Store the system ontology, Templates and their instantiated Purpose, Environment, domain Ontology and Theory as versioned meta-Things, with identities and relationship indexes in D1. Observations retain their time and context without claiming control of external state. Adopt other services when the corresponding capabilities are needed; every integration is not required in the minimum version.
 
 | **Platform responsibility** | **Cloudflare primitive** |
 | --- | --- |
@@ -261,11 +262,11 @@ Artifacts supports isolation, scoped tokens and events; Durable Objects provide 
 
 ## 12 Minimum requirements and unresolved boundaries
 
-The minimum platform must manage the system ontology, World and Artifact Templates and their instantiated Purpose, Environment, domain Ontology and Theory; model readiness; desired and realized manifests; Kits and packs; Moves and concurrent Realizations; Task Packets and local CLI interaction; Evaluations and provenance; conflict analysis, candidate composition, permissions, promotion and the World workspace. Preserve intent, hypotheses and evidence. Store extensible phase identity and history; hosted agents and advanced lifecycle automation remain optional.
+The minimum platform must manage the system ontology, World and Thing Templates and their instantiated Purpose, Environment, domain Ontology and Theory; model readiness; desired and realized manifests; Kits and packs; Moves and concurrent Realizations; Task Packets and local CLI interaction; Evaluations and provenance; conflict analysis, candidate composition, permissions, promotion and the World workspace. Preserve intent, hypotheses and evidence. Store extensible phase identity and history; hosted agents and advanced lifecycle automation remain optional.
 
 Before implementation, specify the system ontology and Template schemas, typed fact representation, inference engine and rule interface, readiness obligations, semantic-to-source mapping, CLI adapter, verifier trust model, evidence freshness, deployment adapter and detailed workspace interactions.
 
-The general model supports non-code and external Artifacts. Declare capabilities such as forkable, previewable, reversible, compensatable, destructive, observable and external. Forking a manifest does not copy a database, external account or completed campaign. Transactional source promotion does not guarantee atomic deployment or reversal of migrations and external effects. Adapters must expose these limits; complete external-effect orchestration can follow the minimum protocol.
+The general model supports non-code and external Things. Declare capabilities such as forkable, previewable, reversible, compensatable, destructive, observable and external. Forking a manifest does not copy a database, external account or completed campaign. Transactional source promotion does not guarantee atomic deployment or reversal of migrations and external effects. Adapters must expose these limits; complete external-effect orchestration can follow the minimum protocol.
 
 Completeness is relative to a Template, Kit and scope; semantic detection depends on mappings and models; evidence has coverage and attribution limits; observing outcomes requires appropriate measurement in the Environment. Extend Kits and phases while preserving one representation, evaluation framework, conformity engine and promotion protocol.
 
@@ -273,7 +274,7 @@ Completeness is relative to a Template, Kit and scope; semantic detection depend
 
 Primary documentation verified October 7, 2026. The product requirements above combine the agreed design with proposed implementation contracts; documentation establishes provider capabilities, not the performance of the proposed platform.
 
-1. [Cloudflare competition and Artifacts updates](https://blog.cloudflare.com/next-git-platform-on-cloudflare/)
+1. [Cloudflare competition and Things updates](https://blog.cloudflare.com/next-git-platform-on-cloudflare/)
 
 2. [TypeSafe System One models and decision primitives](https://docs.typesafe.ai/concepts/system-one)
 
