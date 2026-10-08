@@ -4,7 +4,7 @@
 - Outcome: Deploy a usable Cloudflare-hosted World platform for invited collaborators and their local CLI agents.
 - Why: Preserve purpose, structure, causal hypotheses, implementations and observations while people and agents realize changes concurrently and decide what becomes canonical.
 - Authority: [Requirements](../world-platform-plan-and-requirements.md), especially sections 1–9 and 12; [user decisions](../decision_log.md).
-- Scope: The minimum protocol and workspace, demonstrated with a personal assistant World. LFP and UIP inform exploration; they do not define the production contract.
+- Scope: The minimum protocol and workspace, demonstrated with a personal assistant World whose first workflow organizes goals, identifies next actions and reviews progress. GRREAT informs its design. LFP and UIP inform exploration; they do not define the production contract.
 - Constraints: No timeline-based planning. Agent providers, harnesses, count and orchestration remain user-selected. Hosted agents and advanced lifecycle automation are optional. Use Workers and Artifacts; verify additional integrations when needed.
 
 ## Success signals

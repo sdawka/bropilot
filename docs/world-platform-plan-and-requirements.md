@@ -14,6 +14,14 @@ This Markdown document is the canonical, editable plan and requirements. It was 
 
 Provider capabilities and the source document's reported reference-verification date have not been independently reverified during this adoption. Verify the relevant integrations before relying on them in implementation.
 
+## Personal assistant example World
+
+The assistant’s accepted Purpose is to improve the user’s life by connecting to external systems, interacting with the user and organizing the user’s information. The user and their needs, information sources and connected services form its Environment.
+
+GRREAT supplies design inspiration for goal-linked planning, execution, evidence and review. The assistant’s concrete domain, external connections and implementation remain to be defined. Its user-facing goals and information are domain content inside the example World, distinct from Bropilot’s own project tracker and realization protocol.
+
+The accepted first workflow covers organizing goals, identifying next actions and reviewing progress. Conversation clarifies intentions; structured goals and plans make the next action visible; progress review uses reported or observed evidence to revise the plan. Routine changes to goals, plans and organized information use Automatic mode under explicit rules. The operation-specific rules, required connections and observable outcome criteria remain under discussion; research and proposals are tracked in [GRREAT Research](grreat/research.md).
+
 ## 1 Purpose and system boundary
 
 The central collaboration flow is **World → Move → Realizations → Evaluations → Promotion**, with observations feeding revisions to the World and its Theory.
