@@ -9,7 +9,8 @@
 - Blockers: Section 12's unresolved contracts block product implementation; they do not block adoption. Cloudflare deployment remains unverified. GRREAT direct-RPC preview returned `pending` / `missing_credentials`; no records uploaded.
 - Latest verification: Source-fidelity and link checks passed; GRREAT protocol v1 validates 7 records and resume context resolves. Evidence: [[journals/2026-10-08]]. Product and deployment checks remain unperformed.
 - Working state: `docs/grreat-adoption` based on prototype revision `c39db52c8a7792adea8ce949c4ce1e8ed914ad81`. Adoption changes only; the unchanged Word snapshot is included for provenance; the unrelated root lockfile remains unchanged and untracked.
-- Last updated: 2026-10-08T00:42:52-04:00.
+- Delivery: [Adoption PR #6](https://github.com/sdawka/bropilot/pull/6) is open against `v4`; not merged. Requirements and adoption checks passed at `150e290`; delivery metadata was added afterward.
+- Last updated: 2026-10-08T00:45:17-04:00.
 
 ## Work history
 
