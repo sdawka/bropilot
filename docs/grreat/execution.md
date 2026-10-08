@@ -4,10 +4,10 @@
 ## Now
 
 - Goal: [[goals]]. Milestone: M1 candidate/Assay contracts leading into M2 submission and M3 verification; the Rust/UI foundation increment is complete.
-- Next action: Review the clarified criteria/Assay/hook contract in [requirements sections 3.1–3.3 and 9.1](../world-platform-plan-and-requirements.md), then plan the deterministic web-app submission → existence/build/health checks → trusted evidence slice. Implementing that slice is not part of this documentation change.
+- Next action: Review [specification PR #8](https://github.com/sdawka/bropilot/pull/8), stacked on foundation PR #7, and the clarified criteria/Assay/hook contract in [requirements sections 3.1–3.3 and 9.1](../world-platform-plan-and-requirements.md), then plan the deterministic web-app submission → existence/build/health checks → trusted evidence slice. Implementing that slice is not part of this documentation change.
 - Working state: `docs/assay-contract`, stacked on verified foundation `11e1c0d`, isolated worktree `/private/tmp/bropilot-world-foundation`. Original lockfile and prototypes preserved.
 - Blockers: Candidate persistence/submission, protected runner bindings and verifier execution remain unimplemented. Payment protocol/provider, funding lifecycle and account eligibility remain unselected; funded checks are optional. GRREAT sync remains pending credentials.
-- Latest verification: Foundation build/check and both hosted CI runs passed on `11e1c0d`: 23 Rust, 5 UI, 11 workerd and 8 browser tests. This change is specification-only: GRREAT protocol/context, 25 relative links, Word-source preservation and whitespace checks pass; PR delivery pending. Evidence: [[journals/2026-10-08]].
+- Latest verification: Foundation build/check and both hosted CI runs passed on `11e1c0d`: 23 Rust, 5 UI, 11 workerd and 8 browser tests. This change is specification-only: GRREAT protocol/context, 25 relative links, Word-source preservation and whitespace checks pass; Specification PR #8 is open; hosted checks are tracked on that PR. Evidence: [[journals/2026-10-08]].
 - Last updated: 2026-10-08T08:00:27-04:00.
 
 ## Foundation implementation contract
