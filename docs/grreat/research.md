@@ -59,10 +59,14 @@ Suggested first demonstration: goal capture and three scheduled practice blocks,
 Resolve section 12's boundaries through focused design or research, preserving answers in the appropriate existing record:
 
 1. Define the smallest initial system ontology, World/Thing Templates, Kit, Rule Pack and personal assistant scenario, including readiness and demonstration criteria.
-2. Specify typed fact storage, declarative rule interface and evaluator. Ascent is a candidate, not a selected Workers implementation. Verify execution limits and provenance for derived findings.
+2. The foundation now uses compiled Ascent rules with runtime Template data, bounded derivation, deterministic witnesses and source attribution. Native/actual workerd parity is locally verified; persistent fact storage and the trusted verifier boundary remain open.
 3. Define semantic-to-source mappings, Task Packet format and harness-neutral CLI/API operations, including stale packet detection, scoped credentials and on-demand context expansion.
 4. Establish the verifier trust boundary, protected Assay storage, exact-input evidence freshness and permission enforcement. Resolve composition compatibility and conflict handling before promotion implementation.
 5. Verify current Artifacts fork/token/event capabilities and the minimum deployment adapter; choose additional Cloudflare services only as required. Define collaborator authentication and domain capabilities.
 6. Refine workspace interactions, especially semantic zoom, synchronized hierarchy, proposed model edits and candidate review. Prototype options remain unselected design evidence.
 
 Non-code and external Things retain capability declarations and explicit limits; complete external-effect orchestration is deferred. The example World is a personal assistant with the accepted broad Purpose above; its initial workflow, capabilities and acceptance contract still need definition. Remote GRREAT synchronization is pending authenticated preview and receipts, not assumed complete.
+
+## Verified foundation boundary
+
+The accepted first implementation contract is in [[execution]]. Rust owns the model, generated contracts and deterministic readiness; Vue consumes revision-pinned reads through a thin TypeScript Worker. Four fixtures qualify valid, missing, conflicting and incomplete models. The assistant/calendar workflow is modeled example data, with a disconnected calendar Thing. Thing Template and Rule Pack versions are validated against supported catalogs; evaluation hashes bind snapshot and Template contents, not just caller labels. Local compiled-Wasm/workerd checks establish runtime feasibility for this boundary, without establishing Artifacts APIs, external calendar writes, persistence or remote deployment.

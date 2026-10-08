@@ -2,7 +2,7 @@
 # Define the foundation
 
 - Supports: [[goals]].
-- Current focus: M1. First concrete action: define the personal assistant World’s Purpose and smallest Template contract in [[execution]], using the unresolved boundaries in [[research]].
+- Current focus: Review the locally verified M1 Rust foundation and M4 UI layout increment in [[execution]]. Next define World persistence and scoped agent/Task Packet contracts; full M1/M4 and M2/M3/M5 criteria remain required.
 - Plan by dependencies and acceptance criteria, without dates or duration estimates. The adoption record is established; the product milestones below are not implemented or verified by that documentation work.
 
 | Milestone | Dependency | Completion criteria and evidence |

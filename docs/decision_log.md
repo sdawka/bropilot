@@ -25,3 +25,7 @@
 - **2026-10-08T01:22:07-04:00** — Use Automatic mode for routine assistant changes to goals, plans and organized information, governed by explicit rules.
 
 - **2026-10-08T01:28:06-04:00** — Use a calendar-connected personal assistant that breaks goals into tasks and places them on the calendar as a concrete example workflow; develop illustrative scenarios and routine-change rules.
+
+- **2026-10-08T01:44:24-04:00** — Implement the approved foundation plan: a Rust domain core and fresh UI shell developed in parallel, with layout and clearly marked placeholders; use UIP/LFP only as loose inspiration.
+
+- **2026-10-08T01:44:24-04:00** — Use a portable Rust core for domain behavior, with TypeScript Cloudflare storage/API adapters and a Vue UI; verify the Workers/Wasm compilation and loading path.

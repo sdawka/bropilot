@@ -1,0 +1,21 @@
+{
+  "evaluatorVersion": "bropilot-readiness@1",
+  "compiledRulePacks": [
+    {
+      "id": "core-foundation",
+      "version": "1",
+      "title": "Core model integrity",
+      "requiredForWorldTemplateIds": [
+        "*"
+      ]
+    },
+    {
+      "id": "assistant-foundation",
+      "version": "1",
+      "title": "Personal assistant foundation",
+      "requiredForWorldTemplateIds": [
+        "assistant-world"
+      ]
+    }
+  ]
+}

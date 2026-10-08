@@ -3,14 +3,33 @@
 
 ## Now
 
-- Goal: [[goals]].
-- Milestone: [[roadmap]] — M1, foundation.
-- Next action: Turn the drafted goal-to-calendar scenarios and automatic-change rules into minimum World/Thing Template obligations and an acceptance contract; select and verify the calendar adapter. Purpose is recorded; GRREAT is design inspiration only. Then resolve the readiness, capability, CLI and verification contracts for that scenario.
-- Blockers: Section 12's unresolved contracts block product implementation; they do not block adoption. Cloudflare deployment remains unverified. GRREAT direct-RPC preview returned `pending` / `missing_credentials`; no records uploaded.
-- Latest verification: Initial conversion and terminology checks passed. Current documentation checks passed: locally inspected neighboring-project evidence, source links, unchanged Word snapshot, GRREAT protocol/resume context and whitespace. Research findings do not establish runtime or integration success. Evidence: [[journals/2026-10-08]]. Product and deployment checks remain unperformed.
-- Working state: `docs/grreat-adoption` based on prototype revision `c39db52c8a7792adea8ce949c4ce1e8ed914ad81`. Adoption changes only; the unchanged Word snapshot is included for provenance; the unrelated root lockfile remains unchanged and untracked.
-- Delivery: [Adoption PR #6](https://github.com/sdawka/bropilot/pull/6) is open against `v4`; not merged. Initial adoption checks passed at `150e290`; subsequent user decisions and their verification are recorded in the journal.
-- Last updated: 2026-10-08T01:28:06-04:00.
+- Goal: [[goals]]. Milestone: M1 foundation increment and M4 workspace layout locally verified; full milestones remain open.
+- Next action: Deliver `feat/world-foundation` for review, then define persistence and the scoped agent/Task Packet protocol before implementing M2.
+- Working state: Isolated worktree `/private/tmp/bropilot-world-foundation`, based on `28d9eea`; original untracked lockfile and prototypes preserved.
+- Blockers: None for this increment. GRREAT sync remains pending credentials. Provider selection, real calendar effects, trusted verification and promotion remain later work.
+- Latest verification: `npm run build` and `npm run check` pass: 23 Rust tests, 5 UI tests, 11 actual workerd HTTP/parity tests and 8 desktop/mobile browser tests; contract drift, formatting, lint and type checks pass. Independent review is clear. Evidence: [[journals/2026-10-08]]. Remote CI/PR delivery pending.
+- Last updated: 2026-10-08T02:17:07-04:00.
+
+## Foundation implementation contract
+
+This is the accepted first build, not completion of the minimum deployed platform. See [requirements](../world-platform-plan-and-requirements.md) and [decisions](../decision_log.md).
+
+- Rust owns stable model identities, pinned Template/revision references, typed/provenance-bearing facts and relations, hierarchy queries, declarative readiness and finding derivations. Compile built-in Ascent rules; runtime Templates supply constraints and obligations. No arbitrary runtime program execution.
+- A `WorldSnapshot` supplies World/revision/title, Purpose and Environment, Template, Things, typed objects, relations, completeness declarations, Theory, Moves and Rule Pack pins. `ReadinessEvaluation` reports exact revision/pack inputs, ready/blocked/unknown, attributed findings, derived facts and separately unknown outcome assessments.
+- JSON requests use `apiVersion: 1`, a snapshot and a tagged query (`workspace`, `readiness`, `children`). Responses are tagged success/error; unsupported versions, malformed input and resource limits return explicit errors. Rust is the source for generated TypeScript types and example JSON; UI adapters consume the same contract.
+- Readiness validates references and legal relation endpoints, required beneficiary/outcome/indicator/evaluation links, applicable authorization/Assay obligations, configured forbidden cycles and incompatible constraints. Absence is a violation only within a declared complete scope; unresolved mandatory scope or incomplete inference cannot be ready. Future outcome evidence is separate from specification readiness.
+- Managed assistant Things: interface, planning service, calendar adapter, progress/context store. The calendar is external; routine policy permits assistant-owned blocks only. Fixtures cover a valid model, missing obligations, a calendar conflict and unknown outcomes. Their activity is example data, never live agent/calendar evidence.
+- Core track owns `crates/` and generated `packages/contracts/`. UI track owns `apps/web/`. Primary owns `apps/worker/`, root build/CI configuration, integration and documentation. Shared contract changes are coordinated before consumers change.
+- UI: fresh Vue/Vite layout, World/revision/Environment context, Overview/Map/Theory/Work/Evaluations/History, shared inspector, preserved selection, pinned deep links and World→Thing→subsystem→operation hierarchy navigation. Detailed visualizations/editors/activity are clearly marked placeholders.
+- Worker: read-only example snapshots and bounded readiness/query endpoint calling actual Rust Wasm. Compile `wasm32-unknown-unknown`, adapt wasm-bindgen output for workerd; no WASI/threading or duplicated TypeScript domain rules.
+
+### Acceptance and delivery
+
+- [x] Native Rust cases distinguish required gaps, unknown scopes/outcomes, invalid references, incompatible constraints and forbidden cycles, with provenance.
+- [x] Native and actual workerd/Wasm responses agree for shared fixtures, including errors and sequential query isolation.
+- [x] UI selection/navigation/deep links and desktop/mobile controls work; actual Rust readiness is displayed; unavailable activity is explicit.
+- [x] Rust tests/lint, TypeScript checks, production builds, browser tests and contract-drift checks pass; independent review is integrated.
+- [ ] Push and open a PR; never merge with any failing CI check. Update Now/journal/Analysis against observed evidence. GRREAT authenticated sync remains pending when credentials are absent.
 
 ## Work history
 

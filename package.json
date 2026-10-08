@@ -1,0 +1,37 @@
+{
+  "name": "bropilot",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/contracts"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "contracts:generate": "cargo run --locked -p bropilot-contract-gen",
+    "contracts:check": "node scripts/check-contracts.mjs",
+    "build:wasm": "node scripts/build-wasm.mjs",
+    "build:web": "npm run build --workspace @bropilot/web",
+    "build": "npm run build:wasm && npm run build:web && npm run build --workspace @bropilot/worker",
+    "typecheck": "npm run typecheck --workspace @bropilot/web && npm run typecheck --workspace @bropilot/worker",
+    "test:core": "cargo test --workspace --locked",
+    "test:web": "npm run test --workspace @bropilot/web",
+    "test:worker": "cargo build --locked -p bropilot-query && node --test tests/worker.test.mjs",
+    "test:e2e": "playwright test",
+    "test": "npm run test:core && npm run test:web && npm run test:worker",
+    "dev": "npm run dev --workspace @bropilot/web",
+    "dev:worker": "npm run dev --workspace @bropilot/worker",
+    "check": "npm run contracts:check && cargo fmt --all -- --check && cargo clippy --workspace --all-targets --locked -- -D warnings && npm run typecheck && npm test && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0",
+    "@types/node": "22.19.15",
+    "typescript": "5.8.3"
+  },
+  "overrides": {
+    "sharp": "0.35.5"
+  }
+}
