@@ -56,7 +56,7 @@ The competition requires Workers and Artifacts, concurrent agent work, a 5–10 
 
 **Move.** The requested change and its reason. It records intent, base World Revision, desired semantic delta, affected ontology nodes and Theory claims, expected contribution to Purpose, dependencies, invariants, acceptance criteria, required evidence, authorized roles and scope, risk, candidate Realizations and final decision. It is the reviewable change object replacing a purely file-oriented pull request.
 
-**Realization.** One concrete attempt to satisfy a Move against a pinned desired revision and base composition. Multiple agents may produce competing Realizations of the same target or complementary Realizations of different Moves. Record its agent identity, workspace repositories, commits, implementation changes, execution status and evidence.
+**Realization.** One concrete attempt to satisfy a Move against a pinned desired revision and base composition. Multiple agents may produce competing Realizations of the same target or complementary Realizations of different Moves. Record its agent identity, workspace repositories, commits, implementation changes, execution status and evidence. Submission pins an immutable implementation version for each affected Thing; changing its content creates a new candidate version whose applicable Assays must be reassessed.
 
 **Evaluation.** A versioned assessment of a Realization, composition or deployed World against requirements, rules or Theory claims. It contains the question, method, observations, interpretation, limitations and result. Record claim and Assay IDs, source and configuration hashes, execution and deployment context, Environment objects or groups observed, verifier identity, timestamps and supporting evidence. Preserve raw observations separately from conclusions. Results may establish conformance, support or challenge a hypothesis, or remain inconclusive.
 
@@ -72,7 +72,50 @@ The competition requires Workers and Artifacts, concurrent agent work, a 5–10 
 | Phenome | Observed behaviour and effects: responses, latency, traces, errors, user behaviour, output and outcome indicators |
 | Assays | Tests, assertions, monitors, benchmarks, probes and evaluation procedures that produce observations against rules or Theory claims |
 
-Assays produce observations about the Phenome; Evaluations interpret those observations against explicit questions. Every supported claim must identify its evidence. Conformance asks whether the World behaves as specified; outcome evaluation asks whether it produces the intended change for its Environment. Passing implementation checks does not establish an outcome or causal effect. Missing or insufficient observations remain unknown.
+Assays inspect implementation contents in the Proteome and produce runtime observations about the Phenome; Evaluations interpret those observations against explicit questions. Every supported claim must identify its evidence. Conformance asks whether the World behaves as specified; outcome evaluation asks whether it produces the intended change for its Environment. Passing implementation checks does not establish an outcome or causal effect. Missing or insufficient observations remain unknown.
+
+### 3.1 Acceptance criteria, Assays and execution hooks
+
+An **Acceptance Criterion** is a versioned proposition attached to a World, Thing, operation or Move. An **Assay** specifies how to obtain evidence for that proposition. Its **execution hook** binds the protected Assay definition to a versioned runner, executable or model procedure. The hook is part of the acceptance contract, not an implementer's free-form success assertion. Resolve it through authorized, versioned runner bindings; candidate material cannot replace protected Assays. Execute candidate code with isolated, scoped capabilities and the declared resource limits. A criterion may require several Assays, or an explicitly declared alternative; record their combination policy rather than treating any single pass as sufficient.
+
+An Assay contract records stable ID/version and linked criteria; subject and applicable scope; method (`deterministic`, `decision-model`, `LLM` or an explicit combination); executable/runner or model/prompt/rubric references and hashes; inputs and prerequisites; assertions or interpretation policy; verifier capability; required/advisory role; trigger/selection policy; time/resource/spend limits; evidence format and freshness/reuse rules. Declaring a hook establishes coverage, not that its test has run. Readiness checks that required bindings and policies resolve; candidate verification executes them.
+
+A **Thing implementation version** identifies concrete material realizing that Thing: storage/repository and immutable source commit, plus build/configuration manifests and output digests when produced. A full-stack Worker application can be one Thing whose version includes its Worker entry, frontend assets and runtime configuration; splitting frontend and backend into separate Things is optional. Repository identity alone does not identify a version. Source, build output, preview/deployment and observations retain distinct identities and traceable bindings.
+
+A submitted Realization binds Move ID, desired revision and base composition, candidate ID, affected Thing implementation versions and acceptance-contract hash. Verification pins that submission and an execution-plan hash before starting. Later changes to source, composed dependencies, configuration, Assays or interpretation policy invalidate affected evidence; they cannot silently inherit a previous candidate's pass.
+
+### 3.2 Verification levels and selective execution
+
+Order verification by prerequisites and cost while keeping **method, cost, evidence strength and promotion requirement separate**. A costly deterministic browser/integration test can need selection just as an LLM check does; a cheap model judgment does not become a hard factual oracle because it is inexpensive.
+
+| Level | Example Assays | Default execution policy |
+| --- | --- | --- |
+| Basic deterministic inspection | Resolve an immutable implementation version; verify required contents, hashes, scope and configuration shape | Run for every admitted submitted version under bounded intake limits |
+| Deterministic execution | Build the candidate, start its Worker, probe health/API/static assets, run unit/integration/browser checks | Run applicable bounded smoke checks after inspection; reserve substantial suites for candidates selected by explicit policy |
+| Semantic assessment | A decision model judges a bounded proposition; an LLM evaluates a rubric with relevant source/runtime evidence; a declared pipeline combines them | Run only for selected candidates with authorized budget and the required prerequisite evidence |
+| Deployed observation/outcomes | Recheck the promoted deployment and collect observations against Theory indicators | Separate lifecycle trigger; candidate conformance does not establish deployment or beneficiary outcomes |
+
+A versioned verification policy selects candidates, Assays and budgets using explicit conditions: prerequisite results, semantic scope/risk, owner selection or funded contributor request. Record the selection reason and exclusions. For a combined model procedure, pin each model, prompt/context, rubric, threshold and combination rule; retain judgments and uncertainty. Deterministic policy decides the next action from these results. A semantic pass cannot override a failing hard assertion.
+
+Keep execution states (`queued`, `running`, `completed`, `not-selected`, `awaiting-funding`, `cancelled`, `error`) separate from assessment (`pass`, `fail`, `inconclusive`, `unknown`) and evidence trust. Not running an Assay does not produce a pass. A required Assay without acceptable current evidence blocks promotion even when it was omitted for cost. Policy changes or permitted waivers must be separately authorized and attributable.
+
+### 3.3 First candidate-verification example: a Worker web app
+
+This platform acceptance example complements the personal-assistant World; it does not replace that selected domain or require calendar connectivity to test the generic realization protocol.
+
+1. Define Thing `web-app`, its Worker application Template/Kit and a Move to realize its initial implementation. The desired model links each criterion below to protected Assays and declares the relevant composition, permissions and verification policy.
+2. An authorized person or agent submits an immutable source version realizing the Move. A platform-controlled verifier resolves and checks that exact version; self-reported test results remain separately attributed.
+3. The runner builds it and starts the resulting full-stack application in an isolated preview with declared test bindings. It records the source/build digests and the actual instance tested. Candidate-controlled response fields alone cannot attest which version was started.
+4. Run the linked assertions and publish raw observations and criterion assessments. Compare or repair candidates; only an authorized promotion decision changes the canonical manifest. A preview is not a production deployment.
+
+| Criterion | Protected deterministic hook and evidence |
+| --- | --- |
+| The web-app implementation exists | Resolve the submitted repository/immutable commit and required Worker/frontend/configuration contents; compare manifest/digests. A network or permission failure is an execution error with unresolved assessment, not invented evidence of absence. |
+| The implementation builds and starts | Build the pinned inputs and start the output under the declared Worker runtime/configuration; capture exit status, output digest and runner-owned instance identity. |
+| The running app serves its declared health contract | Probe the exact preview's `GET /health` within a bounded deadline; assert HTTP 200 and a declared JSON schema, for example `{ "status": "ok" }`. Keep request/response evidence and execution context. This establishes only the specified health property; dependency health requires its own assertions. |
+| It serves the full-stack surfaces declared by the Kit | Probe the frontend entry/static assets and a declared backend route against their contracts on that same instance. Artifact presence or a standalone health route does not establish these properties. |
+
+The minimum implementation slice must also prove failure and freshness: a missing implementation fails inspection, a broken health response fails its criterion, a changed candidate cannot reuse old results, retries do not duplicate runs, and missing required evidence blocks promotion. Add model-based assessment and contributor funding after this deterministic submission → verification → evidence path works.
 
 ## 4 Ontologies Theory and engineering Kits
 
@@ -219,6 +262,16 @@ Cloudflare repo tokens do not enforce file-level or semantic permissions inside 
 
 Approval scales through risk and evidence. A low-risk, independent change with current required evidence may auto-promote under explicit policy. Security-sensitive changes add relevant packs and review; migrations may require human approval; destructive production actions may require two-person approval. These are configurable policies, not blanket approval for every task. Required approval expiry or absence blocks the dependent action. Workflows can durably wait for an approval event. [7]
 
+### 9.1 Optional contributor-funded verification
+
+An open-source World may let contributors request platform-run Assays for their own candidates and fund the associated execution. Funding buys the declared verification service, not a passing result, protected-oracle changes, broader capabilities or promotion authority. Apply the same pinned contract and verifier trust policy regardless of payer. Open-source submission/funding is an extension to the initially invited-collaborator release, not a new release audience requirement.
+
+Bind a quote/funding authorization to World, Move, candidate/composition digest, verification-plan hash, requester, selected checks, currency/units, maximum amount and expiry. Show the expected work and charge policy before expensive execution. Keep funding/settlement status separate from execution and assessment. Define cancellation, failed-run charges, refunds and unused-budget handling for the chosen payment method; no automatic refund behavior is assumed.
+
+A payment adapter may use HTTP `402 Payment Required` and header-based challenge/authorization/receipt exchange. Cloudflare documents x402 and MPP support; x402 uses `PAYMENT-REQUIRED`, `PAYMENT-SIGNATURE` and `PAYMENT-RESPONSE` headers. These are provider options, not a selected integration. Cloudflare Monetization Gateway currently documents closed-beta access and United States buyer/seller eligibility, so its availability cannot be assumed. [15–17]
+
+Verify funding with the payment adapter before dispatching funded work; a caller-supplied header is not proof of payment. Deduplicate request/retry and payment-event processing using a bound run identity and verified receipt/authorization; do not start another paid run or charge twice because a response was lost. Record partial failure for reconciliation when payment and job acceptance cannot commit atomically. Expose an authorized, resumable run/status receipt for asynchronous checks rather than requiring the payment HTTP request to stay open until all tests finish. Settlement, quotas and candidate access remain independently enforced.
+
 ## 10 World Map and control panel
 
 The UI must help a user decide what to build, understand why it matters, coordinate work, judge candidates and learn from outcomes. Provide a shared World workspace with Overview, Map, Theory, Work, Evaluations and History views. Keep a persistent World and revision selector, Environment context, current phase, global search and a visible distinction between canonical, selected candidate and deployed state.
@@ -233,7 +286,7 @@ The Work view organizes Moves by status and semantic scope, with concurrent Real
 
 Candidate review compares semantic deltas, source changes, previews and Evaluations against the same target contract. Composition lets users select Thing versions while displaying dependency and rule effects. A promotion panel identifies the exact manifest, current base, required checks, stale or missing evidence, authorization and decision rationale. Revalidate before advancing the head; show deployment and rollout as separate subsequent actions.
 
-The Evaluations view links questions and criteria to methods, raw observations, interpretations, provenance and limitations. History records Moves, purpose and Theory revisions, Environment model changes, promotions, phase changes and deployments. An outcome finding or changed assumption can create a prefilled Move referencing the relevant claim and observations.
+The Evaluations view links questions and criteria to Assay/hook versions, selection reasons, execution states, raw observations, interpretations, provenance and limitations. Show required versus advisory checks, unrun or stale evidence, cost estimates/limits, actual usage and funding/settlement state when applicable. Paid or unselected candidates must not appear verified merely because a job was accepted. History records Moves, purpose and Theory revisions, Environment model changes, promotions, phase changes and deployments. An outcome finding or changed assumption can create a prefilled Move referencing the relevant claim and observations.
 
 A shared inspector answers what an object is, why it exists, its dependencies, active changes, governing rules or Theory claims and available evidence. Contextual actions respect capabilities. Deep links pin revision, object and view; local tasks and the UI resolve those same identities. Support keyboard navigation and readable lists alongside diagrams.
 
@@ -272,7 +325,7 @@ Artifacts supports isolation, scoped tokens and events; Durable Objects provide 
 
 The minimum platform must manage the system ontology, World and Thing Templates and their instantiated Purpose, Environment, domain Ontology and Theory; model readiness; desired and realized manifests; Kits and packs; Moves and concurrent Realizations; Task Packets and local CLI interaction; Evaluations and provenance; conflict analysis, candidate composition, permissions, promotion and the World workspace. Preserve intent, hypotheses and evidence. Store extensible phase identity and history; hosted agents and advanced lifecycle automation remain optional.
 
-Before implementation, specify the system ontology and Template schemas, typed fact representation, inference engine and rule interface, readiness obligations, semantic-to-source mapping, CLI adapter, verifier trust model, evidence freshness, deployment adapter and detailed workspace interactions.
+Before implementation, specify the system ontology and Template schemas, typed fact representation, inference engine and rule interface, readiness obligations, semantic-to-source mapping, CLI adapter, verifier trust model, evidence freshness, deployment adapter and detailed workspace interactions. The next candidate-verification slice is section 3.3: immutable web-app submission, protected existence/build/health/surface Assays, trusted execution and pinned evidence. Selective semantic assessment follows that working path; contributor-funded verification in section 9.1 is optional and does not block it.
 
 The general model supports non-code and external Things. Declare capabilities such as forkable, previewable, reversible, compensatable, destructive, observable and external. Forking a manifest does not copy a database, external account or completed campaign. Transactional source promotion does not guarantee atomic deployment or reversal of migrations and external effects. Adapters must expose these limits; complete external-effect orchestration can follow the minimum protocol.
 
@@ -309,3 +362,9 @@ Primary documentation verified October 7, 2026. The product requirements above c
 13. [Government Analysis Function Theory of Change toolkit](https://analysisfunction.civilservice.gov.uk/policy-store/the-analysis-function-theory-of-change-toolkit/)
 
 14. [Ascent primary repository and documentation](https://github.com/s-arash/ascent)
+
+15. [Cloudflare x402 payment protocol and HTTP headers](https://developers.cloudflare.com/agents/tools/payments/x402/) — inspected 2026-10-08 for this clarification; no payment integration executed.
+
+16. [Cloudflare MPP agent-payment overview](https://developers.cloudflare.com/agents/tools/payments/mpp/) — inspected 2026-10-08 as an alternative header-based payment option.
+
+17. [Cloudflare Monetization Gateway availability and eligibility](https://developers.cloudflare.com/monetization-gateway/) — inspected 2026-10-08; closed beta and United States buyer/seller eligibility are documented constraints.
