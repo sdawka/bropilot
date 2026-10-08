@@ -1,0 +1,39 @@
+name: Foundation CI
+on:
+  pull_request:
+  push:
+    branches: [main, v4, 'feat/**']
+permissions:
+  contents: read
+concurrency:
+  group: foundation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  foundation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@1.97.0
+        with:
+          components: rustfmt, clippy
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo install wasm-pack --version 0.15.0 --locked
+      - run: npm ci
+      - run: npm run contracts:check
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run check
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: foundation-diagnostics
+          path: |
+            .test-artifacts/
+            test-results/
+            playwright-report/

@@ -1,0 +1,59 @@
+[
+  {
+    "id": "bropilot",
+    "name": "Bropilot",
+    "purpose": "Help people build self-sustaining software systems without having held every startup role",
+    "summary": "Bropilot turns a hazy idea into a committed representation that an agent team can act on. You answer structured questions; each answer stages effects on a knowledge graph; you commit; agents build, deploy and measure; reality feeds back. Built to describe itself.",
+    "counts": {
+      "basics": 3,
+      "problem": 16,
+      "hypothesis": 14,
+      "solution": 178,
+      "current": 25,
+      "planned": 3,
+      "effects": 4
+    },
+    "nodeCount": 243,
+    "edgeCount": 448,
+    "openCount": 49,
+    "updatedAt": "2026-10-04T09:12:00Z"
+  },
+  {
+    "id": "ledgerly",
+    "name": "Ledgerly",
+    "purpose": "Freelancers get paid on time and always know what cash is coming",
+    "summary": "Invoicing, polite payment chasing and a 60-day cash forecast for freelancers and their accountants",
+    "counts": {
+      "basics": 3,
+      "problem": 11,
+      "hypothesis": 7,
+      "solution": 42,
+      "current": 6,
+      "planned": 3,
+      "effects": 8
+    },
+    "nodeCount": 80,
+    "edgeCount": 118,
+    "openCount": 3,
+    "updatedAt": "2026-10-03T16:40:00Z"
+  },
+  {
+    "id": "tidepool",
+    "name": "Tidepool",
+    "purpose": "Turn volunteer shore walks into survey data marine biologists can publish on",
+    "summary": "An offline-first field app for timed intertidal transects, with photo ID help and expert verification",
+    "counts": {
+      "basics": 3,
+      "problem": 10,
+      "hypothesis": 7,
+      "solution": 41,
+      "current": 6,
+      "planned": 3,
+      "effects": 8
+    },
+    "nodeCount": 78,
+    "edgeCount": 109,
+    "openCount": 3,
+    "updatedAt": "2026-09-30T11:05:00Z"
+  }
+]

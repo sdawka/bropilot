@@ -1,0 +1,15 @@
+/.zvec-grep/
+/docs/grreat/.sync.json*
+
+/node_modules/
+/target/
+/apps/*/node_modules/
+/apps/*/dist/
+/apps/*/.wrangler/
+/packages/*/node_modules/
+/.superpowers/
+/test-results/
+/playwright-report/
+/packages/core-wasm/
+/.test-artifacts/
+/apps/worker/worker-configuration.d.ts

@@ -1,0 +1,592 @@
+[
+ {
+  "id": "true-01",
+  "project": "bropilot",
+  "label": "true",
+  "edge": {
+   "src": "interface-director-rpc",
+   "dst": "thing-user-turn",
+   "type": "carries"
+  },
+  "original": {
+   "src": "interface-director-rpc",
+   "dst": "thing-user-turn",
+   "type": "carries"
+  },
+  "expect": {
+   "solid": true
+  },
+  "reviewed": false
+ },
+ {
+  "id": "true-02",
+  "project": "ledgerly",
+  "label": "true",
+  "edge": {
+   "src": "goal-median-days-to-paid-under-14-by-end-of",
+   "dst": "metric-forecast-error-at-30-days",
+   "type": "combines"
+  },
+  "original": {
+   "src": "goal-median-days-to-paid-under-14-by-end-of",
+   "dst": "metric-forecast-error-at-30-days",
+   "type": "combines"
+  },
+  "expect": {
+   "solid": true
+  },
+  "reviewed": false
+ },
+ {
+  "id": "true-03",
+  "project": "tidepool",
+  "label": "true",
+  "edge": {
+   "src": "term-verified-record",
+   "dst": "event-record-verified",
+   "type": "defines"
+  },
+  "original": {
+   "src": "term-verified-record",
+   "dst": "event-record-verified",
+   "type": "defines"
+  },
+  "expect": {
+   "solid": true
+  },
+  "reviewed": false
+ },
+ {
+  "id": "true-04",
+  "project": "bropilot",
+  "label": "true",
+  "edge": {
+   "src": "interface-store-rpc",
+   "dst": "event-effects-staged",
+   "type": "emits"
+  },
+  "original": {
+   "src": "interface-store-rpc",
+   "dst": "event-effects-staged",
+   "type": "emits"
+  },
+  "expect": {
+   "solid": true
+  },
+  "reviewed": false
+ },
+ {
+  "id": "true-05",
+  "project": "ledgerly",
+  "label": "true",
+  "edge": {
+   "src": "rule-invoice-numbers-are-sequential-with-no",
+   "dst": "thing-invoice",
+   "type": "governs"
+  },
+  "original": {
+   "src": "rule-invoice-numbers-are-sequential-with-no",
+   "dst": "thing-invoice",
+   "type": "governs"
+  },
+  "expect": {
+   "solid": true
+  },
+  "reviewed": false
+ },
+ {
+  "id": "true-06",
+  "project": "tidepool",
+  "label": "true",
+  "edge": {
+   "src": "audience-marine-biologist-running-a-monitoring",
+   "dst": "usecase-verify-a-week-of-volunteer-records-in",
+   "type": "has"
+  },
+  "original": {
+   "src": "audience-marine-biologist-running-a-monitoring",
+   "dst": "usecase-verify-a-week-of-volunteer-records-in",
+   "type": "has"
+  },
+  "expect": {
+   "solid": true
+  },
+  "reviewed": false
+ },
+ {
+  "id": "true-07",
+  "project": "bropilot",
+  "label": "true",
+  "edge": {
+   "src": "screen-mirror",
+   "dst": "capability-guided-path",
+   "type": "implements"
+  },
+  "original": {
+   "src": "screen-mirror",
+   "dst": "capability-guided-path",
+   "type": "implements"
+  },
+  "expect": {
+   "solid": true
+  },
+  "reviewed": false
+ },
+ {
+  "id": "true-08",
+  "project": "ledgerly",
+  "label": "true",
+  "edge": {
+   "src": "feedback-accountant-quarterly-export-is-missing",
+   "dst": "flow-export-the-quarter-for-the-accountant",
+   "type": "measures"
+  },
+  "original": {
+   "src": "feedback-accountant-quarterly-export-is-missing",
+   "dst": "flow-export-the-quarter-for-the-accountant",
+   "type": "measures"
+  },
+  "expect": {
+   "solid": true
+  },
+  "reviewed": false
+ },
+ {
+  "id": "true-09",
+  "project": "tidepool",
+  "label": "true",
+  "edge": {
+   "src": "metric-record-acceptance-rate",
+   "dst": "outcome-volunteer-records-are-accepted-into-the",
+   "type": "monitors"
+  },
+  "original": {
+   "src": "metric-record-acceptance-rate",
+   "dst": "outcome-volunteer-records-are-accepted-into-the",
+   "type": "monitors"
+  },
+  "expect": {
+   "solid": true
+  },
+  "reviewed": false
+ },
+ {
+  "id": "true-10",
+  "project": "ledgerly",
+  "label": "true",
+  "edge": {
+   "src": "problem-clients-pay-late-and-chasing-them-feels",
+   "dst": "outcome-invoices-are-paid-within-terms",
+   "type": "motivates"
+  },
+  "original": {
+   "src": "problem-clients-pay-late-and-chasing-them-feels",
+   "dst": "outcome-invoices-are-paid-within-terms",
+   "type": "motivates"
+  },
+  "expect": {
+   "solid": true
+  },
+  "reviewed": false
+ },
+ {
+  "id": "retype-01",
+  "project": "bropilot",
+  "label": "retype",
+  "edge": {
+   "src": "evidence-lfp-loop",
+   "dst": "hypothesis-h7",
+   "type": "refutes"
+  },
+  "original": {
+   "src": "evidence-lfp-loop",
+   "dst": "hypothesis-h7",
+   "type": "supports"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "supports"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "retype-02",
+  "project": "ledgerly",
+  "label": "retype",
+  "edge": {
+   "src": "evidence-pilot-cohort-paid-6-days-faster-with",
+   "dst": "hypothesis-polite-automatic-reminders-shorten-days",
+   "type": "refutes"
+  },
+  "original": {
+   "src": "evidence-pilot-cohort-paid-6-days-faster-with",
+   "dst": "hypothesis-polite-automatic-reminders-shorten-days",
+   "type": "supports"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "supports"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "retype-03",
+  "project": "tidepool",
+  "label": "retype",
+  "edge": {
+   "src": "evidence-spring-pilot-abandoned-surveys-fell-from",
+   "dst": "hypothesis-offline-first-capture-halves-abandoned",
+   "type": "refutes"
+  },
+  "original": {
+   "src": "evidence-spring-pilot-abandoned-surveys-fell-from",
+   "dst": "hypothesis-offline-first-capture-halves-abandoned",
+   "type": "supports"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "supports"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "retype-04",
+  "project": "bropilot",
+  "label": "retype",
+  "edge": {
+   "src": "goal-business-revenue",
+   "dst": "metric-post-launch-commits",
+   "type": "combines"
+  },
+  "original": {
+   "src": "goal-business-revenue",
+   "dst": "metric-post-launch-commits",
+   "type": "references"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "references"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "retype-05",
+  "project": "ledgerly",
+  "label": "retype",
+  "edge": {
+   "src": "evidence-interviews-freelancers-ignore-forecasts",
+   "dst": "hypothesis-a-60-day-forecast-reduces-end-of-month",
+   "type": "supports"
+  },
+  "original": {
+   "src": "evidence-interviews-freelancers-ignore-forecasts",
+   "dst": "hypothesis-a-60-day-forecast-reduces-end-of-month",
+   "type": "refutes"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "refutes"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "retype-06",
+  "project": "tidepool",
+  "label": "retype",
+  "edge": {
+   "src": "evidence-reminder-cohort-returned-no-more-often",
+   "dst": "hypothesis-low-tide-reminders-double-repeat-visits",
+   "type": "supports"
+  },
+  "original": {
+   "src": "evidence-reminder-cohort-returned-no-more-often",
+   "dst": "hypothesis-low-tide-reminders-double-repeat-visits",
+   "type": "refutes"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "refutes"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "retype-07",
+  "project": "bropilot",
+  "label": "retype",
+  "edge": {
+   "src": "screen-glossary",
+   "dst": "capability-share",
+   "type": "implements"
+  },
+  "original": {
+   "src": "screen-glossary",
+   "dst": "capability-share",
+   "type": "references"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "references"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "retype-08",
+  "project": "ledgerly",
+  "label": "retype",
+  "edge": {
+   "src": "evidence-only-1-in-5-trial-users-connected-a-bank",
+   "dst": "hypothesis-a-60-day-forecast-reduces-end-of-month",
+   "type": "supports"
+  },
+  "original": {
+   "src": "evidence-only-1-in-5-trial-users-connected-a-bank",
+   "dst": "hypothesis-a-60-day-forecast-reduces-end-of-month",
+   "type": "refutes"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "refutes"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "retype-09",
+  "project": "tidepool",
+  "label": "retype",
+  "edge": {
+   "src": "evidence-suggestions-were-wrong-on-40-of-juvenile",
+   "dst": "hypothesis-photo-id-suggestions-lift-verification",
+   "type": "supports"
+  },
+  "original": {
+   "src": "evidence-suggestions-were-wrong-on-40-of-juvenile",
+   "dst": "hypothesis-photo-id-suggestions-lift-verification",
+   "type": "refutes"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "refutes"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "retype-10",
+  "project": "ledgerly",
+  "label": "retype",
+  "edge": {
+   "src": "evidence-pay-link-invoices-41-paid-same-week-vs",
+   "dst": "hypothesis-a-one-click-pay-link-doubles-same-week",
+   "type": "refutes"
+  },
+  "original": {
+   "src": "evidence-pay-link-invoices-41-paid-same-week-vs",
+   "dst": "hypothesis-a-one-click-pay-link-doubles-same-week",
+   "type": "supports"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "supports"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "broken-01",
+  "project": "bropilot",
+  "label": "broken",
+  "edge": {
+   "src": "test-sim-commit-gate",
+   "dst": "rule-one-utterance",
+   "type": "verifies"
+  },
+  "original": {
+   "src": "test-sim-commit-gate",
+   "dst": "rule-commit-gate",
+   "type": "verifies"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "none"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "broken-02",
+  "project": "ledgerly",
+  "label": "broken",
+  "edge": {
+   "src": "interface-invoices-api",
+   "dst": "thing-cash-forecast",
+   "type": "carries"
+  },
+  "original": {
+   "src": "interface-invoices-api",
+   "dst": "thing-client",
+   "type": "carries"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "none"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "broken-03",
+  "project": "tidepool",
+  "label": "broken",
+  "edge": {
+   "src": "hypothesis-low-tide-reminders-double-repeat-visits",
+   "dst": "outcome-volunteer-records-are-accepted-into-the",
+   "type": "references"
+  },
+  "original": {
+   "src": "hypothesis-low-tide-reminders-double-repeat-visits",
+   "dst": "outcome-volunteers-come-back-for-the-next-good",
+   "type": "references"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "none"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "broken-04",
+  "project": "bropilot",
+  "label": "broken",
+  "edge": {
+   "src": "codebase-store",
+   "dst": "module-director",
+   "type": "realises"
+  },
+  "original": {
+   "src": "codebase-store",
+   "dst": "module-representation",
+   "type": "realises"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "none"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "broken-05",
+  "project": "ledgerly",
+  "label": "broken",
+  "edge": {
+   "src": "metric-forecast-error-at-30-days",
+   "dst": "outcome-invoices-are-paid-within-terms",
+   "type": "monitors"
+  },
+  "original": {
+   "src": "metric-forecast-error-at-30-days",
+   "dst": "outcome-freelancers-plan-spending-with",
+   "type": "monitors"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "none"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "broken-06",
+  "project": "tidepool",
+  "label": "broken",
+  "edge": {
+   "src": "assumption-volunteers-will-photograph-every-quadrat",
+   "dst": "hypothesis-low-tide-reminders-double-repeat-visits",
+   "type": "references"
+  },
+  "original": {
+   "src": "assumption-volunteers-will-photograph-every-quadrat",
+   "dst": "hypothesis-photo-id-suggestions-lift-verification",
+   "type": "references"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "none"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "broken-07",
+  "project": "bropilot",
+  "label": "broken",
+  "edge": {
+   "src": "practice-dogfood-same-commit",
+   "dst": "codebase-kernel",
+   "type": "governs"
+  },
+  "original": {
+   "src": "practice-dogfood-same-commit",
+   "dst": "codebase-lfp",
+   "type": "governs"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "none"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "broken-08",
+  "project": "ledgerly",
+  "label": "broken",
+  "edge": {
+   "src": "capability-collections",
+   "dst": "agent-forecast-agent",
+   "type": "has"
+  },
+  "original": {
+   "src": "capability-collections",
+   "dst": "agent-collections-agent",
+   "type": "has"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "none"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "broken-09",
+  "project": "tidepool",
+  "label": "broken",
+  "edge": {
+   "src": "capability-volunteer-engagement",
+   "dst": "agent-id-suggestion-agent",
+   "type": "has"
+  },
+  "original": {
+   "src": "capability-volunteer-engagement",
+   "dst": "agent-tide-watch-agent",
+   "type": "has"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "none"
+  },
+  "reviewed": false
+ },
+ {
+  "id": "broken-10",
+  "project": "bropilot",
+  "label": "broken",
+  "edge": {
+   "src": "audience-untrained-builder",
+   "dst": "problem-no-real-world-effect",
+   "type": "has"
+  },
+  "original": {
+   "src": "audience-untrained-builder",
+   "dst": "problem-unstructured-articulation",
+   "type": "has"
+  },
+  "expect": {
+   "solid": false,
+   "retype": "none"
+  },
+  "reviewed": false
+ }
+]
