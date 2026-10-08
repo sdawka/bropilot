@@ -1,7 +1,8 @@
 import { before, after, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWriteStream } from 'node:fs';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { once } from 'node:events';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -11,7 +12,9 @@ import { getRunnerHash, verifyJob } from '../packages/local-verifier/src/index.m
 let session, directory, logs, kit;
 before(async () => {
   directory = await mkdtemp(join(tmpdir(), 'bropilot-realization-'));
+  await mkdir('.test-artifacts', { recursive: true });
   logs = createWriteStream('.test-artifacts/realization.log');
+  await once(logs, 'open');
   session = await startLocalSession({ port: 8793, directory, output: logs, verifier: false });
   kit = (await api('/api/v1/local-kit')).data;
 });
