@@ -2,7 +2,7 @@
 # Define the foundation
 
 - Supports: [[goals]].
-- Current focus: Foundation and specification PRs #5–#8 are merged. The deterministic candidate-verification slice in requirements section 3.3 is locally implemented and verified on `feat/candidate-verification`: one web-app Thing, immutable submission, protected existence/build/health/surface Assays and CAS promotion. Iterate locally on this one branch/PR. This spans M1–M4 without completing the broader milestones; hosted authentication, Task Packets and Git/Artifacts adapters remain next protocol work.
+- Current focus: the one-Thing hosted realization/deployment increment is implemented on `feat/candidate-verification` and [PR #9](https://github.com/sdawka/bropilot/pull/9). Integrate final local evidence, then configure and verify staging OAuth/Access, Artifacts/Git and A→B→rollback in the connected account. Broader Task Packets, composition, model/payment Assays and assistant integrations remain deferred.
 - Plan by dependencies and acceptance criteria, without dates or duration estimates. The adoption record is established; the product milestones below are not implemented or verified by that documentation work.
 
 | Milestone | Dependency | Completion criteria and evidence |

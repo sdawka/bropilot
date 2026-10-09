@@ -8,9 +8,13 @@ export interface WorldApi {
 }
 export type Example = { worldId: string; revisionId: string; title: string; scenario: string };
 export type WorldSummary = { worldId: string; title: string; headRevisionId: string; desiredRevisionId: string };
+export type Session = { enabled: boolean; mode: 'local' | 'hosted' | 'example'; principalId?: string };
+export type CloudflareConnection = { connectionId: string; accountId?: string; accountName?: string; status: string; expiresAtMs?: number };
+export type SourceReconciliation = { revisionId: string; status: 'pending' | 'current' };
+export type WorldWithMetadata = { state: WorldState; sourceReconciliation: SourceReconciliation | null };
 
 export class WorldApiError extends Error {
-  constructor(message: string, readonly code?: string) { super(message); }
+  constructor(message: string, readonly code?: string, readonly status?: number) { super(message); }
 }
 
 export const liveWorldApi: WorldApi = {
@@ -35,14 +39,19 @@ async function localFetch(path: string, init?: RequestInit) {
   if (!response.ok) {
     let body: { message?: unknown; code?: unknown } | undefined;
     try { body = await response.clone().json() as { message?: unknown; code?: unknown }; } catch { /* non-JSON transport error */ }
-    const message = typeof body?.message === 'string' ? body.message : `The local World service returned ${response.status}.`;
-    throw new WorldApiError(message, typeof body?.code === 'string' ? body.code : undefined);
+    const message = typeof body?.message === 'string' ? body.message : `The World service returned ${response.status}.`;
+    throw new WorldApiError(message, typeof body?.code === 'string' ? body.code : undefined, response.status);
   }
   return response;
 }
 export async function startLocalSession() { return (await localFetch('/api/v1/local/session')).json() as Promise<{ enabled: boolean }>; }
+export async function getSession() { return (await localFetch('/api/v1/session')).json() as Promise<Session>; }
 export async function getLocalWorlds() { return ((await localFetch('/api/v1/worlds')).json() as Promise<{ worlds: WorldSummary[] }>).then((body) => body.worlds); }
-export async function getLocalWorld(worldId: string) { return ((await localFetch(`/api/v1/worlds/${encodeURIComponent(worldId)}`)).json() as Promise<{ state: WorldState }>).then((body) => body.state); }
+export async function getWorldWithMetadata(worldId: string) { return (await localFetch(`/api/v1/worlds/${encodeURIComponent(worldId)}`)).json() as Promise<WorldWithMetadata>; }
+export async function getLocalWorld(worldId: string) { return (await getWorldWithMetadata(worldId)).state; }
+export async function reconcileWorldSource(worldId: string) {
+  return (await localFetch(`/api/v1/worlds/${encodeURIComponent(worldId)}/source-reconciliation`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })).json() as Promise<WorldWithMetadata>;
+}
 export async function sendWorldCommand(worldId: string, command: WorldCommand) {
   const response = await localFetch(`/api/v1/worlds/${encodeURIComponent(worldId)}/commands`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(command) });
   const body = await response.json() as WorldCommandResponse;
@@ -50,6 +59,24 @@ export async function sendWorldCommand(worldId: string, command: WorldCommand) {
   return body;
 }
 export async function getLocalKit() { return (await localFetch('/api/v1/local-kit')).json() as Promise<{ sources: { working: { files: Record<string, string> }; brokenHealth: { files: Record<string, string> } }; runnerHash: string; runnerRef: string }>; }
+export async function getCloudflareConnection() {
+  return ((await localFetch('/api/v1/cloudflare/connections')).json() as Promise<{ connection?: CloudflareConnection }>).then(body => body.connection);
+}
+export async function startCloudflareConnection(returnTo: string) {
+  return (await localFetch('/api/v1/cloudflare/connections/start', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ returnTo }) })).json() as Promise<{ authorizationUrl: string }>;
+}
+export async function selectCloudflareAccount(accountId: string) {
+  return (await localFetch('/api/v1/cloudflare/connections/account', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ accountId }) })).json() as Promise<{ connection: CloudflareConnection }>;
+}
+export async function disconnectCloudflareConnection() {
+  await localFetch('/api/v1/cloudflare/connections', { method: 'DELETE' });
+}
+export async function createDeploymentTarget(worldId: string) {
+  return ((await localFetch(`/api/v1/worlds/${encodeURIComponent(worldId)}/deployment-target`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })).json() as Promise<{ target: unknown }>).then(body => body.target);
+}
+export async function resumeDeployment(worldId: string, deploymentId: string) {
+  return (await localFetch(`/api/v1/worlds/${encodeURIComponent(worldId)}/deployments/${encodeURIComponent(deploymentId)}/resume`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })).json() as Promise<{ status: string }>;
+}
 
 /** Explicit test-only adapter: callers decide which pinned responses are present. */
 export function createFixtureWorldApi(fixtures: Record<string, WorkspaceResult>): WorldApi {

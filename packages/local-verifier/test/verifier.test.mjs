@@ -130,6 +130,49 @@ test("repeated verification is deterministic", async () => {
   assert.deepEqual(first.observations, second.observations);
 });
 
+test("successful verification exposes the exact deployable package to a retention callback", async () => {
+  const input = await job();
+  let retained;
+  const packageRef = {
+    key: "packages/sha256/package/manifest.json",
+    packageDigest: "1".repeat(64),
+    buildDigest: "2".repeat(64),
+    sourceDigest: input.sourceDigest,
+    sourceRef: input.sourceRef,
+    contractHash: input.contractHash,
+    planHash: input.planHash,
+    runnerHash: input.runnerHash,
+    runId: input.runId,
+  };
+  const completion = await verifyJob(input, {
+    retainPackage: async (upload, receivedJob) => {
+      retained = { upload, receivedJob };
+      return packageRef;
+    },
+  });
+
+  assert.equal(retained.receivedJob, input);
+  assert.match(retained.upload.compiledWorker, /fetch/);
+  assert.equal(retained.upload.assets["public/index.html"], validSource.files["public/index.html"]);
+  assert.equal(retained.upload.buildDigest, completion.buildDigest);
+  assert.ok(!Object.hasOwn(retained.upload.deployableConfig, "outboundNetwork"));
+  assert.equal(completion.packageRef, packageRef);
+});
+
+test("failed compilation never invents or retains a package", async () => {
+  let retainCalls = 0;
+  const completion = await verifyJob(await job(compileErrorSource), {
+    retainPackage: async () => {
+      retainCalls += 1;
+      return {};
+    },
+  });
+
+  assert.equal(retainCalls, 0);
+  assert.equal(completion.buildDigest, null);
+  assert.ok(!Object.hasOwn(completion, "packageRef"));
+});
+
 test("oversized candidate responses are bounded and fail the surface assay", async () => {
   const completion = await verifyJob(await job(oversizedResponseSource));
   const surfaces = assay(completion, "app.surfaces");

@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@bropilot/contracts": "*"
+    "@bropilot/contracts": "*",
+    "isomorphic-git": "1.43.2",
+    "jose": "6.2.12"
   },
   "devDependencies": {
     "wrangler": "4.148.0"

@@ -3,6 +3,7 @@
   "name": "bropilot-foundation",
   "main": "src/index.ts",
   "compatibility_date": "2026-10-08",
+  "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "../web/dist",
     "binding": "ASSETS",
@@ -18,20 +19,50 @@
     }
   },
   "vars": {
-    "LOCAL_WORKSPACE": "disabled"
+    "LOCAL_WORKSPACE": "disabled",
+    "AUTH_MODE": "disabled"
   },
   "durable_objects": {
     "bindings": [
       { "name": "WORLD_AUTHORITY", "class_name": "WorldAuthority" },
-      { "name": "LOCAL_WORLD_DIRECTORY", "class_name": "LocalWorldDirectory" }
+      { "name": "LOCAL_WORLD_DIRECTORY", "class_name": "LocalWorldDirectory" },
+      { "name": "IDENTITY_STORE", "class_name": "IdentityStore" },
+      { "name": "CLOUDFLARE_CONNECTIONS", "class_name": "CloudflareConnectionStore" },
+      { "name": "DEPLOYMENT_TARGETS", "class_name": "TargetDeploymentAuthority" }
     ]
   },
   "migrations": [
     {
       "tag": "v1",
       "new_sqlite_classes": ["WorldAuthority", "LocalWorldDirectory"]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": ["IdentityStore", "CloudflareConnectionStore", "TargetDeploymentAuthority"]
     }
   ],
+  "env": {
+    "staging": {
+      "name": "bropilot-staging",
+      "vars": {
+        "LOCAL_WORKSPACE": "disabled",
+        "AUTH_MODE": "hosted",
+        "ARTIFACTS_NAMESPACE": "bropilot-worlds"
+      },
+      "durable_objects": {
+        "bindings": [
+          { "name": "WORLD_AUTHORITY", "class_name": "WorldAuthority" },
+          { "name": "LOCAL_WORLD_DIRECTORY", "class_name": "LocalWorldDirectory" },
+          { "name": "IDENTITY_STORE", "class_name": "IdentityStore" },
+          { "name": "CLOUDFLARE_CONNECTIONS", "class_name": "CloudflareConnectionStore" },
+          { "name": "DEPLOYMENT_TARGETS", "class_name": "TargetDeploymentAuthority" }
+        ]
+      },
+      "artifacts": [{ "binding": "ARTIFACTS", "namespace": "bropilot-worlds" }],
+      "r2_buckets": [{ "binding": "BUILD_PACKAGES", "bucket_name": "bropilot-build-packages-staging" }],
+      "workflows": [{ "binding": "DEPLOYMENT_WORKFLOW", "name": "bropilot-deployment-staging", "class_name": "DeploymentWorkflow" }]
+    }
+  },
   "rules": [
     {
       "type": "CompiledWasm",

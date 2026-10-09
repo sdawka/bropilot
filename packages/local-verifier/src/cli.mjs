@@ -18,10 +18,11 @@ class ApiRequestError extends Error {
 }
 
 function parseArgs(argv) {
-  const options = { watch: false };
+  const options = { watch: false, hosted: false };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--watch") options.watch = true;
+    else if (arg === "--hosted") options.hosted = true;
     else if (arg === "--origin" || arg === "--token-file") {
       const value = argv[index + 1];
       if (!value) throw new Error(`${arg} requires a value`);
@@ -32,12 +33,14 @@ function parseArgs(argv) {
     }
   }
   if (!options.origin || !options.tokenFile) {
-    throw new Error("usage: bropilot-local-verifier --origin <loopbackURL> --token-file <privateFile> [--watch]");
+    throw new Error("usage: bropilot-local-verifier --origin <URL> --token-file <privateFile> [--hosted] [--watch]");
   }
   const origin = new URL(options.origin);
   const loopback = new Set(["localhost", "127.0.0.1", "[::1]", "::1"]);
-  if (!loopback.has(origin.hostname) || !["http:", "https:"].includes(origin.protocol)) {
-    throw new Error("--origin must be an HTTP(S) loopback URL");
+  if (options.hosted) {
+    if (origin.protocol !== "https:") throw new Error("hosted verifier origin must use HTTPS");
+  } else if (!loopback.has(origin.hostname) || !["http:", "https:"].includes(origin.protocol)) {
+    throw new Error("--origin must be an HTTP(S) loopback URL unless --hosted is explicit");
   }
   options.origin = origin.origin;
   return options;
@@ -83,8 +86,9 @@ async function requestJson(url, token, runnerHash, init = {}, shutdownSignal) {
   }
 }
 
-async function processOnce(origin, token, runnerHash, signal) {
-  const listing = await requestJson(`${origin}/api/v1/local-verifier/jobs`, token, runnerHash, {}, signal);
+async function processOnce(origin, token, runnerHash, hosted, signal) {
+  const listingPath = hosted ? "/api/v1/verifier/jobs" : "/api/v1/local-verifier/jobs";
+  const listing = await requestJson(`${origin}${listingPath}`, token, runnerHash, {}, signal);
   const jobs = Array.isArray(listing.jobs) ? listing.jobs : [];
   for (const queued of jobs) {
     if (typeof queued?.worldId !== "string" || typeof queued?.runId !== "string") continue;
@@ -94,10 +98,38 @@ async function processOnce(origin, token, runnerHash, signal) {
       body: JSON.stringify({ runnerHash }),
     }, signal);
     if (claimed.busy) continue;
-    const completion = await verifyJob(claimed.job, { signal });
+    const completion = await verifyJob(claimed.job, {
+      signal,
+      ...(hosted ? {
+        retainPackage: async (upload, job) => {
+          const retained = await requestJson(`${base}/package`, token, runnerHash, {
+            method: "POST",
+            body: JSON.stringify({
+              requestId: `package:${job.runId}:${job.leaseId}`,
+              leaseId: job.leaseId,
+              upload,
+            }),
+          }, signal);
+          if (!retained.packageRef || typeof retained.packageRef !== "object") {
+            throw new ApiRequestError("verifier API returned no retained package reference", false);
+          }
+          return retained.packageRef;
+        },
+      } : {}),
+    });
+    const completionBody = hosted ? {
+      runId: completion.runId,
+      leaseId: completion.leaseId,
+      sourceDigest: completion.sourceDigest,
+      contractHash: completion.contractHash,
+      planHash: completion.planHash,
+      ...(completion.packageRef === undefined ? {} : { packageRef: completion.packageRef }),
+      observations: completion.observations,
+      requestId: `complete:${completion.runId}:${completion.leaseId}`,
+    } : completion;
     await requestJson(`${base}/complete`, token, runnerHash, {
       method: "POST",
-      body: JSON.stringify(completion),
+      body: JSON.stringify(completionBody),
     }, signal);
     process.stdout.write(`completed ${queued.worldId}/${queued.runId}\n`);
   }
@@ -128,7 +160,7 @@ export async function main(argv = process.argv.slice(2)) {
   try {
     do {
       try {
-        await processOnce(options.origin, token, runnerHash, shutdown.signal);
+        await processOnce(options.origin, token, runnerHash, options.hosted, shutdown.signal);
         retryDelay = 250;
         if (options.watch && !shutdown.signal.aborted) {
           await interruptibleDelay(WATCH_POLL_MS, shutdown.signal);

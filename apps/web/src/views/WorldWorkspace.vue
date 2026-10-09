@@ -2,11 +2,13 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowUpRight, Check, ChevronDown, ChevronRight, LoaderCircle, Search, X } from '@lucide/vue';
-import type { ModelObject, WorldCommand, WorldState } from '@bropilot/contracts';
+import type { DeploymentRecord, ModelObject, WorldCommand, WorldState } from '@bropilot/contracts';
 import { readRouteState, routeQuery } from '../route-state';
 import { views, type WorkspaceView } from '../router';
-import { getExamples, getLocalKit, getLocalWorld, getLocalWorlds, liveWorldApi, sendWorldCommand, startLocalSession, type Example, type WorkspaceResult, type WorldSummary } from '../services/world-api';
+import { createDeploymentTarget, disconnectCloudflareConnection, getCloudflareConnection, getExamples, getLocalKit, getLocalWorlds, getSession, getWorldWithMetadata, liveWorldApi, reconcileWorldSource, resumeDeployment, selectCloudflareAccount, sendWorldCommand, startCloudflareConnection, startLocalSession, WorldApiError, type CloudflareConnection, type Example, type Session, type SourceReconciliation, type WorkspaceResult, type WorldSummary } from '../services/world-api';
 import WorldMap from '../components/WorldMap.vue';
+import DeploymentPanel from '../components/DeploymentPanel.vue';
+import CloudflareConnectionDialog from '../components/CloudflareConnectionDialog.vue';
 import { createLoadFence } from '../load-fence';
 import { ancestry, hierarchyPath } from '../hierarchy';
 
@@ -16,13 +18,20 @@ const state = computed(() => readRouteState(route));
 const workspace = ref<WorkspaceResult>();
 const loading = ref(true);
 const unavailable = ref(false);
+const signInRequired = ref(false);
 const error = ref('');
 const commandError = ref('');
+const deliveryNotice = ref('');
 const pending = ref('');
 const examples = ref<Example[]>([]);
 const localEnabled = ref(false);
 const localWorlds = ref<WorldSummary[]>([]);
 const localState = ref<WorldState>();
+const session = ref<Session>({ enabled: false, mode: 'example' });
+const connection = ref<CloudflareConnection>();
+const connectionOpen = ref(false);
+const connectionError = ref('');
+const sourceReconciliation = ref<SourceReconciliation | null>(null);
 const worker = ref('');
 const indexHtml = ref('');
 const kit = ref<Awaited<ReturnType<typeof getLocalKit>>>();
@@ -54,6 +63,12 @@ const children = computed(() => {
     : objects.value.filter(object => object.parentId === current.value?.id);
 });
 const isLocal = computed(() => localState.value?.worldId === state.value.worldId);
+const isHosted = computed(() => !!localState.value?.hosted);
+const sourceReconciliationPending = computed(() => sourceReconciliation.value?.status === 'pending');
+const deploymentTarget = computed(() => localState.value?.hosted?.deploymentTargets[0]);
+const deployments = computed(() => localState.value?.deployments ?? []);
+const runtimeObservations = computed(() => localState.value?.runtimeObservations ?? []);
+const selectedRevision = computed(() => localState.value?.revisions.find(revision => revision.revisionId === state.value.revisionId));
 const isHead = computed(() => isLocal.value && state.value.revisionId === localState.value?.headRevisionId);
 const currentMove = computed(() => isHead.value ? localState.value?.moves.find(move => move.status === 'open' && move.baseRevisionId === localState.value?.headRevisionId) : undefined);
 const currentCandidate = computed(() => currentMove.value ? localState.value?.candidates.filter(candidate => candidate.moveId === currentMove.value!.moveId).at(-1) : undefined);
@@ -121,6 +136,11 @@ async function loadWorkspace() {
   const { worldId, revisionId } = state.value;
   loading.value = true;
   error.value = ''; unavailable.value = false; workspace.value = undefined;
+  if (signInRequired.value) {
+    error.value = 'Sign in through Cloudflare Access to open this hosted World.';
+    loading.value = false;
+    return;
+  }
   try {
     const result = await liveWorldApi.getWorkspace(worldId, revisionId);
     if (!workspaceFence.current(token) || disposed) return;
@@ -136,10 +156,12 @@ async function loadLocal() {
   try {
     if (!localEnabled.value) return;
     const worlds = await getLocalWorlds();
-    const local = worlds.some(world => world.worldId === worldId) ? await getLocalWorld(worldId) : undefined;
+    const response = worlds.some(world => world.worldId === worldId) ? await getWorldWithMetadata(worldId) : undefined;
+    const local = response?.state;
     if (!localFence.current(token) || disposed) return;
     localWorlds.value = worlds;
     localState.value = local;
+    sourceReconciliation.value = response?.sourceReconciliation ?? null;
     if (local && sourceWorldId !== worldId) {
       sourceWorldId = worldId;
       await fillKit('working');
@@ -151,14 +173,28 @@ async function loadLocal() {
       }
     }
   } catch (cause) {
-    if (localFence.current(token) && !disposed) commandError.value = cause instanceof Error ? cause.message : 'Local state could not be loaded.';
+    if (localFence.current(token) && !disposed) commandError.value = cause instanceof Error ? cause.message : 'World state could not be loaded.';
+  }
+}
+async function loadConnection(worldId = state.value.worldId) {
+  if (!isHosted.value) { connection.value = undefined; return; }
+  try {
+    const current = await getCloudflareConnection();
+    if (disposed || state.value.worldId !== worldId) return;
+    connection.value = current;
+  } catch (cause) {
+    if (disposed || state.value.worldId !== worldId) return;
+    const code = cause instanceof Error && 'code' in cause ? String(cause.code) : '';
+    if (code !== 'unauthorized' && code !== 'session_expired') connectionError.value = cause instanceof Error ? cause.message : 'Cloudflare connection status could not be loaded.';
   }
 }
 async function loadRoute() {
   clearPoll();
   localState.value = undefined;
+  sourceReconciliation.value = null;
   commandError.value = '';
   await Promise.all([loadWorkspace(), loadLocal()]);
+  await loadConnection();
 }
 async function command(commandValue: WorldCommand, nextView?: WorkspaceView) {
   if (pending.value || !isHead.value) return;
@@ -169,6 +205,9 @@ async function command(commandValue: WorldCommand, nextView?: WorkspaceView) {
     const response = await sendWorldCommand(worldId, commandValue);
     if (disposed || state.value.worldId !== worldId) return;
     localState.value = response.state;
+    const acknowledgement = response as typeof response & { dispatch?: 'pending'; storageReconciliation?: 'pending' };
+    if (acknowledgement.dispatch === 'pending') deliveryNotice.value = 'Deployment dispatch is pending. Refresh its status or resume the deployment if it remains pending.';
+    else if (acknowledgement.storageReconciliation === 'pending') deliveryNotice.value = 'Source reconciliation is pending. Refresh before expecting verification or deployment changes.';
     if (response.result.kind === 'candidatePromoted') {
       await router.push({ name: 'world', params: { worldId, revisionId: response.result.revisionId, view: 'overview' }, query: { map: state.value.mapMode } });
     } else if (nextView) await changeView(nextView);
@@ -208,18 +247,107 @@ function runChecks() {
 function promote() {
   if (canPromote.value && currentCandidate.value && localState.value) void command({ kind: 'promote', candidateId: currentCandidate.value.candidateId, expectedHeadRevisionId: localState.value.headRevisionId, requestId: id('request') });
 }
+async function connectCloudflare() {
+  connectionError.value = '';
+  try {
+    const result = await startCloudflareConnection(`${window.location.pathname}${window.location.search}`);
+    if (!disposed) window.location.assign(result.authorizationUrl);
+  } catch (cause) { connectionError.value = cause instanceof Error ? cause.message : 'Cloudflare connection could not be started.'; }
+}
+async function confirmCloudflareAccount(accountId: string) {
+  connectionError.value = '';
+  pending.value = 'selectCloudflareAccount';
+  try { connection.value = (await selectCloudflareAccount(accountId)).connection; }
+  catch (cause) { connectionError.value = cause instanceof Error ? cause.message : 'Cloudflare account could not be confirmed.'; }
+  finally { pending.value = ''; }
+}
+async function disconnectCloudflare() {
+  connectionError.value = '';
+  pending.value = 'disconnectCloudflare';
+  try { await disconnectCloudflareConnection(); connection.value = undefined; }
+  catch (cause) { connectionError.value = cause instanceof Error ? cause.message : 'Cloudflare could not be disconnected.'; }
+  finally { pending.value = ''; }
+}
+async function ensureDeploymentTarget() {
+  if (!isHosted.value || pending.value) return;
+  pending.value = 'createDeploymentTarget'; commandError.value = '';
+  try {
+    await createDeploymentTarget(state.value.worldId);
+    await loadLocal();
+  } catch (cause) { commandError.value = cause instanceof Error ? cause.message : 'Deployment target could not be created.'; }
+  finally { pending.value = ''; }
+}
+async function reconcileSource() {
+  const worldId = state.value.worldId;
+  const response = await reconcileWorldSource(worldId);
+  if (disposed || state.value.worldId !== worldId) return false;
+  localState.value = response.state;
+  sourceReconciliation.value = response.sourceReconciliation;
+  return response.sourceReconciliation?.status !== 'pending';
+}
+async function retrySourceReconciliation() {
+  if (pending.value) return;
+  pending.value = 'sourceReconciliation'; commandError.value = '';
+  try {
+    if (await reconcileSource()) deliveryNotice.value = '';
+  } catch (cause) { commandError.value = cause instanceof Error ? cause.message : 'Source reconciliation could not be retried.'; }
+  finally { pending.value = ''; }
+}
+async function reconcileBeforeDeployment() {
+  pending.value = 'sourceReconciliation'; commandError.value = '';
+  try {
+    if (await reconcileSource()) return true;
+    deliveryNotice.value = 'Source reconciliation is pending. Deployment has not been queued.';
+    return false;
+  } catch (cause) {
+    commandError.value = cause instanceof Error ? cause.message : 'Source reconciliation could not be retried.';
+    return false;
+  } finally { pending.value = ''; }
+}
+async function requestDeployment() {
+  if (pending.value || !deploymentTarget.value || !selectedRevision.value || !isHead.value) return;
+  if (!await reconcileBeforeDeployment()) return;
+  void command({ kind: 'requestDeployment', deploymentId: id('deployment'), targetId: deploymentTarget.value.targetId, revisionId: selectedRevision.value.revisionId, expectedHeadRevisionId: localState.value!.headRevisionId, requestId: id('request') });
+}
+function requestRollback(deployment: DeploymentRecord) {
+  if (!deploymentTarget.value || !deployment.providerVersionId) return;
+  void command({ kind: 'requestRollback', deploymentId: id('rollback'), targetId: deploymentTarget.value.targetId, previousDeploymentId: deployment.deploymentId, expectedActiveProviderVersionId: deployment.providerVersionId, requestId: id('request') });
+}
+async function resumePendingDeployment(deployment: DeploymentRecord) {
+  if (pending.value) return;
+  if (!await reconcileBeforeDeployment()) return;
+  pending.value = 'resumeDeployment'; commandError.value = '';
+  try {
+    const response = await resumeDeployment(state.value.worldId, deployment.deploymentId) as { dispatch?: 'pending'; storageReconciliation?: 'pending' };
+    if (response.dispatch === 'pending') deliveryNotice.value = 'Deployment dispatch is pending. Refresh its status or resume again if it remains pending.';
+    await loadRoute();
+  } catch (cause) { commandError.value = cause instanceof Error ? cause.message : 'Deployment could not be resumed.'; }
+  finally { pending.value = ''; }
+}
 
 onMounted(async () => {
-  try { localEnabled.value = (await startLocalSession()).enabled; } catch { localEnabled.value = false; }
+  try {
+    session.value = await getSession();
+    localEnabled.value = session.value.enabled && session.value.mode !== 'example';
+    if (session.value.mode === 'local') localEnabled.value = (await startLocalSession()).enabled;
+  } catch (cause) {
+    if (cause instanceof WorldApiError && cause.status === 401) {
+      signInRequired.value = true;
+      session.value = { enabled: false, mode: 'hosted' };
+      localEnabled.value = false;
+    } else {
+    try { localEnabled.value = (await startLocalSession()).enabled; session.value = { enabled: localEnabled.value, mode: 'local' }; } catch { localEnabled.value = false; }
+    }
+  }
   if (disposed) return;
   sessionReady = true;
   void getExamples().then(items => { if (!disposed) examples.value = items; }).catch(() => {});
   await loadRoute();
 });
 watch(() => `${state.value.worldId}/${state.value.revisionId}`, () => { if (sessionReady) void loadRoute(); });
-watch(currentRun, run => {
+watch([currentRun, () => deployments.value.some(deployment => deployment.status === 'queued' || deployment.status === 'running')], ([run, deploymentPending]) => {
   clearPoll();
-  if (run && (run.status === 'queued' || run.status === 'running')) pollTimer = window.setTimeout(() => void loadLocal(), 750);
+  if ((run && (run.status === 'queued' || run.status === 'running')) || deploymentPending) pollTimer = window.setTimeout(() => void loadRoute(), 750);
 });
 onBeforeUnmount(() => { disposed = true; workspaceFence.next(); localFence.next(); clearPoll(); });
 </script>
@@ -239,6 +367,8 @@ onBeforeUnmount(() => { disposed = true; workspaceFence.next(); localFence.next(
 
     <main class="canvas">
       <p v-if="commandError" class="notice" role="alert">{{ commandError }} <button class="text-button" :disabled="!!pending" @click="loadLocal">Refresh state</button></p>
+      <p v-if="deliveryNotice" class="notice" role="status">{{ deliveryNotice }} <button class="text-button" :disabled="!!pending" @click="loadRoute">Refresh state</button></p>
+      <p v-if="sourceReconciliationPending" class="notice" role="status">Source reconciliation is pending for the current canonical version. Deployment has not been queued. <button class="text-button" :disabled="!!pending" @click="retrySourceReconciliation">{{ pending === 'sourceReconciliation' ? 'Retrying…' : 'Retry' }}</button></p>
       <p v-if="invalidSelected" class="notice"><strong>Pinned object unavailable.</strong> {{ invalidSelected }} is absent from this revision. <button class="text-button" @click="select()">Clear selection</button></p>
       <section v-if="loading" class="hero" aria-live="polite"><LoaderCircle class="loading-icon" :size="22" /><p class="lede">Opening your World…</p></section>
       <section v-else-if="unavailable || error" class="hero">
@@ -256,8 +386,9 @@ onBeforeUnmount(() => { disposed = true; workspaceFence.next(); localFence.next(
             <button class="primary" @click="changeView(isLocal ? (snapshot.stateKind === 'canonical' ? 'evaluations' : 'work') : 'map')">{{ isLocal ? (snapshot.stateKind === 'canonical' ? 'View verification' : 'Work on a candidate') : 'Explore this World' }}<ArrowUpRight :size="15" /></button>
             <button v-if="localEnabled && !isLocal" class="secondary" :disabled="!!pending" @click="createWorld">{{ pending === 'createWorld' ? 'Opening…' : 'Try a realization' }}</button>
           </div>
-          <p class="footnote">{{ isLocal ? 'Local workspace. Not deployed.' : 'Example World. Calendar not connected.' }}</p>
+          <p class="footnote">{{ isHosted ? 'Hosted World. Deployment remains a separate owner action.' : isLocal ? 'Local workspace. Not deployed.' : 'Example World. Calendar not connected.' }}</p>
           <details v-if="readiness?.findings.length" class="readiness-details"><summary>What needs attention</summary><p v-for="finding in readiness.findings" :key="finding.ruleId + finding.message">{{ finding.message }}</p></details>
+          <DeploymentPanel v-if="isHosted && localState" :revision-id="state.revisionId" :head-revision-id="localState.headRevisionId" :package-ref="selectedRevision?.packageRef" :target="deploymentTarget" :connection-status="connection?.status" :deployments="deployments" :observations="runtimeObservations" :pending="!!pending" @connect="connectionOpen = true" @create-target="ensureDeploymentTarget" @deploy="requestDeployment" @resume="resumePendingDeployment" @rollback="requestRollback" />
         </section>
 
         <section v-else-if="state.view === 'map'" class="workspace">
@@ -295,7 +426,7 @@ onBeforeUnmount(() => { disposed = true; workspaceFence.next(); localFence.next(
         </section>
 
         <section v-else-if="state.view === 'evaluations' && isLocal" class="workspace">
-          <header class="view-heading"><h1>{{ latestRun?.aggregate === 'ready' ? 'The checks passed.' : latestRun?.aggregate === 'blocked' ? 'A check needs attention.' : 'Check the candidate.' }}</h1><p>{{ latestRun ? 'Local verifier evidence for the immutable candidates associated with this revision.' : 'Submit a candidate and run its checks to see evidence here.' }}</p></header>
+          <header class="view-heading"><h1>{{ latestRun?.aggregate === 'ready' ? 'The checks passed.' : latestRun?.aggregate === 'blocked' ? 'A check needs attention.' : 'Check the candidate.' }}</h1><p>{{ latestRun ? (isHosted ? 'Registered verifier evidence for the immutable candidates associated with this revision.' : 'Local verifier evidence for the immutable candidates associated with this revision.') : 'Submit a candidate and run its checks to see evidence here.' }}</p></header>
           <div v-if="visibleRuns.length" class="surface run-list">
             <article v-for="(run, runIndex) in visibleRuns" :key="run.runId" class="run-result">
               <div class="run-heading"><h2>Candidate {{ runIndex + 1 }}</h2><span class="quiet-status" aria-label="Verification status"><LoaderCircle v-if="run.status === 'queued' || run.status === 'running'" class="loading-icon" :size="15" />{{ run.status }} · {{ run.aggregate }}</span></div>
@@ -303,7 +434,7 @@ onBeforeUnmount(() => { disposed = true; workspaceFence.next(); localFence.next(
                 <div v-for="observation in evaluation.observations" :key="observation.assayId" class="assay-row"><span class="assay-symbol" :class="observation.result"><Check v-if="observation.result === 'pass'" :size="16" /><X v-else-if="observation.result === 'fail'" :size="16" /><span v-else>–</span></span><div><strong>{{ assayNames[observation.assayId] ?? observation.assayId }}</strong><p>{{ observation.summary }}</p></div><span class="assay-outcome">{{ observation.result }}</span></div>
                 <details class="evidence-details"><summary>Inspect evidence</summary><dl class="metadata"><dt>Verifier</dt><dd>{{ evaluation.verifierId }}</dd><dt>Source</dt><dd>{{ evaluation.sourceDigest }}</dd><dt>Contract</dt><dd>{{ evaluation.contractHash }}</dd><dt>Plan</dt><dd>{{ evaluation.planHash }}</dd><dt>Build</dt><dd>{{ evaluation.buildDigest ?? 'Unavailable' }}</dd></dl><details v-for="observation in evaluation.observations" :key="observation.assayId"><summary>{{ observation.assayId }} · {{ observation.executionStatus }}</summary><p>{{ observation.summary }}</p><code v-if="observation.raw">{{ observation.raw }}</code></details></details>
               </template>
-              <p v-if="!run.evaluations.length" class="empty-note">{{ run.status === 'error' ? 'The verifier could not finish. No passing evidence is recorded.' : 'Waiting for the local verifier. This page updates as the checks finish.' }}</p>
+              <p v-if="!run.evaluations.length" class="empty-note">{{ run.status === 'error' ? 'The verifier could not finish. No passing evidence is recorded.' : isHosted ? 'Waiting for the registered verifier. This page updates as the checks finish.' : 'Waiting for the local verifier. This page updates as the checks finish.' }}</p>
             </article>
             <div v-if="canPromote" class="promotion"><p>Use this version as the World’s canonical implementation.</p><div class="actions"><button class="primary" :disabled="!!pending" @click="promote">{{ pending === 'promote' ? 'Promoting…' : 'Promote candidate' }}</button></div><p class="footnote">Promotion does not deploy the app.</p></div>
             <div v-else-if="isHead && latestRun?.aggregate === 'blocked'" class="actions"><button class="secondary" @click="changeView('work')">Revise the candidate</button></div>
@@ -321,7 +452,7 @@ onBeforeUnmount(() => { disposed = true; workspaceFence.next(); localFence.next(
           <header class="view-heading"><h1>The World, over time</h1><p>Revisit an exact version.</p></header><ul class="tree"><li v-for="(revision, index) in localState?.revisions" :key="revision.revisionId"><button class="object-row" @click="navigate(state.worldId, revision.revisionId)"><span>{{ revision.candidateId ? `Canonical version ${index}` : 'Initial desired model' }}</span><small>{{ revision.revisionId === localState?.headRevisionId ? 'Current head' : 'Pinned revision' }}</small><ChevronRight :size="15" /></button></li></ul>
         </section>
 
-        <section v-else class="hero placeholder-stage"><h1>{{ state.view === 'work' ? 'A place for the next Move.' : state.view === 'evaluations' ? 'Evidence belongs here.' : 'A history worth keeping.' }}</h1><p class="lede">{{ state.view === 'work' ? 'This assistant is an example model. Try a local Worker app to explore real candidate work.' : state.view === 'evaluations' ? 'This example has model readiness, but no live implementation checks or outcome observations.' : 'This example has no live changes to show.' }}</p><div v-if="localEnabled" class="actions"><button class="primary" :disabled="!!pending" @click="createWorld">Try a realization</button></div></section>
+        <section v-else class="hero placeholder-stage"><h1>{{ state.view === 'work' ? 'A place for the next Move.' : state.view === 'evaluations' ? 'Evidence belongs here.' : 'A history worth keeping.' }}</h1><p class="lede">{{ state.view === 'work' ? (isHosted ? 'This World has no candidate work at this revision yet.' : 'This assistant is an example model. Try a local Worker app to explore real candidate work.') : state.view === 'evaluations' ? 'This example has model readiness, but no live implementation checks or outcome observations.' : 'This example has no live changes to show.' }}</p><div v-if="localEnabled" class="actions"><button class="primary" :disabled="!!pending" @click="createWorld">Try a realization</button></div></section>
 
         <aside v-if="selected" class="inspector workspace" aria-label="Shared inspector">
           <div class="inspector-heading"><div><p class="quiet-status">{{ selected.kind }}</p><h2>{{ selected.title }}</h2></div><button class="icon-button" aria-label="Clear selected object" @click="select()"><X :size="17" /></button></div>
@@ -334,7 +465,9 @@ onBeforeUnmount(() => { disposed = true; workspaceFence.next(); localFence.next(
       <header class="context-header"><h2 id="context-title">World context</h2><button class="icon-button" aria-label="Close World context" @click="contextDialog?.close()"><X :size="18" /></button></header>
       <section class="context-section"><h3>Worlds</h3><div class="context-list"><button v-for="world in worldChoices" :key="world.worldId" :aria-current="state.worldId === world.worldId ? 'true' : undefined" @click="navigate(world.worldId, world.revisionId)"><span>{{ world.title }}</span><Check v-if="state.worldId === world.worldId" :size="15" /></button></div></section>
       <section class="context-section"><h3>Revision</h3><div class="context-list"><button v-for="revision in revisionChoices" :key="revision.revisionId" :aria-current="state.revisionId === revision.revisionId ? 'true' : undefined" @click="navigate(state.worldId, revision.revisionId, true)"><span>{{ revision.title }}</span><Check v-if="state.revisionId === revision.revisionId" :size="15" /></button></div></section>
-      <details class="context-section"><summary>Model details</summary><dl class="metadata"><dt>World</dt><dd>{{ state.worldId }}</dd><dt>Revision</dt><dd>{{ state.revisionId }}</dd><dt>Environment</dt><dd>{{ snapshot?.environment.title ?? 'Unknown' }}</dd><dt>Phase</dt><dd>{{ snapshot?.phase ?? 'Unknown' }}</dd><dt>State</dt><dd>{{ snapshot?.stateKind ?? 'Unknown' }}</dd><dt>Model readiness</dt><dd>{{ readiness?.status ?? 'unknown' }}</dd><dt>Outcomes</dt><dd>Unknown. No observation reported.</dd><dt>Deployment</dt><dd>{{ isLocal ? 'Not deployed' : 'Unavailable for this example' }}</dd></dl></details>
+      <details class="context-section"><summary>Model details</summary><dl class="metadata"><dt>World</dt><dd>{{ state.worldId }}</dd><dt>Revision</dt><dd>{{ state.revisionId }}</dd><dt>Environment</dt><dd>{{ snapshot?.environment.title ?? 'Unknown' }}</dd><dt>Phase</dt><dd>{{ snapshot?.phase ?? 'Unknown' }}</dd><dt>State</dt><dd>{{ snapshot?.stateKind ?? 'Unknown' }}</dd><dt>Model readiness</dt><dd>{{ readiness?.status ?? 'unknown' }}</dd><dt>Outcomes</dt><dd>Unknown. No observation reported.</dd><dt>Deployment</dt><dd>{{ isHosted ? 'Hosted deployment available' : isLocal ? 'Not deployed' : 'Unavailable for this example' }}</dd></dl></details>
+      <section v-if="isHosted" class="context-section"><h3>Cloudflare</h3><button class="secondary" @click="connectionOpen = true">{{ connection?.status === 'connected' ? 'Manage connection' : 'Connect Cloudflare' }}</button></section>
     </dialog>
+    <CloudflareConnectionDialog :open="connectionOpen" :connection="connection" :pending="!!pending" :error="connectionError" @close="connectionOpen = false" @start="connectCloudflare" @select-account="confirmCloudflareAccount" @disconnect="disconnectCloudflare" />
   </div>
 </template>

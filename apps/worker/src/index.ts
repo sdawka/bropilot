@@ -7,8 +7,12 @@ import unknown from '@bropilot/contracts/fixtures/assistant-unknown.json';
 import { query } from '../../../packages/core-wasm/bropilot_core_wasm.js';
 import { RUNNER_HASH, RUNNER_REF } from './runner-manifest.js';
 import { LocalWorldDirectory, WorldAuthority, type LocalEnv, type WorldSummary } from './authority.js';
+import { hostedEnabled, hostedRoute, hostedRevisionAllowed, type HostedEnv } from './hosted.js';
 
 export { LocalWorldDirectory, WorldAuthority };
+export { IdentityStore } from './identity.js';
+export { CloudflareConnectionStore } from './cloudflare/oauth.js';
+export { TargetDeploymentAuthority, DeploymentWorkflow } from './cloudflare/deployment.js';
 
 const snapshots: Record<string, { worldId: string; revisionId: string }> = {
   'assistant-valid': valid, 'assistant-missing': missing,
@@ -79,7 +83,7 @@ async function jsonBody(request: Request): Promise<unknown | Response> {
 function record(value: unknown): Record<string, unknown> | undefined {
   return value !== null && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : undefined;
 }
-function localEnabled(env: LocalEnv) { return env.LOCAL_WORKSPACE === 'enabled'; }
+function localEnabled(env: LocalEnv) { return env.LOCAL_WORKSPACE === 'enabled' && (!('AUTH_MODE' in env) || env.AUTH_MODE !== 'hosted'); }
 function sameOriginRequest(request: Request): boolean {
   const url = new URL(request.url);
   if (!LOOPBACK_HOSTS.has(url.hostname)) return false;
@@ -254,16 +258,27 @@ export default {
         const fixture = Object.hasOwn(snapshots, revisionId) ? snapshots[revisionId] : undefined;
         if (fixture?.worldId === worldId) return run(JSON.stringify({ apiVersion: 1, snapshot: fixture, query: { kind: 'workspace' } }));
         if (Object.values(snapshots).some((item) => item.worldId === worldId)) return error('revision_not_found', 'This pinned example revision is unavailable.', 404);
-        const principal = await requireRole(request, env, ['owner']); if (principal instanceof Response) return principal;
+        if (hostedEnabled(env)) {
+          const denied = await hostedRevisionAllowed(request, env, worldId); if (denied) return denied;
+        } else {
+          const principal = await requireRole(request, env, ['owner']); if (principal instanceof Response) return principal;
+        }
         if (!validWorldId(worldId)) return error('invalid_identity', 'Invalid World identity.', 400);
         const local = await authority(env, worldId).getRevision(revisionId);
         return local ? run(JSON.stringify({ apiVersion: 1, snapshot: local, query: { kind: 'workspace' } })) : error('revision_not_found', 'This pinned revision is unavailable.', 404);
       }
-      return await localRoute(request, env, path) ?? error('route_not_found', 'This API route is unavailable.', 404);
+      if (hostedEnabled(env)) return await hostedRoute(request, env, path,
+        { sources: { working: WORKING_SOURCE, brokenHealth: BROKEN_HEALTH_SOURCE }, runnerHash: RUNNER_HASH, runnerRef: RUNNER_REF },
+        Object.values(snapshots).map(item => item.worldId)) ?? error('route_not_found', 'This API route is unavailable.', 404);
+      const localPath = path === '/api/v1/session' ? '/api/v1/local/session' : path === '/api/v1/kit' ? '/api/v1/local-kit' : path;
+      return await localRoute(request, env, localPath) ?? error('route_not_found', 'This API route is unavailable.', 404);
     } catch (cause) {
       if (cause instanceof URIError) return error('invalid_identity', 'Malformed World or revision identity.', 400);
+      if (cause instanceof Error && cause.name === 'ArtifactSourceError' && 'code' in cause && typeof cause.code === 'string') {
+        return error(cause.code, cause.message, ['invalid_source', 'invalid_path', 'resource_limit'].includes(cause.code) ? 400 : 503);
+      }
       console.error(JSON.stringify({ event: 'worker_request_failed', error: cause instanceof Error ? cause.name : 'UnknownError' }));
       return error('core_unavailable', 'The World service could not complete this request.', 500);
     }
   },
-} satisfies ExportedHandler<LocalEnv>;
+} satisfies ExportedHandler<HostedEnv>;

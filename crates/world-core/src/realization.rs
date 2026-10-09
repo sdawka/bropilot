@@ -18,6 +18,10 @@ pub const MAX_MOVES: usize = 32;
 pub const MAX_RUNS: usize = 32;
 pub const MAX_REVISIONS: usize = 64;
 pub const MAX_RECEIPTS: usize = 128;
+pub const MAX_RETAINED_PACKAGES: usize = 64;
+pub const MAX_DEPLOYMENTS: usize = 64;
+pub const MAX_RUNTIME_OBSERVATIONS: usize = 128;
+pub const MAX_DEPLOYMENT_TARGETS: usize = 16;
 pub const LEASE_DURATION_MS: u64 = 120_000;
 
 macro_rules! wire_type {
@@ -37,7 +41,74 @@ pub enum Actor {
     Owner,
     Implementer,
     Verifier,
+    Deployer,
+    System,
 }
+
+wire_type!(
+    pub struct PrincipalContext {
+        pub principal_id: String,
+        pub role: Actor,
+        pub world_id: String,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        pub move_id: Option<String>,
+        pub operations: Vec<String>,
+        #[ts(type = "number")]
+        pub expires_at_ms: u64,
+    }
+);
+
+wire_type!(
+    pub struct ArtifactSourceRef {
+        pub namespace: String,
+        pub repo_id: String,
+        pub repo_name: String,
+        pub commit_sha: String,
+        pub tree_sha: String,
+        pub content_digest: String,
+    }
+);
+
+wire_type!(
+    pub struct SourceRepository {
+        pub namespace: String,
+        pub repo_id: String,
+        pub repo_name: String,
+    }
+);
+
+wire_type!(
+    pub struct RetainedPackageRef {
+        pub key: String,
+        pub package_digest: String,
+        pub build_digest: String,
+        pub source_digest: String,
+        pub source_ref: ArtifactSourceRef,
+        pub contract_hash: String,
+        pub plan_hash: String,
+        pub runner_hash: String,
+        pub run_id: String,
+    }
+);
+
+wire_type!(
+    pub struct DeploymentTarget {
+        pub target_id: String,
+        pub thing_id: String,
+        pub connection_id: String,
+        pub account_id: String,
+        pub worker_name: String,
+        pub owner_principal_id: String,
+    }
+);
+
+wire_type!(
+    pub struct HostedWorldConfig {
+        pub source_repository: SourceRepository,
+        pub deployment_targets: Vec<DeploymentTarget>,
+    }
+);
 
 wire_type!(
     pub struct SourceBundle {
@@ -121,6 +192,9 @@ wire_type!(
         pub base_revision_id: String,
         pub source: SourceBundle,
         pub source_digest: String,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        pub source_ref: Option<ArtifactSourceRef>,
         pub contract_hash: String,
         pub submitted_by: Actor,
         #[ts(type = "number")]
@@ -198,6 +272,9 @@ wire_type!(
         #[serde(skip_serializing_if = "Option::is_none")]
         #[ts(optional)]
         pub build_digest: Option<String>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        pub package_ref: Option<RetainedPackageRef>,
         pub observations: Vec<AssayObservation>,
         pub aggregate: VerificationAggregate,
         #[ts(type = "number")]
@@ -231,9 +308,70 @@ wire_type!(
         #[serde(skip_serializing_if = "Option::is_none")]
         #[ts(optional)]
         pub candidate_id: Option<String>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        pub package_ref: Option<RetainedPackageRef>,
         pub created_by: Actor,
         #[ts(type = "number")]
         pub created_at_ms: u64,
+    }
+);
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(rename_all = "camelCase")]
+pub enum DeploymentStatus {
+    Queued,
+    Running,
+    Succeeded,
+    Failed,
+    Uncertain,
+}
+
+wire_type!(
+    pub struct DeploymentRecord {
+        pub deployment_id: String,
+        pub job_id: String,
+        pub target_id: String,
+        pub revision_id: String,
+        pub package_ref: RetainedPackageRef,
+        pub requester_principal_id: String,
+        pub status: DeploymentStatus,
+        pub progress_seq: u32,
+        pub publication_authorized: bool,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        pub rollback_of_deployment_id: Option<String>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        pub expected_head_revision_id: Option<String>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        pub expected_active_provider_version_id: Option<String>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        pub provider_version_id: Option<String>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        pub url: Option<String>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        pub failure: Option<String>,
+        #[ts(type = "number")]
+        pub created_at_ms: u64,
+        #[ts(type = "number")]
+        pub updated_at_ms: u64,
+    }
+);
+
+wire_type!(
+    pub struct RuntimeObservation {
+        pub observation_id: String,
+        pub deployment_id: String,
+        pub healthy: bool,
+        pub summary: String,
+        #[ts(type = "number")]
+        pub observed_at_ms: u64,
     }
 );
 
@@ -258,12 +396,22 @@ wire_type!(
         pub runs: Vec<VerificationRun>,
         pub revisions: Vec<WorldRevisionRecord>,
         pub receipts: Vec<IdempotencyReceipt>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        pub hosted: Option<HostedWorldConfig>,
+        #[serde(default)]
+        pub retained_packages: Vec<RetainedPackageRef>,
+        #[serde(default)]
+        pub deployments: Vec<DeploymentRecord>,
+        #[serde(default)]
+        pub runtime_observations: Vec<RuntimeObservation>,
     }
 );
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, TS)]
 #[serde(tag = "kind", rename_all = "camelCase")]
 #[ts(tag = "kind", rename_all = "camelCase")]
+#[allow(clippy::large_enum_variant)]
 pub enum WorldCommand {
     CreateWorld {
         #[serde(rename = "worldId")]
@@ -273,6 +421,24 @@ pub enum WorldCommand {
         #[serde(rename = "runnerHash")]
         #[ts(rename = "runnerHash")]
         runner_hash: String,
+        #[serde(rename = "requestId")]
+        #[ts(rename = "requestId")]
+        request_id: String,
+    },
+    CreateHostedWorld {
+        #[serde(rename = "worldId")]
+        #[ts(rename = "worldId")]
+        world_id: String,
+        title: String,
+        #[serde(rename = "runnerHash")]
+        #[ts(rename = "runnerHash")]
+        runner_hash: String,
+        #[serde(rename = "sourceRepository")]
+        #[ts(rename = "sourceRepository")]
+        source_repository: SourceRepository,
+        #[serde(rename = "deploymentTargets")]
+        #[ts(rename = "deploymentTargets")]
+        deployment_targets: Vec<DeploymentTarget>,
         #[serde(rename = "requestId")]
         #[ts(rename = "requestId")]
         request_id: String,
@@ -294,6 +460,21 @@ pub enum WorldCommand {
         #[ts(rename = "candidateId")]
         candidate_id: String,
         source: SourceBundle,
+        #[serde(rename = "requestId")]
+        #[ts(rename = "requestId")]
+        request_id: String,
+    },
+    SubmitHostedCandidate {
+        #[serde(rename = "moveId")]
+        #[ts(rename = "moveId")]
+        move_id: String,
+        #[serde(rename = "candidateId")]
+        #[ts(rename = "candidateId")]
+        candidate_id: String,
+        source: SourceBundle,
+        #[serde(rename = "sourceRef")]
+        #[ts(rename = "sourceRef")]
+        source_ref: ArtifactSourceRef,
         #[serde(rename = "requestId")]
         #[ts(rename = "requestId")]
         request_id: String,
@@ -347,6 +528,32 @@ pub enum WorldCommand {
         #[ts(rename = "requestId")]
         request_id: String,
     },
+    CompleteHostedRun {
+        #[serde(rename = "runId")]
+        #[ts(rename = "runId")]
+        run_id: String,
+        #[serde(rename = "leaseId")]
+        #[ts(rename = "leaseId")]
+        lease_id: String,
+        #[serde(rename = "sourceDigest")]
+        #[ts(rename = "sourceDigest")]
+        source_digest: String,
+        #[serde(rename = "contractHash")]
+        #[ts(rename = "contractHash")]
+        contract_hash: String,
+        #[serde(rename = "planHash")]
+        #[ts(rename = "planHash")]
+        plan_hash: String,
+        #[serde(rename = "packageRef")]
+        #[ts(rename = "packageRef")]
+        #[serde(default)]
+        #[ts(optional)]
+        package_ref: Option<RetainedPackageRef>,
+        observations: Vec<AssayObservation>,
+        #[serde(rename = "requestId")]
+        #[ts(rename = "requestId")]
+        request_id: String,
+    },
     Promote {
         #[serde(rename = "candidateId")]
         #[ts(rename = "candidateId")]
@@ -358,18 +565,132 @@ pub enum WorldCommand {
         #[ts(rename = "requestId")]
         request_id: String,
     },
+    RequestDeployment {
+        #[serde(rename = "deploymentId")]
+        #[ts(rename = "deploymentId")]
+        deployment_id: String,
+        #[serde(rename = "targetId")]
+        #[ts(rename = "targetId")]
+        target_id: String,
+        #[serde(rename = "revisionId")]
+        #[ts(rename = "revisionId")]
+        revision_id: String,
+        #[serde(rename = "expectedHeadRevisionId")]
+        #[ts(rename = "expectedHeadRevisionId")]
+        expected_head_revision_id: String,
+        #[serde(rename = "requestId")]
+        #[ts(rename = "requestId")]
+        request_id: String,
+    },
+    RegisterDeploymentTarget {
+        target: DeploymentTarget,
+        #[serde(rename = "requestId")]
+        #[ts(rename = "requestId")]
+        request_id: String,
+    },
+    AuthorizeDeploymentPublication {
+        #[serde(rename = "deploymentId")]
+        #[ts(rename = "deploymentId")]
+        deployment_id: String,
+        #[serde(rename = "progressSeq")]
+        #[ts(rename = "progressSeq")]
+        progress_seq: u32,
+        #[serde(rename = "requestId")]
+        #[ts(rename = "requestId")]
+        request_id: String,
+    },
+    UpdateDeployment {
+        #[serde(rename = "deploymentId")]
+        #[ts(rename = "deploymentId")]
+        deployment_id: String,
+        #[serde(rename = "progressSeq")]
+        #[ts(rename = "progressSeq")]
+        progress_seq: u32,
+        status: DeploymentStatus,
+        #[serde(rename = "providerVersionId")]
+        #[ts(rename = "providerVersionId")]
+        #[serde(default)]
+        #[ts(optional)]
+        provider_version_id: Option<String>,
+        #[serde(default)]
+        #[ts(optional)]
+        url: Option<String>,
+        #[serde(default)]
+        #[ts(optional)]
+        failure: Option<String>,
+        #[serde(rename = "requestId")]
+        #[ts(rename = "requestId")]
+        request_id: String,
+    },
+    RequestRollback {
+        #[serde(rename = "deploymentId")]
+        #[ts(rename = "deploymentId")]
+        deployment_id: String,
+        #[serde(rename = "targetId")]
+        #[ts(rename = "targetId")]
+        target_id: String,
+        #[serde(rename = "previousDeploymentId")]
+        #[ts(rename = "previousDeploymentId")]
+        previous_deployment_id: String,
+        #[serde(rename = "expectedActiveProviderVersionId")]
+        #[ts(rename = "expectedActiveProviderVersionId")]
+        expected_active_provider_version_id: String,
+        #[serde(rename = "requestId")]
+        #[ts(rename = "requestId")]
+        request_id: String,
+    },
+    RecordRuntimeObservation {
+        #[serde(rename = "deploymentId")]
+        #[ts(rename = "deploymentId")]
+        deployment_id: String,
+        healthy: bool,
+        summary: String,
+        #[serde(rename = "requestId")]
+        #[ts(rename = "requestId")]
+        request_id: String,
+    },
 }
 
 impl WorldCommand {
     fn request_id(&self) -> &str {
         match self {
             Self::CreateWorld { request_id, .. }
+            | Self::CreateHostedWorld { request_id, .. }
             | Self::CreateMove { request_id, .. }
             | Self::SubmitCandidate { request_id, .. }
+            | Self::SubmitHostedCandidate { request_id, .. }
             | Self::StartVerification { request_id, .. }
             | Self::ClaimRun { request_id, .. }
             | Self::CompleteRun { request_id, .. }
-            | Self::Promote { request_id, .. } => request_id,
+            | Self::CompleteHostedRun { request_id, .. }
+            | Self::Promote { request_id, .. }
+            | Self::RequestDeployment { request_id, .. }
+            | Self::RegisterDeploymentTarget { request_id, .. }
+            | Self::AuthorizeDeploymentPublication { request_id, .. }
+            | Self::UpdateDeployment { request_id, .. }
+            | Self::RequestRollback { request_id, .. }
+            | Self::RecordRuntimeObservation { request_id, .. } => request_id,
+        }
+    }
+
+    fn operation(&self) -> &'static str {
+        match self {
+            Self::CreateWorld { .. } => "createWorld",
+            Self::CreateHostedWorld { .. } => "createHostedWorld",
+            Self::CreateMove { .. } => "createMove",
+            Self::SubmitCandidate { .. } => "submitCandidate",
+            Self::SubmitHostedCandidate { .. } => "submitHostedCandidate",
+            Self::StartVerification { .. } => "startVerification",
+            Self::ClaimRun { .. } => "claimRun",
+            Self::CompleteRun { .. } => "completeRun",
+            Self::CompleteHostedRun { .. } => "completeHostedRun",
+            Self::Promote { .. } => "promote",
+            Self::RequestDeployment { .. } => "requestDeployment",
+            Self::RegisterDeploymentTarget { .. } => "registerDeploymentTarget",
+            Self::AuthorizeDeploymentPublication { .. } => "authorizeDeploymentPublication",
+            Self::UpdateDeployment { .. } => "updateDeployment",
+            Self::RequestRollback { .. } => "requestRollback",
+            Self::RecordRuntimeObservation { .. } => "recordRuntimeObservation",
         }
     }
 }
@@ -379,6 +700,9 @@ wire_type!(
         pub api_version: u32,
         pub state: Option<Box<WorldState>>,
         pub actor: Actor,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        pub principal: Option<PrincipalContext>,
         #[ts(type = "number")]
         pub now_ms: u64,
         pub command: WorldCommand,
@@ -400,12 +724,31 @@ pub enum WorldCommandResult {
         #[ts(rename = "moveId")]
         move_id: String,
     },
+    HostedWorldCreated {
+        #[serde(rename = "worldId")]
+        #[ts(rename = "worldId")]
+        world_id: String,
+        #[serde(rename = "revisionId")]
+        #[ts(rename = "revisionId")]
+        revision_id: String,
+        #[serde(rename = "moveId")]
+        #[ts(rename = "moveId")]
+        move_id: String,
+    },
     MoveCreated {
         #[serde(rename = "moveId")]
         #[ts(rename = "moveId")]
         move_id: String,
     },
     CandidateSubmitted {
+        #[serde(rename = "candidateId")]
+        #[ts(rename = "candidateId")]
+        candidate_id: String,
+        #[serde(rename = "sourceDigest")]
+        #[ts(rename = "sourceDigest")]
+        source_digest: String,
+    },
+    HostedCandidateSubmitted {
         #[serde(rename = "candidateId")]
         #[ts(rename = "candidateId")]
         candidate_id: String,
@@ -435,6 +778,15 @@ pub enum WorldCommandResult {
         run_id: String,
         aggregate: VerificationAggregate,
     },
+    HostedRunCompleted {
+        #[serde(rename = "runId")]
+        #[ts(rename = "runId")]
+        run_id: String,
+        aggregate: VerificationAggregate,
+        #[serde(rename = "packageDigest")]
+        #[ts(rename = "packageDigest")]
+        package_digest: Option<String>,
+    },
     CandidatePromoted {
         #[serde(rename = "candidateId")]
         #[ts(rename = "candidateId")]
@@ -442,6 +794,44 @@ pub enum WorldCommandResult {
         #[serde(rename = "revisionId")]
         #[ts(rename = "revisionId")]
         revision_id: String,
+    },
+    DeploymentRequested {
+        #[serde(rename = "deploymentId")]
+        #[ts(rename = "deploymentId")]
+        deployment_id: String,
+        #[serde(rename = "jobId")]
+        #[ts(rename = "jobId")]
+        job_id: String,
+    },
+    DeploymentTargetRegistered {
+        #[serde(rename = "targetId")]
+        #[ts(rename = "targetId")]
+        target_id: String,
+        reused: bool,
+    },
+    DeploymentPublicationAuthorized {
+        #[serde(rename = "deploymentId")]
+        #[ts(rename = "deploymentId")]
+        deployment_id: String,
+    },
+    DeploymentUpdated {
+        #[serde(rename = "deploymentId")]
+        #[ts(rename = "deploymentId")]
+        deployment_id: String,
+        status: DeploymentStatus,
+    },
+    RollbackRequested {
+        #[serde(rename = "deploymentId")]
+        #[ts(rename = "deploymentId")]
+        deployment_id: String,
+        #[serde(rename = "jobId")]
+        #[ts(rename = "jobId")]
+        job_id: String,
+    },
+    RuntimeObservationRecorded {
+        #[serde(rename = "observationId")]
+        #[ts(rename = "observationId")]
+        observation_id: String,
     },
 }
 
@@ -548,6 +938,152 @@ fn validate_source(source: &SourceBundle) -> Result<(), CommandError> {
         return Err(fail(
             "resource_limit",
             format!("source exceeds {MAX_SOURCE_BYTES} bytes"),
+        ));
+    }
+    Ok(())
+}
+
+fn is_git_hash(value: &str) -> bool {
+    matches!(value.len(), 40 | 64)
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_hexdigit() && !byte.is_ascii_uppercase())
+}
+
+fn validate_repository(repository: &SourceRepository) -> Result<(), CommandError> {
+    validate_text("repository namespace", &repository.namespace, 128)?;
+    validate_text("repository id", &repository.repo_id, 128)?;
+    validate_text("repository name", &repository.repo_name, 128)
+}
+
+fn validate_source_ref(
+    source_ref: &ArtifactSourceRef,
+    repository: &SourceRepository,
+) -> Result<(), CommandError> {
+    validate_text("source namespace", &source_ref.namespace, 128)?;
+    validate_text("source repository id", &source_ref.repo_id, 128)?;
+    validate_text("source repository name", &source_ref.repo_name, 128)?;
+    if source_ref.namespace != repository.namespace
+        || source_ref.repo_id != repository.repo_id
+        || source_ref.repo_name != repository.repo_name
+    {
+        return Err(fail(
+            "binding_mismatch",
+            "sourceRef does not belong to the hosted repository",
+        ));
+    }
+    if !is_git_hash(&source_ref.commit_sha)
+        || !is_git_hash(&source_ref.tree_sha)
+        || !is_sha256(&source_ref.content_digest)
+    {
+        return Err(fail(
+            "invalid_input",
+            "sourceRef hashes are not canonical immutable digests",
+        ));
+    }
+    Ok(())
+}
+
+fn validate_target(target: &DeploymentTarget) -> Result<(), CommandError> {
+    validate_text("targetId", &target.target_id, 128)?;
+    validate_text("thingId", &target.thing_id, 128)?;
+    validate_text("connectionId", &target.connection_id, 128)?;
+    validate_text("accountId", &target.account_id, 128)?;
+    validate_text("workerName", &target.worker_name, 128)?;
+    validate_text("ownerPrincipalId", &target.owner_principal_id, 128)?;
+    if target.thing_id != "web-app" {
+        return Err(fail("invalid_input", "deployment target must bind web-app"));
+    }
+    Ok(())
+}
+
+fn command_move_id<'a>(
+    command: &'a WorldCommand,
+    state: Option<&'a WorldState>,
+) -> Option<&'a str> {
+    match command {
+        WorldCommand::CreateMove { move_id, .. }
+        | WorldCommand::SubmitCandidate { move_id, .. }
+        | WorldCommand::SubmitHostedCandidate { move_id, .. } => Some(move_id),
+        WorldCommand::StartVerification { candidate_id, .. }
+        | WorldCommand::Promote { candidate_id, .. } => state?
+            .candidates
+            .iter()
+            .find(|candidate| candidate.candidate_id == *candidate_id)
+            .map(|candidate| candidate.move_id.as_str()),
+        WorldCommand::ClaimRun { run_id, .. }
+        | WorldCommand::CompleteRun { run_id, .. }
+        | WorldCommand::CompleteHostedRun { run_id, .. } => {
+            let state = state?;
+            let candidate_id = state
+                .runs
+                .iter()
+                .find(|run| run.run_id == *run_id)?
+                .candidate_id
+                .as_str();
+            state
+                .candidates
+                .iter()
+                .find(|candidate| candidate.candidate_id == candidate_id)
+                .map(|candidate| candidate.move_id.as_str())
+        }
+        _ => None,
+    }
+}
+
+fn validate_principal(
+    principal: Option<&PrincipalContext>,
+    actor: &Actor,
+    now_ms: u64,
+    world_id: &str,
+    state: Option<&WorldState>,
+    command: &WorldCommand,
+) -> Result<(), CommandError> {
+    let principal = principal.ok_or_else(|| {
+        fail(
+            "principal_required",
+            "hosted World commands require trusted principal context",
+        )
+    })?;
+    validate_text("principalId", &principal.principal_id, 128)?;
+    if principal.expires_at_ms <= now_ms {
+        return Err(fail("principal_expired", "principal context has expired"));
+    }
+    if principal.world_id != world_id {
+        return Err(fail(
+            "principal_scope_mismatch",
+            "principal is scoped to a different World",
+        ));
+    }
+    if let Some(scoped_move) = &principal.move_id
+        && command_move_id(command, state) != Some(scoped_move.as_str())
+    {
+        return Err(fail(
+            "principal_scope_mismatch",
+            "principal is scoped to a different Move",
+        ));
+    }
+    if principal.operations.len() > 32
+        || !principal
+            .operations
+            .iter()
+            .any(|operation| operation == command.operation())
+    {
+        return Err(fail(
+            "principal_operation_forbidden",
+            "principal does not grant this operation",
+        ));
+    }
+    for operation in &principal.operations {
+        validate_text("principal operation", operation, 128)?;
+    }
+    let owner_implementing = principal.role == Actor::Owner
+        && actor == &Actor::Implementer
+        && matches!(command, WorldCommand::SubmitHostedCandidate { .. });
+    if principal.role != *actor && !owner_implementing {
+        return Err(fail(
+            "principal_role_mismatch",
+            "principal role does not authorize the effective actor",
         ));
     }
     Ok(())
@@ -1082,14 +1618,62 @@ fn initial_state(
             revision_id: revision_id.clone(),
             parent_revision_id: None,
             candidate_id: None,
+            package_ref: None,
             created_by: actor.clone(),
             created_at_ms: now_ms,
         }],
         receipts: Vec::new(),
+        hosted: None,
+        retained_packages: Vec::new(),
+        deployments: Vec::new(),
+        runtime_observations: Vec::new(),
     };
     Ok((
         state,
         WorldCommandResult::WorldCreated {
+            world_id,
+            revision_id,
+            move_id,
+        },
+    ))
+}
+
+fn initial_hosted_state(
+    actor: &Actor,
+    now_ms: u64,
+    world_id: String,
+    title: String,
+    runner_hash: &str,
+    source_repository: SourceRepository,
+    deployment_targets: Vec<DeploymentTarget>,
+) -> Result<(WorldState, WorldCommandResult), CommandError> {
+    validate_repository(&source_repository)?;
+    if deployment_targets.len() > MAX_DEPLOYMENT_TARGETS {
+        return Err(fail("resource_limit", "deployment target limit reached"));
+    }
+    let mut target_ids = BTreeSet::new();
+    for target in &deployment_targets {
+        validate_target(target)?;
+        if !target_ids.insert(target.target_id.as_str()) {
+            return Err(fail("duplicate_id", "targetId already exists"));
+        }
+    }
+    let (mut state, result) = initial_state(actor, now_ms, world_id, title, runner_hash)?;
+    state.hosted = Some(HostedWorldConfig {
+        source_repository,
+        deployment_targets,
+    });
+    let WorldCommandResult::WorldCreated {
+        world_id,
+        revision_id,
+        move_id,
+    } = result
+    else {
+        unreachable!("initial state always creates a World")
+    };
+    Ok((
+        state,
+        WorldCommandResult::HostedWorldCreated {
             world_id,
             revision_id,
             move_id,
@@ -1181,6 +1765,47 @@ fn validate_observations(
     )
 }
 
+fn validate_package_binding(
+    package: &RetainedPackageRef,
+    run: &VerificationRun,
+    candidate: &Candidate,
+    state: &WorldState,
+) -> Result<(), CommandError> {
+    validate_text("package key", &package.key, 512)?;
+    if !is_sha256(&package.package_digest) || !is_sha256(&package.build_digest) {
+        return Err(fail(
+            "invalid_input",
+            "package and build digests must be lowercase SHA-256",
+        ));
+    }
+    let candidate_source_ref = candidate.source_ref.as_ref().ok_or_else(|| {
+        fail(
+            "binding_mismatch",
+            "hosted package requires an immutable candidate sourceRef",
+        )
+    })?;
+    let hosted = state.hosted.as_ref().ok_or_else(|| {
+        fail(
+            "invalid_state",
+            "hosted package requires hosted World state",
+        )
+    })?;
+    validate_source_ref(&package.source_ref, &hosted.source_repository)?;
+    if package.source_digest != run.source_digest
+        || package.source_ref != *candidate_source_ref
+        || package.contract_hash != run.contract_hash
+        || package.plan_hash != run.plan_hash
+        || package.runner_hash != state.kit.runner_hash
+        || package.run_id != run.run_id
+    {
+        return Err(fail(
+            "binding_mismatch",
+            "retained package does not match the exact trusted run",
+        ));
+    }
+    Ok(())
+}
+
 #[allow(clippy::too_many_lines)]
 fn validate_state(state: &WorldState) -> Result<(), CommandError> {
     if state.candidates.len() > MAX_CANDIDATES
@@ -1188,8 +1813,32 @@ fn validate_state(state: &WorldState) -> Result<(), CommandError> {
         || state.runs.len() > MAX_RUNS
         || state.revisions.len() > MAX_REVISIONS
         || state.receipts.len() > MAX_RECEIPTS
+        || state.retained_packages.len() > MAX_RETAINED_PACKAGES
+        || state.deployments.len() > MAX_DEPLOYMENTS
+        || state.runtime_observations.len() > MAX_RUNTIME_OBSERVATIONS
     {
         return Err(fail("resource_limit", "World state record limit exceeded"));
+    }
+    if let Some(hosted) = &state.hosted {
+        validate_repository(&hosted.source_repository)?;
+        if hosted.deployment_targets.len() > MAX_DEPLOYMENT_TARGETS {
+            return Err(fail("resource_limit", "deployment target limit reached"));
+        }
+        let mut target_ids = BTreeSet::new();
+        for target in &hosted.deployment_targets {
+            validate_target(target)?;
+            if !target_ids.insert(target.target_id.as_str()) {
+                return Err(fail(
+                    "invalid_state",
+                    "deployment target IDs are not unique",
+                ));
+            }
+        }
+    } else if !state.retained_packages.is_empty()
+        || !state.deployments.is_empty()
+        || !state.runtime_observations.is_empty()
+    {
+        return Err(fail("invalid_state", "local World contains hosted records"));
     }
     let (expected_kit, expected_plan, expected_contract_hash) =
         built_in_contract(&state.kit.runner_hash)?;
@@ -1248,6 +1897,21 @@ fn validate_state(state: &WorldState) -> Result<(), CommandError> {
                 "candidate identity, source digest, or Move binding is invalid",
             ));
         }
+        match (&state.hosted, &candidate.source_ref) {
+            (Some(hosted), Some(source_ref)) => {
+                validate_source_ref(source_ref, &hosted.source_repository)?;
+            }
+            (Some(_), None) => {
+                return Err(fail("invalid_state", "hosted candidate has no sourceRef"));
+            }
+            (None, Some(_)) => {
+                return Err(fail(
+                    "invalid_state",
+                    "local candidate contains hosted sourceRef",
+                ));
+            }
+            (None, None) => {}
+        }
     }
     let mut run_ids = BTreeSet::new();
     let mut run_candidates = BTreeSet::new();
@@ -1280,6 +1944,102 @@ fn validate_state(state: &WorldState) -> Result<(), CommandError> {
             {
                 return Err(fail("invalid_state", "evaluation provenance is invalid"));
             }
+            if let Some(package) = &evaluation.package_ref {
+                validate_package_binding(package, run, candidate, state)?;
+                if evaluation.build_digest.as_ref() != Some(&package.build_digest) {
+                    return Err(fail(
+                        "invalid_state",
+                        "package build digest is inconsistent",
+                    ));
+                }
+            }
+        }
+    }
+    let mut package_keys = BTreeSet::new();
+    for package in &state.retained_packages {
+        if !package_keys.insert(package.key.as_str()) {
+            return Err(fail(
+                "invalid_state",
+                "retained package keys are not unique",
+            ));
+        }
+        let run = state
+            .runs
+            .iter()
+            .find(|run| run.run_id == package.run_id)
+            .ok_or_else(|| fail("invalid_state", "retained package run is missing"))?;
+        let candidate = state
+            .candidates
+            .iter()
+            .find(|candidate| candidate.candidate_id == run.candidate_id)
+            .ok_or_else(|| fail("invalid_state", "retained package candidate is missing"))?;
+        validate_package_binding(package, run, candidate, state)?;
+    }
+    let mut deployment_ids = BTreeSet::new();
+    let mut active_targets = BTreeSet::new();
+    for deployment in &state.deployments {
+        if !deployment_ids.insert(deployment.deployment_id.as_str())
+            || deployment.job_id != format!("job:{}", deployment.deployment_id)
+            || !state.retained_packages.contains(&deployment.package_ref)
+            || !state.revisions.iter().any(|revision| {
+                revision.revision_id == deployment.revision_id
+                    && revision.package_ref.as_ref() == Some(&deployment.package_ref)
+            })
+        {
+            return Err(fail(
+                "invalid_state",
+                "deployment lineage or package is invalid",
+            ));
+        }
+        if !state.hosted.as_ref().is_some_and(|hosted| {
+            hosted
+                .deployment_targets
+                .iter()
+                .any(|target| target.target_id == deployment.target_id)
+        }) {
+            return Err(fail("invalid_state", "deployment target is missing"));
+        }
+        if matches!(
+            deployment.status,
+            DeploymentStatus::Queued | DeploymentStatus::Running | DeploymentStatus::Uncertain
+        ) && !active_targets.insert(deployment.target_id.as_str())
+        {
+            return Err(fail(
+                "invalid_state",
+                "target has multiple active deployment jobs",
+            ));
+        }
+        if deployment.status == DeploymentStatus::Succeeded
+            && (!deployment.publication_authorized
+                || deployment.provider_version_id.is_none()
+                || deployment.url.is_none())
+        {
+            return Err(fail(
+                "invalid_state",
+                "successful deployment lacks publication facts",
+            ));
+        }
+        if !matches!(
+            deployment.status,
+            DeploymentStatus::Queued | DeploymentStatus::Failed
+        ) && !deployment.publication_authorized
+        {
+            return Err(fail(
+                "invalid_state",
+                "deployment progress lacks publication authorization",
+            ));
+        }
+    }
+    for observation in &state.runtime_observations {
+        validate_text("runtime observation summary", &observation.summary, 1_024)?;
+        if !state.deployments.iter().any(|deployment| {
+            deployment.deployment_id == observation.deployment_id
+                && deployment.status == DeploymentStatus::Succeeded
+        }) {
+            return Err(fail(
+                "invalid_state",
+                "runtime observation deployment is invalid",
+            ));
         }
     }
     let mut request_ids = BTreeSet::new();
@@ -1300,11 +2060,12 @@ fn validate_state(state: &WorldState) -> Result<(), CommandError> {
 fn apply_command(
     mut state: WorldState,
     actor: &Actor,
+    principal: Option<&PrincipalContext>,
     now_ms: u64,
     command: &WorldCommand,
 ) -> Result<(WorldState, WorldCommandResult), CommandError> {
     let result = match command {
-        WorldCommand::CreateWorld { .. } => {
+        WorldCommand::CreateWorld { .. } | WorldCommand::CreateHostedWorld { .. } => {
             return Err(fail(
                 "world_already_exists",
                 "state already contains a World",
@@ -1342,6 +2103,12 @@ fn apply_command(
             ..
         } => {
             require_actor(actor, &Actor::Implementer, "submit a candidate")?;
+            if state.hosted.is_some() {
+                return Err(fail(
+                    "invalid_command",
+                    "hosted World requires submitHostedCandidate",
+                ));
+            }
             validate_text("candidateId", candidate_id, 128)?;
             validate_source(source)?;
             if state.candidates.len() >= MAX_CANDIDATES {
@@ -1370,11 +2137,63 @@ fn apply_command(
                 base_revision_id: selected_move.base_revision_id.clone(),
                 source: source.clone(),
                 source_digest: source_digest.clone(),
+                source_ref: None,
                 contract_hash: selected_move.contract_hash.clone(),
                 submitted_by: actor.clone(),
                 submitted_at_ms: now_ms,
             });
             WorldCommandResult::CandidateSubmitted {
+                candidate_id: candidate_id.clone(),
+                source_digest,
+            }
+        }
+        WorldCommand::SubmitHostedCandidate {
+            move_id,
+            candidate_id,
+            source,
+            source_ref,
+            ..
+        } => {
+            require_actor(actor, &Actor::Implementer, "submit a hosted candidate")?;
+            let hosted = state
+                .hosted
+                .as_ref()
+                .ok_or_else(|| fail("invalid_command", "World is not hosted"))?;
+            validate_text("candidateId", candidate_id, 128)?;
+            validate_source(source)?;
+            validate_source_ref(source_ref, &hosted.source_repository)?;
+            if state.candidates.len() >= MAX_CANDIDATES {
+                return Err(fail("resource_limit", "candidate limit reached"));
+            }
+            if state
+                .candidates
+                .iter()
+                .any(|item| item.candidate_id == *candidate_id)
+            {
+                return Err(fail("duplicate_id", "candidateId already exists"));
+            }
+            let selected_move = state
+                .moves
+                .iter()
+                .find(|item| item.move_id == *move_id)
+                .ok_or_else(|| fail("not_found", "Move not found"))?;
+            if selected_move.status != MoveStatus::Open {
+                return Err(fail("move_closed", "Move is no longer open"));
+            }
+            let source_digest = hash(source)?;
+            state.candidates.push(Candidate {
+                candidate_id: candidate_id.clone(),
+                move_id: move_id.clone(),
+                desired_revision_id: selected_move.desired_revision_id.clone(),
+                base_revision_id: selected_move.base_revision_id.clone(),
+                source: source.clone(),
+                source_digest: source_digest.clone(),
+                source_ref: Some(source_ref.clone()),
+                contract_hash: selected_move.contract_hash.clone(),
+                submitted_by: actor.clone(),
+                submitted_at_ms: now_ms,
+            });
+            WorldCommandResult::HostedCandidateSubmitted {
                 candidate_id: candidate_id.clone(),
                 source_digest,
             }
@@ -1433,6 +2252,14 @@ fn apply_command(
             ..
         } => {
             require_actor(actor, &Actor::Verifier, "claim a run")?;
+            if state.hosted.is_some()
+                && principal.map(|context| context.principal_id.as_str()) != Some(verifier_id)
+            {
+                return Err(fail(
+                    "principal_identity_mismatch",
+                    "verifierId must match the trusted principal",
+                ));
+            }
             validate_text("leaseId", lease_id, 128)?;
             validate_text("verifierId", verifier_id, 128)?;
             if runner_hash != &state.kit.runner_hash {
@@ -1491,6 +2318,12 @@ fn apply_command(
             ..
         } => {
             require_actor(actor, &Actor::Verifier, "complete a run")?;
+            if state.hosted.is_some() {
+                return Err(fail(
+                    "invalid_command",
+                    "hosted World requires completeHostedRun",
+                ));
+            }
             let aggregate = validate_observations(&state.assay_plan, observations)?;
             let run = state
                 .runs
@@ -1535,6 +2368,7 @@ fn apply_command(
                 contract_hash: contract_hash.clone(),
                 plan_hash: plan_hash.clone(),
                 build_digest: build_digest.clone(),
+                package_ref: None,
                 observations: observations.clone(),
                 aggregate: aggregate.clone(),
                 completed_at_ms: now_ms,
@@ -1549,6 +2383,100 @@ fn apply_command(
             WorldCommandResult::RunCompleted {
                 run_id: run_id.clone(),
                 aggregate,
+            }
+        }
+        WorldCommand::CompleteHostedRun {
+            run_id,
+            lease_id,
+            source_digest,
+            contract_hash,
+            plan_hash,
+            package_ref,
+            observations,
+            ..
+        } => {
+            require_actor(actor, &Actor::Verifier, "complete a hosted run")?;
+            let aggregate = validate_observations(&state.assay_plan, observations)?;
+            let run_index = state
+                .runs
+                .iter()
+                .position(|item| item.run_id == *run_id)
+                .ok_or_else(|| fail("not_found", "verification run not found"))?;
+            let candidate = state
+                .candidates
+                .iter()
+                .find(|item| item.candidate_id == state.runs[run_index].candidate_id)
+                .ok_or_else(|| fail("invalid_state", "run candidate not found"))?;
+            if state.runs[run_index].source_digest != *source_digest
+                || state.runs[run_index].contract_hash != *contract_hash
+                || state.runs[run_index].plan_hash != *plan_hash
+            {
+                return Err(fail(
+                    "binding_mismatch",
+                    "completion hashes do not match the pinned run",
+                ));
+            }
+            if let Some(package) = package_ref {
+                validate_package_binding(package, &state.runs[run_index], candidate, &state)?;
+            } else if aggregate == VerificationAggregate::Ready {
+                return Err(fail(
+                    "binding_mismatch",
+                    "ready hosted completion requires a retained package",
+                ));
+            }
+            let run = &mut state.runs[run_index];
+            if run.status != RunStatus::Running {
+                return Err(fail("run_not_running", "run has no active execution"));
+            }
+            let lease = run
+                .active_lease
+                .as_ref()
+                .ok_or_else(|| fail("lease_mismatch", "run has no active lease"))?;
+            if lease.lease_id != *lease_id {
+                return Err(fail("lease_mismatch", "leaseId does not own this run"));
+            }
+            if lease.expires_at_ms <= now_ms {
+                return Err(fail("lease_expired", "run lease has expired"));
+            }
+            let has_execution_error = observations
+                .iter()
+                .any(|item| item.execution_status == ExecutionStatus::Error);
+            run.evaluations.push(AssayEvaluation {
+                verifier_id: lease.verifier_id.clone(),
+                attempt: run.attempt,
+                source_digest: run.source_digest.clone(),
+                contract_hash: run.contract_hash.clone(),
+                plan_hash: run.plan_hash.clone(),
+                build_digest: package_ref
+                    .as_ref()
+                    .map(|package| package.build_digest.clone()),
+                package_ref: package_ref.clone(),
+                observations: observations.clone(),
+                aggregate: aggregate.clone(),
+                completed_at_ms: now_ms,
+            });
+            run.aggregate = aggregate.clone();
+            run.status = if has_execution_error {
+                RunStatus::Error
+            } else {
+                RunStatus::Completed
+            };
+            run.active_lease = None;
+            if !has_execution_error
+                && let Some(package) = package_ref
+                && !state.retained_packages.contains(package)
+            {
+                if state.retained_packages.len() >= MAX_RETAINED_PACKAGES {
+                    return Err(fail("resource_limit", "retained package limit reached"));
+                }
+                state.retained_packages.push(package.clone());
+            }
+            WorldCommandResult::HostedRunCompleted {
+                run_id: run_id.clone(),
+                aggregate,
+                package_digest: package_ref
+                    .as_ref()
+                    .map(|package| package.package_digest.clone()),
             }
         }
         WorldCommand::Promote {
@@ -1598,7 +2526,23 @@ fn apply_command(
                     .observations
                     .iter()
                     .all(|item| item.result == AssayResult::Pass);
-            if !evidence_is_current {
+            let promotion_package = if state.hosted.is_some() {
+                evaluation
+                    .package_ref
+                    .as_ref()
+                    .filter(|package| {
+                        state.retained_packages.contains(package)
+                            && package.source_digest == candidate.source_digest
+                            && package.contract_hash == candidate.contract_hash
+                            && package.plan_hash == state.assay_plan.plan_hash
+                            && package.run_id == run.run_id
+                            && candidate.source_ref.as_ref() == Some(&package.source_ref)
+                    })
+                    .cloned()
+            } else {
+                None
+            };
+            if !evidence_is_current || (state.hosted.is_some() && promotion_package.is_none()) {
                 return Err(fail(
                     "promotion_blocked",
                     "mandatory trusted evidence is failed, unknown, invalid, or stale",
@@ -1622,6 +2566,7 @@ fn apply_command(
                 revision_id: revision_id.clone(),
                 parent_revision_id: Some(old_head),
                 candidate_id: Some(candidate_id.clone()),
+                package_ref: promotion_package,
                 created_by: actor.clone(),
                 created_at_ms: now_ms,
             });
@@ -1637,10 +2582,453 @@ fn apply_command(
                 revision_id,
             }
         }
+        WorldCommand::RegisterDeploymentTarget { target, .. } => {
+            require_actor(actor, &Actor::Owner, "register a deployment target")?;
+            validate_target(target)?;
+            let requester = principal.ok_or_else(|| {
+                fail(
+                    "principal_required",
+                    "target registration requires principal",
+                )
+            })?;
+            if target.owner_principal_id != requester.principal_id {
+                return Err(fail(
+                    "forbidden",
+                    "deployment target owner must match the trusted principal",
+                ));
+            }
+            let hosted = state
+                .hosted
+                .as_mut()
+                .ok_or_else(|| fail("invalid_command", "World is not hosted"))?;
+            if let Some(existing) = hosted
+                .deployment_targets
+                .iter()
+                .find(|item| item.target_id == target.target_id)
+            {
+                if existing != target {
+                    return Err(fail(
+                        "target_binding_conflict",
+                        "targetId is already bound to different provider identity",
+                    ));
+                }
+                WorldCommandResult::DeploymentTargetRegistered {
+                    target_id: target.target_id.clone(),
+                    reused: true,
+                }
+            } else {
+                if hosted.deployment_targets.len() >= MAX_DEPLOYMENT_TARGETS {
+                    return Err(fail("resource_limit", "deployment target limit reached"));
+                }
+                hosted.deployment_targets.push(target.clone());
+                WorldCommandResult::DeploymentTargetRegistered {
+                    target_id: target.target_id.clone(),
+                    reused: false,
+                }
+            }
+        }
+        WorldCommand::RequestDeployment {
+            deployment_id,
+            target_id,
+            revision_id,
+            expected_head_revision_id,
+            ..
+        } => {
+            require_actor(actor, &Actor::Owner, "request deployment")?;
+            validate_text("deploymentId", deployment_id, 128)?;
+            if state.deployments.len() >= MAX_DEPLOYMENTS {
+                return Err(fail("resource_limit", "deployment limit reached"));
+            }
+            if state
+                .deployments
+                .iter()
+                .any(|item| item.deployment_id == *deployment_id)
+            {
+                return Err(fail("duplicate_id", "deploymentId already exists"));
+            }
+            if state.head_revision_id != *expected_head_revision_id
+                || state.head_revision_id != *revision_id
+            {
+                return Err(fail(
+                    "stale_head",
+                    "deployment must target the current promoted head",
+                ));
+            }
+            if state.deployments.iter().any(|item| {
+                item.target_id == *target_id
+                    && matches!(
+                        item.status,
+                        DeploymentStatus::Queued
+                            | DeploymentStatus::Running
+                            | DeploymentStatus::Uncertain
+                    )
+            }) {
+                return Err(fail(
+                    "deployment_active",
+                    "target already has an active job",
+                ));
+            }
+            let hosted = state
+                .hosted
+                .as_ref()
+                .ok_or_else(|| fail("invalid_command", "World is not hosted"))?;
+            let target = hosted
+                .deployment_targets
+                .iter()
+                .find(|item| item.target_id == *target_id)
+                .ok_or_else(|| fail("not_found", "deployment target not found"))?;
+            let requester = principal
+                .ok_or_else(|| fail("principal_required", "deployment requires principal"))?;
+            if requester.principal_id != target.owner_principal_id {
+                return Err(fail(
+                    "forbidden",
+                    "principal does not own this deployment target",
+                ));
+            }
+            let package_ref = state
+                .revisions
+                .iter()
+                .find(|item| item.revision_id == *revision_id)
+                .and_then(|item| item.package_ref.clone())
+                .filter(|package| state.retained_packages.contains(package))
+                .ok_or_else(|| {
+                    fail(
+                        "deployment_blocked",
+                        "current promoted revision has no retained trusted package",
+                    )
+                })?;
+            let expected_active_provider_version_id = state
+                .deployments
+                .iter()
+                .rev()
+                .find(|item| {
+                    item.target_id == *target_id && item.status == DeploymentStatus::Succeeded
+                })
+                .and_then(|item| item.provider_version_id.clone());
+            let job_id = format!("job:{deployment_id}");
+            state.deployments.push(DeploymentRecord {
+                deployment_id: deployment_id.clone(),
+                job_id: job_id.clone(),
+                target_id: target_id.clone(),
+                revision_id: revision_id.clone(),
+                package_ref,
+                requester_principal_id: requester.principal_id.clone(),
+                status: DeploymentStatus::Queued,
+                progress_seq: 0,
+                publication_authorized: false,
+                rollback_of_deployment_id: None,
+                expected_head_revision_id: Some(expected_head_revision_id.clone()),
+                expected_active_provider_version_id,
+                provider_version_id: None,
+                url: None,
+                failure: None,
+                created_at_ms: now_ms,
+                updated_at_ms: now_ms,
+            });
+            WorldCommandResult::DeploymentRequested {
+                deployment_id: deployment_id.clone(),
+                job_id,
+            }
+        }
+        WorldCommand::RequestRollback {
+            deployment_id,
+            target_id,
+            previous_deployment_id,
+            expected_active_provider_version_id,
+            ..
+        } => {
+            require_actor(actor, &Actor::Owner, "request rollback")?;
+            validate_text("deploymentId", deployment_id, 128)?;
+            if state.deployments.len() >= MAX_DEPLOYMENTS {
+                return Err(fail("resource_limit", "deployment limit reached"));
+            }
+            if state
+                .deployments
+                .iter()
+                .any(|item| item.deployment_id == *deployment_id)
+            {
+                return Err(fail("duplicate_id", "deploymentId already exists"));
+            }
+            let target = state
+                .hosted
+                .as_ref()
+                .and_then(|hosted| {
+                    hosted
+                        .deployment_targets
+                        .iter()
+                        .find(|item| item.target_id == *target_id)
+                })
+                .ok_or_else(|| fail("not_found", "deployment target not found"))?;
+            let requester = principal
+                .ok_or_else(|| fail("principal_required", "rollback requires principal"))?;
+            if requester.principal_id != target.owner_principal_id {
+                return Err(fail(
+                    "forbidden",
+                    "principal does not own this deployment target",
+                ));
+            }
+            if state.deployments.iter().any(|item| {
+                item.target_id == *target_id
+                    && matches!(
+                        item.status,
+                        DeploymentStatus::Queued
+                            | DeploymentStatus::Running
+                            | DeploymentStatus::Uncertain
+                    )
+            }) {
+                return Err(fail(
+                    "deployment_active",
+                    "target already has an active job",
+                ));
+            }
+            let active_provider = state
+                .deployments
+                .iter()
+                .rev()
+                .find(|item| {
+                    item.target_id == *target_id && item.status == DeploymentStatus::Succeeded
+                })
+                .and_then(|item| item.provider_version_id.as_deref());
+            if active_provider != Some(expected_active_provider_version_id.as_str()) {
+                return Err(fail(
+                    "stale_provider_version",
+                    "active provider version changed",
+                ));
+            }
+            let previous = state
+                .deployments
+                .iter()
+                .find(|item| {
+                    item.deployment_id == *previous_deployment_id
+                        && item.target_id == *target_id
+                        && item.status == DeploymentStatus::Succeeded
+                })
+                .cloned()
+                .ok_or_else(|| {
+                    fail(
+                        "rollback_blocked",
+                        "previous deployment is not a successful target version",
+                    )
+                })?;
+            let job_id = format!("job:{deployment_id}");
+            state.deployments.push(DeploymentRecord {
+                deployment_id: deployment_id.clone(),
+                job_id: job_id.clone(),
+                target_id: target_id.clone(),
+                revision_id: previous.revision_id,
+                package_ref: previous.package_ref,
+                requester_principal_id: requester.principal_id.clone(),
+                status: DeploymentStatus::Queued,
+                progress_seq: 0,
+                publication_authorized: false,
+                rollback_of_deployment_id: Some(previous_deployment_id.clone()),
+                expected_head_revision_id: None,
+                expected_active_provider_version_id: Some(
+                    expected_active_provider_version_id.clone(),
+                ),
+                provider_version_id: None,
+                url: None,
+                failure: None,
+                created_at_ms: now_ms,
+                updated_at_ms: now_ms,
+            });
+            WorldCommandResult::RollbackRequested {
+                deployment_id: deployment_id.clone(),
+                job_id,
+            }
+        }
+        WorldCommand::AuthorizeDeploymentPublication {
+            deployment_id,
+            progress_seq,
+            ..
+        } => {
+            if !matches!(actor, Actor::Deployer | Actor::System) {
+                return Err(fail(
+                    "forbidden",
+                    "only the protected deployment adapter can authorize publication",
+                ));
+            }
+            let deployment_index = state
+                .deployments
+                .iter()
+                .position(|item| item.deployment_id == *deployment_id)
+                .ok_or_else(|| fail("not_found", "deployment not found"))?;
+            let deployment = &state.deployments[deployment_index];
+            if *progress_seq <= deployment.progress_seq {
+                return Err(fail(
+                    "stale_progress",
+                    "deployment progress must increase monotonically",
+                ));
+            }
+            if deployment.status != DeploymentStatus::Queued {
+                return Err(fail(
+                    "invalid_transition",
+                    "only a queued deployment can authorize publication",
+                ));
+            }
+            if let Some(expected_head) = &deployment.expected_head_revision_id
+                && (state.head_revision_id != *expected_head
+                    || deployment.revision_id != state.head_revision_id)
+            {
+                return Err(fail(
+                    "stale_head",
+                    "canonical head changed before publication",
+                ));
+            }
+            if let Some(expected_provider) = &deployment.expected_active_provider_version_id {
+                let active_provider = state
+                    .deployments
+                    .iter()
+                    .rev()
+                    .find(|item| {
+                        item.target_id == deployment.target_id
+                            && item.status == DeploymentStatus::Succeeded
+                    })
+                    .and_then(|item| item.provider_version_id.as_deref());
+                if active_provider != Some(expected_provider.as_str()) {
+                    return Err(fail(
+                        "stale_provider_version",
+                        "active provider version changed before rollback publication",
+                    ));
+                }
+            }
+            let deployment = &mut state.deployments[deployment_index];
+            deployment.publication_authorized = true;
+            deployment.status = DeploymentStatus::Running;
+            deployment.progress_seq = *progress_seq;
+            deployment.updated_at_ms = now_ms;
+            WorldCommandResult::DeploymentPublicationAuthorized {
+                deployment_id: deployment_id.clone(),
+            }
+        }
+        WorldCommand::UpdateDeployment {
+            deployment_id,
+            progress_seq,
+            status,
+            provider_version_id,
+            url,
+            failure,
+            ..
+        } => {
+            if !matches!(actor, Actor::Deployer | Actor::System) {
+                return Err(fail(
+                    "forbidden",
+                    "only the protected deployment adapter can update deployment progress",
+                ));
+            }
+            if *status == DeploymentStatus::Queued {
+                return Err(fail(
+                    "invalid_transition",
+                    "adapter cannot return a deployment to queued",
+                ));
+            }
+            let deployment = state
+                .deployments
+                .iter_mut()
+                .find(|item| item.deployment_id == *deployment_id)
+                .ok_or_else(|| fail("not_found", "deployment not found"))?;
+            if *progress_seq <= deployment.progress_seq {
+                return Err(fail(
+                    "stale_progress",
+                    "deployment progress must increase monotonically",
+                ));
+            }
+            if matches!(
+                deployment.status,
+                DeploymentStatus::Succeeded | DeploymentStatus::Failed
+            ) {
+                return Err(fail(
+                    "invalid_transition",
+                    "terminal deployment cannot be updated",
+                ));
+            }
+            let queued_failure = deployment.status == DeploymentStatus::Queued
+                && *status == DeploymentStatus::Failed;
+            if !deployment.publication_authorized && !queued_failure {
+                return Err(fail(
+                    "publication_not_authorized",
+                    "deployment publication has not been authorized",
+                ));
+            }
+            match status {
+                DeploymentStatus::Succeeded => {
+                    let provider = provider_version_id.as_ref().ok_or_else(|| {
+                        fail(
+                            "invalid_input",
+                            "successful deployment requires providerVersionId",
+                        )
+                    })?;
+                    let deployed_url = url.as_ref().ok_or_else(|| {
+                        fail("invalid_input", "successful deployment requires url")
+                    })?;
+                    validate_text("providerVersionId", provider, 256)?;
+                    validate_text("url", deployed_url, 2_048)?;
+                }
+                DeploymentStatus::Failed => {
+                    validate_text("failure", failure.as_deref().unwrap_or_default(), 1_024)?;
+                }
+                DeploymentStatus::Running | DeploymentStatus::Uncertain => {}
+                DeploymentStatus::Queued => unreachable!(),
+            }
+            deployment.status = status.clone();
+            deployment.progress_seq = *progress_seq;
+            if let Some(provider_version_id) = provider_version_id {
+                deployment.provider_version_id = Some(provider_version_id.clone());
+            }
+            if let Some(url) = url {
+                deployment.url = Some(url.clone());
+            }
+            if let Some(failure) = failure {
+                deployment.failure = Some(failure.clone());
+            }
+            deployment.updated_at_ms = now_ms;
+            WorldCommandResult::DeploymentUpdated {
+                deployment_id: deployment_id.clone(),
+                status: status.clone(),
+            }
+        }
+        WorldCommand::RecordRuntimeObservation {
+            deployment_id,
+            healthy,
+            summary,
+            ..
+        } => {
+            if !matches!(actor, Actor::Deployer | Actor::System) {
+                return Err(fail(
+                    "forbidden",
+                    "only the protected deployment adapter can record runtime observations",
+                ));
+            }
+            validate_text("runtime observation summary", summary, 1_024)?;
+            if state.runtime_observations.len() >= MAX_RUNTIME_OBSERVATIONS {
+                return Err(fail("resource_limit", "runtime observation limit reached"));
+            }
+            let deployment = state
+                .deployments
+                .iter()
+                .find(|item| {
+                    item.deployment_id == *deployment_id
+                        && item.status == DeploymentStatus::Succeeded
+                })
+                .ok_or_else(|| fail("not_found", "published deployment not found"))?;
+            let observation_id = format!(
+                "observation:{}",
+                &hash(&(deployment_id, now_ms, healthy, summary))?[..32]
+            );
+            state.runtime_observations.push(RuntimeObservation {
+                observation_id: observation_id.clone(),
+                deployment_id: deployment.deployment_id.clone(),
+                healthy: *healthy,
+                summary: summary.clone(),
+                observed_at_ms: now_ms,
+            });
+            WorldCommandResult::RuntimeObservationRecorded { observation_id }
+        }
     };
     Ok((state, result))
 }
 
+#[allow(clippy::too_many_lines)]
 fn execute(request: WorldCommandRequest) -> Result<(WorldState, WorldCommandResult), CommandError> {
     if request.api_version != 1 {
         return Err(fail(
@@ -1649,7 +3037,39 @@ fn execute(request: WorldCommandRequest) -> Result<(WorldState, WorldCommandResu
         ));
     }
     validate_text("requestId", request.command.request_id(), 128)?;
-    let command_hash = hash(&(&request.actor, &request.command))?;
+    let command_world_id = match &request.command {
+        WorldCommand::CreateWorld { world_id, .. }
+        | WorldCommand::CreateHostedWorld { world_id, .. } => Some(world_id.as_str()),
+        _ => request
+            .state
+            .as_deref()
+            .map(|state| state.world_id.as_str()),
+    };
+    let hosted_command = matches!(request.command, WorldCommand::CreateHostedWorld { .. })
+        || request
+            .state
+            .as_deref()
+            .is_some_and(|state| state.hosted.is_some());
+    if hosted_command {
+        validate_principal(
+            request.principal.as_ref(),
+            &request.actor,
+            request.now_ms,
+            command_world_id.unwrap_or_default(),
+            request.state.as_deref(),
+            &request.command,
+        )?;
+    }
+    let command_hash = if let Some(principal) = &request.principal {
+        hash(&(
+            &request.actor,
+            principal.principal_id.as_str(),
+            &request.command,
+        ))?
+    } else {
+        // Preserve the v1 local receipt hash so old stored states replay exactly.
+        hash(&(&request.actor, &request.command))?
+    };
     if let Some(state) = request.state.as_deref() {
         validate_state(state)?;
         if let Some(receipt) = state
@@ -1682,10 +3102,33 @@ fn execute(request: WorldCommandRequest) -> Result<(WorldState, WorldCommandResu
             title.clone(),
             runner_hash,
         )?,
+        (
+            None,
+            WorldCommand::CreateHostedWorld {
+                world_id,
+                title,
+                runner_hash,
+                source_repository,
+                deployment_targets,
+                ..
+            },
+        ) => initial_hosted_state(
+            &request.actor,
+            request.now_ms,
+            world_id.clone(),
+            title.clone(),
+            runner_hash,
+            source_repository.clone(),
+            deployment_targets.clone(),
+        )?,
         (None, _) => return Err(fail("missing_state", "this command requires World state")),
-        (Some(state), _) => {
-            apply_command(*state, &request.actor, request.now_ms, &request.command)?
-        }
+        (Some(state), _) => apply_command(
+            *state,
+            &request.actor,
+            request.principal.as_ref(),
+            request.now_ms,
+            &request.command,
+        )?,
     };
     if state.receipts.len() >= MAX_RECEIPTS {
         return Err(fail("resource_limit", "idempotency receipt limit reached"));
@@ -1773,6 +3216,12 @@ pub fn typescript_contract() -> String {
     }
     declarations!(
         Actor,
+        PrincipalContext,
+        ArtifactSourceRef,
+        SourceRepository,
+        RetainedPackageRef,
+        DeploymentTarget,
+        HostedWorldConfig,
         SourceBundle,
         HttpContract,
         WebAppKit,
@@ -1790,6 +3239,9 @@ pub fn typescript_contract() -> String {
         AssayEvaluation,
         VerificationRun,
         WorldRevisionRecord,
+        DeploymentStatus,
+        DeploymentRecord,
+        RuntimeObservation,
         IdempotencyReceipt,
         WorldState,
         WorldCommand,

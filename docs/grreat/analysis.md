@@ -3,6 +3,15 @@
 
 - Reviews: [[goals]] and [[execution]].
 
+## Hosted increment
+
+| Accepted criterion | Evidence | Remaining gap |
+| --- | --- | --- |
+| One full-stack Thing with immutable source and verified retained bytes | Rust contracts/transitions, isolated Artifacts adapter and R2 package digest checks; real Wasm/SQLite lease and receipt tests | Live Artifacts token minting and Git transport |
+| Scoped ownership and explicit publication/rollback | Access/service identities, private OAuth grants, fenced Workflow, stale-head/drift guards and retry tests | Registered public OAuth/Access configuration and hosted grant |
+| Clear canonical, deployed and observed states | Hosted UI preserves Visual/Text Map; publication and runtime evidence are separate; Git synchronization is durable and gates deployment | Live A→B→rollback and surface observations |
+| Integrated delivery | Existing PR #9; build/check and independent review recorded in [[journals/2026-10-09]] | Hosted CI after push and live provider acceptance; GRREAT mirror remains pending credentials |
+
 | Success criterion | Evidence and tested state | Remaining gap |
 | --- | --- | --- |
 | Canonical requirements derive from preserved source and incorporate explicit clarifications | [Requirements](../world-platform-plan-and-requirements.md); initial conversion of 191 source paragraphs/cells, 3 tables, 25 external links and 12 sections verified in [[journals/2026-10-08]]; subsequent user decisions select a personal assistant and rename the domain component Thing | None; historical Word snapshot unchanged, current requirements include the logged revisions |

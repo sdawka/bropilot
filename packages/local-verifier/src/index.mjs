@@ -7,6 +7,8 @@ import {
   CandidateBuildError,
   LIMITS,
   RUNTIME_CONFIG,
+  SANDBOX_POLICY,
+  TOOLCHAIN,
   VerifierInputError,
   buildCandidate,
   sha256,
@@ -59,7 +61,7 @@ function notRun(assayId, summary) {
   return observation(assayId, "notRun", "unknown", summary);
 }
 
-function completion(job, buildDigest, observations) {
+function completion(job, buildDigest, observations, packageRef) {
   return {
     runId: job.runId,
     leaseId: job.leaseId,
@@ -68,6 +70,7 @@ function completion(job, buildDigest, observations) {
     planHash: job.planHash,
     buildDigest,
     observations,
+    ...(packageRef === undefined ? {} : { packageRef }),
   };
 }
 
@@ -192,7 +195,7 @@ function surfacesObservation(root, message) {
 }
 
 export async function verifyJob(job, options = {}) {
-  const { signal } = options;
+  const { signal, retainPackage } = options;
   if (signal?.aborted) throw new VerifierAbortError();
   validateJob(job);
   const files = validateSource(job.source);
@@ -235,6 +238,7 @@ export async function verifyJob(job, options = {}) {
       compiledOutput: built.compiledOutput,
       assets: built.assets,
       runtimeConfig: RUNTIME_CONFIG,
+      sandboxPolicy: SANDBOX_POLICY,
       limits: LIMITS,
     }, signal);
   } catch (error) {
@@ -262,12 +266,22 @@ export async function verifyJob(job, options = {}) {
     ]);
   }
 
-  return completion(job, built.buildDigest, [
+  const observations = [
     exists,
     observation("artifact.build-start", "completed", "pass", "candidate built and started in isolated workerd"),
     healthObservation(childResult.probes.health),
     surfacesObservation(childResult.probes.root, childResult.probes.message),
-  ]);
+  ];
+  const packageRef = retainPackage
+    ? await retainPackage({
+      compiledWorker: built.compiledOutput,
+      assets: built.assets,
+      deployableConfig: RUNTIME_CONFIG,
+      buildDigest: built.buildDigest,
+      toolchain: TOOLCHAIN,
+    }, job)
+    : undefined;
+  return completion(job, built.buildDigest, observations, packageRef);
 }
 
 export { ASSAY_IDS, LIMITS, VerifierAbortError, VerifierInputError };

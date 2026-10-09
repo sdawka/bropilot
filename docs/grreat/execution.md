@@ -1,14 +1,14 @@
 <!-- grreat:record id=execution.next kind=execution_item status=active parent=roadmap.next -->
-# Define the first World and foundational contracts
+# Hosted realization and deployment
 
 ## Now
 
-- Goal: [[goals]]. Milestone: deterministic candidate-verification slice across M1 contracts, M2 persistence/submission and M3 verification.
-- Next action: Review the Visual / Text Map in the local preview and continue refinement on PR #9; scoped Task Packets and hosted collaborator authentication remain the next platform slice.
+- Goal: [[goals]]. Milestone: hosted one-Thing realization, protected verification and explicit deployment/rollback; broader M1–M5 work remains deferred.
+- Next action: Configure the staging hostname, Access/OAuth client and platform storage, verify real Artifacts token/Git access, then run live A→B→rollback acceptance on the reviewed commit in PR #9.
 - Working state: `feat/candidate-verification`, isolated worktree `/private/tmp/bropilot-world-foundation`, based on merged main `733f6b9`. Older PRs #5–#8 merged with all checks green; #1 closed as superseded, branch preserved. [PR #9](https://github.com/sdawka/bropilot/pull/9) is the single open iterative PR; hosted check results remain on that PR.
-- Blockers: No local implementation blocker. Git/Artifacts provider storage, hosted verifier/authentication, model checks, payments and deployment remain outside this slice. GRREAT sync remains pending credentials.
-- Latest verification: Build/dry run and full check pass: 37 Rust, 12 UI, 17 verifier, 16 actual Worker and 22 desktop/mobile browser tests (104 total). Visual/Text modes preserve selection, revision and workflow context; diagram collision, focus, search and mobile geometry verified. Independent review clear. [[journals/2026-10-08]] has evidence and limits.
-- Last updated: 2026-10-08T10:22:43-04:00.
+- Blockers: Public OAuth client/domain setup and authenticated provider resources must be verified before live release. Local implementation continues independently. GRREAT sync remains pending credentials.
+- Latest verification: Final production build, hosted staging dry run and complete local check pass: 43 Rust tests (including doc tests), 27 UI, 21 verifier, 71 Worker/adapter and 22 desktop/mobile browser tests. Actual hosted authority tests use workerd/Wasm/SQLite; provider and hosted-route boundaries use mocks. Independent review findings are resolved. [[journals/2026-10-09]] records release limits.
+- Last updated: 2026-10-09T01:07:40-04:00.
 
 ## Foundation implementation contract
 
@@ -34,6 +34,7 @@ This is the accepted first build, not completion of the minimum deployed platfor
 ## Work history
 
 - [[journals/2026-10-08]] — initial adoption, source conversion and validation evidence.
+- [[journals/2026-10-09]] — hosted realization and deployment integration.
 
 ## Candidate-verification implementation plan
 
@@ -48,3 +49,17 @@ Architecture: Rust applies pure `WorldCommandRequest {apiVersion,state,actor,now
 - [x] Primary integration: fresh patched Wasm and registered-runner manifest, local development process/separate credentials, complete build/check and independent whole-branch review. Merge older current PRs only with all checks green, preserve historical branches, prepare this locally verified branch for one iterative PR; delivery is recorded in Now.
 
 Boundary: no remote deployment, paid/model Assay execution, calendar effects or general package-install/shell execution. Those follow this tested protocol rather than blocking it.
+
+## Hosted realization and deployment
+
+Accepted scope: one full-stack application Thing and canonical Artifacts repository, with isolated Realization forks, deployed to one dedicated Worker in the user's OAuth-connected account. Bropilot owns the source/build storage; target deployment credentials remain private and separate. Preserve the current centered UI and Visual/Text Map.
+
+- [x] Freeze additive principal, source, retained-package, target, deployment and observation contracts; preserve local inline-source compatibility. Record current user decisions and update canonical requirements.
+- [x] Rust track: scoped identities, retained-package binding, hosted promotion and separate deployment/rollback transitions with stale-state and idempotency guards.
+- [x] Cloudflare track: Access identity, private OAuth connections, global target fencing, durable publication/reconciliation and runtime probes.
+- [x] Artifacts/verifier track: isolated source commits, protected canonical storage, hosted lease-bound verifier transport, immutable R2 packages and exact-byte deployment loading.
+- [x] UI track: hosted session, on-demand account connection, deployment status/evidence and explicit rollback; retain clean layout and pinned navigation.
+- [x] Primary local integration: routing/authority/bindings/generated outputs, complete local gates and independent review. Existing PR #9 delivery follows; hosted CI is a separate observed result and merging requires all checks green.
+- [ ] Live proof: authorize OAuth, deploy A, deploy verified B to the same Worker, roll back to A with canonical B unchanged; retain source/build/provider/observation lineage. Missing external setup remains pending rather than simulated.
+
+Primary owns shared files and integration; each track owns disjoint code and focused tests, preserves concurrent edits, and returns validation evidence. No automatic rollback, target databases, custom domains, hosted shell builds, calendar effects, generic composition, full Task Packets, model checks or payment execution in this slice. Update Now and the linked journal at meaningful boundaries; assess the accepted evidence in Analysis and attempt versioned direct-RPC sync when authenticated.

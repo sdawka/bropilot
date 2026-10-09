@@ -45,3 +45,11 @@
 - **2026-10-08T09:19:34-04:00** — Use a large blank canvas, intentional components and a centered, delightful experience as continuing UI principles; remove inputs for choices already settled in the plan.
 
 - **2026-10-08T10:05:00-04:00** — Add a Visual / Text toggle to Map, taking spatial-layout inspiration from UIP while preserving the clean, spacious design.
+
+- **2026-10-09T00:27:12-04:00** — Deploy realized applications into the user's connected Cloudflare account.
+
+- **2026-10-09T00:27:12-04:00** — Connect deployment accounts through Cloudflare OAuth.
+
+- **2026-10-09T00:27:12-04:00** — The example uses one full-stack application Thing, backed by one canonical Cloudflare Artifacts repository, deployed to one Worker.
+
+- **2026-10-09T00:27:12-04:00** — Implement the approved hosted deployment plan using parallel subagents, retaining the existing iterative branch and PR.

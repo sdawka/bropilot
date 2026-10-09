@@ -25,7 +25,13 @@ export const RUNTIME_CONFIG = Object.freeze({
   entrypoint: "worker.ts",
   assetsBinding: "ASSETS",
   nodejsCompat: false,
+});
+
+export const SANDBOX_POLICY = Object.freeze({
   outboundNetwork: "deny-all",
+});
+
+export const TOOLCHAIN = Object.freeze({
   esbuildVersion,
   miniflareVersion,
   workerdVersion,

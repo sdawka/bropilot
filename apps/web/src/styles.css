@@ -387,6 +387,62 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible 
   padding-top:16px;
   border-top:1px solid var(--line);
 }
+.deployment-panel {
+  margin:26px auto 0;
+  max-width:560px;
+  text-align:left;
+}
+.deployment-panel h2 {
+  margin:2px 0 0;
+  font-size:19px;
+  letter-spacing:-.03em;
+}
+.deployment-panel .actions {
+  justify-content:flex-start;
+  margin-top:16px;
+}
+.deployment-url a {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  color:var(--jade);
+}
+.rollback-action {
+  margin-top:20px;
+  padding-top:16px;
+  border-top:1px solid var(--line);
+}
+.resume-action {
+  margin-top:16px;
+}
+.rollback-action button {
+  gap:6px;
+}
+.connection-dialog {
+  color:var(--ink);
+}
+.connection-dialog p {
+  color:var(--muted);
+  line-height:1.5;
+}
+.dialog-field {
+  display:block;
+  margin-top:14px;
+  color:var(--ink);
+  font-weight:600;
+}
+.dialog-field input {
+  display:block;
+  width:100%;
+  margin-top:7px;
+  padding:9px 10px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  font-weight:400;
+}
+.field-error {
+  color:#9c432f!important;
+}
 .inspector {
   margin-top:44px;
 }

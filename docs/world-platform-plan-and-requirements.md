@@ -101,6 +101,10 @@ Keep execution states (`queued`, `running`, `completed`, `not-selected`, `awaiti
 
 ### 3.3 First candidate-verification example: a Worker web app
 
+The next hosted slice keeps the full-stack app as one Thing backed by one canonical Cloudflare Artifacts repository and one dedicated target Worker. Isolated Realization forks remain workspaces of that Thing. Source repositories, retained verified packages and evidence reside in the platform account; separately authorized deployment uses the user's OAuth-connected Cloudflare account. Legacy inline-source Worlds remain local-only until explicitly imported and reverified. Canonical promotion is a Rust compare-and-swap decision; protected Git main reconciliation has durable current/pending state, an owner retry operation, and must succeed before normal deployment dispatch. A verifier lease reserves one immutable package upload before R2 writes, so conflicting retries cannot create additional package objects.
+
+Hosted publication consumes the exact retained module, assets and deployable configuration bound to a successful trusted Evaluation; it never rebuilds or resolves mutable source refs at deployment time. World-head promotion is atomic in the World authority; Git branch reconciliation and deployment are separate, retryable actions. A target coordinator fences provider writes and freezes uncertain publication until reconciliation. Runtime health observations remain separate from publication success and beneficiary outcomes. Explicit rollback selects a previously retained verified version and does not change the canonical World head.
+
 This platform acceptance example complements the personal-assistant World; it does not replace that selected domain or require calendar connectivity to test the generic realization protocol.
 
 1. Define Thing `web-app`, its Worker application Template/Kit and a Move to realize its initial implementation. The desired model links each criterion below to protected Assays and declares the relevant composition, permissions and verification policy.

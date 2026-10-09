@@ -78,7 +78,10 @@ async function probe(mf, pathname, limits) {
 }
 
 async function main() {
-  const { compiledOutput, assets, runtimeConfig, limits } = await readInput();
+  const { compiledOutput, assets, runtimeConfig, sandboxPolicy, limits } = await readInput();
+  if (sandboxPolicy?.outboundNetwork !== "deny-all") {
+    throw new Error("verifier sandbox must deny outbound network");
+  }
   let mf;
   try {
     mf = new Miniflare({

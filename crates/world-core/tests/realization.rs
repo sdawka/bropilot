@@ -612,3 +612,474 @@ fn oversized_requests_and_states_are_rejected_before_execution() {
         "resource_limit",
     );
 }
+
+fn principal(role: &str, principal_id: &str, world_id: &str, operations: &[&str]) -> Value {
+    json!({
+        "principalId": principal_id,
+        "role": role,
+        "worldId": world_id,
+        "operations": operations,
+        "expiresAtMs": 1_000_000
+    })
+}
+
+fn invoke_hosted(
+    state: Option<Value>,
+    actor: &str,
+    now_ms: u64,
+    principal: Value,
+    command: Value,
+) -> Value {
+    let request = json!({
+        "apiVersion": 1,
+        "state": state,
+        "actor": actor,
+        "principal": principal,
+        "nowMs": now_ms,
+        "command": command,
+    });
+    serde_json::from_str(&bropilot_core::handle_world_command(&request.to_string())).unwrap()
+}
+
+fn create_hosted() -> (Value, Value) {
+    ok(invoke_hosted(
+        None,
+        "owner",
+        1_000,
+        principal("owner", "owner-1", "hosted-1", &["createHostedWorld"]),
+        json!({
+            "kind":"createHostedWorld", "worldId":"hosted-1", "title":"Hosted app",
+            "runnerHash":RUNNER_HASH,
+            "sourceRepository":{"namespace":"acme","repoId":"repo-1","repoName":"world-app"},
+            "deploymentTargets":[{"targetId":"production","thingId":"web-app","connectionId":"conn-1","accountId":"acct-1","workerName":"hosted-app","ownerPrincipalId":"owner-1"}],
+            "requestId":"hosted-create"
+        }),
+    ))
+}
+
+fn hosted_source_ref() -> Value {
+    json!({
+        "namespace":"acme", "repoId":"repo-1", "repoName":"world-app",
+        "commitSha":"1111111111111111111111111111111111111111",
+        "treeSha":"2222222222222222222222222222222222222222",
+        "contentDigest":"3333333333333333333333333333333333333333333333333333333333333333"
+    })
+}
+
+#[test]
+#[allow(clippy::too_many_lines)]
+fn hosted_principals_are_scoped_and_verifier_identity_cannot_be_spoofed() {
+    let (state, _) = create_hosted();
+    let target = state["hosted"]["deploymentTargets"][0].clone();
+    let (state, registered) = ok(invoke_hosted(
+        Some(state),
+        "owner",
+        1_500,
+        principal(
+            "owner",
+            "owner-1",
+            "hosted-1",
+            &["registerDeploymentTarget"],
+        ),
+        json!({"kind":"registerDeploymentTarget","target":target.clone(),"requestId":"register-existing"}),
+    ));
+    assert_eq!(registered["reused"], true);
+    let mut changed_target = target;
+    changed_target["workerName"] = json!("different");
+    assert_error(
+        invoke_hosted(
+            Some(state.clone()),
+            "owner",
+            1_501,
+            principal(
+                "owner",
+                "owner-1",
+                "hosted-1",
+                &["registerDeploymentTarget"],
+            ),
+            json!({"kind":"registerDeploymentTarget","target":changed_target,"requestId":"register-changed"}),
+        ),
+        "target_binding_conflict",
+    );
+    let move_id = state["moves"][0]["moveId"].clone();
+    assert_error(
+        invoke_hosted(
+            Some(state.clone()),
+            "implementer",
+            2_000,
+            principal(
+                "implementer",
+                "impl-1",
+                "wrong-world",
+                &["submitHostedCandidate"],
+            ),
+            json!({"kind":"submitHostedCandidate","moveId":move_id,"candidateId":"c1","source":{"files":{"worker.ts":"x"}},"sourceRef":hosted_source_ref(),"requestId":"wrong-world"}),
+        ),
+        "principal_scope_mismatch",
+    );
+    let mut wrong_move = principal(
+        "implementer",
+        "impl-1",
+        "hosted-1",
+        &["submitHostedCandidate"],
+    );
+    wrong_move["moveId"] = json!("move:other");
+    assert_error(
+        invoke_hosted(
+            Some(state.clone()),
+            "implementer",
+            2_000,
+            wrong_move,
+            json!({"kind":"submitHostedCandidate","moveId":move_id,"candidateId":"c1","source":{"files":{"worker.ts":"x"}},"sourceRef":hosted_source_ref(),"requestId":"wrong-move"}),
+        ),
+        "principal_scope_mismatch",
+    );
+    let mut expired = principal(
+        "implementer",
+        "impl-1",
+        "hosted-1",
+        &["submitHostedCandidate"],
+    );
+    expired["expiresAtMs"] = json!(1_999);
+    assert_error(
+        invoke_hosted(
+            Some(state.clone()),
+            "implementer",
+            2_000,
+            expired,
+            json!({"kind":"submitHostedCandidate","moveId":move_id,"candidateId":"c1","source":{"files":{"worker.ts":"x"}},"sourceRef":hosted_source_ref(),"requestId":"expired"}),
+        ),
+        "principal_expired",
+    );
+    let (state, _) = ok(invoke_hosted(
+        Some(state),
+        "implementer",
+        2_000,
+        principal(
+            "implementer",
+            "impl-1",
+            "hosted-1",
+            &["submitHostedCandidate"],
+        ),
+        json!({"kind":"submitHostedCandidate","moveId":move_id,"candidateId":"c1","source":{"files":{"worker.ts":"x"}},"sourceRef":hosted_source_ref(),"requestId":"submit-hosted"}),
+    ));
+    let (state, started) = ok(invoke_hosted(
+        Some(state),
+        "owner",
+        3_000,
+        principal("owner", "owner-1", "hosted-1", &["startVerification"]),
+        json!({"kind":"startVerification","candidateId":"c1","requestId":"start-hosted"}),
+    ));
+    assert_error(
+        invoke_hosted(
+            Some(state),
+            "verifier",
+            4_000,
+            principal("verifier", "verifier-real", "hosted-1", &["claimRun"]),
+            json!({"kind":"claimRun","runId":started["runId"],"leaseId":"lease","verifierId":"spoofed","runnerHash":RUNNER_HASH,"requestId":"spoof-claim"}),
+        ),
+        "principal_identity_mismatch",
+    );
+}
+
+fn create_promoted_hosted() -> (Value, Value) {
+    let (state, _) = create_hosted();
+    let head = state["headRevisionId"].clone();
+    let move_id = state["moves"][0]["moveId"].clone();
+    let (state, _) = ok(invoke_hosted(
+        Some(state),
+        "implementer",
+        2_000,
+        principal(
+            "implementer",
+            "impl-1",
+            "hosted-1",
+            &["submitHostedCandidate"],
+        ),
+        json!({"kind":"submitHostedCandidate","moveId":move_id,"candidateId":"c1","source":{"files":{"worker.ts":"x"}},"sourceRef":hosted_source_ref(),"requestId":"submit"}),
+    ));
+    let (state, started) = ok(invoke_hosted(
+        Some(state),
+        "owner",
+        3_000,
+        principal("owner", "owner-1", "hosted-1", &["startVerification"]),
+        json!({"kind":"startVerification","candidateId":"c1","requestId":"start"}),
+    ));
+    let run_id = started["runId"].clone();
+    let (state, _) = ok(invoke_hosted(
+        Some(state),
+        "verifier",
+        4_000,
+        principal("verifier", "verifier-1", "hosted-1", &["claimRun"]),
+        json!({"kind":"claimRun","runId":run_id,"leaseId":"lease","verifierId":"verifier-1","runnerHash":RUNNER_HASH,"requestId":"claim"}),
+    ));
+    let run = state["runs"][0].clone();
+    assert_error(
+        invoke_hosted(
+            Some(state.clone()),
+            "verifier",
+            5_000,
+            principal("verifier", "verifier-1", "hosted-1", &["completeHostedRun"]),
+            json!({"kind":"completeHostedRun","runId":run_id,"leaseId":"lease","sourceDigest":run["sourceDigest"],"contractHash":run["contractHash"],"planHash":run["planHash"],"observations":passing_observations(),"requestId":"complete-missing-package"}),
+        ),
+        "binding_mismatch",
+    );
+    let package = json!({"key":"packages/c1.tar","packageDigest":"4444444444444444444444444444444444444444444444444444444444444444","buildDigest":BUILD_DIGEST,"sourceDigest":run["sourceDigest"],"sourceRef":hosted_source_ref(),"contractHash":run["contractHash"],"planHash":run["planHash"],"runnerHash":RUNNER_HASH,"runId":run_id});
+    let (state, _) = ok(invoke_hosted(
+        Some(state),
+        "verifier",
+        5_000,
+        principal("verifier", "verifier-1", "hosted-1", &["completeHostedRun"]),
+        json!({"kind":"completeHostedRun","runId":run_id,"leaseId":"lease","sourceDigest":run["sourceDigest"],"contractHash":run["contractHash"],"planHash":run["planHash"],"packageRef":package,"observations":passing_observations(),"requestId":"complete"}),
+    ));
+    let (state, promoted) = ok(invoke_hosted(
+        Some(state),
+        "owner",
+        6_000,
+        principal("owner", "owner-1", "hosted-1", &["promote"]),
+        json!({"kind":"promote","candidateId":"c1","expectedHeadRevisionId":head,"requestId":"promote"}),
+    ));
+    (state, promoted)
+}
+
+#[test]
+fn hosted_promotion_requires_an_exact_retained_package_binding() {
+    let (state, promoted) = create_promoted_hosted();
+    let run_id = state["runs"][0]["runId"].clone();
+    assert_eq!(state["retainedPackages"].as_array().unwrap().len(), 1);
+    assert_eq!(state["revisions"][1]["packageRef"]["runId"], run_id);
+    assert_eq!(
+        state["deployments"].as_array().unwrap().len(),
+        0,
+        "promotion never deploys"
+    );
+    assert_eq!(promoted["kind"], "candidatePromoted");
+}
+
+#[test]
+fn legacy_local_state_without_hosted_fields_remains_accepted() {
+    let (mut state, _) = create_world("legacy-create");
+    for key in [
+        "hosted",
+        "retainedPackages",
+        "deployments",
+        "runtimeObservations",
+    ] {
+        state.as_object_mut().unwrap().remove(key);
+    }
+    state["revisions"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("packageRef");
+    let response = invoke(
+        Some(state),
+        "owner",
+        2_000,
+        json!({"kind":"createMove","moveId":"legacy-next","title":"Legacy next","requestId":"legacy-next"}),
+    );
+    assert_eq!(response["status"], "ok", "{response:#}");
+}
+
+#[test]
+fn deployment_guards_head_serializes_jobs_and_keeps_runtime_observation_separate() {
+    let (state, promoted) = create_promoted_hosted();
+    let revision_id = promoted["revisionId"].clone();
+    let (state, _) = ok(invoke_hosted(
+        Some(state),
+        "owner",
+        7_000,
+        principal("owner", "owner-1", "hosted-1", &["requestDeployment"]),
+        json!({"kind":"requestDeployment","deploymentId":"deploy-1","targetId":"production","revisionId":revision_id,"expectedHeadRevisionId":revision_id,"requestId":"deploy-request"}),
+    ));
+    assert_error(
+        invoke_hosted(
+            Some(state.clone()),
+            "owner",
+            7_001,
+            principal("owner", "owner-1", "hosted-1", &["requestDeployment"]),
+            json!({"kind":"requestDeployment","deploymentId":"deploy-2","targetId":"production","revisionId":revision_id,"expectedHeadRevisionId":revision_id,"requestId":"double-click"}),
+        ),
+        "deployment_active",
+    );
+    let mut raced = state.clone();
+    raced["headRevisionId"] = json!("revision:raced");
+    raced["revisions"].as_array_mut().unwrap().push(json!({"revisionId":"revision:raced","parentRevisionId":revision_id,"createdBy":"owner","createdAtMs":7_500}));
+    assert_error(
+        invoke_hosted(
+            Some(raced),
+            "system",
+            8_000,
+            principal(
+                "system",
+                "adapter-1",
+                "hosted-1",
+                &["authorizeDeploymentPublication"],
+            ),
+            json!({"kind":"authorizeDeploymentPublication","deploymentId":"deploy-1","progressSeq":1,"requestId":"authorize-stale"}),
+        ),
+        "stale_head",
+    );
+    let (state, _) = ok(invoke_hosted(
+        Some(state),
+        "system",
+        8_000,
+        principal(
+            "system",
+            "adapter-1",
+            "hosted-1",
+            &["authorizeDeploymentPublication"],
+        ),
+        json!({"kind":"authorizeDeploymentPublication","deploymentId":"deploy-1","progressSeq":1,"requestId":"authorize"}),
+    ));
+    let (state, _) = ok(invoke_hosted(
+        Some(state),
+        "system",
+        9_000,
+        principal("system", "adapter-1", "hosted-1", &["updateDeployment"]),
+        json!({"kind":"updateDeployment","deploymentId":"deploy-1","progressSeq":2,"status":"succeeded","providerVersionId":"provider-v1","url":"https://hosted.example","failure":null,"requestId":"succeed"}),
+    ));
+    let (state, _) = ok(invoke_hosted(
+        Some(state),
+        "system",
+        10_000,
+        principal(
+            "system",
+            "adapter-1",
+            "hosted-1",
+            &["recordRuntimeObservation"],
+        ),
+        json!({"kind":"recordRuntimeObservation","deploymentId":"deploy-1","healthy":false,"summary":"health endpoint timed out","requestId":"observe"}),
+    ));
+    assert_eq!(state["deployments"][0]["status"], "succeeded");
+    assert_eq!(state["deployments"][0]["providerVersionId"], "provider-v1");
+    assert_eq!(state["runtimeObservations"][0]["healthy"], false);
+}
+
+#[test]
+fn uncertain_deployment_freezes_target_and_rollback_preserves_canonical_head() {
+    let (state, promoted) = create_promoted_hosted();
+    let head = promoted["revisionId"].clone();
+    let request = |state, id: &str, request_id: &str| {
+        ok(invoke_hosted(Some(state), "owner", 7_000, principal("owner", "owner-1", "hosted-1", &["requestDeployment"]), json!({"kind":"requestDeployment","deploymentId":id,"targetId":"production","revisionId":head,"expectedHeadRevisionId":head,"requestId":request_id}))).0
+    };
+    let publish = |state, id: &str, seq: u32, request_id: &str| {
+        ok(invoke_hosted(Some(state), "system", 8_000, principal("system", "adapter-1", "hosted-1", &["authorizeDeploymentPublication"]), json!({"kind":"authorizeDeploymentPublication","deploymentId":id,"progressSeq":seq,"requestId":request_id}))).0
+    };
+    let state = request(state, "deploy-1", "request-1");
+    let state = publish(state, "deploy-1", 1, "authorize-1");
+    let (state, _) = ok(invoke_hosted(
+        Some(state),
+        "system",
+        9_000,
+        principal("system", "adapter-1", "hosted-1", &["updateDeployment"]),
+        json!({"kind":"updateDeployment","deploymentId":"deploy-1","progressSeq":2,"status":"succeeded","providerVersionId":"provider-v1","url":"https://v1.example","requestId":"success-1"}),
+    ));
+    let state = request(state, "deploy-2", "request-2");
+    assert_eq!(
+        state["deployments"][1]["expectedActiveProviderVersionId"],
+        "provider-v1"
+    );
+    let state = publish(state, "deploy-2", 1, "authorize-2");
+    let (state, _) = ok(invoke_hosted(
+        Some(state),
+        "system",
+        10_000,
+        principal("system", "adapter-1", "hosted-1", &["updateDeployment"]),
+        json!({"kind":"updateDeployment","deploymentId":"deploy-2","progressSeq":2,"status":"succeeded","providerVersionId":"provider-v2","url":"https://v2.example","requestId":"success-2"}),
+    ));
+    let (state, _) = ok(invoke_hosted(
+        Some(state),
+        "owner",
+        11_000,
+        principal("owner", "owner-1", "hosted-1", &["requestRollback"]),
+        json!({"kind":"requestRollback","deploymentId":"rollback-1","targetId":"production","previousDeploymentId":"deploy-1","expectedActiveProviderVersionId":"provider-v2","requestId":"rollback-request"}),
+    ));
+    assert_eq!(state["headRevisionId"], head);
+    assert_eq!(
+        state["deployments"][2]["revisionId"],
+        state["deployments"][0]["revisionId"]
+    );
+    let state = publish(state, "rollback-1", 1, "rollback-authorize");
+    let (state, _) = ok(invoke_hosted(
+        Some(state),
+        "system",
+        12_000,
+        principal("system", "adapter-1", "hosted-1", &["updateDeployment"]),
+        json!({"kind":"updateDeployment","deploymentId":"rollback-1","progressSeq":2,"status":"running","providerVersionId":"rollback-draft","url":"https://rollback.example","requestId":"rollback-running"}),
+    ));
+    let (state, _) = ok(invoke_hosted(
+        Some(state),
+        "system",
+        12_001,
+        principal("system", "adapter-1", "hosted-1", &["updateDeployment"]),
+        json!({"kind":"updateDeployment","deploymentId":"rollback-1","progressSeq":3,"status":"uncertain","requestId":"rollback-uncertain"}),
+    ));
+    assert_eq!(
+        state["deployments"][2]["providerVersionId"],
+        "rollback-draft"
+    );
+    assert_eq!(state["deployments"][2]["url"], "https://rollback.example");
+    assert_error(
+        invoke_hosted(
+            Some(state),
+            "owner",
+            13_000,
+            principal("owner", "owner-1", "hosted-1", &["requestDeployment"]),
+            json!({"kind":"requestDeployment","deploymentId":"blocked","targetId":"production","revisionId":head,"expectedHeadRevisionId":head,"requestId":"blocked-request"}),
+        ),
+        "deployment_active",
+    );
+}
+
+#[test]
+fn stale_queued_deployment_can_fail_closed_and_release_the_target() {
+    let (state, promoted) = create_promoted_hosted();
+    let old_head = promoted["revisionId"].clone();
+    let (state, _) = ok(invoke_hosted(
+        Some(state),
+        "owner",
+        7_000,
+        principal("owner", "owner-1", "hosted-1", &["requestDeployment"]),
+        json!({"kind":"requestDeployment","deploymentId":"stale-job","targetId":"production","revisionId":old_head,"expectedHeadRevisionId":old_head,"requestId":"stale-request"}),
+    ));
+
+    let mut raced = state;
+    let package = raced["revisions"][1]["packageRef"].clone();
+    raced["headRevisionId"] = json!("revision:new-head");
+    raced["revisions"].as_array_mut().unwrap().push(json!({
+        "revisionId":"revision:new-head", "parentRevisionId":old_head,
+        "packageRef":package, "createdBy":"owner", "createdAtMs":7_500
+    }));
+    assert_error(
+        invoke_hosted(
+            Some(raced.clone()),
+            "system",
+            8_000,
+            principal(
+                "system",
+                "adapter-1",
+                "hosted-1",
+                &["authorizeDeploymentPublication"],
+            ),
+            json!({"kind":"authorizeDeploymentPublication","deploymentId":"stale-job","progressSeq":1,"requestId":"stale-authorize"}),
+        ),
+        "stale_head",
+    );
+    let (state, _) = ok(invoke_hosted(
+        Some(raced),
+        "system",
+        8_001,
+        principal("system", "adapter-1", "hosted-1", &["updateDeployment"]),
+        json!({"kind":"updateDeployment","deploymentId":"stale-job","progressSeq":1,"status":"failed","failure":"canonical head changed before publication","requestId":"stale-failed"}),
+    ));
+    assert_eq!(state["headRevisionId"], "revision:new-head");
+    let (state, _) = ok(invoke_hosted(
+        Some(state),
+        "owner",
+        8_002,
+        principal("owner", "owner-1", "hosted-1", &["requestDeployment"]),
+        json!({"kind":"requestDeployment","deploymentId":"current-job","targetId":"production","revisionId":"revision:new-head","expectedHeadRevisionId":"revision:new-head","requestId":"current-request"}),
+    ));
+    assert_eq!(state["deployments"][0]["status"], "failed");
+    assert_eq!(state["deployments"][1]["status"], "queued");
+}
