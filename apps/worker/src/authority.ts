@@ -21,6 +21,8 @@ export type LocalEnv = {
   LOCAL_OWNER_TOKEN?: string;
   LOCAL_IMPLEMENTER_TOKEN?: string;
   LOCAL_VERIFIER_TOKEN?: string;
+  ONTOLOGY_LAB_ORIGIN?: string;
+  ONTOLOGY_LAB_TOKEN?: string;
 };
 
 export type WorldSummary = {

@@ -357,6 +357,7 @@ onBeforeUnmount(() => { disposed = true; workspaceFence.next(); localFence.next(
     <header class="topbar">
       <RouterLink to="/" class="brand" aria-label="World home">World</RouterLink>
       <div class="topbar-tools">
+        <RouterLink to="/lab/ontology" class="text-button">Ontology lab</RouterLink>
         <button class="context-trigger" @click="openContext">World context <ChevronDown :size="14" /></button>
         <button class="icon-button" aria-label="Search World" @click="openSearch"><Search :size="18" /></button>
       </div>

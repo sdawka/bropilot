@@ -155,6 +155,23 @@ function actorForCommand(principal: Principal, command: WorldCommand): Actor | u
 }
 
 async function localRoute(request: Request, env: LocalEnv, path: string): Promise<Response | undefined> {
+  if (path === '/api/v1/ontology-lab/capabilities' || path === '/api/v1/ontology-lab/run') {
+    const principal = await requireRole(request, env, ['owner']); if (principal instanceof Response) return principal;
+    const capabilities = path.endsWith('/capabilities');
+    if (request.method !== (capabilities ? 'GET' : 'POST')) return error('method_not_allowed', 'Use GET for capabilities or POST for a run.', 405, { Allow: capabilities ? 'GET' : 'POST' });
+    if (!env.ONTOLOGY_LAB_ORIGIN || !env.ONTOLOGY_LAB_TOKEN) return capabilities
+      ? json({ available: false, provider: 'codex', message: 'Start the local workspace to use the ontology lab.' })
+      : error('lab_unavailable', 'The local ontology runner is unavailable.', 503);
+    const origin = new URL(env.ONTOLOGY_LAB_ORIGIN);
+    if (origin.protocol !== 'http:' || origin.hostname !== '127.0.0.1' || origin.pathname !== '/' || origin.username || origin.password || origin.search || origin.hash) return error('local_configuration_error', 'Invalid local ontology runner.', 503);
+    const body = capabilities ? undefined : await boundedBody(request);
+    if (!capabilities && body === undefined) return error('resource_limit', 'HTTP request exceeds 1048576 bytes.', 413);
+    const upstream = await fetch(new URL(capabilities ? '/capabilities' : '/run', origin), {
+      method: request.method, headers: { authorization: `Bearer ${env.ONTOLOGY_LAB_TOKEN}`, 'content-type': 'application/json' }, body,
+      signal: request.signal,
+    });
+    return new Response(upstream.body, { status: upstream.status, headers: { 'content-type': upstream.headers.get('content-type') ?? 'application/json', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' } });
+  }
   if (path === '/api/v1/local/session') {
     if (request.method !== 'GET') return error('method_not_allowed', 'Use GET for a local session.', 405, { Allow: 'GET' });
     if (!localEnabled(env)) return json({ enabled: false });

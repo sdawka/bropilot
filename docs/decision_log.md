@@ -53,3 +53,9 @@
 - **2026-10-09T00:27:12-04:00** — The example uses one full-stack application Thing, backed by one canonical Cloudflare Artifacts repository, deployed to one Worker.
 
 - **2026-10-09T00:27:12-04:00** — Implement the approved hosted deployment plan using parallel subagents, retaining the existing iterative branch and PR.
+
+- **2026-10-09T12:36:27-04:00** — Create an isolated test page for messy description/chat → filled ontology → criteria feedback, with a central ontology, floating agent panel and right-side logs; stepping through logs highlights the corresponding input, agent or changed nodes.
+
+- **2026-10-09T12:53:18-04:00** — Use locally signed-in Codex for live description-to-ontology extraction, with saved runs available for replay.
+
+- **2026-10-09T13:02:19-04:00** — Consider the assistant's personality and ability to surface sensible, thoughtful questions while helping users create their Thing.

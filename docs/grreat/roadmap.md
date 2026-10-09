@@ -2,7 +2,7 @@
 # Define the foundation
 
 - Supports: [[goals]].
-- Current focus: the one-Thing hosted realization/deployment increment is implemented on `feat/candidate-verification` and [PR #9](https://github.com/sdawka/bropilot/pull/9). Integrate final local evidence, then configure and verify staging OAuth/Access, Artifacts/Git and A→B→rollback in the connected account. Broader Task Packets, composition, model/payment Assays and assistant integrations remain deferred.
+- Current focus: qualify the locally verified ontology authoring/flow lab in [[execution]], on `feat/candidate-verification` and [PR #9](https://github.com/sdawka/bropilot/pull/9). The one-Thing hosted realization/deployment increment is locally verified; staging OAuth/Access, Artifacts/Git and A→B→rollback remain pending. Broader Task Packets, composition, model/payment Assays and assistant integrations remain deferred.
 - Plan by dependencies and acceptance criteria, without dates or duration estimates. The adoption record is established; the product milestones below are not implemented or verified by that documentation work.
 
 | Milestone | Dependency | Completion criteria and evidence |

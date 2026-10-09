@@ -1,14 +1,21 @@
 <!-- grreat:record id=execution.next kind=execution_item status=active parent=roadmap.next -->
-# Hosted realization and deployment
+# Ontology authoring and hosted realization
 
 ## Now
 
-- Goal: [[goals]]. Milestone: hosted one-Thing realization, protected verification and explicit deployment/rollback; broader M1–M5 work remains deferred.
-- Next action: Configure the staging hostname, Access/OAuth client and platform storage, verify real Artifacts token/Git access, then run live A→B→rollback acceptance on the reviewed commit in PR #9.
+- Goal: [[goals]]. Milestone: isolated ontology authoring with thoughtful questions and replay is locally verified; hosted one-Thing realization/deployment remains implemented but externally unverified.
+- Next action: Try `/lab/ontology` with real rough Thing descriptions and qualify its ontology/question behavior. Resume staging hostname/Access/OAuth/storage setup and live A→B→rollback proof independently on PR #9.
 - Working state: `feat/candidate-verification`, isolated worktree `/private/tmp/bropilot-world-foundation`, based on merged main `733f6b9`. Older PRs #5–#8 merged with all checks green; #1 closed as superseded, branch preserved. [PR #9](https://github.com/sdawka/bropilot/pull/9) is the single open iterative PR; hosted check results remain on that PR.
 - Blockers: Public OAuth client/domain setup and authenticated provider resources must be verified before live release. Local implementation continues independently. GRREAT sync remains pending credentials.
-- Latest verification: Final production build, hosted staging dry run and complete local check pass: 43 Rust tests (including doc tests), 27 UI, 21 verifier, 71 Worker/adapter and 22 desktop/mobile browser tests. Actual hosted authority tests use workerd/Wasm/SQLite; provider and hosted-route boundaries use mocks. Independent review findings are resolved. [[journals/2026-10-09]] records release limits.
-- Last updated: 2026-10-09T01:07:40-04:00.
+- Latest verification: Final production build and complete local check pass: 43 Rust (including doc tests), 32 UI, 21 verifier, 22 ontology-lab, 75 Worker/adapter and 28 desktop/mobile browser tests. Real local Codex description/follow-up/short-reply runs reach Rust readiness; assistant turns cannot provide source facts. Independent reviews are clear. [[journals/2026-10-09]] records the evidence and release limits.
+- Last updated: 2026-10-09T13:08:19-04:00.
+
+## Ontology flow lab
+
+- Scope: Local Codex proposes typed entities/relations with quoted message provenance; deterministic mapping preserves the protected assistant Template and Rust evaluates the resulting draft. A labelled example extraction supports reproducible exploration without a model call.
+- UI: Central ontology, floating processor panel, input/chat and right-side logs. Event selection and Previous/Next/Play restore exact recorded checkpoints and highlights; following live activity is explicit.
+- Acceptance verified: Actual live extraction plus Rust checks; follow-up descriptions produce isolated new drafts; source quotes are validated; malformed proposals cannot alter Templates/rules; history does not mutate the live draft; desktop/mobile keyboard and replay behavior pass. Thoughtful next questions explain their gaps and short replies retain context without accepting assistant suggestions as user facts. Local process credentials stay out of the browser and production.
+- Parallel ownership: shared mapping/contracts/tests; supervised local model runner/tests; lab UI/tests. Primary owns authenticated routing, local-session integration, browser verification and existing documentation. No canonical writes, external calendar effects or deployment actions.
 
 ## Foundation implementation contract
 
