@@ -1,5 +1,5 @@
 import type { ModelObject, ModelRelation, Source } from '@bropilot/contracts';
-import type { ImpactSelection } from './impact-state';
+import { impactChangeDetails, type ImpactSelection } from './impact-state';
 
 export type MapLink = {
   kind: string;
@@ -60,5 +60,11 @@ export function buildImpactProof(selection: ImpactSelection) {
   });
   const baselineOnlyObjects = new Set(objects.filter(object => !proposed.objects.some(item => item.id === object.id)).map(object => object.id));
   const baselineOnlyRelations = new Set(relations.filter(relation => !proposed.relations.some(item => item.id === relation.id && item.fromId === relation.fromId && item.toId === relation.toId)).map(relation => relation.id));
-  return { objects, relations, baselineOnlyObjects, baselineOnlyRelations };
+  const change = selection.changes?.find(change => change.id === witness.seedId);
+  const seed = objects[0];
+  // Ownership is context for the seed, never an invented dependency relation.
+  const ownership = !!change && change.entityKind === 'thing' && !!seed && sides.some(snapshot => snapshot.objects.some(object => object.id === seed.id && object.thingId === change.id));
+  const trigger = change ? { ...change, details: impactChangeDetails(change, baseline, proposed), ownership,
+    seedObjectId: seed?.id, seedTitle: seed?.title } : undefined;
+  return { objects, relations, baselineOnlyObjects, baselineOnlyRelations, trigger };
 }

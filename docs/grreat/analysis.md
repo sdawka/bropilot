@@ -70,6 +70,8 @@ Specification readiness in these fixtures does not establish calendar connectivi
 
 ## Change-impact local acceptance
 
+The six synthetic UI walkthroughs in [[journals/2026-10-10]] establish the analyzer's bounded calculation and explanation behavior. They exposed a clarity gap: the interface conflated real edits with propagated ownership seeds, obscured evidence applicability and omitted the revision trigger from proofs. The accepted summary/trigger improvements are locally verified: fresh full build/check passes 422 tests including 80 browser cases; independent source and four desktop/mobile screenshots are clear, and the preserved local app serves the current summary and matching assets. These walkthroughs do not establish human-rated usefulness, complete real-world dependencies, adequate Assays or live calendar outcomes.
+
 | Accepted criterion | Evidence and tested state | Remaining gap |
 | --- | --- | --- |
 | Explain actual changes and baseline/proposed consequences deterministically | Compiled Ascent rules, shortest witnesses, separate-side closure, incomplete diagnostics, resource guards, 128-hop/differential native-workerd tests; [[journals/2026-10-10]] | None for the bounded advisory model; causal truth and live calendar effects are outside it |

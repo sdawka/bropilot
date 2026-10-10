@@ -3,12 +3,12 @@
 
 ## Now
 
-- Goal: [[goals]]. Advisory personal-assistant impact analysis is implemented and locally verified in the normal World workspace; accepted scope remains [[roadmap]] and requirements section 3.4.
-- Next action: verify hosted CI for the reviewed increment in existing PR #9; keep merge/deployment separate. Use Map’s Analyze change for saved comparisons and bounded what-if edits.
+- Goal: [[goals]]. Advisory personal-assistant impact analysis and the accepted answer-first clarity improvements are implemented and locally verified in the normal World workspace; accepted scope remains [[roadmap]] and requirements section 3.4.
+- Next action: update existing PR #9 and verify hosted CI and the separately coordinated Artifacts mirror against the final head. Keep merge/deployment separate.
 - Working state: `feat/candidate-verification`, `/private/tmp/bropilot-world-foundation`, existing [PR #9](https://github.com/sdawka/bropilot/pull/9). No merge or deployment.
-- Evidence: fresh complete build/check passes, including 68 browser cases (38 new impact cases); independent source/native/provenance and four-viewport review is clear. [[journals/2026-10-10]] links counts and source-pinned benchmark data.
+- Evidence: fresh complete build/check passes on the reviewed clarity working tree based on `43ecafc`: 422 tests including 80 browser cases. Independent source and desktop/mobile visual review is clear. The preserved local session serves the new summary and exact built assets; [[journals/2026-10-10]] records the synthetic walkthroughs, counts and boundaries.
 - Blockers: versioned GRREAT preview still lacks credentials, zero applied/conflicts. Hosted provider/OAuth release proof remains separately pending.
-- Last updated: 2026-10-10T14:33:20-04:00.
+- Last updated: 2026-10-10T15:15:37-04:00.
 
 ## Ontology flow lab
 

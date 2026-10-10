@@ -144,7 +144,9 @@ onBeforeUnmount(() => observer?.disconnect());
   <section class="world-map" role="region" aria-label="Visual World map">
     <template v-if="proof && impactSelection">
       <header class="proof-heading"><div><p class="map-status">Exact explanation path</p><h2>{{ impactSelection.title }}</h2><p class="map-status">{{ impactSelection.witness.ruleId }} · {{ impactSelection.witness.side === 'both' ? 'Both models' : impactSelection.witness.side === 'baseline' ? 'Baseline model' : 'Proposed model' }}</p></div><button class="secondary" @click="emit('clearImpact')">Return to focus map</button></header>
+      <div v-if="proof.trigger" class="proof-trigger" aria-label="Change that starts this path"><p><strong>{{ proof.trigger.title }}</strong> <small>Changed input</small></p><p v-for="detail in proof.trigger.details" :key="detail">{{ detail }}</p><p v-if="proof.trigger.ownership" class="map-status">The changed Thing owns the starting object: {{ proof.trigger.seedTitle }}. This changed input flags the object before the dependency path continues.</p></div>
       <div ref="stage" class="map-stage proof-stage" tabindex="-1" :class="{ mobile }" :style="{ minHeight: `${proofHeight}px` }" aria-label="Explanation path graph">
+        <svg v-if="proof.trigger?.ownership && proofPositions[0]" class="trigger-connector" :viewBox="`0 0 ${bounds.width} ${proofHeight}`" preserveAspectRatio="none" aria-hidden="true"><path :d="`M ${proofPositions[0].x} 0 L ${proofPositions[0].x} ${Math.max(15, proofPositions[0].y - (nodeSizes[proofPositions[0].object.id]?.height ?? 110) / 2 - 5)}`" :data-trigger-seed="proof.trigger.seedObjectId" /><text :x="proofPositions[0].x + 8" y="18">Owned seed</text></svg>
         <svg class="connectors" :viewBox="`0 0 ${bounds.width} ${proofHeight}`" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="proof-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 8 4 L 0 8 z" /></marker></defs><g v-for="relation in proof.relations" :key="`${relation.id}/${relation.fromId}/${relation.toId}`"><path :d="proofPath(relation.fromId, relation.toId)" :class="{ 'baseline-only': proof.baselineOnlyRelations.has(relation.id) }" marker-end="url(#proof-arrow)" :data-relation-id="relation.id" /><text v-if="proof.baselineOnlyRelations.has(relation.id)" class="proof-edge-label" :x="proofMidpoint(relation.fromId, relation.toId).x" :y="proofMidpoint(relation.fromId, relation.toId).y" text-anchor="middle">Baseline only</text></g></svg>
         <button v-for="point in proofPositions" :key="point.object.id" :ref="element => registerNode(point.object.id, element)" class="peer-node proof-node" :class="{ 'baseline-only': proof.baselineOnlyObjects.has(point.object.id) }" :style="{ left: `${point.x / bounds.width * 100}%`, top: `${point.y}px` }" :aria-label="`${point.object.title}${proof.baselineOnlyObjects.has(point.object.id) ? ', baseline only' : ''}`" @click="select(point.object.id)"><span class="node-kind">{{ point.object.kind }}</span><span class="node-title">{{ point.object.title }}</span><span v-if="proof.baselineOnlyObjects.has(point.object.id)" class="link-label">Baseline only</span></button>
       </div>
@@ -226,6 +228,11 @@ onBeforeUnmount(() => observer?.disconnect());
 .pagination button:disabled { cursor: default; opacity: .45; }
 .proof-heading { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:.5rem; }
 .proof-heading h2 { margin:.35rem 0; font-size:1rem; }
+.proof-trigger { border:1px solid var(--jade); border-radius:12px; padding:.7rem .9rem; margin-top:.7rem; background:var(--wash); font-size:.85rem; }
+.proof-trigger p { margin:.25rem 0; overflow-wrap:anywhere; line-height:1.5; } .proof-trigger small { margin-left:.5rem; color:var(--muted); }
+.trigger-connector { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.trigger-connector path { fill:none; stroke:var(--jade); stroke-dasharray:3 3; stroke-width:1.5; }
+.trigger-connector text { fill:var(--jade); font-size:11px; }
 .proof-node { width:min(176px,calc(25% - 16px)); }
 .proof-node.baseline-only { border-style:dashed; background:var(--wash); }
 .connectors path.baseline-only { stroke:var(--jade); stroke-dasharray:5 4; }

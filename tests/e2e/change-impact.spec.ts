@@ -184,9 +184,12 @@ test('removed relations remain explicit baseline-only ghosts in exact proof geom
   const result = await compare(page, 'assistant-impact-removed-dependency');
   const missing = result.baselineSnapshot.relations.filter(relation => !result.targetSnapshot.relations.some(target => target.id === relation.id));
   expect(missing.length).toBeGreaterThan(0);
-  const closedGroups = panel.locator('.impact-group:not([open]) > summary');
-  while (await closedGroups.count()) await closedGroups.first().click();
-  const buttons = panel.locator('.proof-button:visible');
+  const allAffected = panel.locator('.impact-all-affected');
+  await allAffected.locator(':scope > summary').click();
+  const expectedIds = result.report.affectedThings.flatMap(thing => thing.objects.map(object => object.objectId)).sort();
+  await expect(allAffected.locator('[data-object-id]')).toHaveCount(expectedIds.length);
+  expect((await allAffected.locator('[data-object-id]').evaluateAll(elements => elements.map(element => element.getAttribute('data-object-id')))).sort()).toEqual(expectedIds);
+  const buttons = panel.getByLabel('Changed inputs').locator('.proof-button:visible');
   let found = false;
   for (let index = 0; index < await buttons.count(); index++) {
     await buttons.nth(index).click();

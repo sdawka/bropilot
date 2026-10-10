@@ -2,6 +2,8 @@ import { expect, it } from 'vitest';
 import type { ModelObject, ModelRelation } from '@bropilot/contracts';
 import { buildFocusMap, buildImpactProof, pageMapPeers, searchMapObjects } from './map-model';
 import type { WorldSnapshot } from '@bropilot/contracts';
+import baselineFixture from '../../../packages/contracts/fixtures/assistant-impact-baseline.json';
+import adapterFixture from '../../../packages/contracts/fixtures/assistant-impact-calendar-adapter.json';
 
 const declared = { kind: 'declared' as const, reference: 'model' };
 const objects = [
@@ -52,5 +54,29 @@ it('renders exact proof paths beyond the selected focus and retains removed base
   expect(proof.objects.map(object => object.id)).toEqual(['child', 'remote']);
   expect(proof.relations.map(relation => relation.id)).toEqual(['c']);
   expect(proof.baselineOnlyObjects.has('remote')).toBe(true);
+  expect(proof.baselineOnlyRelations.has('c')).toBe(true);
+});
+
+it('anchors a Thing-owned seed to the actual revision change without inventing a dependency edge', () => {
+  const proof = buildImpactProof({ title: 'Scheduling', baseline: baselineFixture as WorldSnapshot, proposed: adapterFixture as WorldSnapshot,
+    changes: [{ id: 'thing-calendar-adapter', entityKind: 'thing', changeKind: 'modified', title: 'Managed calendar adapter', changedFields: ['revisionId'] }],
+    witness: { seedId: 'thing-calendar-adapter', side: 'proposed', ruleId: 'assistant-impact.depends-on', objectIds: ['availability-calendar', 'scheduling'], relationIds: ['scheduling-availability'] },
+  });
+  expect(proof.trigger).toMatchObject({ id: 'thing-calendar-adapter', title: 'Managed calendar adapter', seedObjectId: 'availability-calendar', ownership: true });
+  expect(proof.trigger?.details.join(' ')).toContain('calendar-adapter@1 → calendar-adapter@2');
+  expect(proof.relations.map(relation => relation.id)).toEqual(['scheduling-availability']);
+  expect(proof.objects.map(object => object.id)).toEqual(['availability-calendar', 'scheduling']);
+});
+
+it('shows exact removed relationship origins and uses the baseline side for removed facts', () => {
+  const baseline = { objects, relations, things: [] } as unknown as WorldSnapshot;
+  const proposed = { objects: objects.map(object => ({ ...object, title: `Proposed ${object.title}` })), relations: relations.filter(relation => relation.id !== 'c'), things: [] } as unknown as WorldSnapshot;
+  const proof = buildImpactProof({ title: 'Remote', baseline, proposed,
+    changes: [{ id: 'c', entityKind: 'relation', changeKind: 'removed', title: 'Supports connection', changedFields: ['existence'] }],
+    witness: { seedId: 'c', side: 'baseline', ruleId: 'assistant-impact.relation-change', objectIds: ['remote', 'child'], relationIds: ['c'] },
+  });
+  expect(proof.trigger).toMatchObject({ id: 'c', changeKind: 'removed', ownership: false });
+  expect(proof.trigger?.details.join(' ')).toContain('Child supports Remote');
+  expect(proof.trigger?.details.join(' ')).not.toContain('Proposed');
   expect(proof.baselineOnlyRelations.has('c')).toBe(true);
 });

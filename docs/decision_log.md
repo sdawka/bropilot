@@ -77,3 +77,5 @@
 - **2026-10-10T14:10:58-04:00** — Compute and explain completed versus planned work from clearly synthetic sample plans and completion observations, with an explicit reporting window and metric definition.
 
 - **2026-10-10T14:10:58-04:00** — Use Sol agents for all implementation, with the primary agent limited to orchestration.
+
+- **2026-10-10T15:02:52-04:00** — Lead change analysis with a concise consequence summary; distinguish actual edits, potential effects, recomputed metrics and evidence rechecks. Start explanations at the actual Thing revision change and prioritize useful consequences while retaining full detail on demand.
