@@ -10,7 +10,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 // Secrets live beside a generated local config, never in the deployable config.
-export async function startLocalSession({ port = 8791, directory = resolve(root, '.local-session'), output = process.stdout, verifier = true, ontologyLab = true, labProvider } = {}) {
+export async function startLocalSession({ port = 8791, directory = resolve(root, '.local-session'), output = process.stdout, verifier = true, ontologyLab = true, labProvider, labSemanticProvider, labQuestionProvider } = {}) {
   await mkdir(directory, { recursive: true, mode: 0o700 });
   const keys = { owner: randomBytes(32).toString('hex'), implementer: randomBytes(32).toString('hex'), verifier: randomBytes(32).toString('hex') };
   const config = JSON.parse(await readFile(resolve(root, 'apps/worker/wrangler.jsonc'), 'utf8'));
@@ -40,7 +40,7 @@ export async function startLocalSession({ port = 8791, directory = resolve(root,
     }));
   };
   try {
-    lab = ontologyLab ? await startOntologyLab({ token: labToken, coreOrigin: origin, provider: labProvider }) : null;
+    lab = ontologyLab ? await startOntologyLab({ token: labToken, coreOrigin: origin, provider: labProvider, semanticProvider: labSemanticProvider, questionProvider: labQuestionProvider }) : null;
     await writeFile(configFile, JSON.stringify(config), { mode: 0o600 });
     await writeFile(resolve(directory, '.dev.vars'), `LOCAL_WORKSPACE="enabled"\nLOCAL_OWNER_TOKEN="${keys.owner}"\nLOCAL_IMPLEMENTER_TOKEN="${keys.implementer}"\nLOCAL_VERIFIER_TOKEN="${keys.verifier}"\n${lab ? `ONTOLOGY_LAB_ORIGIN="${lab.origin}"\nONTOLOGY_LAB_TOKEN="${labToken}"\n` : ''}`, { mode: 0o600 });
     await writeFile(verifierTokenFile, keys.verifier, { mode: 0o600 });

@@ -4,6 +4,8 @@
  * into the WorldSnapshot understood by the Rust core.
  */
 
+import { selectQuestionCandidates } from "./question-policy.mjs";
+
 const MAX_MESSAGES = 24;
 const MAX_TEXT = 4_000;
 const MAX_ENTITIES = 48;
@@ -352,7 +354,7 @@ function normal(text) { return text.toLowerCase().replace(/[^a-z0-9]+/g, " ").tr
  * Turns actual Rust findings into a small set of calm, concrete next questions.
  * Extraction questions are preserved only as proposal-originated context.
  */
-export function planQuestions(evaluation, snapshot, extractionQuestions = []) {
+export function buildQuestionCandidates(evaluation, snapshot, extractionQuestions = []) {
   if (!evaluation || !Array.isArray(evaluation.findings) || !snapshot || !Array.isArray(snapshot.objects)) fail("invalid_evaluation", "questions need an evaluation and snapshot");
   const byId = new Map(snapshot.objects.map(object => [object.id, object]));
   const cards = [];
@@ -361,7 +363,7 @@ export function planQuestions(evaluation, snapshot, extractionQuestions = []) {
     .filter(item => item.finding.ruleId === ruleId);
   const add = (card) => {
     if (cards.some(existing => normal(existing.text) === normal(card.text))) return;
-    cards.push(card);
+    cards.push({ origins: ["criteria"], evidenceRefs: [], ...card });
   };
   const title = id => byId.get(id)?.title ?? "this part of the model";
   const missingSubject = kind => !snapshot.objects.some(object => object.kind === kind);
@@ -384,7 +386,10 @@ export function planQuestions(evaluation, snapshot, extractionQuestions = []) {
     }
   }
   for (const item of findingsFor(RULES.authorization)) {
-    for (const objectId of item.finding.objectIds ?? []) add({ id: questionId(RULES.authorization, objectId), text: `For «${title(objectId)}», which changes need your approval?`, why: "The criteria check has no authorization rule for this operation.", objectIds: [objectId], findingIds: [item.id] });
+    for (const objectId of item.finding.objectIds ?? []) {
+      const subject = title(objectId);
+      add({ id: questionId(RULES.authorization, objectId), text: `For «${subject}», which changes need your approval?`, why: "The criteria check has no authorization rule for this operation.", objectIds: [objectId], findingIds: [item.id], operation: { mode: /\b(search|read|view|list|find|look up)\b/i.test(subject) ? "read" : "write", subject } });
+    }
   }
   for (const item of findingsFor(RULES.assay)) {
     for (const objectId of item.finding.objectIds ?? []) add({ id: questionId(RULES.assay, objectId), text: `For «${title(objectId)}», what concrete test would show this criterion is met?`, why: "This defines a model check; it does not say that test has run.", objectIds: [objectId], findingIds: [item.id] });
@@ -399,27 +404,34 @@ export function planQuestions(evaluation, snapshot, extractionQuestions = []) {
   if (missingSubject("acceptanceCriterion") && scopeFinding("assay-links").length) add({ id: "question:initial-test", text: "What should this Thing reliably do first, and how would you check it?", why: "The draft still needs one clear promise and a way to check it.", objectIds: [], findingIds: scopeFinding("assay-links").map(item => item.id) });
   if ((missingSubject("beneficiary") || missingSubject("outcome")) && scopeFinding("purpose-links").length) add({ id: "question:initial-purpose", text: "Who is this for, and what change should it make?", why: "The purpose links are incomplete.", objectIds: [], findingIds: scopeFinding("purpose-links").map(item => item.id) });
 
-  const hasTopic = ruleIds => cards.some(card => card.findingIds.some(id => ruleIds.some(rule => id.startsWith(`${rule}:`))));
   for (const text of extractionQuestions) {
     if (typeof text !== "string" || !text.trim()) continue;
-    const wording = normal(text);
-    if (/measure|success|review.*progress|practice.*happen/.test(wording) && hasTopic([RULES.indicator, RULES.evaluation])) continue;
-    if (/approval|permission|authoriz/.test(wording) && hasTopic([RULES.authorization])) continue;
-    if (/verify|concrete test|criterion/.test(wording) && hasTopic([RULES.assay])) continue;
-    add({ id: `question:proposal:${cards.length}`, text, why: "This was raised while interpreting the proposed model.", objectIds: [], findingIds: [] });
+    add({ id: `question:proposal:${cards.length}`, text, origins: ["proposal"], why: "This was raised while interpreting the proposed model.", objectIds: [], findingIds: [], evidenceRefs: [] });
   }
-  return cards.slice(0, 3);
+  return cards;
+}
+
+/**
+ * Compatibility wrapper for legacy callers. Supplying conversation options
+ * selects one visible next question; callers without them receive the prior
+ * inspectable candidate list.
+ */
+export function planQuestions(evaluation, snapshot, extractionQuestions = [], options = undefined) {
+  const candidates = buildQuestionCandidates(evaluation, snapshot, extractionQuestions);
+  if (!options || !Array.isArray(options.messages)) return candidates.slice(0, 3);
+  const selection = selectQuestionCandidates(candidates, options);
+  return selection.selected;
 }
 
 export const feedbackQuestions = feedbackFromEvaluation;
 export const buildDraft = applyProposal;
 
-export function createLabEvent({ id, seq, time = new Date().toISOString(), kind, actor, title, detail = "", targets = {}, snapshot = null, evaluation = null, questions = [], questionCards = [] }) {
-  if (!Number.isInteger(seq) || seq < 0 || typeof id !== "string" || typeof kind !== "string" || !["input", "extractor", "mapper", "criteria", "feedback"].includes(actor)) fail("invalid_event", "event id, sequence, kind, and actor are required");
+export function createLabEvent({ id, seq, time = new Date().toISOString(), kind, actor, title, detail = "", targets = {}, snapshot = null, evaluation = null, questions = [], questionCards = [], semanticReview = null, questionSelection = null, timings = null, stage = null, processor = null }) {
+  if (!Number.isInteger(seq) || seq < 0 || typeof id !== "string" || typeof kind !== "string" || !["input", "extractor", "mapper", "criteria", "feedback", "semantic", "questioner"].includes(actor)) fail("invalid_event", "event id, sequence, kind, and actor are required");
   return {
     id, seq, time, kind, actor, title, detail,
     targets: { messageIds: [...(targets.messageIds ?? [])], objectIds: [...(targets.objectIds ?? [])], relationIds: [...(targets.relationIds ?? [])], findingIds: [...(targets.findingIds ?? [])] },
-    snapshot, evaluation, questions: [...questions], questionCards: [...questionCards],
+    snapshot, evaluation, questions: [...questions], questionCards: [...questionCards], semanticReview, questionSelection, timings, stage, processor,
   };
 }
 

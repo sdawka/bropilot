@@ -173,3 +173,37 @@ copied into this repository or recorded with results. Re-running uses new output
 paths to preserve evidence. Full synthetic traces and proposals for this run are in
 `.test-artifacts/ontology-benchmark-baseline`; raw System One evidence is in
 `.test-artifacts/system-one-benchmark`.
+
+## Local integration follow-up (2026-10-09)
+
+[Durable results](results-2026-10-09-improvements.json) include source manifests, per-case independent model-assisted ratings, exact graph judgments and offline selection comparisons. The original baseline above is unchanged. Jev 1.13.0 now supplies six provisional graph/question judgments in the local lab; gpt-6-luna generates questions tied to current findings. Human ratings: **zero**.
+
+| Measurement | Live original baseline | Live revised baseline | Live frozen held-out | Final policy offline reselection |
+| --- | --- | --- | --- | --- |
+| Completed | 16/16 (8 ideas × 2) | 8/8 (one each) | 33/33 distinct conversations | Same saved 8 + 33 outputs |
+| Top-rated first questions | 1/16 | 6/8 | 19/33 | 8/8 baseline; 19/33 held-out |
+| Question rubric points | See original results | 13/16 | 48/66 | 16/16 baseline; 49/66 held-out |
+
+The independent review was nonblind and model-assisted. Held-out fidelity and coverage scored 66/66 each; this rubric is not a proof of semantic correctness. Revised baseline fidelity and coverage each scored 15/16: an expense beneficiary was misframed, and the calendar health criterion lacked full typed Assay coverage despite preserving the fact. Reselection reused identical proposals/judgments, changed 3/8 baseline and 8/33 held-out questions, and is **not a live rerun**. Its mixed held-out changes do not establish robust uplift. The proposed 80% useful-question target remains unmet. Known errors include suggesting excluded packing recommendations, reopening closed ballots, moving request approval to listing approval, and generic success prompts.
+
+Final exact graph review flagged all five bad graphs and had zero flags on the valid control; valid-control permission meaning remained uncertain. Thresholds stayed at 0.1/0.9. Earlier experiments exposed stale prompt paths and duplicated context; their raw results remain in `.test-artifacts/semantic-graph-review*.json` and `ontology-heldout-v2`. These known synthetic probes are neither calibration nor general reliability evidence.
+
+| Phase | Held-out p50 | Held-out p95 |
+| --- | ---: | ---: |
+| Extraction | 17.690s | 32.677s |
+| Rust | 0.006s | 0.025s |
+| Graph semantic review | 0.534s | 0.999s |
+| Luna questions | 4.125s | 6.560s |
+| Question ranking | 0.393s | 0.552s |
+| Total | 23.982s | 38.286s |
+
+Extraction is the main latency bottleneck. More semantic calls are inexpensive in elapsed time here but do not guarantee useful questions. The next work should address exact exclusions/permission subjects and generic fallback selection, then obtain human ratings before autonomy. An additional live local-app adaptive follow-up respected a short no-metrics answer and asked a different access-scope question; that single synthetic interaction is not a broad adaptive benchmark.
+
+Reproduction (explicit live calls use an authorized local env file):
+
+```sh
+node packages/ontology-lab/benchmark/heldout-evaluation.mjs --live --env-file /path/to/authorized.env --repeat 1 --concurrency 2 --out .test-artifacts/ontology-heldout-new
+node packages/ontology-lab/benchmark/reselect.mjs --input .test-artifacts/ontology-heldout-new --out .test-artifacts/ontology-reselected-new
+```
+
+Use `BROPILOT_SEMANTIC_REVIEW=off` or `BROPILOT_QUESTION_MODEL=off` to disable optional local providers. Provider requests contain the bounded role-aware conversation and relevant graph subject; request count/bytes/concurrency/deadlines are bounded, while observed token guards cannot undo already-running calls. No semantic result updates canonical state, authorization or Assay execution evidence.

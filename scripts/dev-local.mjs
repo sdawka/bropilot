@@ -1,3 +1,4 @@
+import { localSemanticProvider } from '../packages/ontology-lab/local-config.mjs';
 import { startLocalSession } from './local-session.mjs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -6,7 +7,10 @@ import { join } from 'node:path';
 await import('./build-runner-manifest.mjs');
 const temporaryDirectory = process.env.BROPILOT_EPHEMERAL_SESSION === '1'
   ? await mkdtemp(join(tmpdir(), 'bropilot-browser-')) : undefined;
+const semanticProvider = process.env.BROPILOT_EPHEMERAL_SESSION === '1' ? undefined : await localSemanticProvider(new URL('../.local-session/typesafe.env', import.meta.url), { disabled: process.env.BROPILOT_SEMANTIC_REVIEW === 'off' });
 const session = await startLocalSession({
+  labSemanticProvider: semanticProvider,
+  labQuestionProvider: process.env.BROPILOT_QUESTION_MODEL === 'off' ? false : undefined,
   directory: temporaryDirectory ?? process.env.BROPILOT_LOCAL_SESSION_DIRECTORY ?? '.local-session/workspace',
   port: Number(process.env.BROPILOT_LOCAL_PORT ?? 8791),
 });

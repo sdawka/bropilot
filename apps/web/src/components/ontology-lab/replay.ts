@@ -11,20 +11,48 @@ export type ReplayEvent<TSnapshot = unknown, TEvaluation = unknown> = {
   snapshot: TSnapshot | null;
   evaluation: TEvaluation | null;
   targets: TraceTarget;
+  /** Optional provisional model assessment; it never changes structural readiness. */
+  semanticReview?: unknown;
+  questionSelection?: unknown;
+  timings?: unknown;
+  stage?: unknown;
 };
 
 /** The state visible at a trace point; later events cannot alter its past. */
 export function replayCheckpoint<TSnapshot, TEvaluation>(events: ReplayEvent<TSnapshot, TEvaluation>[], selected: number) {
   const bounded = Math.min(Math.max(selected, 0), Math.max(events.length - 1, 0));
+  let evaluation: TEvaluation | null = null;
+  let semanticReview: unknown = undefined;
+  let questionSelection: unknown = undefined;
+  let timings: unknown = undefined;
+  let stage: unknown = undefined;
+  let snapshot: TSnapshot | null = null;
   for (let index = bounded; index >= 0; index -= 1) {
     const event = events[index];
-    if (event?.snapshot) return { event, snapshot: event.snapshot, evaluation: event.evaluation };
+    if (!event) continue;
+    if (evaluation === null && event.evaluation) evaluation = event.evaluation;
+    if (semanticReview === undefined && Object.hasOwn(event, 'semanticReview')) semanticReview = event.semanticReview;
+    if (questionSelection === undefined && Object.hasOwn(event, 'questionSelection')) questionSelection = event.questionSelection;
+    if (timings === undefined && Object.hasOwn(event, 'timings')) timings = event.timings;
+    if (stage === undefined && Object.hasOwn(event, 'stage')) stage = event.stage;
+    if (snapshot === null && event.snapshot) snapshot = event.snapshot;
   }
-  return { event: events[bounded], snapshot: null, evaluation: null };
+  return { event: events[bounded], snapshot, evaluation, semanticReview, questionSelection, timings, stage };
 }
 
 export function nextTraceIndex(current: number, total: number, direction: -1 | 1) {
   return Math.min(Math.max(current + direction, 0), Math.max(total - 1, 0));
+}
+
+/** A received terminal event remains authoritative even if stream cleanup aborts afterward. */
+export function terminalTraceOutcome(events: Array<{ kind?: unknown; detail?: unknown }>) {
+  for (let index = events.length - 1; index >= 0; index -= 1) {
+    const event = events[index];
+    if (event?.kind === 'run.completed' || event?.kind === 'run.failed') {
+      return { kind: event.kind, detail: typeof event.detail === 'string' ? event.detail : '' };
+    }
+  }
+  return undefined;
 }
 
 export function parseNdjson<T>(buffer: string) {
@@ -72,8 +100,12 @@ function isStoredEvent(value: unknown): value is ReplayEvent {
   if (!value || typeof value !== 'object') return false;
   const event = value as Record<string, unknown>;
   if (typeof event.id !== 'string' || typeof event.seq !== 'number' || typeof event.time !== 'string' || typeof event.kind !== 'string' || typeof event.title !== 'string' || typeof event.detail !== 'string') return false;
-  if (!['input', 'extractor', 'mapper', 'criteria', 'feedback'].includes(event.actor as string) || !stringList(event.questions)) return false;
+  if (!['input', 'extractor', 'mapper', 'criteria', 'semantic', 'questioner', 'feedback'].includes(event.actor as string) || !stringList(event.questions)) return false;
   if (event.questionCards !== undefined && (!Array.isArray(event.questionCards) || event.questionCards.length > 3 || !event.questionCards.every(card => !!card && typeof card === 'object' && typeof card.id === 'string' && typeof card.text === 'string' && typeof card.why === 'string' && stringList(card.objectIds) && stringList(card.findingIds)))) return false;
   const targets = event.targets as Record<string, unknown> | null;
-  return !!targets && typeof targets === 'object' && stringList(targets.messageIds) && stringList(targets.objectIds) && stringList(targets.relationIds) && stringList(targets.findingIds) && snapshot(event.snapshot) && evaluation(event.evaluation);
+  return !!targets && typeof targets === 'object' && stringList(targets.messageIds) && stringList(targets.objectIds) && stringList(targets.relationIds) && stringList(targets.findingIds) && snapshot(event.snapshot) && evaluation(event.evaluation)
+    && optionalRecord(event.semanticReview) && optionalRecord(event.questionSelection) && optionalRecord(event.timings)
+    && (event.stage === undefined || event.stage === null || typeof event.stage === 'string');
 }
+
+function optionalRecord(value: unknown) { return value === undefined || value === null || (!!value && typeof value === 'object'); }

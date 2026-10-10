@@ -12,10 +12,13 @@ import {
   createDraft,
   createLabEvent,
   extractionSchema,
-  feedbackFromEvaluation,
-  planQuestions,
+  buildQuestionCandidates,
   validateProposal,
 } from "./domain.mjs";
+
+import { selectQuestionCandidates } from "./question-policy.mjs";
+import { reviewSemantics } from "./semantic-review.mjs";
+import { QUESTION_MODEL, questionSchema, questionPrompt, validateQuestionResponse } from "./question-model.mjs";
 
 const MAX_BODY_BYTES = 64 * 1024;
 const MAX_MESSAGES = 24;
@@ -124,7 +127,9 @@ function validateMessages(body) {
   if (body.mode === "example" && JSON.stringify(messages) !== JSON.stringify(EXAMPLE_MESSAGES)) {
     throw new LabError("example_mismatch", "example mode accepts only the exported example messages");
   }
-  return { mode: body.mode, messages };
+  const stage = body.stage ?? "exploring";
+  if (!["exploring", "defining", "realizing"].includes(stage)) throw new LabError("invalid_stage", "stage must be exploring, defining or realizing");
+  return { mode: body.mode, messages, stage };
 }
 
 function safeProcessError(error) {
@@ -144,7 +149,7 @@ function killProcessGroup(child) {
   }
 }
 
-export function buildCodexArguments({ cwd, schemaFile, outputFile }) {
+export function buildCodexArguments({ cwd, schemaFile, outputFile, model }) {
   const args = [
     "exec",
     "--json",
@@ -169,6 +174,7 @@ export function buildCodexArguments({ cwd, schemaFile, outputFile }) {
     "-c",
     "show_raw_agent_reasoning=false",
   ];
+  if (model) args.push("--model", model, "-c", 'model_reasoning_effort="low"');
   for (const feature of TOOL_FEATURES) args.push("-c", `features.${feature}=false`);
   args.push("-");
   return args;
@@ -204,13 +210,13 @@ function codexEnvironment() {
   return Object.fromEntries(allowed.flatMap((name) => process.env[name] === undefined ? [] : [[name, process.env[name]]]));
 }
 
-export async function runLocalCodexProvider({ messages, template, signal, executable = "codex" }) {
+export async function runLocalCodexProvider({ messages, template, signal, executable = "codex", model, schema = extractionSchema, prompt }) {
   const directory = await mkdtemp(join(tmpdir(), "bropilot-ontology-lab-"));
   const schemaFile = join(directory, "schema.json");
   const outputFile = join(directory, "proposal.json");
   try {
-    await writeFile(schemaFile, JSON.stringify(extractionSchema), { mode: 0o600 });
-    const child = spawn(executable, buildCodexArguments({ cwd: directory, schemaFile, outputFile }), {
+    await writeFile(schemaFile, JSON.stringify(schema), { mode: 0o600 });
+    const child = spawn(executable, buildCodexArguments({ cwd: directory, schemaFile, outputFile, model }), {
       cwd: directory,
       detached: process.platform !== "win32",
       stdio: ["pipe", "pipe", "pipe"],
@@ -231,7 +237,7 @@ export async function runLocalCodexProvider({ messages, template, signal, execut
     const abort = () => killProcessGroup(child);
     signal?.addEventListener("abort", abort, { once: true });
     if (signal?.aborted) abort();
-    child.stdin.end(extractionPrompt(messages, template));
+    child.stdin.end(prompt ?? extractionPrompt(messages, template));
     const result = await new Promise((resolve, reject) => {
       child.once("error", reject);
       child.once("close", (code, childSignal) => resolve({ code, signal: childSignal }));
@@ -323,19 +329,27 @@ function progressiveSnapshots(draft, completed, changes) {
   return snapshots;
 }
 
-async function runPipeline({ messages, mode, provider, coreOrigin, baseFixture, signal, emit }) {
+async function runPipeline({ messages, mode, stage = "exploring", provider, questionProvider, semanticProvider, semanticCache, coreOrigin, baseFixture, signal, emit }) {
   const runId = `run-${randomUUID()}`;
   let sequence = 0;
-  const record = ({ kind, actor, title, detail = "", targets = {}, snapshot = null, evaluation = null, questions = [], questionCards = [] }) => {
+  const timings = {};
+  const started = performance.now();
+  let tick = started;
+  const mark = name => { const now = performance.now(); timings[name] = Math.round(now - tick); tick = now; timings.totalMs = Math.round(now - started); };
+  const record = ({ kind, actor, title, detail = "", targets = {}, snapshot = null, evaluation = null, questions = [], questionCards = [], ...extra }) => {
     const seq = sequence++;
-    emit(createLabEvent({ id: `${runId}:${seq}`, seq, kind, actor, title, detail, targets, snapshot, evaluation, questions, questionCards }));
+    emit(createLabEvent({ id: `${runId}:${seq}`, seq, kind, actor, title, detail, targets, snapshot, evaluation, questions, questionCards, stage, timings: { ...timings }, ...extra }));
   };
   const draft = createDraft(baseFixture, runId);
   record({ kind: "run.started", actor: "input", title: "Description received", targets: { messageIds: messages.map(({ id }) => id) }, snapshot: draft });
+  if (mode === "live" && messages.length === 1 && messages[0].role === "user" && messages[0].text.trim().split(/\s+/).length <= 8) {
+    record({ kind: "questions.provisional", actor: "questioner", title: "An opening question while the draft is mapped", detail: "This general opening question is provisional; criteria-grounded feedback follows the checks.", questions: ["What should someone be able to accomplish with this first?"], snapshot: draft });
+  }
   record({ kind: "agent.started", actor: "extractor", title: mode === "example" ? "Load labeled example" : "Extract ontology claims", detail: mode === "example" ? "Using the deterministic example proposal." : "The local model is extracting typed claims supported by the description.", targets: { messageIds: messages.map(({ id }) => id) }, snapshot: draft });
 
   const proposal = mode === "example" ? clone(EXAMPLE_PROPOSAL) : await provider({ messages, template: baseFixture.template, signal });
   validateProposal(proposal, messages, baseFixture.template);
+  mark("extractionMs");
   record({ kind: "agent.completed", actor: "extractor", title: "Typed extraction validated", detail: `${proposal.entities.length} entities and ${proposal.relations.length} relations were accepted by the bounded schema.`, targets: { messageIds: messages.map(({ id }) => id) }, snapshot: draft, questions: proposal.questions });
 
   record({ kind: "agent.started", actor: "mapper", title: "Map the draft ontology", detail: "The deterministic mapper is applying the typed extraction to an isolated draft World.", snapshot: draft });
@@ -351,20 +365,56 @@ async function runPipeline({ messages, mode, provider, coreOrigin, baseFixture, 
   }
   record({ kind: "agent.completed", actor: "mapper", title: "Draft ontology assembled", targets: { objectIds: applied.changes.objectIds, relationIds: applied.changes.relationIds }, snapshot: applied.snapshot });
 
+  mark("mappingMs");
   record({ kind: "agent.started", actor: "criteria", title: "Run deterministic criteria", detail: "The Rust core is checking the draft against the protected assistant-world rules.", snapshot: applied.snapshot });
   const evaluation = await evaluate(coreOrigin, applied.snapshot, signal);
+  mark("structuralMs");
   const findingObjectIds = [...new Set(evaluation.findings.flatMap((finding) => finding.objectIds ?? []))];
   const findingIds = evaluation.findings.map((finding, index) => `${finding.ruleId}:${index}`);
   record({ kind: "criteria.completed", actor: "criteria", title: `Criteria status: ${evaluation.status}`, detail: `${evaluation.findings.length} finding${evaluation.findings.length === 1 ? "" : "s"} recorded by the Rust evaluator.`, targets: { objectIds: findingObjectIds, findingIds }, snapshot: applied.snapshot, evaluation });
 
-  const feedback = feedbackFromEvaluation(evaluation);
-  const questionCards = planQuestions(evaluation, applied.snapshot, proposal.questions);
+  let semanticReview = null;
+  if (mode === "live") {
+    record({ kind: "semantic.started", actor: "semantic", title: "Review meaning and evidence", snapshot: applied.snapshot, evaluation });
+    semanticReview = await reviewSemantics({ proposal, snapshot: applied.snapshot, messages, stage, evaluation }, { provider: semanticProvider, cache: semanticCache, signal: AbortSignal.any([signal, AbortSignal.timeout(8000)]), kinds: ["claim_entailment", "relation_relevance", "contradiction", "permission_scope"] });
+    signal.throwIfAborted();
+    mark("semanticMs");
+    record({ kind: "semantic.completed", actor: "semantic", title: "Provisional semantic review", detail: "Semantic judgments are separate from structural readiness and never grant authorization.", targets: { objectIds: applied.changes.objectIds }, snapshot: applied.snapshot, evaluation, semanticReview });
+  }
+  let candidates = buildQuestionCandidates(evaluation, applied.snapshot, proposal.questions);
+  if (mode === "live" && questionProvider) {
+    record({ kind: "questions.started", actor: "questioner", title: "Luna considers the unresolved criteria", snapshot: applied.snapshot, evaluation, semanticReview });
+    try {
+      const questionSignal = AbortSignal.any([signal, AbortSignal.timeout(15000)]);
+      const input = { messages, snapshot: applied.snapshot, evaluation, semanticReview, stage, signal: questionSignal };
+      const generated = await questionProvider(input);
+      candidates = [...validateQuestionResponse(generated, applied.snapshot, evaluation, semanticReview), ...candidates];
+      mark("questionsMs");
+      record({ kind: "questions.generated", actor: "questioner", title: "Criteria-grounded questions generated", detail: `Question model: ${QUESTION_MODEL}. References validated against this run.`, snapshot: applied.snapshot, evaluation, semanticReview });
+    } catch {
+      if (signal.aborted) throw signal.reason;
+      mark("questionsMs");
+      record({ kind: "questions.unavailable", actor: "questioner", title: "Using available question candidates", detail: "Luna was unavailable or returned invalid references; the deterministic question policy remains available.", snapshot: applied.snapshot, evaluation, semanticReview });
+    }
+  }
+  if (mode === "live" && semanticProvider && candidates.length) {
+    const ranking = await reviewSemantics({ proposal, snapshot: applied.snapshot, messages, candidates, stage, evaluation }, { provider: semanticProvider, cache: semanticCache, signal: AbortSignal.any([signal, AbortSignal.timeout(5000)]), kinds: ["question_usefulness", "question_already_answered"] });
+    signal.throwIfAborted();
+    semanticReview = { ...semanticReview, questionReview: ranking, judgments: [...(semanticReview?.judgments ?? []), ...ranking.judgments] };
+    mark("rankingMs");
+  }
+  signal.throwIfAborted();
+  const questionSelection = selectQuestionCandidates(candidates, { messages, stage, judgments: semanticReview?.judgments ?? [] });
+  const selection = Array.isArray(questionSelection) ? questionSelection : questionSelection.selected;
+  const questionCards = Array.isArray(selection) ? selection : selection ? [selection] : [];
   const questions = questionCards.map(card => card.text);
-  record({ kind: "feedback.completed", actor: "feedback", title: feedback.length === 0 ? "Review the draft's next question" : `${feedback.length} findings shaped the next question`, detail: "Prioritized questions connect the model's actual gaps to useful user decisions.", targets: { objectIds: findingObjectIds, findingIds }, snapshot: applied.snapshot, evaluation, questions, questionCards });
-  record({ kind: "run.completed", actor: "feedback", title: "Ontology run complete", targets: { objectIds: questionCards[0]?.objectIds ?? [], findingIds: questionCards[0]?.findingIds ?? [] }, snapshot: applied.snapshot, evaluation, questions, questionCards });
+  mark("feedbackMs");
+  const final = { snapshot: applied.snapshot, evaluation, questions, questionCards, semanticReview, questionSelection };
+  record({ kind: "feedback.completed", actor: "feedback", title: questions.length ? "A next decision for this Thing" : "No further question selected", detail: "Question priority follows the authoring stage; all structural findings remain available.", targets: { objectIds: findingObjectIds, findingIds }, ...final });
+  record({ kind: "run.completed", actor: "feedback", title: "Ontology run complete", targets: { objectIds: questionCards[0]?.objectIds ?? [], findingIds: questionCards[0]?.findingIds ?? [] }, ...final });
 }
 
-export async function startOntologyLab({ token, coreOrigin, port = 0, provider, executable = "codex", timeoutMs = DEFAULT_TIMEOUT_MS, baseFixture } = {}) {
+export async function startOntologyLab({ token, coreOrigin, port = 0, provider, executable = "codex", timeoutMs = DEFAULT_TIMEOUT_MS, baseFixture, questionProvider, semanticProvider } = {}) {
   if (typeof token !== "string" || token.length < 32) throw new Error("ontology lab token must contain at least 32 characters");
   if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error("ontology lab port is invalid");
   const checkedCoreOrigin = validateCoreOrigin(coreOrigin);
@@ -374,6 +424,8 @@ export async function startOntologyLab({ token, coreOrigin, port = 0, provider, 
   }
   const codexAvailable = provider ? true : await executableAvailable(executable);
   const liveProvider = provider ?? ((input) => runLocalCodexProvider({ ...input, executable }));
+  const semanticCache = new Map();
+  const liveQuestionProvider = questionProvider === false ? null : questionProvider ?? (provider ? null : input => runLocalCodexProvider({ ...input, executable, model: QUESTION_MODEL, schema: questionSchema, prompt: questionPrompt(input) }));
   let active = false;
   let activeAbort = null;
   const sockets = new Set();
@@ -386,6 +438,8 @@ export async function startOntologyLab({ token, coreOrigin, port = 0, provider, 
       return sendJson(response, 200, {
         available: codexAvailable,
         provider: "codex",
+        questionModel: QUESTION_MODEL,
+        semanticReview: { available: !!semanticProvider, provisional: true },
         message: codexAvailable ? "Local ontology extraction is available." : "Install and sign in to the local Codex CLI to use live extraction.",
         modes: { example: { available: true, source: "labeled_fixture" }, live: { available: codexAvailable, source: provider ? "injected_provider" : "local_codex", authentication: "unchecked_until_run" } },
         limits: { maxMessages: MAX_MESSAGES, maxMessageBytes: MAX_MESSAGE_BYTES, maxTotalTextBytes: MAX_TOTAL_TEXT_BYTES, concurrentRuns: 1 },
@@ -423,10 +477,10 @@ export async function startOntologyLab({ token, coreOrigin, port = 0, provider, 
       if (!response.destroyed) response.write(`${JSON.stringify(item)}\n`);
     };
     try {
-      await runPipeline({ ...input, provider: liveProvider, coreOrigin: checkedCoreOrigin, baseFixture, signal: controller.signal, emit });
+      await runPipeline({ ...input, provider: liveProvider, questionProvider: liveQuestionProvider, semanticProvider, semanticCache, coreOrigin: checkedCoreOrigin, baseFixture, signal: controller.signal, emit });
     } catch (error) {
       const safe = controller.signal.reason instanceof LabError ? controller.signal.reason : error instanceof LabError ? error : safeProcessError(error);
-      emit(createLabEvent({ id: `failed:${randomUUID()}`, seq: (lastEvent?.seq ?? -1) + 1, kind: "run.failed", actor: "feedback", title: "Ontology run failed", detail: `${safe.code}: ${safe.message}`, snapshot: lastEvent?.snapshot ?? null, evaluation: lastEvent?.evaluation ?? null }));
+      emit(createLabEvent({ id: `failed:${randomUUID()}`, seq: (lastEvent?.seq ?? -1) + 1, kind: "run.failed", actor: "feedback", title: "Ontology run failed", detail: `${safe.code}: ${safe.message}`, snapshot: lastEvent?.snapshot ?? null, evaluation: lastEvent?.evaluation ?? null, semanticReview: lastEvent?.semanticReview ?? null, questionSelection: lastEvent?.questionSelection ?? null, timings: lastEvent?.timings ?? null, stage: input.stage }));
     } finally {
       clearTimeout(timer);
       request.removeListener("aborted", disconnect);

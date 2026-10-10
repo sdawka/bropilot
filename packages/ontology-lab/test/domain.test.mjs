@@ -5,6 +5,7 @@ import {
   EXAMPLE_MESSAGES,
   EXAMPLE_PROPOSAL,
   applyProposal,
+  buildQuestionCandidates,
   createDraft,
   createLabEvent,
   extractionSchema,
@@ -145,7 +146,9 @@ test("planned questions combine missing success and review evidence without raw 
   assert.match(cards[0].why, /measure and a review plan/);
   assert.deepEqual(cards[0].findingIds, ["assistant.outcome-requires-indicator:0", "assistant.outcome-requires-evaluation:1"]);
   assert.match(cards[1].text, /what concrete test would show this criterion is met/i);
-  assert.equal(cards[2].text, "Which calendar connection is allowed?");
+  assert.equal(cards[2].text, "How should the assistant measure whether French practice happened?");
+  const candidatePool = buildQuestionCandidates(evaluation, snapshot, ["How should the assistant measure whether French practice happened?", "Which calendar connection is allowed?"]);
+  assert.ok(candidatePool.some(card => card.text === "Which calendar connection is allowed?"));
   assert.ok(cards.every(card => !card.text.includes("assistant.")));
 });
 
@@ -153,4 +156,14 @@ test("trace events preserve old string questions and default structured cards", 
   const event = createLabEvent({ id: "event-1", seq: 1, kind: "input", actor: "input", title: "Input", questions: ["What matters?"] });
   assert.deepEqual(event.questions, ["What matters?"]);
   assert.deepEqual(event.questionCards, []);
+});
+
+test("trace events retain optional review, selection, timing, and stage metadata", () => {
+  const selection = { stage: "defining", selected: [], primary: null, candidates: [] };
+  const event = createLabEvent({ id: "event-2", seq: 2, kind: "semantic.completed", actor: "semantic", title: "Semantic review", semanticReview: { version: "v1" }, questionSelection: selection, timings: { semanticMs: 12 }, stage: "defining", processor: "luna" });
+  assert.equal(event.semanticReview.version, "v1");
+  assert.equal(event.questionSelection, selection);
+  assert.deepEqual(event.timings, { semanticMs: 12 });
+  assert.equal(event.stage, "defining");
+  assert.equal(event.processor, "luna");
 });

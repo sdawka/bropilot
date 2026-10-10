@@ -107,8 +107,8 @@ test("example mode only accepts the labeled fixture and streams replayable check
   assert.ok(events.some((event) => event.kind === "ontology.object.updated" && event.targets.objectIds.includes("french-goal")));
   assert.ok(events.some((event) => event.kind === "criteria.completed" && event.evaluation.status === "unknown"));
   assert.equal(events.at(-1).kind, "run.completed");
-  assert.match(events.at(-1).questionCards[0].text, /count as success/);
-  assert.ok(events.at(-1).questionCards[0].findingIds.includes("assistant.outcome-requires-indicator:0"));
+  assert.equal(events.at(-1).questionCards.length, 1);
+  assert.ok(events.at(-1).questionSelection.candidates.some(card => card.findingIds.includes("assistant.outcome-requires-indicator:0")));
   assert.equal(core.requests.length, 1);
   assert.equal(core.requests[0].query.kind, "readiness");
   assert.equal(core.requests[0].snapshot.stateKind, "desired");
@@ -272,4 +272,49 @@ test("a deadline emits a terminal failure after the last recorded checkpoint", a
   assert.match(events.at(-1).detail, /^run_timeout:/);
   assert.equal(events.at(-1).seq, events.at(-2).seq + 1);
   assert.deepEqual(events.at(-1).snapshot, events.at(-2).snapshot);
+});
+
+test('explicit question model is isolated and keeps tool restrictions', () => {
+  const args = buildCodexArguments({ cwd: '/tmp/lab', schemaFile: '/tmp/schema', outputFile: '/tmp/out', model: 'gpt-6-luna' });
+  assert.equal(args[args.indexOf('--model') + 1], 'gpt-6-luna');
+  assert.ok(args.includes('features.shell_tool=false'));
+});
+
+test('stage changes questioning but leaves the same structural readiness intact', async t => {
+  const core = await coreServer();
+  const lab = await startOntologyLab({ token: TOKEN, coreOrigin: core.origin, provider: async () => EXAMPLE_PROPOSAL });
+  t.after(async () => { await lab.stop(); await close(core.server); });
+  const evaluations=[];
+  for (const stage of ['exploring','defining','realizing']) {
+    const response=await fetch(`${lab.origin}/run`,{method:'POST',headers:authHeaders({'content-type':'application/json'}),body:JSON.stringify({mode:'example',messages:EXAMPLE_MESSAGES,stage})});
+    const events=await ndjson(response); assert.equal(events.at(-1).kind,'run.completed');
+    assert.equal(events.at(-1).stage,stage); evaluations.push(events.at(-1).evaluation);
+  }
+  assert.deepEqual(evaluations[0],evaluations[1]); assert.deepEqual(evaluations[1],evaluations[2]);
+  const invalid=await fetch(`${lab.origin}/run`,{method:'POST',headers:authHeaders({'content-type':'application/json'}),body:JSON.stringify({mode:'example',messages:EXAMPLE_MESSAGES,stage:'skip-permissions'})});
+  assert.equal(invalid.status,400);
+});
+
+test('Luna questions cite this run and unavailable semantics stays provisional', async t => {
+  const core=await coreServer(); let questionInput;
+  const lab=await startOntologyLab({token:TOKEN,coreOrigin:core.origin,provider:async()=>EXAMPLE_PROPOSAL,questionProvider:async input=>{
+    questionInput=input;
+    return {questions:[{text:'Should a completed practice session count only after you record it?',why:'The outcome still needs a concrete measure.',findingIds:['assistant.outcome-requires-indicator:0'],objectIds:[]}]};
+  }});
+  t.after(async()=>{await lab.stop();await close(core.server);});
+  const response=await fetch(`${lab.origin}/run`,{method:'POST',headers:authHeaders({'content-type':'application/json'}),body:JSON.stringify({mode:'live',messages:EXAMPLE_MESSAGES})});
+  const events=await ndjson(response);const final=events.at(-1);
+  assert.equal(final.kind,'run.completed'); assert.ok(questionInput.evaluation.findings.length);
+  assert.ok(events.some(e=>e.kind==='questions.generated')); assert.ok(final.semanticReview.summary.unknown>0);
+  assert.equal(final.evaluation.status,'unknown'); assert.ok(final.timings.extractionMs>=0); assert.ok(final.timings.totalMs>=0);
+  assert.ok(final.questionSelection.candidates.some(q=>q.id==='question:luna:0'));
+});
+
+test('cancellation during semantic review cannot become a completed run',async t=>{
+ const core=await coreServer();
+ const semanticProvider={id:'slow-semantic',model:'jev-1.13.0',async evaluate({signal}){await new Promise(resolve=>signal.addEventListener('abort',resolve,{once:true}));throw Object.assign(new Error('cancelled'),{code:'request_aborted'});}};
+ const lab=await startOntologyLab({token:TOKEN,coreOrigin:core.origin,provider:async()=>EXAMPLE_PROPOSAL,semanticProvider,questionProvider:false,timeoutMs:40});
+ t.after(async()=>{await lab.stop();await close(core.server);});
+ const response=await fetch(`${lab.origin}/run`,{method:'POST',headers:authHeaders({'content-type':'application/json'}),body:JSON.stringify({mode:'live',messages:EXAMPLE_MESSAGES})});
+ const events=await ndjson(response);assert.equal(events.at(-1).kind,'run.failed');assert.match(events.at(-1).detail,/run_timeout/);assert.ok(!events.some(e=>e.kind==='run.completed'));
 });

@@ -2,19 +2,23 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import type { ModelObject, ModelRelation, ReadinessEvaluation, WorldSnapshot } from '@bropilot/contracts';
 import { EXAMPLE_MESSAGES, type LabEvent, type LabMessage, type LabQuestionCard } from '../../../../packages/ontology-lab/domain.mjs';
-import { cancelledTraceEvent, isStoredTrace, nextTraceIndex, parseNdjson, replayCheckpoint } from './ontology-lab/replay';
+import { cancelledTraceEvent, isStoredTrace, nextTraceIndex, parseNdjson, replayCheckpoint, terminalTraceOutcome } from './ontology-lab/replay';
 import '../ontology-lab.css';
 
 type Capability = { available: boolean; provider: 'codex'; message?: string };
 type RawCapability = { available?: boolean; provider?: 'codex'; message?: string; modes?: { live?: { available?: boolean } } };
-type SavedRun = { id: string; savedAt: string; mode?: 'live' | 'example'; messages: LabMessage[]; events: LabEvent[] };
+type AuthoringStage = 'exploring' | 'defining' | 'realizing';
+type TraceEvent = Omit<LabEvent, 'actor'> & { actor: LabEvent['actor'] | 'semantic' | 'questioner'; stage?: AuthoringStage; semanticReview?: unknown; questionSelection?: unknown; timings?: unknown };
+type SavedRun = { id: string; savedAt: string; mode?: 'live' | 'example'; messages: LabMessage[]; events: TraceEvent[] };
+type RecordValue = Record<string, unknown>;
+const AUTHORING_STAGES: AuthoringStage[] = ['exploring', 'defining', 'realizing'];
 
 const emptyCapability: Capability = { available: false, provider: 'codex', message: 'Checking local workspace…' };
 const messages = ref<LabMessage[]>([]);
 const draft = ref('');
 const pendingQuestion = ref<LabQuestionCard>();
 const composerInput = ref<HTMLTextAreaElement>();
-const events = ref<LabEvent[]>([]);
+const events = ref<TraceEvent[]>([]);
 const selectedIndex = ref(-1);
 const traceList = ref<HTMLOListElement>();
 const selectedObjectId = ref<string>();
@@ -27,6 +31,7 @@ const error = ref('');
 const savedRuns = ref<SavedRun[]>([]);
 const selectedSavedRun = ref('');
 const runOrigin = ref<'live' | 'example' | 'saved' | undefined>();
+const authoringStage = ref<AuthoringStage>('exploring');
 let playbackTimer: number | undefined;
 let activeController: AbortController | undefined;
 let cancelled = false;
@@ -71,6 +76,16 @@ const latest = computed(() => selectedIndex.value === events.value.length - 1);
 const progress = computed(() => events.value.length ? `${selectedIndex.value + 1} / ${events.value.length}` : 'No steps yet');
 const criteriaFindings = computed(() => evaluation.value?.findings ?? []);
 const savedTimestamp = computed(() => savedRuns.value.find(run => run.id === selectedSavedRun.value)?.savedAt);
+const replayStage = computed(() => stageValue(replay.value.stage) ?? authoringStage.value);
+const semanticReview = computed(() => asRecord(replay.value.semanticReview));
+const semanticStatus = computed(() => semanticReview.value ? 'provisional' : 'not reviewed');
+const semanticJudgments = computed(() => listValue(semanticReview.value?.judgments).map(asRecord).filter((judgment): judgment is RecordValue => !!judgment));
+const questionSelection = computed(() => asRecord(replay.value.questionSelection));
+const selectionPrimary = computed(() => asRecord(questionSelection.value?.primary) ?? asRecord(listValue(questionSelection.value?.selected)[0]));
+const selectedQuestionReason = computed(() => textValue(selectionPrimary.value?.reason) ?? textValue(selectionPrimary.value?.why) ?? nextQuestion.value?.why);
+const selectedQuestionId = computed(() => textValue(selectionPrimary.value?.id) ?? textValue(questionSelection.value?.selectedId));
+const candidateQuestions = computed(() => listValue(questionSelection.value?.candidates).map(asRecord).filter((candidate): candidate is RecordValue => !!candidate));
+const timingEntries = computed(() => Object.entries(asRecord(replay.value.timings) ?? {}).filter(([, value]) => typeof value === 'number' && Number.isFinite(value)).map(([name, value]) => ({ name: name.replace(/([A-Z])/g, ' $1').replace(/Ms$/i, '').trim(), milliseconds: value as number })));
 
 function messageId() { return `message-${crypto.randomUUID()}`; }
 function runId() { return `run-${crypto.randomUUID()}`; }
@@ -94,7 +109,18 @@ function play() {
     setStep(selectedIndex.value + 1);
   }, 900);
 }
-function addEvent(event: LabEvent) {
+function asRecord(value: unknown): RecordValue | undefined { return value && typeof value === 'object' && !Array.isArray(value) ? value as RecordValue : undefined; }
+function listValue(value: unknown): unknown[] { return Array.isArray(value) ? value : []; }
+function textValue(value: unknown): string | undefined { return typeof value === 'string' && value.trim() ? value : undefined; }
+function stageValue(value: unknown): AuthoringStage | undefined { return value === 'exploring' || value === 'defining' || value === 'realizing' ? value : undefined; }
+function eventTargetReferences(judgment: RecordValue) {
+  return [...listValue(judgment.refs), ...listValue(judgment.inputRefs), ...listValue(judgment.evidenceRefs), ...listValue(judgment.nodeRefs), ...listValue(judgment.objectIds)]
+    .filter((reference): reference is string => typeof reference === 'string').slice(0, 6);
+}
+function judgmentTitle(judgment: RecordValue) { return textValue(judgment.kind) ?? textValue(judgment.subject) ?? 'Semantic judgment'; }
+function judgmentDisposition(judgment: RecordValue) { return textValue(judgment.disposition) ?? textValue(judgment.status) ?? 'unknown'; }
+function candidateLabel(candidate: RecordValue) { return textValue(candidate.text) ?? textValue(candidate.question) ?? textValue(candidate.id) ?? 'Question candidate'; }
+function addEvent(event: TraceEvent) {
   if (events.value.some(item => item.id === event.id)) return;
   events.value = [...events.value, event].sort((left, right) => left.seq - right.seq);
   if (following.value) setStep(events.value.length - 1);
@@ -173,7 +199,7 @@ async function streamRun(mode: 'live' | 'example', nextMessages: LabMessage[]) {
   try {
     const response = await fetch('/api/v1/ontology-lab/run', {
       method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json', accept: 'application/x-ndjson' },
-      body: JSON.stringify({ messages: nextMessages, mode }), signal: activeController.signal,
+      body: JSON.stringify({ messages: nextMessages, mode, stage: authoringStage.value }), signal: activeController.signal,
     });
     if (!response.ok || !response.body) throw new Error((await response.text()) || 'The ontology run could not start.');
     const reader = response.body.getReader();
@@ -187,20 +213,25 @@ async function streamRun(mode: 'live' | 'example', nextMessages: LabMessage[]) {
       if (streamBytes > 8 * 1024 * 1024 || events.value.length > 256) {
         await reader.cancel(); throw new Error('This trace exceeds the lab replay limit; try a smaller description.');
       }
-      const parsed = parseNdjson<LabEvent>(buffered + decoder.decode(chunk.value, { stream: true }));
+      const parsed = parseNdjson<TraceEvent>(buffered + decoder.decode(chunk.value, { stream: true }));
       buffered = parsed.trailing;
       parsed.values.forEach(addEvent);
     }
     const tail = buffered.trim();
-    if (tail) addEvent(JSON.parse(tail) as LabEvent);
-    const terminal = events.value.at(-1)?.kind;
-    if (terminal === 'run.completed') rememberRun(mode);
-    else if (terminal === 'run.failed') error.value = events.value.at(-1)?.detail || 'The ontology run failed.';
+    if (tail) addEvent(JSON.parse(tail) as TraceEvent);
+    const terminal = terminalTraceOutcome(events.value);
+    if (terminal?.kind === 'run.completed') rememberRun(mode);
+    else if (terminal?.kind === 'run.failed') error.value = terminal.detail || 'The ontology run failed.';
     else throw new Error('The ontology stream ended before reporting a result.');
   } catch (cause) {
-    if ((cause as DOMException)?.name === 'AbortError' && cancelled) {
+    const terminal = terminalTraceOutcome(events.value);
+    if (terminal?.kind === 'run.completed') {
+      rememberRun(mode);
+    } else if (terminal?.kind === 'run.failed') {
+      error.value = terminal.detail || 'The ontology run failed.';
+    } else if ((cause as DOMException)?.name === 'AbortError' && cancelled) {
       const last = events.value.at(-1);
-      addEvent(cancelledTraceEvent((last?.seq ?? -1) + 1, snapshot.value, evaluation.value) as LabEvent);
+      addEvent(cancelledTraceEvent((last?.seq ?? -1) + 1, snapshot.value, evaluation.value) as TraceEvent);
       error.value = 'Run stopped before a completed result was recorded.';
     } else {
       activeController?.abort();
@@ -236,10 +267,10 @@ function relationLabel(relation: ModelRelation) {
   return `${from} ${relation.kind} ${to}`;
 }
 function findingId(finding: ReadinessEvaluation['findings'][number], index: number) { return `${finding.ruleId}:${index}`; }
-function eventActorName(actor: LabEvent['actor']) {
-  return { input: 'Input', extractor: 'Codex extractor', mapper: 'Deterministic mapper', criteria: 'Rust criteria', feedback: 'Feedback from checks' }[actor];
+function eventActorName(actor: TraceEvent['actor']) {
+  return ({ input: 'Input', extractor: 'Codex extractor', mapper: 'Deterministic mapper', criteria: 'Rust criteria', feedback: 'Feedback from checks', semantic: 'System One review', questioner: 'Questions' } as Record<string, string>)[actor] ?? actor;
 }
-function selectActor(actor: LabEvent['actor']) {
+function selectActor(actor: TraceEvent['actor']) {
   const afterCurrent = events.value.findIndex(event => event.actor === actor && event.seq >= (selectedEvent.value?.seq ?? 0));
   const first = events.value.findIndex(event => event.actor === actor);
   if (afterCurrent >= 0) selectStep(afterCurrent);
@@ -281,6 +312,13 @@ onBeforeUnmount(() => { pausePlayback(); stopRun(); });
       <section class="lab-stage" aria-label="Ontology workspace">
         <div class="lab-intro">
           <p>Describe a world in your own words. The lab records each transformation, then runs the same Rust readiness checks used by the platform.</p>
+          <fieldset class="stage-picker" :disabled="running" aria-label="Authoring stage">
+            <legend>Authoring stage</legend>
+            <label v-for="stage in AUTHORING_STAGES" :key="stage">
+              <input v-model="authoringStage" type="radio" name="authoring-stage" :value="stage"> {{ stage }}
+            </label>
+            <small>Changes question priority and completeness prompts; it does not grant permission.</small>
+          </fieldset>
           <p class="lab-status" :class="{ available: capability.available }">
             <span class="status-dot" :class="{ ready: capability.available }"></span>
             {{ loadingCapability ? 'Checking local Codex…' : capability.message }}
@@ -293,6 +331,7 @@ onBeforeUnmount(() => { pausePlayback(); stopRun(); });
             <div>
               <p class="lab-eyebrow">{{ snapshot ? 'Recorded ontology' : 'Ontology canvas' }}</p>
               <strong>{{ snapshot?.title ?? 'Nothing has been asserted yet' }}</strong>
+              <span v-if="snapshot" class="stage-badge">{{ replayStage }}</span>
             </div>
             <div class="view-toggle" role="group" aria-label="Ontology representation">
               <button type="button" :aria-pressed="view === 'visual'" @click="view = 'visual'">Visual</button>
@@ -332,7 +371,7 @@ onBeforeUnmount(() => { pausePlayback(); stopRun(); });
 
           <aside v-if="snapshot" class="agent-dock" aria-label="Flow agents">
             <p class="lab-eyebrow">{{ running && following ? 'Working now' : 'Recorded step' }}</p>
-            <button v-for="actor in ['extractor', 'mapper', 'criteria', 'feedback'] as const" :key="actor" type="button" class="agent-card"
+            <button v-for="actor in ['extractor', 'mapper', 'criteria', 'semantic', 'questioner', 'feedback'] as const" :key="actor" type="button" class="agent-card"
               :class="{ active: selectedEvent?.actor === actor }" @click="selectActor(actor)">
               <span class="agent-dot"></span>{{ eventActorName(actor) }}
             </button>
@@ -353,10 +392,17 @@ onBeforeUnmount(() => { pausePlayback(); stopRun(); });
           </ul></details>
           <p class="criteria-scope">These checks assess the model. Runtime behavior and outcomes remain untested.</p>
         </section>
+        <section v-if="semanticReview" class="semantic-strip" aria-label="Provisional semantic review">
+          <div><p class="lab-eyebrow">Provisional semantic review</p><strong :class="`semantic-${semanticStatus}`">{{ semanticStatus }}</strong></div>
+          <p>System One reviews the conversation and draft evidence. These are provisional model judgments. They do not change Rust readiness, grant permission, or prove runtime behavior.</p>
+          <details v-if="semanticJudgments.length" :open="selectedEvent?.actor === 'semantic'"><summary>{{ semanticJudgments.length }} recorded judgment{{ semanticJudgments.length === 1 ? '' : 's' }}</summary><ul>
+            <li v-for="(judgment, index) in semanticJudgments" :key="`${judgmentTitle(judgment)}-${index}`"><strong>{{ judgmentTitle(judgment) }} · {{ judgmentDisposition(judgment) }}</strong><span v-if="textValue(judgment.reason)"> {{ textValue(judgment.reason) }}</span><small v-if="eventTargetReferences(judgment).length">Inputs/nodes: {{ eventTargetReferences(judgment).join(', ') }}</small></li>
+          </ul></details>
+        </section>
         <section v-if="nextQuestion" class="next-question" aria-label="Next useful question">
           <p class="lab-eyebrow">A useful next question</p>
           <h2>{{ nextQuestion.text }}</h2>
-          <p>{{ nextQuestion.why }}</p>
+          <p>{{ selectedQuestionReason }}</p>
           <button class="secondary" :disabled="running" @click="answerQuestion(nextQuestion)">Answer this</button>
           <details v-if="(selectedEvent?.questionCards?.length ?? 0) > 1"><summary>Other questions to explore</summary><ul><li v-for="question in selectedEvent?.questionCards?.slice(1)" :key="question.id"><strong>{{ question.text }}</strong><p>{{ question.why }}</p><button class="text-button" @click="answerQuestion(question)">Answer this question</button></li></ul></details>
         </section>
@@ -397,6 +443,15 @@ onBeforeUnmount(() => { pausePlayback(); stopRun(); });
             </button>
           </li>
         </ol>
+        <section v-if="questionSelection" class="selection-detail" aria-label="Question selection detail">
+          <p class="lab-eyebrow">Question selection</p>
+          <strong>{{ selectedQuestionId ?? 'No question selected' }}</strong>
+          <p v-if="selectedQuestionReason">{{ selectedQuestionReason }}</p>
+          <details v-if="candidateQuestions.length" :open="selectedEvent?.actor === 'questioner'"><summary>{{ candidateQuestions.length }} candidate{{ candidateQuestions.length === 1 ? '' : 's' }} considered</summary><ul><li v-for="(candidate, index) in candidateQuestions" :key="`${candidateLabel(candidate)}-${index}`" :class="{ selected: candidate.id === selectedQuestionId }">{{ candidateLabel(candidate) }}<small v-if="textValue(candidate.reason) || textValue(candidate.why)">{{ textValue(candidate.reason) ?? textValue(candidate.why) }}</small></li></ul></details>
+        </section>
+        <section v-if="timingEntries.length" class="timing-detail" aria-label="Recorded stage timings">
+          <p class="lab-eyebrow">Recorded stage timings</p><ul><li v-for="entry in timingEntries" :key="entry.name"><span>{{ entry.name }}</span><strong>{{ entry.milliseconds }} ms</strong></li></ul>
+        </section>
         <details v-if="selectedEvent" class="trace-json"><summary>Structured event</summary><pre>{{ JSON.stringify(selectedEvent, null, 2) }}</pre></details>
         <p v-else class="trace-empty">Each step here will point to the input, process, or ontology records it affected.</p>
       </aside>

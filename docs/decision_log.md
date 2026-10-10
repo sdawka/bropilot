@@ -65,3 +65,5 @@
 - **2026-10-09T21:36:35-04:00** — Use the existing credential in the neighboring AskCat project for the live TypeSafe/System One benchmark.
 
 - **2026-10-09T22:13:45-04:00** — Open a local credential placeholder for the user to fill and prepare a bottleneck-driven improvement plan for the ontology pipeline.
+
+- **2026-10-09T22:15:57-04:00** — Implement the ontology improvement plan; use Luna for fast intelligent questions, allow faster general opening questions, and ground later specific questions in failed criteria. Increase System One checks for semantic coherence beyond Ascent structural checks.
