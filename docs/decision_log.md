@@ -59,3 +59,7 @@
 - **2026-10-09T12:53:18-04:00** — Use locally signed-in Codex for live description-to-ontology extraction, with saved runs available for replay.
 
 - **2026-10-09T13:02:19-04:00** — Consider the assistant's personality and ability to surface sensible, thoughtful questions while helping users create their Thing.
+
+- **2026-10-09T21:34:46-04:00** — Benchmark the ontology pipeline for actual usefulness and answer quality across familiar app ideas, and assess dependence on Ascent plus System One models.
+
+- **2026-10-09T21:36:35-04:00** — Use the existing credential in the neighboring AskCat project for the live TypeSafe/System One benchmark.

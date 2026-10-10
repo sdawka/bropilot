@@ -153,7 +153,7 @@ Before realization, validate the instantiated World model against its Template, 
 
 Represent model content as typed objects and relations with stable IDs, sources and revision references. Distinguish declared facts, assumptions, hypotheses, model proposals, observations and derived facts. Templates define required relationships and minimum completion obligations; rules derive dependencies, applicability, coverage and violations across that structure.
 
-**Ascent** is a candidate for the inference layer: a Datalog-like logic language embedded in Rust, with relations, recursive inference, stratified negation, aggregation and support for custom backing data structures. It is more than a data structure. Our persistent model stores the facts; an Ascent-style engine evaluates approved declarative rules over a pinned snapshot. Engine selection and Workers integration remain implementation decisions. [14]
+**Ascent** is the current inference engine: a Datalog-like logic language embedded in Rust, with relations, recursive inference, stratified negation, aggregation and support for custom backing data structures. It is more than a data structure. Our persistent model stores the facts; an Ascent-style engine evaluates approved declarative rules over a pinned snapshot. The current Rust/Workers implementation uses Ascent for transitive dependency reachability and forbidden-cycle detection; schema, reference, completeness, required-link and named-constraint checks are implemented in Rust. These checks do not establish semantic entailment, relevance or the truth of permission text. [14]
 
 Declarative checks must derive obligations and detect violations, for example:
 
@@ -168,6 +168,8 @@ Every required acceptance criterion must have an Assay or explicitly permitted e
 Conflicting permissions, incompatible constraints, forbidden dependency cycles and unresolved required decisions produce explicit blockers. Cycles are invalid only where the Template forbids them.
 
 **Decision models** handle meaning that explicit rules cannot yet resolve: classifying statements, linking them to candidate ontology types, judging ambiguous contradictions, or identifying an underspecified outcome or criterion. System 1 models return typed choices, scores or yes/no probabilities; they propose interpretations and review signals. Deterministic policy controls whether a proposal becomes an accepted model fact. Reasoning models or people handle uncertain cases and synthesis. [2–4]
+
+The local authoring lab currently uses Codex for proposals and fixed Rust/graph checks; System One is evaluated separately and is not yet in that production path. The [ontology usefulness benchmark](../packages/ontology-lab/benchmark/README.md) records actual extraction, question quality and semantic-judgment evidence. A graph-ready result alone is insufficient evidence of correct interpretation or useful assistance.
 
 The readiness process is:
 

@@ -3,12 +3,12 @@
 
 ## Now
 
-- Goal: [[goals]]. Milestone: isolated ontology authoring with thoughtful questions and replay is locally verified; hosted one-Thing realization/deployment remains implemented but externally unverified.
-- Next action: Try `/lab/ontology` with real rough Thing descriptions and qualify its ontology/question behavior. Resume staging hostname/Access/OAuth/storage setup and live A→B→rollback proof independently on PR #9.
+- Goal: [[goals]]. Milestone: ontology usefulness benchmark complete; extraction and replay work, but generic question prioritization and semantic readiness remain gaps. Hosted one-Thing realization/deployment remains implemented but externally unverified.
+- Next action: Use the benchmark to improve stage-aware obligations and question selection, then test selective System One semantic checks on actual proposals and held-out conversations. Resume staging setup and live A→B→rollback proof independently on PR #9.
 - Working state: `feat/candidate-verification`, isolated worktree `/private/tmp/bropilot-world-foundation`, based on merged main `733f6b9`. Older PRs #5–#8 merged with all checks green; #1 closed as superseded, branch preserved. [PR #9](https://github.com/sdawka/bropilot/pull/9) is the single open iterative PR; hosted check results remain on that PR.
 - Blockers: Public OAuth client/domain setup and authenticated provider resources must be verified before live release. Local implementation continues independently. GRREAT sync remains pending credentials.
-- Latest verification: Final production build and complete local check pass: 43 Rust (including doc tests), 32 UI, 21 verifier, 22 ontology-lab, 75 Worker/adapter and 28 desktop/mobile browser tests. Real local Codex description/follow-up/short-reply runs reach Rust readiness; assistant turns cannot provide source facts. Independent reviews are clear. [[journals/2026-10-09]] records the evidence and release limits.
-- Last updated: 2026-10-09T13:08:19-04:00.
+- Latest verification: 16/16 real Codex/Rust runs across eight app ideas, ten identical native/Worker graph probes, 108 Jev judgments on 36 fixed microcases, and 16 shadow question-ranking calls. [Benchmark protocol/results](../../packages/ontology-lab/benchmark/README.md) distinguish structural checks, semantic judgments and observed question quality. Prior full build/check evidence remains in [[journals/2026-10-09]].
+- Last updated: 2026-10-09T21:49:10-04:00.
 
 ## Ontology flow lab
 
