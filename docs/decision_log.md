@@ -69,3 +69,11 @@
 - **2026-10-09T22:15:57-04:00** — Implement the ontology improvement plan; use Luna for fast intelligent questions, allow faster general opening questions, and ground later specific questions in failed criteria. Increase System One checks for semantic coherence beyond Ascent structural checks.
 
 - 2026-10-09T23:00:10-04:00: Use a Sol agent to fix ontology-lab styling, following the supplied screenshot.
+
+- **2026-10-10T14:10:58-04:00** — Use the normal World workspace for advisory change-impact analysis of the personal assistant example; preserve the existing Visual/Text Map and inspector.
+
+- **2026-10-10T14:10:58-04:00** — Support comparisons of saved revisions and a bounded what-if editor. Analysis explains consequences and evidence applicability without changing promotion policy or writing canonical state.
+
+- **2026-10-10T14:10:58-04:00** — Compute and explain completed versus planned work from clearly synthetic sample plans and completion observations, with an explicit reporting window and metric definition.
+
+- **2026-10-10T14:10:58-04:00** — Use Sol agents for all implementation, with the primary agent limited to orchestration.

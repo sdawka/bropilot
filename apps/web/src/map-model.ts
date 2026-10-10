@@ -1,4 +1,5 @@
 import type { ModelObject, ModelRelation, Source } from '@bropilot/contracts';
+import type { ImpactSelection } from './impact-state';
 
 export type MapLink = {
   kind: string;
@@ -43,4 +44,21 @@ export function searchMapObjects(objects: ModelObject[], search: string) {
 
 export function pageMapPeers(peers: MapPeer[], page: number, size = 8) {
   return peers.slice(page * size, page * size + size);
+}
+
+/** Render the complete selected witness, including objects beyond the focus neighbourhood. */
+export function buildImpactProof(selection: ImpactSelection) {
+  const { baseline, proposed, witness } = selection;
+  const sides = witness.side === 'baseline' ? [baseline] : witness.side === 'proposed' ? [proposed] : [baseline, proposed];
+  const relationIds = new Set(witness.relationIds);
+  const relations = [...new Map(sides.flatMap(snapshot => snapshot.relations.filter(relation => relationIds.has(relation.id)))
+    .map(relation => [`${relation.id}/${relation.fromId}/${relation.toId}`, relation])).values()];
+  const objectIds = [...new Set([...witness.objectIds, ...relations.flatMap(relation => [relation.fromId, relation.toId])])];
+  const objects = objectIds.map(id => {
+    const object = sides.slice().reverse().flatMap(snapshot => snapshot.objects).find(item => item.id === id);
+    return object ?? { id, kind: 'unresolved', title: 'Unresolved model object', properties: {}, source: { kind: 'derived' as const, reference: 'Impact witness' } };
+  });
+  const baselineOnlyObjects = new Set(objects.filter(object => !proposed.objects.some(item => item.id === object.id)).map(object => object.id));
+  const baselineOnlyRelations = new Set(relations.filter(relation => !proposed.relations.some(item => item.id === relation.id && item.fromId === relation.fromId && item.toId === relation.toId)).map(relation => relation.id));
+  return { objects, relations, baselineOnlyObjects, baselineOnlyRelations };
 }

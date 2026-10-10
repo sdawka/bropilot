@@ -7,6 +7,9 @@ import { readRouteState, routeQuery } from '../route-state';
 import { views, type WorkspaceView } from '../router';
 import { createDeploymentTarget, disconnectCloudflareConnection, getCloudflareConnection, getExamples, getLocalKit, getLocalWorlds, getSession, getWorldWithMetadata, liveWorldApi, reconcileWorldSource, resumeDeployment, selectCloudflareAccount, sendWorldCommand, startCloudflareConnection, startLocalSession, WorldApiError, type CloudflareConnection, type Example, type Session, type SourceReconciliation, type WorkspaceResult, type WorldSummary } from '../services/world-api';
 import WorldMap from '../components/WorldMap.vue';
+import ChangeImpactPanel from '../components/ChangeImpactPanel.vue';
+import { buildImpactProof } from '../map-model';
+import type { ImpactSelection } from '../impact-state';
 import DeploymentPanel from '../components/DeploymentPanel.vue';
 import CloudflareConnectionDialog from '../components/CloudflareConnectionDialog.vue';
 import { createLoadFence } from '../load-fence';
@@ -16,6 +19,8 @@ const route = useRoute();
 const router = useRouter();
 const state = computed(() => readRouteState(route));
 const workspace = ref<WorkspaceResult>();
+const impactSelection = ref<ImpactSelection | null>(null);
+const impactProof = computed(() => impactSelection.value ? buildImpactProof(impactSelection.value) : undefined);
 const loading = ref(true);
 const unavailable = ref(false);
 const signInRequired = ref(false);
@@ -52,7 +57,7 @@ const readiness = computed(() => workspace.value?.readiness);
 const title = computed(() => root.value?.title ?? snapshot.value?.title ?? state.value.worldId);
 const purpose = computed(() => snapshot.value?.purpose.statement ?? '');
 const objects = computed(() => snapshot.value?.objects ?? []);
-const selected = computed(() => objects.value.find(object => object.id === state.value.selected));
+const selected = computed(() => impactProof.value?.objects.find(object => object.id === state.value.selected) ?? objects.value.find(object => object.id === state.value.selected));
 const root = computed(() => objects.value.find(object => !object.parentId));
 const current = computed(() => selected.value ?? root.value);
 const ancestors = computed(() => ancestry(objects.value, current.value?.id));
@@ -99,12 +104,17 @@ const revisionChoices = computed(() => isLocal.value && localState.value
       ...localState.value.revisions.filter(revision => revision.candidateId).map((revision, index) => ({ revisionId: revision.revisionId, title: `Canonical version ${index + 1}` })),
     ]
   : examples.value.filter(example => example.worldId === state.value.worldId).map(example => ({ revisionId: example.revisionId, title: example.title })));
-const selectedRelations = computed(() => snapshot.value?.relations.filter(relation => relation.fromId === selected.value?.id || relation.toId === selected.value?.id) ?? []);
+const selectedRelations = computed(() => {
+  const proofSnapshot = impactSelection.value?.witness.side === 'baseline' ? impactSelection.value.baseline : impactSelection.value?.proposed;
+  const relations = proofSnapshot?.relations ?? snapshot.value?.relations ?? [];
+  return relations.filter(relation => relation.fromId === selected.value?.id || relation.toId === selected.value?.id);
+});
 const selectedFindings = computed(() => readiness.value?.findings.filter(finding => selected.value && finding.objectIds.includes(selected.value.id)) ?? []);
 const assayNames: Record<string, string> = { 'artifact.exists': 'Source exists', 'artifact.build-start': 'Build and start', 'app.health': 'Health check', 'app.surfaces': 'Page and API' };
 
 function id(prefix: string) { return `${prefix}-${crypto.randomUUID()}`; }
 function changeView(view: WorkspaceView) { return router.push({ name: 'world', params: { worldId: state.value.worldId, revisionId: state.value.revisionId, view }, query: route.query }); }
+function setCompareRevision(compareRevisionId?: string) { return router.replace({ query: routeQuery({ ...state.value, compareRevisionId }) }); }
 function setMapMode(mapMode: 'visual' | 'text') { return router.replace({ query: { ...route.query, map: mapMode } }); }
 function select(objectId?: string) {
   search.value = '';
@@ -122,12 +132,13 @@ function closeContextBackdrop(event: MouseEvent) {
 }
 function openContext() { if (!contextDialog.value?.open) contextDialog.value?.showModal(); }
 async function openSearch() {
+  impactSelection.value = null;
   await changeView('map');
   searchOpen.value = true;
   await nextTick();
   searchInput.value?.focus();
 }
-function objectName(objectId: string) { return objects.value.find(object => object.id === objectId)?.title ?? objectId; }
+function objectName(objectId: string) { return objects.value.find(object => object.id === objectId)?.title ?? impactProof.value?.objects.find(object => object.id === objectId)?.title ?? objectId; }
 function objectPath(object: ModelObject) { return ancestry(objects.value, object.id).slice(0, -1).map(item => item.title).join(' / '); }
 function clearPoll() { window.clearTimeout(pollTimer); pollTimer = undefined; }
 
@@ -189,6 +200,7 @@ async function loadConnection(worldId = state.value.worldId) {
   }
 }
 async function loadRoute() {
+  impactSelection.value = null;
   clearPoll();
   localState.value = undefined;
   sourceReconciliation.value = null;
@@ -396,12 +408,20 @@ onBeforeUnmount(() => { disposed = true; workspaceFence.next(); localFence.next(
           <header class="view-heading" :class="{ 'visual-heading': state.mapMode === 'visual' }"><h1 :class="{ 'sr-only': state.mapMode === 'visual' }">Inside this World</h1><p :class="{ 'sr-only': state.mapMode === 'visual' }">Explore its Things and how they fit together.</p><div class="map-toggle" role="group" aria-label="Map representation"><button :aria-pressed="state.mapMode === 'visual'" @click="setMapMode('visual')">Visual</button><button :aria-pressed="state.mapMode === 'text'" @click="setMapMode('text')">Text</button></div></header>
           <div class="structure-toolbar">
             <div class="crumbs"><template v-for="(item, index) in ancestors" :key="item.id"><ChevronRight v-if="index" :size="13" /><button @click="select(item.id)">{{ item.title }}</button></template></div>
+            <span id="impact-toolbar-entry" />
             <button class="icon-button" aria-label="Search hierarchy" @click="openSearch"><Search :size="16" /></button>
           </div>
           <label v-if="searchOpen" class="search-field"><span class="sr-only">Search World objects</span><input ref="searchInput" v-model="search" type="search" placeholder="Find a Thing, goal, or operation" aria-label="Search World objects" /><button class="icon-button" aria-label="Close search" @click="searchOpen = false; search = ''"><X :size="16" /></button></label>
-          <WorldMap v-if="state.mapMode === 'visual' && current" :focus="current" :objects="objects" :relations="snapshot.relations" :search="search" @select="select" />
-          <ul v-else class="tree"><li v-for="object in children" :key="object.id"><button class="object-row" :aria-pressed="selected?.id === object.id" @click="select(object.id)"><span class="row-icon" aria-hidden="true" /><span class="object-copy"><span>{{ object.title }}</span><span v-if="search" class="object-path">{{ objectPath(object) }}</span></span><small>{{ object.kind }}</small><ChevronRight :size="15" /></button></li></ul>
+          <WorldMap v-if="state.mapMode === 'visual' && current" :focus="current" :objects="objects" :relations="snapshot.relations" :search="search" :impact-selection="impactSelection" @clear-impact="impactSelection = null" @select="select" />
+          <section v-if="state.mapMode === 'text' && impactSelection && impactProof" class="surface" aria-label="Exact explanation path">
+            <p>{{ impactSelection.title }} · {{ impactSelection.witness.side === 'baseline' ? 'Baseline model' : impactSelection.witness.side === 'proposed' ? 'Proposed model' : 'Both models' }}</p>
+            <button class="text-button" @click="impactSelection = null">Clear impact proof</button>
+            <ol><li v-for="object in impactProof.objects" :key="object.id"><button class="text-button" @click="select(object.id)">{{ object.title }}</button></li></ol>
+            <p v-for="relation in impactProof.relations" :key="relation.id">{{ relation.kind }}: {{ objectName(relation.fromId) }} → {{ objectName(relation.toId) }} <small>{{ relation.id }}</small></p>
+          </section>
+          <ul v-if="state.mapMode === 'text'" class="tree"><li v-for="object in children" :key="object.id"><button class="object-row" :aria-pressed="selected?.id === object.id" @click="select(object.id)"><span class="row-icon" aria-hidden="true" /><span class="object-copy"><span>{{ object.title }}</span><span v-if="search" class="object-path">{{ objectPath(object) }}</span></span><small>{{ object.kind }}</small><ChevronRight :size="15" /></button></li></ul>
           <p v-if="state.mapMode === 'text' && !children.length" class="empty-note">{{ search ? 'No objects match this search.' : 'This is the most detailed level of this object.' }}</p>
+          <ChangeImpactPanel entry-target="#impact-toolbar-entry" :workspace="workspace!" :revision-choices="revisionChoices" :compare-revision-id="state.compareRevisionId" @compare-revision="setCompareRevision" @selection="impactSelection = $event" />
         </section>
 
         <section v-else-if="state.view === 'work' && isLocal" class="workspace">
@@ -455,9 +475,17 @@ onBeforeUnmount(() => { disposed = true; workspaceFence.next(); localFence.next(
 
         <section v-else class="hero placeholder-stage"><h1>{{ state.view === 'work' ? 'A place for the next Move.' : state.view === 'evaluations' ? 'Evidence belongs here.' : 'A history worth keeping.' }}</h1><p class="lede">{{ state.view === 'work' ? (isHosted ? 'This World has no candidate work at this revision yet.' : 'This assistant is an example model. Try a local Worker app to explore real candidate work.') : state.view === 'evaluations' ? 'This example has model readiness, but no live implementation checks or outcome observations.' : 'This example has no live changes to show.' }}</p><div v-if="localEnabled" class="actions"><button class="primary" :disabled="!!pending" @click="createWorld">Try a realization</button></div></section>
 
-        <aside v-if="selected" class="inspector workspace" aria-label="Shared inspector">
+        <aside v-if="selected || impactSelection" class="inspector workspace" aria-label="Shared inspector">
+          <section v-if="impactSelection && impactProof" aria-label="Impact explanation">
+            <div class="inspector-heading"><h2>{{ impactSelection.title }}</h2><button class="icon-button" aria-label="Clear impact proof" @click="impactSelection = null"><X :size="17" /></button></div>
+            <p>Rule {{ impactSelection.witness.ruleId }} · {{ impactSelection.witness.side === 'baseline' ? 'Baseline model' : impactSelection.witness.side === 'proposed' ? 'Proposed model' : 'Both models' }}</p>
+            <ol><li v-for="object in impactProof.objects" :key="object.id">{{ object.title }}</li></ol>
+            <details class="evidence-details"><summary>Exact proof references</summary><p v-for="object in impactProof.objects" :key="object.id">{{ object.title }} · {{ object.id }}</p><p v-for="relation in impactProof.relations" :key="relation.id">{{ relation.kind }}: {{ objectName(relation.fromId) }} → {{ objectName(relation.toId) }} · {{ relation.id }}</p></details>
+          </section>
+          <template v-if="selected">
           <div class="inspector-heading"><div><p class="quiet-status">{{ selected.kind }}</p><h2>{{ selected.title }}</h2></div><button class="icon-button" aria-label="Clear selected object" @click="select()"><X :size="17" /></button></div>
           <div class="inspector-content"><p v-for="(value, name) in selected.properties" :key="name"><span class="property-name">{{ name }}</span> {{ value }}</p><details class="evidence-details"><summary>Connections and provenance</summary><p v-for="relation in selectedRelations" :key="relation.id">{{ relation.kind }}: {{ objectName(relation.fromId === selected.id ? relation.toId : relation.fromId) }}</p><p>{{ selected.source.kind }} / {{ selected.source.reference }}</p><p v-for="finding in selectedFindings" :key="finding.ruleId + finding.message">{{ finding.message }}</p><p class="footnote">Object {{ selected.id }}</p></details></div>
+          </template>
         </aside>
       </template>
     </main>

@@ -52,7 +52,7 @@ export type RulePackPin = { id: string, version: string, };
 
 export type WorldSnapshot = { worldId: string, title: string, revisionId: string, template: WorldTemplate, purpose: Purpose, environment: Environment, phase: string, stateKind: StateKind, things: Array<Thing>, thingTemplates: Array<ThingTemplate>, objects: Array<ModelObject>, relations: Array<ModelRelation>, completeness: Array<CompletenessDeclaration>, theory: Theory, moves: Array<MoveSummary>, rulePacks: Array<RulePackPin>, activeConstraints: Array<string>, };
 
-export type Query = { "kind": "workspace" } | { "kind": "readiness" } | { "kind": "children", parentId: string, };
+export type Query = { "kind": "workspace" } | { "kind": "readiness" } | { "kind": "changeImpact", baseline: WorldSnapshot, context: ImpactAnalysisContext, } | { "kind": "applyImpactPatch", patch: ImpactPatch, draftRevisionId: string, } | { "kind": "children", parentId: string, };
 
 export type CoreRequest = { apiVersion: number, snapshot: WorldSnapshot, query: Query, };
 
@@ -68,9 +68,87 @@ export type ReadinessEvaluation = { worldId: string, revisionId: string, templat
 
 export type WorkspaceResult = { snapshot: WorldSnapshot, readiness: ReadinessEvaluation, };
 
-export type CoreResult = { "kind": "workspace", snapshot: WorldSnapshot, readiness: ReadinessEvaluation, } | { "kind": "readiness", evaluation: ReadinessEvaluation, } | { "kind": "children", objects: Array<ModelObject>, };
+export type CoreResult = { "kind": "impactPatched", snapshot: WorldSnapshot, } | { "kind": "changeImpact", report: ChangeImpactReport, } | { "kind": "workspace", snapshot: WorldSnapshot, readiness: ReadinessEvaluation, } | { "kind": "readiness", evaluation: ReadinessEvaluation, } | { "kind": "children", objects: Array<ModelObject>, };
 
 export type CoreResponse = { "status": "ok", apiVersion: number, result: CoreResult, } | { "status": "error", apiVersion: number, code: string, message: string, };
+
+export type ImpactOrigin = "saved" | "hypothetical";
+
+export type ImpactSide = "baseline" | "proposed" | "both";
+
+export type ImpactChangeKind = "added" | "removed" | "modified";
+
+export type ImpactEntityKind = "thing" | "object" | "relation" | "context";
+
+export type EvidenceApplicability = "inputsMatch" | "needsRecheck" | "unknown";
+
+export type EvidenceProvenance = "synthetic" | "unverified" | "serverResolved";
+
+export type MetricStatus = "known" | "unknown";
+
+export type MetricComparability = "comparable" | "definitionChanged" | "windowChanged" | "unknown";
+
+export type MetricDefinition = "completedPlannedTasks" | "completedPlannedTasksIncludingCancelled";
+
+export type PlanItemStatus = "planned" | "cancelled";
+
+export type ImpactProperty = "status" | "plannedAt" | "completedAt" | "taskId" | "metricDefinition" | "windowStart" | "windowEnd" | "statement" | "definitionHash";
+
+export type SnapshotIdentity = { worldId: string, revisionId: string, snapshotHash: string, };
+
+export type ImpactChange = { id: string, entityKind: ImpactEntityKind, changeKind: ImpactChangeKind, title: string, thingId?: string, changedFields: Array<string>, };
+
+export type ImpactWitness = { seedId: string, side: ImpactSide, ruleId: string, objectIds: Array<string>, relationIds: Array<string>, };
+
+export type AffectedObject = { objectId: string, title: string, kind: string, side: ImpactSide, direct: boolean, witnesses: Array<ImpactWitness>, };
+
+export type ThingImpact = { thingId?: string, title: string, objects: Array<AffectedObject>, };
+
+export type ImpactDiagnostic = { code: string, message: string, scopeId?: string, side: ImpactSide, objectIds: Array<string>, };
+
+export type BoundObjectInput = { objectId: string, digest: string, };
+
+export type BoundRelationInput = { relationId: string, digest: string, };
+
+export type BoundThingRevision = { thingId: string, revisionId: string, };
+
+export type EvidenceBinding = { evidenceId: string, assayId: string, assayDefinitionHash?: string, objectInputs: Array<BoundObjectInput>, relationInputs: Array<BoundRelationInput>, thingRevisions: Array<BoundThingRevision>, rulePacks: Array<RulePackPin>, provenance: EvidenceProvenance, };
+
+export type EvidenceImpact = { evidenceId: string, assayId: string, applicability: EvidenceApplicability, provenance: EvidenceProvenance, reasons: Array<string>, objectIds: Array<string>, };
+
+export type CriterionImpact = { criterionId: string, assayIds: Array<string>, side: ImpactSide, witnesses: Array<ImpactWitness>, };
+
+export type ReportingWindow = { startUtc: string, endUtc: string, };
+
+export type PlanItem = { objectId: string, taskId: string, plannedAtUtc: string, status: PlanItemStatus, inputDigest: string, };
+
+export type CompletionObservation = { objectId: string, taskId: string, completedAtUtc: string, inputDigest: string, };
+
+export type MetricAssessment = { metricId: string, definition: MetricDefinition, definitionHash: string, window: ReportingWindow, status: MetricStatus, completedCount: number, plannedCount: number,
+/**
+ * Ratio in [0, 1]; consumers may format as a percentage.
+ */
+value?: number, inputRefs: Array<BoundObjectInput>, diagnostics: Array<string>, };
+
+export type MetricComparison = { metricId: string, baseline?: MetricAssessment, proposed?: MetricAssessment, comparability: MetricComparability,
+/**
+ * Proposed minus baseline ratio, only when comparable.
+ */
+delta?: number, };
+
+export type ImpactAnalysisContext = { origin: ImpactOrigin, evidenceBindings: Array<EvidenceBinding>, };
+
+export type ChangeImpactReport = { baseline: SnapshotIdentity, target: SnapshotIdentity, origin: ImpactOrigin, rulePacks: Array<RulePackPin>, changes: Array<ImpactChange>, affectedThings: Array<ThingImpact>, criteria: Array<CriterionImpact>, assays: Array<AffectedObject>, metrics: Array<MetricComparison>, evidence: Array<EvidenceImpact>, diagnostics: Array<ImpactDiagnostic>, complete: boolean, };
+
+export type ImpactPatchOperation = { "kind": "setThingRevision", thingId: string, revisionId: string, } | { "kind": "setProperty", objectId: string, property: ImpactProperty, value: string, } | { "kind": "addDependency", relationId: string, dependentId: string, dependencyId: string, } | { "kind": "removeDependency", relationId: string, } | { "kind": "setCriterionAssay", relationId: string, criterionId: string, assayId: string, linked: boolean, } | { "kind": "setMetricDefinition", metricId: string, definition: MetricDefinition, };
+
+export type ImpactPatch = { operations: Array<ImpactPatchOperation>, };
+
+export type ChangeImpactTarget = { "kind": "saved", revisionId: string, } | { "kind": "hypothetical", patch: ImpactPatch, };
+
+export type ChangeImpactApiRequest = { baselineRevisionId: string, target: ChangeImpactTarget, };
+
+export type ChangeImpactApiResponse = { report: ChangeImpactReport, baselineSnapshot: WorldSnapshot, targetSnapshot: WorldSnapshot, };
 
 export type Actor = "owner" | "implementer" | "verifier" | "deployer" | "system";
 

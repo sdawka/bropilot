@@ -2,7 +2,7 @@
 # Define the foundation
 
 - Supports: [[goals]].
-- Current focus: improve ontology question selection and semantic checks using the completed usefulness benchmark in [[execution]], on `feat/candidate-verification` and [PR #9](https://github.com/sdawka/bropilot/pull/9). The one-Thing hosted realization/deployment increment is locally verified; staging OAuth/Access, Artifacts/Git and A→B→rollback remain pending. Broader Task Packets, composition, model/payment Assays and assistant integrations remain deferred.
+- Current focus: advisory personal-assistant change impact in the normal World workspace, on `feat/candidate-verification` and [PR #9](https://github.com/sdawka/bropilot/pull/9). Hosted release and GRREAT mirror remain separately pending.
 - Plan by dependencies and acceptance criteria, without dates or duration estimates. The adoption record is established; the product milestones below are not implemented or verified by that documentation work.
 
 | Milestone | Dependency | Completion criteria and evidence |
@@ -85,3 +85,18 @@ Files: `packages/ontology-lab/benchmark/` harness/cases/report; add a separate h
 Dependency order: 1 → 2 → 3 → 4 → 5 rollout gate. After the interfaces are agreed, held-out case authoring can run independently of implementation; semantic adapter tests and UI replay work can proceed in parallel with disjoint ownership. Primary owns contracts, policy, integration and final evidence. Keep deployment verification a separate track.
 
 Current evidence and remaining work: [benchmark results](../../packages/ontology-lab/benchmark/README.md). Stages are implemented in the conversation layer; no new Rust readiness contract was needed. The 33 frozen conversations and one adaptive live follow-up are complete, but human/blind comparisons and a durable cross-revision decision ledger remain pending. Question quality misses the proposed 80% target; exclusions, approval-subject drift and generic fallbacks need the next iteration. Incremental extraction remains deferred until correction/provenance preservation is tested. No unattended authoring is enabled.
+
+## Accepted change-impact increment
+
+Spec: [requirements section 3.4](../world-platform-plan-and-requirements.md). All implementation uses Sol agents; the primary orchestrates. Preserve existing authoring, candidate verification and promotion behavior. No merge or deployment in this increment.
+
+1. Freeze Rust/generated contracts and persist accepted scope in existing records. Explicit unsupported scaffolding must never fabricate a report.
+2. In parallel, implement bounded Ascent consequence/evidence analysis; typed metric projection plus seven additive synthetic fixtures (baseline and six scenarios); authorized read-only Worker analysis; and the Map comparison/what-if panel. One integration owner changes shared dispatch, generator, workspace routing and records.
+3. Integrate and verify native/Wasm parity, a 128-hop chain, differential traversal oracle and direct-versus-recursive value benchmark; source/evidence applicability, unknown completeness, immutable history, Worker authorization and no writes; and at least 30 browser cases covering saved/draft comparison, removal ghosts, proof highlighting, edits/stale requests and desktop/mobile geometry.
+4. Run repository gates and independent review, push to existing PR #9, verify hosted CI, and validate/sync GRREAT when authenticated. Never merge with failing checks; remote sync remains pending missing credentials.
+
+Acceptance: known impacts and exact shortest deterministic witnesses remain visible despite incomplete scopes; removed dependencies retain baseline attribution; metric counts/inputs/definition/window are explainable; historical source-only evidence stays unknown; drafts never modify canonical authority or URLs. Interface-only edits do not invent upstream consequences. Existing four fixture histories and candidate/promotion behavior remain intact.
+
+Scenarios: calendar-adapter revision, completion observation, interface-only change, removed dependency, metric-definition variant and incomplete coverage. Four managed Things plus the external calendar express calendar availability → scheduling → weekly plan → tasks/blocks → metric → progress review → interface, with explicit metric definition/observation lineage. Broader metrics, arbitrary edits/rules, automatic re-verification, calendar effects and hosted rollout are deferred.
+
+Local acceptance is verified in [[analysis]] and [[journals/2026-10-10]]; delivery remains the existing PR #9. Broader scope and hosted/provider proof above remain separate.

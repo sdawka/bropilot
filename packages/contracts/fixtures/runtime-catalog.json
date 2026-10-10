@@ -10,6 +10,12 @@
       ]
     },
     {
+      "id": "assistant-impact",
+      "version": "1",
+      "title": "Advisory personal assistant change impact",
+      "requiredForWorldTemplateIds": []
+    },
+    {
       "id": "assistant-foundation",
       "version": "1",
       "title": "Personal assistant foundation",

@@ -1,9 +1,18 @@
-import type { Actor, CoreResponse, SourceBundle, WorldCommand, WorldCommandResponse, WorldState } from '@bropilot/contracts';
+import type { Actor, EvidenceBinding, WorldSnapshot, CoreResponse, SourceBundle, WorldCommand, WorldCommandResponse, WorldState } from '@bropilot/contracts';
 import catalog from '@bropilot/contracts/fixtures/catalog.json';
 import valid from '@bropilot/contracts/fixtures/assistant-valid.json';
 import missing from '@bropilot/contracts/fixtures/assistant-missing.json';
 import conflict from '@bropilot/contracts/fixtures/assistant-conflict.json';
 import unknown from '@bropilot/contracts/fixtures/assistant-unknown.json';
+import impactBaseline from '@bropilot/contracts/fixtures/assistant-impact-baseline.json';
+import impactCalendarAdapter from '@bropilot/contracts/fixtures/assistant-impact-calendar-adapter.json';
+import impactCompletion from '@bropilot/contracts/fixtures/assistant-impact-completion.json';
+import impactInterface from '@bropilot/contracts/fixtures/assistant-impact-interface.json';
+import impactRemovedDependency from '@bropilot/contracts/fixtures/assistant-impact-removed-dependency.json';
+import impactMetricDefinition from '@bropilot/contracts/fixtures/assistant-impact-metric-definition.json';
+import impactIncomplete from '@bropilot/contracts/fixtures/assistant-impact-incomplete.json';
+import impactEvidence from '@bropilot/contracts/fixtures/assistant-impact-evidence.json';
+import { handleChangeImpact } from './analysis.js';
 import { query } from '../../../packages/core-wasm/bropilot_core_wasm.js';
 import { RUNNER_HASH, RUNNER_REF } from './runner-manifest.js';
 import { LocalWorldDirectory, WorldAuthority, type LocalEnv, type WorldSummary } from './authority.js';
@@ -14,10 +23,17 @@ export { IdentityStore } from './identity.js';
 export { CloudflareConnectionStore } from './cloudflare/oauth.js';
 export { TargetDeploymentAuthority, DeploymentWorkflow } from './cloudflare/deployment.js';
 
-const snapshots: Record<string, { worldId: string; revisionId: string }> = {
+const snapshots: Record<string, WorldSnapshot> = {
   'assistant-valid': valid, 'assistant-missing': missing,
   'assistant-conflict': conflict, 'assistant-unknown': unknown,
-};
+  'assistant-impact-baseline': impactBaseline,
+  'assistant-impact-calendar-adapter': impactCalendarAdapter,
+  'assistant-impact-completion': impactCompletion,
+  'assistant-impact-interface': impactInterface,
+  'assistant-impact-removed-dependency': impactRemovedDependency,
+  'assistant-impact-metric-definition': impactMetricDefinition,
+  'assistant-impact-incomplete': impactIncomplete,
+} as Record<string, WorldSnapshot>;
 const MAX_HTTP_BODY_BYTES = 1024 * 1024;
 const OWNER_COOKIE = 'bropilot_local_owner';
 const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
@@ -57,6 +73,37 @@ function run(input: string): Response {
   const result: CoreResponse = JSON.parse(query(input));
   return json(result, result.status === 'ok' ? 200 : result.code === 'resource_limit' ? 413 : 400);
 }
+// Public domain queries analyze supplied models; only the revision endpoint resolves authority.
+async function runPublicQuery(input: string): Promise<Response> {
+  let supplied: unknown;
+  try { supplied = JSON.parse(input); } catch { return run(input); }
+  const body = record(supplied); const queryInput = record(body?.query); const snapshot = record(body?.snapshot);
+  if (!body || !queryInput || !snapshot || !['changeImpact', 'applyImpactPatch'].includes(String(queryInput.kind))) return run(input);
+  const hashInput = queryInput.kind === 'applyImpactPatch' ? { snapshot, patch: queryInput.patch } : snapshot;
+  const bytes = new Uint8Array(await digest(JSON.stringify(hashInput)));
+  const hash = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+  let draftRevisionId = `draft:untrusted:${hash}`;
+  const baseline = queryInput.kind === 'changeImpact' ? record(queryInput.baseline) : snapshot;
+  if (baseline?.revisionId === draftRevisionId) draftRevisionId = `draft:untrusted-target:${hash}`;
+  if (queryInput.kind === 'applyImpactPatch') queryInput.draftRevisionId = draftRevisionId;
+  else {
+    snapshot.revisionId = draftRevisionId;
+    const context = record(queryInput.context);
+    if (context) {
+      context.origin = 'hypothetical';
+      if (Array.isArray(context.evidenceBindings)) context.evidenceBindings = context.evidenceBindings.map(binding => {
+        const captured = record(binding); return captured ? { ...captured, provenance: 'unverified' } : binding;
+      });
+    }
+  }
+  const response: CoreResponse = JSON.parse(query(JSON.stringify(body)));
+  if (response.status === 'ok' && response.result.kind === 'changeImpact') {
+    response.result.report.diagnostics.push({ code: 'client_supplied_inputs', message: 'Both compared models and evidence bindings were supplied by the client; revision labels and completeness declarations are not server-verified.', side: 'both', objectIds: [] });
+    if (new TextEncoder().encode(JSON.stringify(response.result.report)).byteLength > 1024 * 1024) return error('resource_limit', 'Impact report exceeds 1048576 bytes.', 413);
+  }
+  return json(response, response.status === 'ok' ? 200 : response.code === 'resource_limit' ? 413 : 400);
+}
+
 async function boundedBody(request: Request): Promise<string | undefined> {
   if (!request.body) return '';
   const reader = request.body.getReader(); const chunks: Uint8Array[] = []; let length = 0;
@@ -253,6 +300,19 @@ async function localRoute(request: Request, env: LocalEnv, path: string): Promis
   return undefined;
 }
 
+async function resolvePinnedRevision(request: Request, env: HostedEnv, worldId: string, revisionId: string): Promise<WorldSnapshot | Response | null> {
+  const fixture = Object.hasOwn(snapshots, revisionId) ? snapshots[revisionId] : undefined;
+  if (fixture?.worldId === worldId) return fixture;
+  if (Object.values(snapshots).some(item => item.worldId === worldId)) return error('revision_not_found', 'This pinned example revision is unavailable.', 404);
+  if (hostedEnabled(env)) {
+    const denied = await hostedRevisionAllowed(request, env, worldId); if (denied) return denied;
+  } else {
+    const principal = await requireRole(request, env, ['owner']); if (principal instanceof Response) return principal;
+  }
+  if (!validWorldId(worldId)) return error('invalid_identity', 'Invalid World identity.', 400);
+  return authority(env, worldId).getRevision(revisionId);
+}
+
 export default {
   async fetch(request, env): Promise<Response> {
     const path = new URL(request.url).pathname;
@@ -266,23 +326,25 @@ export default {
         if (request.method !== 'POST') return error('method_not_allowed', 'Use POST for domain queries.', 405, { Allow: 'POST' });
         if (request.headers.get('content-type')?.split(';')[0].trim().toLowerCase() !== 'application/json') return error('unsupported_media_type', 'Provide an application/json request.', 415);
         const body = await boundedBody(request);
-        return body === undefined ? error('resource_limit', 'HTTP request exceeds 1048576 bytes.', 413) : run(body);
+        return body === undefined ? error('resource_limit', 'HTTP request exceeds 1048576 bytes.', 413) : runPublicQuery(body);
       }
       const revision = /^\/api\/v1\/worlds\/([^/]+)\/revisions\/([^/]+)$/.exec(path);
       if (revision) {
         if (request.method !== 'GET') return error('method_not_allowed', 'Pinned example revisions are read-only.', 405, { Allow: 'GET' });
         const worldId = decodeURIComponent(revision[1]); const revisionId = decodeURIComponent(revision[2]);
-        const fixture = Object.hasOwn(snapshots, revisionId) ? snapshots[revisionId] : undefined;
-        if (fixture?.worldId === worldId) return run(JSON.stringify({ apiVersion: 1, snapshot: fixture, query: { kind: 'workspace' } }));
-        if (Object.values(snapshots).some((item) => item.worldId === worldId)) return error('revision_not_found', 'This pinned example revision is unavailable.', 404);
-        if (hostedEnabled(env)) {
-          const denied = await hostedRevisionAllowed(request, env, worldId); if (denied) return denied;
-        } else {
-          const principal = await requireRole(request, env, ['owner']); if (principal instanceof Response) return principal;
-        }
-        if (!validWorldId(worldId)) return error('invalid_identity', 'Invalid World identity.', 400);
-        const local = await authority(env, worldId).getRevision(revisionId);
-        return local ? run(JSON.stringify({ apiVersion: 1, snapshot: local, query: { kind: 'workspace' } })) : error('revision_not_found', 'This pinned revision is unavailable.', 404);
+        const pinned = await resolvePinnedRevision(request, env, worldId, revisionId);
+        if (pinned instanceof Response) return pinned;
+        return pinned ? run(JSON.stringify({ apiVersion: 1, snapshot: pinned, query: { kind: 'workspace' } })) : error('revision_not_found', 'This pinned revision is unavailable.', 404);
+      }
+      const analysis = /^\/api\/v1\/worlds\/([^/]+)\/analysis\/change-impact$/.exec(path);
+      if (analysis) {
+        const worldId = decodeURIComponent(analysis[1]);
+        return handleChangeImpact(request, worldId, {
+          readBody: jsonBody, query,
+          resolveRevision: revisionId => resolvePinnedRevision(request, env, worldId, revisionId),
+          evidenceBindings: baseline => snapshots[baseline.revisionId] === baseline
+            ? (impactEvidence as Record<string, EvidenceBinding[]>)[baseline.revisionId] ?? [] : [],
+        });
       }
       if (hostedEnabled(env)) return await hostedRoute(request, env, path,
         { sources: { working: WORKING_SOURCE, brokenHealth: BROKEN_HEALTH_SOURCE }, runnerHash: RUNNER_HASH, runnerRef: RUNNER_REF },

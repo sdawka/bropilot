@@ -1,6 +1,7 @@
 import { expect, it } from 'vitest';
 import type { ModelObject, ModelRelation } from '@bropilot/contracts';
-import { buildFocusMap, pageMapPeers, searchMapObjects } from './map-model';
+import { buildFocusMap, buildImpactProof, pageMapPeers, searchMapObjects } from './map-model';
+import type { WorldSnapshot } from '@bropilot/contracts';
 
 const declared = { kind: 'declared' as const, reference: 'model' };
 const objects = [
@@ -40,4 +41,16 @@ it('keeps observation and derived provenance separate from declared connections'
   const typed = relations.slice(0, 2).map((relation, index) => ({ ...relation, source: { kind: index ? 'derived' as const : 'observation' as const, reference: 'evidence' } }));
   const peer = buildFocusMap(objects[0], objects, typed).peers.find(item => item.object.id === 'peer');
   expect(peer?.links.map(link => link.source)).toEqual(typed.map(relation => relation.source));
+});
+
+it('renders exact proof paths beyond the selected focus and retains removed baseline edges', () => {
+  const baseline = { objects, relations } as WorldSnapshot;
+  const proposed = { objects: objects.filter(object => object.id !== 'remote'), relations: relations.filter(relation => relation.id !== 'c') } as WorldSnapshot;
+  const proof = buildImpactProof({ title: 'Remote', baseline, proposed,
+    witness: { seedId: 'seed', side: 'baseline', ruleId: 'impact.dependencies', objectIds: ['child', 'remote'], relationIds: ['c'] },
+  });
+  expect(proof.objects.map(object => object.id)).toEqual(['child', 'remote']);
+  expect(proof.relations.map(relation => relation.id)).toEqual(['c']);
+  expect(proof.baselineOnlyObjects.has('remote')).toBe(true);
+  expect(proof.baselineOnlyRelations.has('c')).toBe(true);
 });

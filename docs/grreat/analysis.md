@@ -59,3 +59,20 @@ Specification readiness in these fixtures does not establish calendar connectivi
 - Implemented: all candidate retention, one-question selection, conversational stages, tool-free Luna questions with validated finding references, six bounded System One judgment kinds, replayable semantic/selection/timing evidence, deterministic fallback and disable switches. Readiness, capabilities and canonical Worlds are unchanged.
 - Evidence: eight live baseline and 33 frozen held-out runs completed without failures; six exact graph probes flagged all five bad cases and no valid-control flags. The model-assisted held-out rubric found full fact coverage but only 19/33 top-rated first questions; no human ratings exist. Offline reselection improves the aggregate by just one point and introduces three generic-question regressions, so robust selection uplift is unproven.
 - Remaining acceptance gaps: the 80% question target, human/blind comparison, persistent cross-revision answer lifecycle, and broader adaptive conversations. Model uncertainty remains common; Ascent does not establish semantic coherence and System One does not replace that missing guarantee. Extraction dominates latency (held-out median 17.7s of 24.0s); Luna median 4.1s. Preserve exclusions and exact permission subjects before expanding autonomy.
+
+## Change-impact phase A
+
+| Accepted criterion | Evidence and tested state | Remaining gap |
+| --- | --- | --- |
+| One typed advisory contract without changing authority | Generated Rust/TypeScript query/report/evidence/metric/patch/API types compile; phase A tests/type checks pass, [[journals/2026-10-10]] | Inference, metric and patch implementations; final native/Wasm evidence |
+| Saved and hypothetical comparisons in the normal workspace | Accepted requirements section 3.4 and frozen API/consumer handoff | Authorized endpoint, UI integration, no-write/auth tests, 30+ browser cases |
+| Explain consequences, metric values and evidence applicability | Separate sides, witnesses, completeness, provenance and applicability fields are defined | Synthetic scenarios, differential oracle/value benchmark and full gates |
+
+## Change-impact local acceptance
+
+| Accepted criterion | Evidence and tested state | Remaining gap |
+| --- | --- | --- |
+| Explain actual changes and baseline/proposed consequences deterministically | Compiled Ascent rules, shortest witnesses, separate-side closure, incomplete diagnostics, resource guards, 128-hop/differential native-workerd tests; [[journals/2026-10-10]] | None for the bounded advisory model; causal truth and live calendar effects are outside it |
+| Explain metric counts, inputs and evidence applicability without changing acceptance | Digest-bound factual tasks/plans/observations, exact definition/window handling, unknown speculative/zero/incomplete cases; historical source-only evidence unknown, provenance separate | Real observations and verifier-backed ontology bindings are not simulated |
+| Compare saved/draft revisions in the normal Map without authority writes | Authorized endpoint, pure core patches, raw-query trust regression, no-write/auth checks, stale-request fences, removal ghosts and 38 new browser cases; independent review clear | Hosted provider acceptance remains a separate release gate |
+| Integrated delivery and reproducible evidence | Fresh complete build/check: 68 browser cases, source-pinned [benchmark](../../crates/world-core/benchmarks/change-impact.json); [[journals/2026-10-10]] | Existing PR #9 CI verification after push; GRREAT mirror pending credentials |

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import type { ModelObject, ModelRelation } from '@bropilot/contracts';
-import { buildFocusMap, pageMapPeers, searchMapObjects, type MapLink, type MapPeer } from '../map-model';
+import { buildFocusMap, buildImpactProof, pageMapPeers, searchMapObjects, type MapLink, type MapPeer } from '../map-model';
+import type { ImpactSelection } from '../impact-state';
 
-const props = defineProps<{ focus: ModelObject; objects: ModelObject[]; relations: ModelRelation[]; search?: string }>();
-const emit = defineEmits<{ select: [objectId: string] }>();
+const props = defineProps<{ focus: ModelObject; objects: ModelObject[]; relations: ModelRelation[]; search?: string; impactSelection?: ImpactSelection | null }>();
+const emit = defineEmits<{ select: [objectId: string]; clearImpact: [] }>();
 
 const stage = ref<HTMLElement>();
 const focusButton = ref<HTMLButtonElement>();
@@ -16,6 +17,29 @@ const nodeSizes = ref<Record<string, { width: number; height: number }>>({});
 let observer: ResizeObserver | undefined;
 
 const map = computed(() => buildFocusMap(props.focus, props.objects, props.relations));
+const proof = computed(() => props.impactSelection ? buildImpactProof(props.impactSelection) : undefined);
+const proofColumns = computed(() => mobile.value ? 2 : Math.min(4, proof.value?.objects.length ?? 1));
+const proofPositions = computed(() => proof.value?.objects.map((object, index) => ({ object,
+  x: bounds.value.width * ((index % proofColumns.value) + .5) / proofColumns.value,
+  y: 100 + Math.floor(index / proofColumns.value) * 180,
+})) ?? []);
+const proofHeight = computed(() => Math.max(240, Math.ceil(proofPositions.value.length / proofColumns.value) * 180 + 20));
+function proofPath(fromId: string, toId: string) {
+  const from = proofPositions.value.find(point => point.object.id === fromId);
+  const to = proofPositions.value.find(point => point.object.id === toId);
+  if (!from || !to) return '';
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const fromSize = nodeSizes.value[fromId] ?? { width: 176, height: 110 };
+  const toSize = nodeSizes.value[toId] ?? { width: 176, height: 110 };
+  const border = (size: { width: number; height: number }) => Math.min(.45, Math.abs(dx) > .01 ? (size.width / 2 + 5) / Math.abs(dx) : Infinity, Math.abs(dy) > .01 ? (size.height / 2 + 5) / Math.abs(dy) : Infinity);
+  const a = border(fromSize), b = border(toSize);
+  return `M ${from.x + dx * a} ${from.y + dy * a} L ${to.x - dx * b} ${to.y - dy * b}`;
+}
+function proofMidpoint(fromId: string, toId: string) {
+  const from = proofPositions.value.find(point => point.object.id === fromId);
+  const to = proofPositions.value.find(point => point.object.id === toId);
+  return { x: ((from?.x ?? 0) + (to?.x ?? 0)) / 2, y: ((from?.y ?? 0) + (to?.y ?? 0)) / 2 - 5 };
+}
 const search = computed(() => props.search?.trim() ?? '');
 const searchPeers = computed<MapPeer[]>(() => {
   if (!search.value) return map.value.peers;
@@ -95,6 +119,15 @@ function measure() {
 watch([() => props.focus.id, search, () => props.objects], () => { page.value = 0; });
 watch(() => props.focus.id, () => void nextTick(() => focusButton.value?.focus({ preventScroll: true })));
 watch([peers, mobile], () => void nextTick(measure));
+watch(proof, () => void nextTick(() => {
+  measure();
+  if (proof.value) {
+    stage.value?.focus({ preventScroll: true });
+    stage.value?.parentElement?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+  } else focusButton.value?.focus({ preventScroll: true });
+}));
+watch(stage, (current, previous) => { if (previous) observer?.unobserve(previous); if (current) observer?.observe(current); }, { flush: 'post' });
+watch(focusButton, (current, previous) => { if (previous) observer?.unobserve(previous); if (current) observer?.observe(current); }, { flush: 'post' });
 watch(pageCount, count => { if (page.value >= count) page.value = count - 1; });
 onMounted(async () => {
   await nextTick();
@@ -109,6 +142,15 @@ onBeforeUnmount(() => observer?.disconnect());
 
 <template>
   <section class="world-map" role="region" aria-label="Visual World map">
+    <template v-if="proof && impactSelection">
+      <header class="proof-heading"><div><p class="map-status">Exact explanation path</p><h2>{{ impactSelection.title }}</h2><p class="map-status">{{ impactSelection.witness.ruleId }} · {{ impactSelection.witness.side === 'both' ? 'Both models' : impactSelection.witness.side === 'baseline' ? 'Baseline model' : 'Proposed model' }}</p></div><button class="secondary" @click="emit('clearImpact')">Return to focus map</button></header>
+      <div ref="stage" class="map-stage proof-stage" tabindex="-1" :class="{ mobile }" :style="{ minHeight: `${proofHeight}px` }" aria-label="Explanation path graph">
+        <svg class="connectors" :viewBox="`0 0 ${bounds.width} ${proofHeight}`" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="proof-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 8 4 L 0 8 z" /></marker></defs><g v-for="relation in proof.relations" :key="`${relation.id}/${relation.fromId}/${relation.toId}`"><path :d="proofPath(relation.fromId, relation.toId)" :class="{ 'baseline-only': proof.baselineOnlyRelations.has(relation.id) }" marker-end="url(#proof-arrow)" :data-relation-id="relation.id" /><text v-if="proof.baselineOnlyRelations.has(relation.id)" class="proof-edge-label" :x="proofMidpoint(relation.fromId, relation.toId).x" :y="proofMidpoint(relation.fromId, relation.toId).y" text-anchor="middle">Baseline only</text></g></svg>
+        <button v-for="point in proofPositions" :key="point.object.id" :ref="element => registerNode(point.object.id, element)" class="peer-node proof-node" :class="{ 'baseline-only': proof.baselineOnlyObjects.has(point.object.id) }" :style="{ left: `${point.x / bounds.width * 100}%`, top: `${point.y}px` }" :aria-label="`${point.object.title}${proof.baselineOnlyObjects.has(point.object.id) ? ', baseline only' : ''}`" @click="select(point.object.id)"><span class="node-kind">{{ point.object.kind }}</span><span class="node-title">{{ point.object.title }}</span><span v-if="proof.baselineOnlyObjects.has(point.object.id)" class="link-label">Baseline only</span></button>
+      </div>
+      <details class="proof-relations"><summary>{{ proof.relations.length }} exact relations</summary><p v-for="relation in proof.relations" :key="relation.id">{{ proof.objects.find(object => object.id === relation.fromId)?.title }} <strong>{{ relation.kind }}</strong> {{ proof.objects.find(object => object.id === relation.toId)?.title }} <span v-if="proof.baselineOnlyRelations.has(relation.id)"> · Baseline only</span><small>{{ relation.id }}</small></p></details>
+    </template>
+    <template v-else>
     <header class="map-intro">
       <p v-if="search" class="map-status">Search results for “{{ search }}”</p>
       <p v-else class="map-status">{{ searchPeers.length }} connected object{{ searchPeers.length === 1 ? '' : 's' }} · select a node to recenter</p>
@@ -151,6 +193,7 @@ onBeforeUnmount(() => observer?.disconnect());
       <span>Page {{ page + 1 }} of {{ pageCount }}</span>
       <button type="button" :disabled="page + 1 === pageCount" @click="page++">Next</button>
     </nav>
+    </template>
   </section>
 </template>
 
@@ -181,11 +224,20 @@ onBeforeUnmount(() => observer?.disconnect());
 .pagination button { padding: .28rem .55rem; color: var(--muted); font: inherit; background: transparent; border: 0; cursor: pointer; }
 .pagination button:not(:disabled):hover { color: var(--jade); }
 .pagination button:disabled { cursor: default; opacity: .45; }
+.proof-heading { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:.5rem; }
+.proof-heading h2 { margin:.35rem 0; font-size:1rem; }
+.proof-node { width:min(176px,calc(25% - 16px)); }
+.proof-node.baseline-only { border-style:dashed; background:var(--wash); }
+.connectors path.baseline-only { stroke:var(--jade); stroke-dasharray:5 4; }
+.proof-edge-label { fill:var(--jade); stroke:var(--paper); stroke-width:4px; paint-order:stroke; font-size:11px; }
+.proof-relations { font-size:.8rem; color:var(--muted); margin-top:.6rem; }
+.proof-relations p { overflow-wrap:anywhere; } .proof-relations small { display:block; font-size:.7rem; margin-top:.25rem; }
 @media (max-width: 679px) {
   .map-intro { align-items: flex-start; flex-direction: column; gap: .3rem; }
   .map-stage { border-radius: 15px; }
   .focus-node { width: min(270px, calc(100vw - 3rem)); }
   .peer-node { width: calc(50% - 16px); }
+  .proof-heading { flex-direction:column; align-items:flex-start; }
 }
 @media (prefers-reduced-motion: reduce) { .focus-node, .peer-node { transition: none; } }
 </style>

@@ -3,12 +3,12 @@
 
 ## Now
 
-- Goal: [[goals]]. Local authoring now includes stage-aware selection, Luna questions and bounded provisional System One graph/question review. Hosted realization remains externally unverified.
-- Next action: confirm CI for the verified lab layout repair; then improve exclusion/permission-subject handling and generic fallback questions against preserved failures, then collect human usefulness ratings. Extraction is the latency bottleneck; incremental extraction requires provenance/correction tests before adoption.
-- Working state: `feat/candidate-verification`, `/private/tmp/bropilot-world-foundation`, single iterative [PR #9](https://github.com/sdawka/bropilot/pull/9). No merge or deployment in this increment.
-- Evidence: full repository checks and 28 browser tests pass; final ontology suite 84/84. Live baseline 8/8 and frozen held-out 33/33 completed; held-out top-rated questions 19/33, zero human ratings. Final offline reselection has mixed results. See [[journals/2026-10-09]] and the [benchmark](../../packages/ontology-lab/benchmark/README.md).
-- Blockers: GRREAT sync still lacks its own credentials. Hosted OAuth/Access/provider resources remain an independent release gate. TypeSafe local credential is configured.
-- Last updated: 2026-10-09T22:45:18-04:00.
+- Goal: [[goals]]. Advisory personal-assistant impact analysis is implemented and locally verified in the normal World workspace; accepted scope remains [[roadmap]] and requirements section 3.4.
+- Next action: verify hosted CI for the reviewed increment in existing PR #9; keep merge/deployment separate. Use Map’s Analyze change for saved comparisons and bounded what-if edits.
+- Working state: `feat/candidate-verification`, `/private/tmp/bropilot-world-foundation`, existing [PR #9](https://github.com/sdawka/bropilot/pull/9). No merge or deployment.
+- Evidence: fresh complete build/check passes, including 68 browser cases (38 new impact cases); independent source/native/provenance and four-viewport review is clear. [[journals/2026-10-10]] links counts and source-pinned benchmark data.
+- Blockers: versioned GRREAT preview still lacks credentials, zero applied/conflicts. Hosted provider/OAuth release proof remains separately pending.
+- Last updated: 2026-10-10T14:33:20-04:00.
 
 ## Ontology flow lab
 
@@ -70,3 +70,7 @@ Accepted scope: one full-stack application Thing and canonical Artifacts reposit
 - [ ] Live proof: authorize OAuth, deploy A, deploy verified B to the same Worker, roll back to A with canonical B unchanged; retain source/build/provider/observation lineage. Missing external setup remains pending rather than simulated.
 
 Primary owns shared files and integration; each track owns disjoint code and focused tests, preserves concurrent edits, and returns validation evidence. No automatic rollback, target databases, custom domains, hosted shell builds, calendar effects, generic composition, full Task Packets, model checks or payment execution in this slice. Update Now and the linked journal at meaningful boundaries; assess the accepted evidence in Analysis and attempt versioned direct-RPC sync when authenticated.
+
+## Change-impact delivery
+
+Accepted dependency order, ownership and criteria live in [[roadmap]]; phase A and subsequent verification evidence live in [[journals/2026-10-10]]. The report is advisory and historical evidence is immutable. Prior ontology/hosted evidence above remains historical, not proof of this increment.
