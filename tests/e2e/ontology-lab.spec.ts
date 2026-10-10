@@ -89,3 +89,28 @@ test('a thoughtful question explains its gap and preserves context for a short r
   expect(submitted?.messages.at(-2)).toMatchObject({ role: 'assistant', text });
   await expect(page.getByRole('alert')).toContainText('Live model disabled');
 });
+
+
+test('lab controls and readable introduction fit narrow and short viewports', async ({ page }) => {
+  for (const viewport of [{ width: 1221, height: 700 }, { width: 1440, height: 900 }, { width: 1221, height: 600 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/lab/ontology');
+    const geometry = await page.evaluate(() => {
+      const intro = document.querySelector('.lab-intro')!;
+      const description = intro.querySelector('p')!.getBoundingClientRect();
+      const picker = document.querySelector('.stage-picker')!.getBoundingClientRect();
+      return { scrollWidth: document.documentElement.scrollWidth, width: innerWidth, descriptionWidth: description.width, pickerHeight: picker.height };
+    });
+    expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.width + 1);
+    expect(geometry.descriptionWidth).toBeGreaterThan(Math.min(340, viewport.width - 40));
+    expect(geometry.pickerHeight).toBeLessThan(110);
+    await page.getByRole('button', { name: 'Explore example', exact: true }).click();
+    const log = page.getByRole('complementary', { name: 'Information flow log' });
+    await expect(log.getByRole('button', { name: /Ontology run complete/ })).toBeVisible();
+    // Normal clicks must remain possible when sidebar details occupy the available height.
+    await log.getByRole('button', { name: /Description received/ }).click();
+    await log.locator('button').filter({ hasText: /Object updated|Added.*|Map object/ }).first().click();
+    await expect(page.locator('.agent-card.active')).toContainText('mapper');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  }
+});

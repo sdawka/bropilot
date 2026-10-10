@@ -67,3 +67,5 @@
 - **2026-10-09T22:13:45-04:00** — Open a local credential placeholder for the user to fill and prepare a bottleneck-driven improvement plan for the ontology pipeline.
 
 - **2026-10-09T22:15:57-04:00** — Implement the ontology improvement plan; use Luna for fast intelligent questions, allow faster general opening questions, and ground later specific questions in failed criteria. Increase System One checks for semantic coherence beyond Ascent structural checks.
+
+- 2026-10-09T23:00:10-04:00: Use a Sol agent to fix ontology-lab styling, following the supplied screenshot.

@@ -311,7 +311,7 @@ onBeforeUnmount(() => { pausePlayback(); stopRun(); });
     <section class="lab-layout" aria-label="Ontology authoring flow">
       <section class="lab-stage" aria-label="Ontology workspace">
         <div class="lab-intro">
-          <p>Describe a world in your own words. The lab records each transformation, then runs the same Rust readiness checks used by the platform.</p>
+          <p class="lab-description">Describe a world in your own words. The lab records each transformation, then runs the same Rust readiness checks used by the platform.</p>
           <fieldset class="stage-picker" :disabled="running" aria-label="Authoring stage">
             <legend>Authoring stage</legend>
             <label v-for="stage in AUTHORING_STAGES" :key="stage">
@@ -319,11 +319,13 @@ onBeforeUnmount(() => { pausePlayback(); stopRun(); });
             </label>
             <small>Changes question priority and completeness prompts; it does not grant permission.</small>
           </fieldset>
-          <p class="lab-status" :class="{ available: capability.available }">
-            <span class="status-dot" :class="{ ready: capability.available }"></span>
-            {{ loadingCapability ? 'Checking local Codex…' : capability.message }}
-          </p>
-          <p v-if="runOrigin" class="run-origin">{{ running ? 'Live run in progress' : runOrigin === 'example' ? 'Example extraction · real Rust checks' : runOrigin === 'saved' ? `Saved replay · ${savedTimestamp ? new Date(savedTimestamp).toLocaleString() : 'recorded run'}` : 'Recorded live run' }}</p>
+          <div class="lab-runtime">
+            <p class="lab-status" :class="{ available: capability.available }">
+              <span class="status-dot" :class="{ ready: capability.available }"></span>
+              {{ loadingCapability ? 'Checking local Codex…' : capability.message }}
+            </p>
+            <p v-if="runOrigin" class="run-origin">{{ running ? 'Live run in progress' : runOrigin === 'example' ? 'Example extraction · real Rust checks' : runOrigin === 'saved' ? `Saved replay · ${savedTimestamp ? new Date(savedTimestamp).toLocaleString() : 'recorded run'}` : 'Recorded live run' }}</p>
+          </div>
         </div>
 
         <div class="ontology-surface" :class="{ 'has-snapshot': snapshot }">

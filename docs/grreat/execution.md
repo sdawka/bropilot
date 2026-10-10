@@ -4,7 +4,7 @@
 ## Now
 
 - Goal: [[goals]]. Local authoring now includes stage-aware selection, Luna questions and bounded provisional System One graph/question review. Hosted realization remains externally unverified.
-- Next action: improve exclusion/permission-subject handling and generic fallback questions against preserved failures, then collect human usefulness ratings. Extraction is the latency bottleneck; incremental extraction requires provenance/correction tests before adoption.
+- Next action: confirm CI for the verified lab layout repair; then improve exclusion/permission-subject handling and generic fallback questions against preserved failures, then collect human usefulness ratings. Extraction is the latency bottleneck; incremental extraction requires provenance/correction tests before adoption.
 - Working state: `feat/candidate-verification`, `/private/tmp/bropilot-world-foundation`, single iterative [PR #9](https://github.com/sdawka/bropilot/pull/9). No merge or deployment in this increment.
 - Evidence: full repository checks and 28 browser tests pass; final ontology suite 84/84. Live baseline 8/8 and frozen held-out 33/33 completed; held-out top-rated questions 19/33, zero human ratings. Final offline reselection has mixed results. See [[journals/2026-10-09]] and the [benchmark](../../packages/ontology-lab/benchmark/README.md).
 - Blockers: GRREAT sync still lacks its own credentials. Hosted OAuth/Access/provider resources remain an independent release gate. TypeSafe local credential is configured.
