@@ -4,11 +4,11 @@
 ## Now
 
 - Goal: [[goals]]. Milestone: ontology usefulness benchmark complete; extraction and replay work, but generic question prioritization and semantic readiness remain gaps. Hosted one-Thing realization/deployment remains implemented but externally unverified.
-- Next action: Use the benchmark to improve stage-aware obligations and question selection, then test selective System One semantic checks on actual proposals and held-out conversations. Resume staging setup and live A→B→rollback proof independently on PR #9.
+- Next action: Implement step 1 of the proposed [ontology improvement plan](roadmap.md): question-selection regressions and a deterministic candidate policy. The plan is recorded; production behavior is unchanged. Hosted staging verification remains an independent track.
 - Working state: `feat/candidate-verification`, isolated worktree `/private/tmp/bropilot-world-foundation`, based on merged main `733f6b9`. Older PRs #5–#8 merged with all checks green; #1 closed as superseded, branch preserved. [PR #9](https://github.com/sdawka/bropilot/pull/9) is the single open iterative PR; hosted check results remain on that PR.
 - Blockers: Public OAuth client/domain setup and authenticated provider resources must be verified before live release. Local implementation continues independently. GRREAT sync remains pending credentials.
 - Latest verification: 16/16 real Codex/Rust runs across eight app ideas, ten identical native/Worker graph probes, 108 Jev judgments on 36 fixed microcases, and 16 shadow question-ranking calls. [Benchmark protocol/results](../../packages/ontology-lab/benchmark/README.md) distinguish structural checks, semantic judgments and observed question quality. Prior full build/check evidence remains in [[journals/2026-10-09]].
-- Last updated: 2026-10-09T21:49:10-04:00.
+- Last updated: 2026-10-09T22:13:45-04:00.
 
 ## Ontology flow lab
 

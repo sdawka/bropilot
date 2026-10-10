@@ -63,3 +63,5 @@
 - **2026-10-09T21:34:46-04:00** — Benchmark the ontology pipeline for actual usefulness and answer quality across familiar app ideas, and assess dependence on Ascent plus System One models.
 
 - **2026-10-09T21:36:35-04:00** — Use the existing credential in the neighboring AskCat project for the live TypeSafe/System One benchmark.
+
+- **2026-10-09T22:13:45-04:00** — Open a local credential placeholder for the user to fill and prepare a bottleneck-driven improvement plan for the ontology pipeline.
