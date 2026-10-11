@@ -37,3 +37,45 @@
 - **2026-10-08T07:59:18-04:00** — Support deterministic checks and LLM/decision-model checks, including combinations; reserve checks with significant cost for selected Realization candidates.
 
 - **2026-10-08T07:59:18-04:00** — Include optional contributor-funded platform verification for open-source Worlds, considering Cloudflare-compatible header-based agent payments. No specific payment provider or protocol was selected.
+
+- **2026-10-08T08:10:01-04:00** — Review and merge the older PRs, subject to the existing requirement that every CI check is green.
+
+- **2026-10-08T08:10:01-04:00** — Implement the next candidate-verification slice and try it locally first; consolidate ongoing work onto one branch and one PR for iteration, avoiding additional task-sized PRs.
+
+- **2026-10-08T09:19:34-04:00** — Use a large blank canvas, intentional components and a centered, delightful experience as continuing UI principles; remove inputs for choices already settled in the plan.
+
+- **2026-10-08T10:05:00-04:00** — Add a Visual / Text toggle to Map, taking spatial-layout inspiration from UIP while preserving the clean, spacious design.
+
+- **2026-10-09T00:27:12-04:00** — Deploy realized applications into the user's connected Cloudflare account.
+
+- **2026-10-09T00:27:12-04:00** — Connect deployment accounts through Cloudflare OAuth.
+
+- **2026-10-09T00:27:12-04:00** — The example uses one full-stack application Thing, backed by one canonical Cloudflare Artifacts repository, deployed to one Worker.
+
+- **2026-10-09T00:27:12-04:00** — Implement the approved hosted deployment plan using parallel subagents, retaining the existing iterative branch and PR.
+
+- **2026-10-09T12:36:27-04:00** — Create an isolated test page for messy description/chat → filled ontology → criteria feedback, with a central ontology, floating agent panel and right-side logs; stepping through logs highlights the corresponding input, agent or changed nodes.
+
+- **2026-10-09T12:53:18-04:00** — Use locally signed-in Codex for live description-to-ontology extraction, with saved runs available for replay.
+
+- **2026-10-09T13:02:19-04:00** — Consider the assistant's personality and ability to surface sensible, thoughtful questions while helping users create their Thing.
+
+- **2026-10-09T21:34:46-04:00** — Benchmark the ontology pipeline for actual usefulness and answer quality across familiar app ideas, and assess dependence on Ascent plus System One models.
+
+- **2026-10-09T21:36:35-04:00** — Use the existing credential in the neighboring AskCat project for the live TypeSafe/System One benchmark.
+
+- **2026-10-09T22:13:45-04:00** — Open a local credential placeholder for the user to fill and prepare a bottleneck-driven improvement plan for the ontology pipeline.
+
+- **2026-10-09T22:15:57-04:00** — Implement the ontology improvement plan; use Luna for fast intelligent questions, allow faster general opening questions, and ground later specific questions in failed criteria. Increase System One checks for semantic coherence beyond Ascent structural checks.
+
+- 2026-10-09T23:00:10-04:00: Use a Sol agent to fix ontology-lab styling, following the supplied screenshot.
+
+- **2026-10-10T14:10:58-04:00** — Use the normal World workspace for advisory change-impact analysis of the personal assistant example; preserve the existing Visual/Text Map and inspector.
+
+- **2026-10-10T14:10:58-04:00** — Support comparisons of saved revisions and a bounded what-if editor. Analysis explains consequences and evidence applicability without changing promotion policy or writing canonical state.
+
+- **2026-10-10T14:10:58-04:00** — Compute and explain completed versus planned work from clearly synthetic sample plans and completion observations, with an explicit reporting window and metric definition.
+
+- **2026-10-10T14:10:58-04:00** — Use Sol agents for all implementation, with the primary agent limited to orchestration.
+
+- **2026-10-10T15:02:52-04:00** — Lead change analysis with a concise consequence summary; distinguish actual edits, potential effects, recomputed metrics and evidence rechecks. Start explanations at the actual Thing revision change and prioritize useful consequences while retaining full detail on demand.

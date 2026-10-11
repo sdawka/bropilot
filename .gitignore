@@ -5,6 +5,7 @@
 /target/
 /apps/*/node_modules/
 /apps/*/dist/
+/apps/worker/dist-staging/
 /apps/*/.wrangler/
 /packages/*/node_modules/
 /.superpowers/
@@ -13,3 +14,5 @@
 /packages/core-wasm/
 /.test-artifacts/
 /apps/worker/worker-configuration.d.ts
+/.local-session/
+/apps/worker/src/runner-manifest.ts

@@ -4,13 +4,15 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev --ip 127.0.0.1 --port 8791",
-    "build": "wrangler types worker-configuration.d.ts && tsc --noEmit && wrangler deploy --dry-run --outdir dist",
+    "dev": "node ../../scripts/build-runner-manifest.mjs && wrangler dev --ip 127.0.0.1 --port 8791",
+    "build": "node ../../scripts/build-runner-manifest.mjs && wrangler types worker-configuration.d.ts && tsc --noEmit && wrangler deploy --dry-run --outdir dist",
     "types": "wrangler types worker-configuration.d.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@bropilot/contracts": "*"
+    "@bropilot/contracts": "*",
+    "isomorphic-git": "1.43.2",
+    "jose": "6.2.12"
   },
   "devDependencies": {
     "wrangler": "4.148.0"

@@ -1,0 +1,5159 @@
+{
+  "version": 1,
+  "experimentDate": "2026-10-09",
+  "recordedAt": "2026-10-10T01:51:25.202Z",
+  "scope": "Synthetic benchmark of existing authoring pipeline; non-blind model-assisted rubric review, not human user ratings. System One shadow only, not a production semantic gate.",
+  "baseline": {
+    "gitHead": "0a40d35d648a377de6912958b4ae7c715321190c",
+    "sourceHashes": {
+      "packages/ontology-lab/runner.mjs": "8396a80d2559b53c303c605be6d30f016514da1ff24c721d3f7602894ff8a763",
+      "packages/ontology-lab/domain.mjs": "a0f7a28e54277914275c60bc4d91c475d0f78d91a906a8093cb0bf32dc8c508e",
+      "packages/contracts/fixtures/assistant-valid.json": "d12e2859009338542a6a800a0c02730937f80b922c696b759e4a5ed90e21314a",
+      "crates/world-core/src/lib.rs": "8dd2d393727d977b9440d3d22dc5247f2abe96d3cb0dedf3308b9eae7ee6ce86"
+    },
+    "casesHash": "fe78f2d96326c8ecb7ceb40e9f70ebf035f0f65c73ae2cb8e0fb0eda40be11c1",
+    "codexVersion": "codex-cli 0.161.0",
+    "model": "Local Codex CLI default; current production runner does not expose resolved model ID or token usage.",
+    "summary": {
+      "attempted": 16,
+      "completed": 16,
+      "failed": 0,
+      "readiness": {
+        "ready": 0,
+        "unknown": 16,
+        "blocked": 0
+      },
+      "latencyMs": {
+        "median": 22092,
+        "max": 35574
+      },
+      "questionCounts": [
+        {
+          "caseId": "todo-private-list",
+          "repeat": 1,
+          "count": 3
+        },
+        {
+          "caseId": "todo-private-list",
+          "repeat": 2,
+          "count": 3
+        },
+        {
+          "caseId": "expense-split-correction",
+          "repeat": 2,
+          "count": 3
+        },
+        {
+          "caseId": "expense-split-correction",
+          "repeat": 1,
+          "count": 3
+        },
+        {
+          "caseId": "studio-booking",
+          "repeat": 1,
+          "count": 3
+        },
+        {
+          "caseId": "studio-booking",
+          "repeat": 2,
+          "count": 3
+        },
+        {
+          "caseId": "habit-streak-followup",
+          "repeat": 1,
+          "count": 3
+        },
+        {
+          "caseId": "habit-streak-followup",
+          "repeat": 2,
+          "count": 3
+        },
+        {
+          "caseId": "shared-grocery-conflict",
+          "repeat": 1,
+          "count": 2
+        },
+        {
+          "caseId": "shared-grocery-conflict",
+          "repeat": 2,
+          "count": 3
+        },
+        {
+          "caseId": "private-journal",
+          "repeat": 2,
+          "count": 3
+        },
+        {
+          "caseId": "private-journal",
+          "repeat": 1,
+          "count": 3
+        },
+        {
+          "caseId": "goal-calendar-assistant",
+          "repeat": 1,
+          "count": 3
+        },
+        {
+          "caseId": "goal-calendar-assistant",
+          "repeat": 2,
+          "count": 3
+        },
+        {
+          "caseId": "underspecified-library",
+          "repeat": 1,
+          "count": 3
+        },
+        {
+          "caseId": "underspecified-library",
+          "repeat": 2,
+          "count": 3
+        }
+      ],
+      "caveat": "Curated synthetic cases, not population accuracy. Lexical signals require semantic review. Completion and graph readiness do not establish useful answers.",
+      "finishedAt": "2026-10-10T01:40:36.112Z"
+    },
+    "reviewAggregate": {
+      "runs": 16,
+      "completed": 16,
+      "scoresOutOf32": {
+        "fidelity": 32,
+        "coverage": 30,
+        "firstQuestionUsefulness": 16,
+        "contextRestraint": 23
+      },
+      "expectedFacts": {
+        "preserved": 58,
+        "partial": 2,
+        "missing": 0
+      },
+      "headline": "Extraction/correction was strong in these synthetic cases. Visible-first question selection was the main weakness."
+    },
+    "shadowComparison": {
+      "improved": 13,
+      "tied": 3,
+      "worse": 0,
+      "selectedConcrete2": 13,
+      "selectedGeneric1": 3,
+      "selectedRedundant0": 0,
+      "baselineVisibleFirstTotal": 16,
+      "shadowSelectedTotal": 29,
+      "caveat": "This is a small, non-blind, scripted sample. The shadow model ranks existing candidates only; it does not prove generated-question quality or user satisfaction."
+    },
+    "runs": [
+      {
+        "caseId": "todo-private-list",
+        "repeat": 1,
+        "elapsedMs": 20009,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Private Offline Todo App",
+          "purpose": "Help the user add tasks, mark them done, and view today's unfinished tasks in a tiny private browser app that works offline.",
+          "evidence": [
+            {
+              "messageId": "todo-1",
+              "quote": "I want a tiny private todo app for myself."
+            }
+          ],
+          "entities": [
+            {
+              "id": "todo-app",
+              "kind": "thing",
+              "title": "Private todo app",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "scope",
+                  "value": "Tiny and private"
+                },
+                {
+                  "key": "excludedFeatures",
+                  "value": "Sharing, reminders, accounts, and a calendar"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "I want a tiny private todo app for myself."
+                },
+                {
+                  "messageId": "todo-1",
+                  "quote": "Do not add sharing, reminders, accounts, or a calendar."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "user",
+              "kind": "beneficiary",
+              "title": "The user",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "for myself"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "manage-today-tasks",
+              "kind": "outcome",
+              "title": "Manage today's unfinished tasks",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "I can add a task, mark it done, and see only today's unfinished tasks."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "browser-interface",
+              "kind": "interface",
+              "title": "Browser interface",
+              "parentId": "todo-app",
+              "properties": [
+                {
+                  "key": "offlineSupport",
+                  "value": "Required"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "It should work offline in the browser."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "add-task",
+              "kind": "operation",
+              "title": "Add a task",
+              "parentId": "todo-app",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "I can add a task"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "complete-task",
+              "kind": "operation",
+              "title": "Mark a task done",
+              "parentId": "todo-app",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "mark it done"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "view-today-unfinished",
+              "kind": "operation",
+              "title": "View today's unfinished tasks",
+              "parentId": "todo-app",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "see only today's unfinished tasks"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "offline-browser-support",
+              "kind": "acceptanceCriterion",
+              "title": "Works offline in the browser",
+              "parentId": "todo-app",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "It should work offline in the browser."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "limited-feature-scope",
+              "kind": "acceptanceCriterion",
+              "title": "Exclude sharing, reminders, accounts, and a calendar",
+              "parentId": "todo-app",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "Do not add sharing, reminders, accounts, or a calendar."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "world-beneficiary",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "user",
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "for myself"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-outcome",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "manage-today-tasks",
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "I can add a task, mark it done, and see only today's unfinished tasks."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "Should unfinished tasks carry over to the next day, or should each day show only tasks added that day?",
+            "Should tasks stay saved in this browser after you close and reopen it?",
+            "What would you check offline to decide the app is ready for everyday use?"
+          ]
+        },
+        "visibleQuestions": [
+          "For «Manage today's unfinished tasks», what would count as success, and when would you review it?",
+          "For «Add a task», which changes need your approval?",
+          "For «Mark a task done», which changes need your approval?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1,
+            "contextRestraint": 1
+          },
+          "facts": [
+            {
+              "id": "private-beneficiary",
+              "status": "preserved",
+              "note": "Private app/user beneficiary."
+            },
+            {
+              "id": "task-lifecycle",
+              "status": "preserved",
+              "note": "Add and mark-done operations."
+            },
+            {
+              "id": "today-filter",
+              "status": "preserved",
+              "note": "Today's unfinished-task view."
+            },
+            {
+              "id": "offline-browser",
+              "status": "preserved",
+              "note": "Browser interface plus offline criterion."
+            }
+          ],
+          "notes": [
+            "All exclusions retained; none invented.",
+            "Raw first question usefully resolves what makes a task belong to today. Shown first is generic outcome success/review; following cards ask approval for routine task operations."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-2",
+            "text": "Should tasks stay saved in this browser after you close and reopen it?",
+            "sources": [
+              "proposal"
+            ],
+            "score": 2.5,
+            "confidence": 0.5,
+            "probabilities": {
+              "0": 0.04,
+              "1": 0.04,
+              "2": 0.3,
+              "3": 0.62
+            },
+            "alreadyAnsweredProbability": 0.17,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "todo-private-list",
+            "repeat": 1,
+            "baselineVisibleScore": 1,
+            "selectedScore": 2,
+            "comparison": "improved",
+            "selectedQuestion": "Should tasks stay saved in this browser after you close and reopen it?",
+            "note": "Specific offline-app behavior that materially affects usefulness."
+          }
+        }
+      },
+      {
+        "caseId": "todo-private-list",
+        "repeat": 2,
+        "elapsedMs": 23733,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Private Offline Todo App",
+          "purpose": "Help the user manage personal tasks in the browser by adding tasks, marking them done, and viewing only today's unfinished tasks, with offline support.",
+          "evidence": [
+            {
+              "messageId": "todo-1",
+              "quote": "I want a tiny private todo app for myself."
+            },
+            {
+              "messageId": "todo-1",
+              "quote": "I can add a task, mark it done, and see only today's unfinished tasks."
+            },
+            {
+              "messageId": "todo-1",
+              "quote": "It should work offline in the browser."
+            }
+          ],
+          "entities": [
+            {
+              "id": "todo-app",
+              "kind": "thing",
+              "title": "Tiny private todo app",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "excludedFeatures",
+                  "value": "Sharing, reminders, accounts, and a calendar"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "I want a tiny private todo app for myself."
+                },
+                {
+                  "messageId": "todo-1",
+                  "quote": "Do not add sharing, reminders, accounts, or a calendar."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "app-user",
+              "kind": "beneficiary",
+              "title": "The user",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "for myself"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "personal-task-management",
+              "kind": "outcome",
+              "title": "Manage personal tasks and see today's unfinished work",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "I can add a task, mark it done, and see only today's unfinished tasks."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "browser-interface",
+              "kind": "interface",
+              "title": "Browser interface",
+              "parentId": "todo-app",
+              "properties": [
+                {
+                  "key": "offlineSupport",
+                  "value": "Required"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "It should work offline in the browser."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "add-task",
+              "kind": "operation",
+              "title": "Add a task",
+              "parentId": "todo-app",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "I can add a task"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "complete-task",
+              "kind": "operation",
+              "title": "Mark a task done",
+              "parentId": "todo-app",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "mark it done"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "view-today-unfinished",
+              "kind": "operation",
+              "title": "View only today's unfinished tasks",
+              "parentId": "todo-app",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "see only today's unfinished tasks"
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "world-beneficiary",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "app-user",
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "I want a tiny private todo app for myself."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-outcome",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "personal-task-management",
+              "evidence": [
+                {
+                  "messageId": "todo-1",
+                  "quote": "I can add a task, mark it done, and see only today's unfinished tasks."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "Should “today's tasks” mean tasks added today, or tasks you assign to today?",
+            "Should privacy mean keeping tasks only in this browser, accessible to anyone using its browser profile?",
+            "Would an offline check—add a task, reload, and mark it done without internet—be your test that the app works?"
+          ]
+        },
+        "visibleQuestions": [
+          "For «Manage personal tasks and see today's unfinished work», what would count as success, and when would you review it?",
+          "For «Add a task», which changes need your approval?",
+          "For «Mark a task done», which changes need your approval?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1,
+            "contextRestraint": 1
+          },
+          "facts": [
+            {
+              "id": "private-beneficiary",
+              "status": "preserved",
+              "note": "Private app/user."
+            },
+            {
+              "id": "task-lifecycle",
+              "status": "preserved",
+              "note": "Add and mark-done."
+            },
+            {
+              "id": "today-filter",
+              "status": "preserved",
+              "note": "Only today's unfinished tasks."
+            },
+            {
+              "id": "offline-browser",
+              "status": "preserved",
+              "note": "Required offline browser support."
+            }
+          ],
+          "notes": [
+            "Excluded scope intact.",
+            "Raw created-today versus assigned-today question is strong; shown primary remains generic criteria scaffolding."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-1",
+            "text": "Should “today's tasks” mean tasks added today, or tasks you assign to today?",
+            "sources": [
+              "proposal"
+            ],
+            "score": 2.66,
+            "confidence": 0.67,
+            "probabilities": {
+              "0": 0.01,
+              "1": 0.02,
+              "2": 0.26,
+              "3": 0.71
+            },
+            "alreadyAnsweredProbability": 0.12,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "todo-private-list",
+            "repeat": 2,
+            "baselineVisibleScore": 1,
+            "selectedScore": 2,
+            "comparison": "improved",
+            "selectedQuestion": "Should “today's tasks” mean tasks added today, or tasks you assign to today?",
+            "note": "Directly resolves the core list semantics."
+          }
+        }
+      },
+      {
+        "caseId": "expense-split-correction",
+        "repeat": 1,
+        "elapsedMs": 22092,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Household Expense Tracker",
+          "purpose": "Help the user understand household spending by entering purchases and reviewing monthly totals by category.",
+          "evidence": [
+            {
+              "messageId": "expense-1",
+              "quote": "Make an expense tracker for my household."
+            },
+            {
+              "messageId": "expense-2",
+              "quote": "Only help me understand spending."
+            }
+          ],
+          "entities": [
+            {
+              "id": "expense-tracker",
+              "kind": "thing",
+              "title": "Household expense tracker",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "excludedScope",
+                  "value": "Roommates, reimbursements, bank accounts, and transaction imports"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "expense-1",
+                  "quote": "Make an expense tracker for my household."
+                },
+                {
+                  "messageId": "expense-2",
+                  "quote": "Do not track roommates, reimbursements, bank accounts, or import transactions."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "household",
+              "kind": "beneficiary",
+              "title": "User's household",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "expense-1",
+                  "quote": "Make an expense tracker for my household."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "understand-spending",
+              "kind": "outcome",
+              "title": "Understand household spending",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "expense-2",
+                  "quote": "Only help me understand spending."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "purchase-entry",
+              "kind": "interface",
+              "title": "Purchase entry",
+              "parentId": "expense-tracker",
+              "properties": [
+                {
+                  "key": "fields",
+                  "value": "Purchase, category, amount, date"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "expense-1",
+                  "quote": "I want to enter a purchase, category, amount, and date"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "monthly-category-totals",
+              "kind": "indicator",
+              "title": "Monthly totals by category",
+              "parentId": "expense-tracker",
+              "properties": [
+                {
+                  "key": "aggregation",
+                  "value": "Purchase amounts totaled by month and category"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "expense-1",
+                  "quote": "then see monthly totals by category."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "monthly-review",
+              "kind": "evaluationPlan",
+              "title": "Review spending totals monthly",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "cadence",
+                  "value": "First Sunday of each month"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "expense-2",
+                  "quote": "I review the totals on the first Sunday of each month."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "world-household",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "household",
+              "evidence": [
+                {
+                  "messageId": "expense-1",
+                  "quote": "Make an expense tracker for my household."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-understand-spending",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "understand-spending",
+              "evidence": [
+                {
+                  "messageId": "expense-2",
+                  "quote": "Only help me understand spending."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "spending-measured-by-totals",
+              "kind": "measuredBy",
+              "fromId": "understand-spending",
+              "toId": "monthly-category-totals",
+              "evidence": [
+                {
+                  "messageId": "expense-1",
+                  "quote": "then see monthly totals by category."
+                },
+                {
+                  "messageId": "expense-2",
+                  "quote": "Only help me understand spending."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "spending-evaluated-by-review",
+              "kind": "evaluatedBy",
+              "fromId": "understand-spending",
+              "toId": "monthly-review",
+              "evidence": [
+                {
+                  "messageId": "expense-2",
+                  "quote": "I review the totals on the first Sunday of each month."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "Should purchase categories come from a fixed list, or should you be able to create your own?"
+          ]
+        },
+        "visibleQuestions": [
+          "Which changes should wait for your approval?",
+          "What should this Thing reliably do first, and how would you check it?",
+          "Should purchase categories come from a fixed list, or should you be able to create your own?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1,
+            "contextRestraint": 1
+          },
+          "facts": [
+            {
+              "id": "purchase-fields",
+              "status": "preserved",
+              "note": "Purchase/category/amount/date."
+            },
+            {
+              "id": "monthly-category-totals",
+              "status": "preserved",
+              "note": "Monthly category aggregation."
+            },
+            {
+              "id": "monthly-review",
+              "status": "preserved",
+              "note": "First-Sunday monthly review."
+            },
+            {
+              "id": "personal-spending",
+              "status": "preserved",
+              "note": "Spending understanding without splitting."
+            }
+          ],
+          "notes": [
+            "Roommates, reimbursements, banking, imports remain excluded.",
+            "Raw category-policy question is useful; shown first generic approval question is ungrounded and the good question is third."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-1",
+            "text": "Should purchase categories come from a fixed list, or should you be able to create your own?",
+            "sources": [
+              "proposal",
+              "criteria"
+            ],
+            "score": 2.16,
+            "confidence": 0.74,
+            "probabilities": {
+              "0": 0,
+              "1": 0.05,
+              "2": 0.74,
+              "3": 0.21
+            },
+            "alreadyAnsweredProbability": 0.07,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "expense-split-correction",
+            "repeat": 1,
+            "baselineVisibleScore": 1,
+            "selectedScore": 2,
+            "comparison": "improved",
+            "selectedQuestion": "Should purchase categories come from a fixed list, or should you be able to create your own?",
+            "note": "Specific unresolved configuration choice; preferable to generic authorization."
+          }
+        }
+      },
+      {
+        "caseId": "expense-split-correction",
+        "repeat": 2,
+        "elapsedMs": 16269,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Household Expense Tracker",
+          "purpose": "Help the user understand household spending by entering purchases and reviewing monthly totals by category.",
+          "evidence": [
+            {
+              "messageId": "expense-1",
+              "quote": "Make an expense tracker for my household."
+            },
+            {
+              "messageId": "expense-2",
+              "quote": "Only help me understand spending."
+            }
+          ],
+          "entities": [
+            {
+              "id": "expense-tracker",
+              "kind": "thing",
+              "title": "Household expense tracker",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "excludedScope",
+                  "value": "Roommates, reimbursements, bank accounts, and transaction imports"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "expense-1",
+                  "quote": "Make an expense tracker for my household."
+                },
+                {
+                  "messageId": "expense-2",
+                  "quote": "Do not track roommates, reimbursements, bank accounts, or import transactions."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "household",
+              "kind": "beneficiary",
+              "title": "User's household",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "expense-1",
+                  "quote": "Make an expense tracker for my household."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "understand-spending",
+              "kind": "outcome",
+              "title": "Understand household spending",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "expense-2",
+                  "quote": "Only help me understand spending."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "purchase-entry",
+              "kind": "interface",
+              "title": "Purchase entry",
+              "parentId": "expense-tracker",
+              "properties": [
+                {
+                  "key": "fields",
+                  "value": "Purchase, category, amount, date"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "expense-1",
+                  "quote": "I want to enter a purchase, category, amount, and date"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "monthly-category-totals",
+              "kind": "indicator",
+              "title": "Monthly spending totals by category",
+              "parentId": "expense-tracker",
+              "properties": [
+                {
+                  "key": "aggregation",
+                  "value": "Monthly totals by category"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "expense-1",
+                  "quote": "then see monthly totals by category."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "monthly-review",
+              "kind": "evaluationPlan",
+              "title": "Monthly spending review",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "schedule",
+                  "value": "First Sunday of each month"
+                },
+                {
+                  "key": "reviewedInformation",
+                  "value": "Monthly totals by category"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "expense-2",
+                  "quote": "I review the totals on the first Sunday of each month."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "world-household",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "household",
+              "evidence": [
+                {
+                  "messageId": "expense-1",
+                  "quote": "Make an expense tracker for my household."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-understand-spending",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "understand-spending",
+              "evidence": [
+                {
+                  "messageId": "expense-2",
+                  "quote": "Only help me understand spending."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "spending-measured-by-totals",
+              "kind": "measuredBy",
+              "fromId": "understand-spending",
+              "toId": "monthly-category-totals",
+              "evidence": [
+                {
+                  "messageId": "expense-1",
+                  "quote": "then see monthly totals by category."
+                },
+                {
+                  "messageId": "expense-2",
+                  "quote": "Only help me understand spending."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "spending-evaluated-by-review",
+              "kind": "evaluatedBy",
+              "fromId": "understand-spending",
+              "toId": "monthly-review",
+              "evidence": [
+                {
+                  "messageId": "expense-2",
+                  "quote": "I review the totals on the first Sunday of each month."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "Should each monthly review show the previous calendar month's spending?"
+          ]
+        },
+        "visibleQuestions": [
+          "Which changes should wait for your approval?",
+          "What should this Thing reliably do first, and how would you check it?",
+          "Should each monthly review show the previous calendar month's spending?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1,
+            "contextRestraint": 1
+          },
+          "facts": [
+            {
+              "id": "purchase-fields",
+              "status": "preserved",
+              "note": "Purchase/category/amount/date."
+            },
+            {
+              "id": "monthly-category-totals",
+              "status": "preserved",
+              "note": "Monthly totals by category."
+            },
+            {
+              "id": "monthly-review",
+              "status": "preserved",
+              "note": "First Sunday."
+            },
+            {
+              "id": "personal-spending",
+              "status": "preserved",
+              "note": "No roommate logic restored."
+            }
+          ],
+          "notes": [
+            "Corrected exclusions retained.",
+            "Raw prior-calendar-month question is reasonable but lower priority; shown primary is generic authorization."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-1",
+            "text": "Should each monthly review show the previous calendar month's spending?",
+            "sources": [
+              "proposal",
+              "criteria"
+            ],
+            "score": 2.32,
+            "confidence": 0.5,
+            "probabilities": {
+              "0": 0.01,
+              "1": 0.06,
+              "2": 0.51,
+              "3": 0.42
+            },
+            "alreadyAnsweredProbability": 0.13,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "expense-split-correction",
+            "repeat": 2,
+            "baselineVisibleScore": 1,
+            "selectedScore": 2,
+            "comparison": "improved",
+            "selectedQuestion": "Should each monthly review show the previous calendar month's spending?",
+            "note": "Specific unanswered reporting-period choice with real effect on monthly totals."
+          }
+        }
+      },
+      {
+        "caseId": "studio-booking",
+        "repeat": 1,
+        "elapsedMs": 28303,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Pottery Studio Room Booking",
+          "purpose": "Let members request available two-hour slots in the wheel room, with studio-owner approval and no double bookings.",
+          "evidence": [
+            {
+              "messageId": "booking-1",
+              "quote": "Members should request a two-hour slot from the available times."
+            },
+            {
+              "messageId": "booking-1",
+              "quote": "I approve each request before it becomes a booking."
+            },
+            {
+              "messageId": "booking-1",
+              "quote": "Never double-book the room."
+            }
+          ],
+          "entities": [
+            {
+              "id": "studio-members",
+              "kind": "beneficiary",
+              "title": "Studio members",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Members should request a two-hour slot from the available times."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "wheel-room",
+              "kind": "thing",
+              "title": "Wheel room",
+              "parentId": "environment",
+              "properties": [
+                {
+                  "key": "quantity",
+                  "value": "1"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "I run a pottery studio with one wheel room."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "non-overlapping-bookings",
+              "kind": "outcome",
+              "title": "Room bookings never overlap",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Never double-book the room."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "request-slot",
+              "kind": "operation",
+              "title": "Request an available slot",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "slotDuration",
+                  "value": "2 hours"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Members should request a two-hour slot from the available times."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "member-request-rule",
+              "kind": "authorizationRule",
+              "title": "Members may request available slots",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Members should request a two-hour slot from the available times."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "approve-request",
+              "kind": "operation",
+              "title": "Approve a request to create a booking",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "I approve each request before it becomes a booking."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "owner-approval-rule",
+              "kind": "authorizationRule",
+              "title": "Studio owner approval is required",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "I approve each request before it becomes a booking."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "cancel-booking",
+              "kind": "operation",
+              "title": "Cancel a booking",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Cancellations are allowed until 24 hours before the slot."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "cancellation-cutoff-rule",
+              "kind": "authorizationRule",
+              "title": "Cancellation cutoff",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "cutoff",
+                  "value": "24 hours before the slot"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Cancellations are allowed until 24 hours before the slot."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "world-members",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "studio-members",
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Members should request a two-hour slot from the available times."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-non-overlap",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "non-overlapping-bookings",
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Never double-book the room."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "request-member-authorization",
+              "kind": "authorizedBy",
+              "fromId": "request-slot",
+              "toId": "member-request-rule",
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Members should request a two-hour slot from the available times."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "approval-owner-authorization",
+              "kind": "authorizedBy",
+              "fromId": "approve-request",
+              "toId": "owner-approval-rule",
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "I approve each request before it becomes a booking."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "cancellation-cutoff-authorization",
+              "kind": "authorizedBy",
+              "fromId": "cancel-booking",
+              "toId": "cancellation-cutoff-rule",
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Cancellations are allowed until 24 hours before the slot."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "Does a pending request hold the slot, or can several members request it until you approve one?",
+            "Who may cancel a booking: the member who booked it, you, or both?",
+            "Would you measure double bookings by counting overlapping approved bookings, and check that count whenever a request is approved?"
+          ]
+        },
+        "visibleQuestions": [
+          "For «Room bookings never overlap», what would count as success, and when would you review it?",
+          "What should this Thing reliably do first, and how would you check it?",
+          "Does a pending request hold the slot, or can several members request it until you approve one?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1,
+            "contextRestraint": 2
+          },
+          "facts": [
+            {
+              "id": "single-room",
+              "status": "preserved",
+              "note": "Wheel-room quantity one."
+            },
+            {
+              "id": "two-hour-request",
+              "status": "preserved",
+              "note": "Two-hour member requests."
+            },
+            {
+              "id": "approval-before-booking",
+              "status": "preserved",
+              "note": "Studio-owner approval rule."
+            },
+            {
+              "id": "no-overlap",
+              "status": "preserved",
+              "note": "Never-overlap outcome."
+            },
+            {
+              "id": "cancellation-window",
+              "status": "preserved",
+              "note": "24-hour cutoff."
+            }
+          ],
+          "notes": [
+            "No payment or extra rooms invented.",
+            "Raw pending-request slot-hold question is high value; shown first is generic success/review.",
+            "Cutoff is modeled as an authorization rule, although timing meaning remains intact."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-1",
+            "text": "Does a pending request hold the slot, or can several members request it until you approve one?",
+            "sources": [
+              "proposal",
+              "criteria"
+            ],
+            "score": 2.85,
+            "confidence": 0.85,
+            "probabilities": {
+              "0": 0.01,
+              "1": 0.01,
+              "2": 0.1,
+              "3": 0.88
+            },
+            "alreadyAnsweredProbability": 0.13,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "studio-booking",
+            "repeat": 1,
+            "baselineVisibleScore": 1,
+            "selectedScore": 2,
+            "comparison": "improved",
+            "selectedQuestion": "Does a pending request hold the slot, or can several members request it until you approve one?",
+            "note": "Directly resolves a high-impact conflict policy absent from the input."
+          }
+        }
+      },
+      {
+        "caseId": "studio-booking",
+        "repeat": 2,
+        "elapsedMs": 35574,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Pottery Studio Room Booking",
+          "purpose": "Let members request available two-hour slots in the wheel room, with studio-owner approval, no double-booking, and cancellations allowed until 24 hours before the slot.",
+          "evidence": [
+            {
+              "messageId": "booking-1",
+              "quote": "Members should request a two-hour slot from the available times."
+            },
+            {
+              "messageId": "booking-1",
+              "quote": "I approve each request before it becomes a booking."
+            },
+            {
+              "messageId": "booking-1",
+              "quote": "Never double-book the room."
+            },
+            {
+              "messageId": "booking-1",
+              "quote": "Cancellations are allowed until 24 hours before the slot."
+            }
+          ],
+          "entities": [
+            {
+              "id": "members",
+              "kind": "beneficiary",
+              "title": "Studio members",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Members should request a two-hour slot from the available times."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "wheel-room",
+              "kind": "thing",
+              "title": "Wheel room",
+              "parentId": "environment",
+              "properties": [
+                {
+                  "key": "roomCount",
+                  "value": "1"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "I run a pottery studio with one wheel room."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "exclusive-room-bookings",
+              "kind": "outcome",
+              "title": "Room bookings never overlap",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Never double-book the room."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "request-slot",
+              "kind": "operation",
+              "title": "Request an available slot",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "slotDuration",
+                  "value": "2 hours"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Members should request a two-hour slot from the available times."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "member-request-rule",
+              "kind": "authorizationRule",
+              "title": "Members may request available slots",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Members should request a two-hour slot from the available times."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "approve-request",
+              "kind": "operation",
+              "title": "Approve a request to create a booking",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "I approve each request before it becomes a booking."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "owner-approval-rule",
+              "kind": "authorizationRule",
+              "title": "Studio owner approval required",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "I approve each request before it becomes a booking."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "cancel-booking",
+              "kind": "operation",
+              "title": "Cancel a booking",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Cancellations are allowed until 24 hours before the slot."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "cancellation-cutoff",
+              "kind": "authorizationRule",
+              "title": "Cancellation cutoff",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "cutoffBeforeSlot",
+                  "value": "24 hours"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Cancellations are allowed until 24 hours before the slot."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "no-double-booking",
+              "kind": "acceptanceCriterion",
+              "title": "Never double-book the wheel room",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Never double-book the room."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "world-members",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "members",
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Members should request a two-hour slot from the available times."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-exclusive-bookings",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "exclusive-room-bookings",
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Never double-book the room."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "request-member-authorization",
+              "kind": "authorizedBy",
+              "fromId": "request-slot",
+              "toId": "member-request-rule",
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Members should request a two-hour slot from the available times."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "approval-owner-authorization",
+              "kind": "authorizedBy",
+              "fromId": "approve-request",
+              "toId": "owner-approval-rule",
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "I approve each request before it becomes a booking."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "cancellation-cutoff-authorization",
+              "kind": "authorizedBy",
+              "fromId": "cancel-booking",
+              "toId": "cancellation-cutoff",
+              "evidence": [
+                {
+                  "messageId": "booking-1",
+                  "quote": "Cancellations are allowed until 24 hours before the slot."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "Should a pending request hold its slot, or can several members request the same time until you approve one?",
+            "Who may cancel a booking: the member who booked it, you, or both?",
+            "Should we verify the no-double-booking rule by testing competing approvals and tracking any overlapping bookings?"
+          ]
+        },
+        "visibleQuestions": [
+          "For «Room bookings never overlap», what would count as success, and when would you review it?",
+          "For «Never double-book the wheel room», what concrete test would show this criterion is met?",
+          "Should a pending request hold its slot, or can several members request the same time until you approve one?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1,
+            "contextRestraint": 2
+          },
+          "facts": [
+            {
+              "id": "single-room",
+              "status": "preserved",
+              "note": "One wheel room."
+            },
+            {
+              "id": "two-hour-request",
+              "status": "preserved",
+              "note": "Two-hour request."
+            },
+            {
+              "id": "approval-before-booking",
+              "status": "preserved",
+              "note": "Approval required."
+            },
+            {
+              "id": "no-overlap",
+              "status": "preserved",
+              "note": "Outcome and acceptance criterion."
+            },
+            {
+              "id": "cancellation-window",
+              "status": "preserved",
+              "note": "24 hours before slot."
+            }
+          ],
+          "notes": [
+            "No unsupported payment/multi-room scope.",
+            "Raw questions ask the pending-slot issue and a deterministic conflict test. Shown first remains generic."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-1",
+            "text": "Should a pending request hold its slot, or can several members request the same time until you approve one?",
+            "sources": [
+              "proposal",
+              "criteria"
+            ],
+            "score": 2.83,
+            "confidence": 0.84,
+            "probabilities": {
+              "0": 0.01,
+              "1": 0.01,
+              "2": 0.11,
+              "3": 0.87
+            },
+            "alreadyAnsweredProbability": 0.13,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "studio-booking",
+            "repeat": 2,
+            "baselineVisibleScore": 1,
+            "selectedScore": 2,
+            "comparison": "improved",
+            "selectedQuestion": "Should a pending request hold its slot, or can several members request the same time until you approve one?",
+            "note": "Directly resolves a high-impact conflict policy absent from the input."
+          }
+        }
+      },
+      {
+        "caseId": "habit-streak-followup",
+        "repeat": 1,
+        "elapsedMs": 18648,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Personal Habit Tracker",
+          "purpose": "Help the user track drinking water and taking a walk with one-tap logging and a weekly streak, without notifications.",
+          "evidence": [
+            {
+              "messageId": "habit-1",
+              "quote": "I want a simple habit tracker for drinking water and taking a walk."
+            },
+            {
+              "messageId": "habit-1",
+              "quote": "I want to tap once when I do each habit and see a weekly streak."
+            },
+            {
+              "messageId": "habit-1",
+              "quote": "It is just for me and should not send notifications."
+            },
+            {
+              "messageId": "habit-2",
+              "quote": "A planned rest day should not break it, but skipping without planning should."
+            }
+          ],
+          "entities": [
+            {
+              "id": "habit-tracker",
+              "kind": "thing",
+              "title": "Simple habit tracker",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "habits",
+                  "value": "Drinking water; taking a walk"
+                },
+                {
+                  "key": "notifications",
+                  "value": "Disabled"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "I want a simple habit tracker for drinking water and taking a walk."
+                },
+                {
+                  "messageId": "habit-1",
+                  "quote": "It is just for me and should not send notifications."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "personal-user",
+              "kind": "beneficiary",
+              "title": "The user",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "scope",
+                  "value": "Personal use only"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "It is just for me"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "track-habits",
+              "kind": "outcome",
+              "title": "Track water and walking habits",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "I want a simple habit tracker for drinking water and taking a walk."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "weekly-streak",
+              "kind": "indicator",
+              "title": "Weekly streak",
+              "parentId": "habit-tracker",
+              "properties": [
+                {
+                  "key": "plannedRestDay",
+                  "value": "Does not break the streak"
+                },
+                {
+                  "key": "unplannedSkip",
+                  "value": "Breaks the streak"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "see a weekly streak"
+                },
+                {
+                  "messageId": "habit-2",
+                  "quote": "A planned rest day should not break it, but skipping without planning should."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "one-tap-logging",
+              "kind": "interface",
+              "title": "One-tap habit logging",
+              "parentId": "habit-tracker",
+              "properties": [
+                {
+                  "key": "interaction",
+                  "value": "Tap once when each habit is done"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "I want to tap once when I do each habit"
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "world-beneficiary",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "personal-user",
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "It is just for me"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-outcome",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "track-habits",
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "I want a simple habit tracker for drinking water and taking a walk."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "habits-measured-by-streak",
+              "kind": "measuredBy",
+              "fromId": "track-habits",
+              "toId": "weekly-streak",
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "I want to tap once when I do each habit and see a weekly streak."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "Should each habit have its own streak, or should a day count only when both are done?",
+            "When must a rest day be planned to preserve the streak?",
+            "How would you decide after a week whether the tracker is helping you?"
+          ]
+        },
+        "visibleQuestions": [
+          "For «Track water and walking habits», when and how should progress be reviewed?",
+          "Which changes should wait for your approval?",
+          "What should this Thing reliably do first, and how would you check it?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1,
+            "contextRestraint": 1
+          },
+          "facts": [
+            {
+              "id": "two-habits",
+              "status": "preserved",
+              "note": "Water and walking."
+            },
+            {
+              "id": "single-tap-log",
+              "status": "preserved",
+              "note": "One-tap logging."
+            },
+            {
+              "id": "weekly-streak",
+              "status": "preserved",
+              "note": "Weekly streak."
+            },
+            {
+              "id": "rest-day-rule",
+              "status": "preserved",
+              "note": "Planned rest preserves; unplanned skip breaks."
+            }
+          ],
+          "notes": [
+            "No notification/social invention.",
+            "Short reply is interpreted through context without treating assistant text as factual evidence.",
+            "Raw questions are useful, but shown primary review prompt and generic approval card are lower priority."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-1",
+            "text": "Should each habit have its own streak, or should a day count only when both are done?",
+            "sources": [
+              "proposal"
+            ],
+            "score": 2.67,
+            "confidence": 0.65,
+            "probabilities": {
+              "0": 0.01,
+              "1": 0.02,
+              "2": 0.28,
+              "3": 0.69
+            },
+            "alreadyAnsweredProbability": 0.09,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "habit-streak-followup",
+            "repeat": 1,
+            "baselineVisibleScore": 1,
+            "selectedScore": 2,
+            "comparison": "improved",
+            "selectedQuestion": "Should each habit have its own streak, or should a day count only when both are done?",
+            "note": "Specific, consequential, unanswered streak definition."
+          }
+        }
+      },
+      {
+        "caseId": "habit-streak-followup",
+        "repeat": 2,
+        "elapsedMs": 13561,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Personal Habit Tracker",
+          "purpose": "Help the user track drinking water and taking walks with one-tap completion and weekly streaks, without notifications.",
+          "evidence": [
+            {
+              "messageId": "habit-1",
+              "quote": "I want a simple habit tracker for drinking water and taking a walk."
+            },
+            {
+              "messageId": "habit-1",
+              "quote": "It is just for me and should not send notifications."
+            }
+          ],
+          "entities": [
+            {
+              "id": "habit-tracker",
+              "kind": "thing",
+              "title": "Personal habit tracker",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "notifications",
+                  "value": "Disabled"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "I want a simple habit tracker for drinking water and taking a walk."
+                },
+                {
+                  "messageId": "habit-1",
+                  "quote": "It is just for me and should not send notifications."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "user",
+              "kind": "beneficiary",
+              "title": "The user",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "It is just for me"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "habit-tracking",
+              "kind": "outcome",
+              "title": "Track water and walking habits",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "I want a simple habit tracker for drinking water and taking a walk."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "one-tap-completion",
+              "kind": "interface",
+              "title": "One-tap habit completion",
+              "parentId": "habit-tracker",
+              "properties": [
+                {
+                  "key": "habits",
+                  "value": "Drinking water; taking a walk"
+                },
+                {
+                  "key": "completionInteraction",
+                  "value": "One tap per habit completion"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "I want to tap once when I do each habit"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "weekly-streak",
+              "kind": "indicator",
+              "title": "Weekly streak",
+              "parentId": "habit-tracker",
+              "properties": [
+                {
+                  "key": "plannedRestDay",
+                  "value": "Does not break the streak"
+                },
+                {
+                  "key": "unplannedSkip",
+                  "value": "Breaks the streak"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "see a weekly streak"
+                },
+                {
+                  "messageId": "habit-2",
+                  "quote": "A planned rest day should not break it, but skipping without planning should."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "world-beneficiary",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "user",
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "It is just for me"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-outcome",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "habit-tracking",
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "I want a simple habit tracker for drinking water and taking a walk."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "tracking-streak",
+              "kind": "measuredBy",
+              "fromId": "habit-tracking",
+              "toId": "weekly-streak",
+              "evidence": [
+                {
+                  "messageId": "habit-1",
+                  "quote": "I want to tap once when I do each habit and see a weekly streak."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "Should water and walking each have their own streak, or should a day count only when both are done?",
+            "When must you mark a planned rest day so it preserves your streak?",
+            "How would you check after a week that the tracker is helping you?"
+          ]
+        },
+        "visibleQuestions": [
+          "For «Track water and walking habits», when and how should progress be reviewed?",
+          "Which changes should wait for your approval?",
+          "What should this Thing reliably do first, and how would you check it?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1,
+            "contextRestraint": 1
+          },
+          "facts": [
+            {
+              "id": "two-habits",
+              "status": "preserved",
+              "note": "Water/walking."
+            },
+            {
+              "id": "single-tap-log",
+              "status": "preserved",
+              "note": "One tap per completion."
+            },
+            {
+              "id": "weekly-streak",
+              "status": "preserved",
+              "note": "Weekly streak."
+            },
+            {
+              "id": "rest-day-rule",
+              "status": "preserved",
+              "note": "Intended distinction retained."
+            }
+          ],
+          "notes": [
+            "No forbidden feature appears.",
+            "Raw questions remain useful; shown primary is generic criteria scaffolding."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-1",
+            "text": "Should water and walking each have their own streak, or should a day count only when both are done?",
+            "sources": [
+              "proposal"
+            ],
+            "score": 2.67,
+            "confidence": 0.68,
+            "probabilities": {
+              "0": 0.01,
+              "1": 0.02,
+              "2": 0.25,
+              "3": 0.72
+            },
+            "alreadyAnsweredProbability": 0.1,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "habit-streak-followup",
+            "repeat": 2,
+            "baselineVisibleScore": 1,
+            "selectedScore": 2,
+            "comparison": "improved",
+            "selectedQuestion": "Should water and walking each have their own streak, or should a day count only when both are done?",
+            "note": "Specific, consequential, unanswered streak definition."
+          }
+        }
+      },
+      {
+        "caseId": "shared-grocery-conflict",
+        "repeat": 1,
+        "elapsedMs": 27580,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Shared grocery lists",
+          "purpose": "Help the user and Sam share grocery lists separated by store, with the user adding items and choosing lists and Sam checking items off.",
+          "evidence": [
+            {
+              "messageId": "grocery-1",
+              "quote": "Make a shared grocery list for me and Sam."
+            },
+            {
+              "messageId": "grocery-2",
+              "quote": "Actually, Sam should only be able to check off items, not add them. I add items and choose the store list."
+            }
+          ],
+          "entities": [
+            {
+              "id": "user",
+              "kind": "beneficiary",
+              "title": "The user",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "for me and Sam"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "sam",
+              "kind": "beneficiary",
+              "title": "Sam",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "for me and Sam"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "shared-shopping",
+              "kind": "outcome",
+              "title": "Coordinate grocery shopping through shared lists",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "Make a shared grocery list for me and Sam."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "grocery-lists",
+              "kind": "thing",
+              "title": "Shared grocery lists",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "organization",
+                  "value": "Separate list for each store"
+                },
+                {
+                  "key": "excludedScope",
+                  "value": "Recipe planning"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "I want a separate list for each store, and I do not want recipe planning."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "add-items",
+              "kind": "operation",
+              "title": "Add grocery items",
+              "parentId": "grocery-lists",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "grocery-2",
+                  "quote": "I add items and choose the store list."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "add-items-permission",
+              "kind": "authorizationRule",
+              "title": "The user can add items; Sam cannot",
+              "parentId": "grocery-lists",
+              "properties": [
+                {
+                  "key": "allowedActor",
+                  "value": "The user"
+                },
+                {
+                  "key": "deniedActor",
+                  "value": "Sam"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "grocery-2",
+                  "quote": "Actually, Sam should only be able to check off items, not add them. I add items and choose the store list."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "check-off-items",
+              "kind": "operation",
+              "title": "Check off grocery items",
+              "parentId": "grocery-lists",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "Either of us can add items and check them off."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "check-off-permission",
+              "kind": "authorizationRule",
+              "title": "The user and Sam can check off items",
+              "parentId": "grocery-lists",
+              "properties": [
+                {
+                  "key": "allowedActors",
+                  "value": "The user and Sam"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "Either of us can add items and check them off."
+                },
+                {
+                  "messageId": "grocery-2",
+                  "quote": "Sam should only be able to check off items, not add them."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "choose-store-list",
+              "kind": "operation",
+              "title": "Choose the store list",
+              "parentId": "grocery-lists",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "grocery-2",
+                  "quote": "I add items and choose the store list."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "choose-store-permission",
+              "kind": "authorizationRule",
+              "title": "The user chooses the store list",
+              "parentId": "grocery-lists",
+              "properties": [
+                {
+                  "key": "allowedActor",
+                  "value": "The user"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "grocery-2",
+                  "quote": "Sam should only be able to check off items, not add them. I add items and choose the store list."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "world-user",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "user",
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "for me and Sam"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-sam",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "sam",
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "for me and Sam"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-shared-shopping",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "shared-shopping",
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "Make a shared grocery list for me and Sam."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "authorize-add-items",
+              "kind": "authorizedBy",
+              "fromId": "add-items",
+              "toId": "add-items-permission",
+              "evidence": [
+                {
+                  "messageId": "grocery-2",
+                  "quote": "Actually, Sam should only be able to check off items, not add them. I add items and choose the store list."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "authorize-check-off",
+              "kind": "authorizedBy",
+              "fromId": "check-off-items",
+              "toId": "check-off-permission",
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "Either of us can add items and check them off."
+                },
+                {
+                  "messageId": "grocery-2",
+                  "quote": "Sam should only be able to check off items, not add them."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "authorize-choose-store",
+              "kind": "authorizedBy",
+              "fromId": "choose-store-list",
+              "toId": "choose-store-permission",
+              "evidence": [
+                {
+                  "messageId": "grocery-2",
+                  "quote": "I add items and choose the store list."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "Would a successful first test be you adding items to two store lists and Sam checking them off, with both of you seeing the changes?"
+          ]
+        },
+        "visibleQuestions": [
+          "For «Coordinate grocery shopping through shared lists», what would count as success, and when would you review it?",
+          "What should this Thing reliably do first, and how would you check it?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1,
+            "contextRestraint": 2
+          },
+          "facts": [
+            {
+              "id": "two-people",
+              "status": "preserved",
+              "note": "User and Sam beneficiaries."
+            },
+            {
+              "id": "store-lists",
+              "status": "preserved",
+              "note": "Separate list per store."
+            },
+            {
+              "id": "sam-checkoff-only",
+              "status": "preserved",
+              "note": "Sam denied add, allowed checkoff."
+            },
+            {
+              "id": "user-adds-items",
+              "status": "preserved",
+              "note": "User adds and chooses store list."
+            }
+          ],
+          "notes": [
+            "Recipe planning excluded; superseded Sam-add permission removed.",
+            "Raw first suggests a useful test but misses clear-completed/store-management detail. Shown primary is generic success/review."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-1",
+            "text": "Would a successful first test be you adding items to two store lists and Sam checking them off, with both of you seeing the changes?",
+            "sources": [
+              "proposal"
+            ],
+            "score": 1.92,
+            "confidence": 0,
+            "probabilities": {
+              "0": 0.1,
+              "1": 0.28,
+              "2": 0.23,
+              "3": 0.39
+            },
+            "alreadyAnsweredProbability": 0.43,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "shared-grocery-conflict",
+            "repeat": 1,
+            "baselineVisibleScore": 1,
+            "selectedScore": 1,
+            "comparison": "tied",
+            "selectedQuestion": "Would a successful first test be you adding items to two store lists and Sam checking them off, with both of you seeing the changes?",
+            "note": "Relevant but proposes a test plan rather than resolving the more consequential remaining workflow ambiguity."
+          }
+        }
+      },
+      {
+        "caseId": "shared-grocery-conflict",
+        "repeat": 2,
+        "elapsedMs": 25707,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Shared Grocery Lists",
+          "purpose": "Help the user and Sam share grocery lists organized by store, with the user adding items and choosing lists and both people checking items off.",
+          "evidence": [
+            {
+              "messageId": "grocery-1",
+              "quote": "Make a shared grocery list for me and Sam."
+            },
+            {
+              "messageId": "grocery-2",
+              "quote": "Actually, Sam should only be able to check off items, not add them. I add items and choose the store list."
+            }
+          ],
+          "entities": [
+            {
+              "id": "shared-grocery-lists",
+              "kind": "thing",
+              "title": "Shared grocery lists",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "organization",
+                  "value": "Separate list for each store"
+                },
+                {
+                  "key": "excludedScope",
+                  "value": "Recipe planning"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "I want a separate list for each store, and I do not want recipe planning."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "user",
+              "kind": "beneficiary",
+              "title": "The user",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "Make a shared grocery list for me and Sam."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "sam",
+              "kind": "beneficiary",
+              "title": "Sam",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "Make a shared grocery list for me and Sam."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "shared-store-lists",
+              "kind": "outcome",
+              "title": "Share grocery lists organized by store",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "Make a shared grocery list for me and Sam."
+                },
+                {
+                  "messageId": "grocery-1",
+                  "quote": "I want a separate list for each store"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "add-items",
+              "kind": "operation",
+              "title": "Add grocery items",
+              "parentId": "shared-grocery-lists",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "grocery-2",
+                  "quote": "I add items and choose the store list."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "choose-store-list",
+              "kind": "operation",
+              "title": "Choose the store list",
+              "parentId": "shared-grocery-lists",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "grocery-2",
+                  "quote": "I add items and choose the store list."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "check-off-items",
+              "kind": "operation",
+              "title": "Check off grocery items",
+              "parentId": "shared-grocery-lists",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "Either of us can add items and check them off."
+                },
+                {
+                  "messageId": "grocery-2",
+                  "quote": "Sam should only be able to check off items, not add them."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "user-adds-items",
+              "kind": "authorizationRule",
+              "title": "Only the user adds items",
+              "parentId": "shared-grocery-lists",
+              "properties": [
+                {
+                  "key": "allowed",
+                  "value": "The user"
+                },
+                {
+                  "key": "denied",
+                  "value": "Sam"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "grocery-2",
+                  "quote": "Sam should only be able to check off items, not add them."
+                },
+                {
+                  "messageId": "grocery-2",
+                  "quote": "I add items and choose the store list."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "user-chooses-list",
+              "kind": "authorizationRule",
+              "title": "The user chooses the store list",
+              "parentId": "shared-grocery-lists",
+              "properties": [
+                {
+                  "key": "allowed",
+                  "value": "The user"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "grocery-2",
+                  "quote": "Sam should only be able to check off items, not add them. I add items and choose the store list."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "both-check-off",
+              "kind": "authorizationRule",
+              "title": "Both people can check off items",
+              "parentId": "shared-grocery-lists",
+              "properties": [
+                {
+                  "key": "allowed",
+                  "value": "The user and Sam"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "Either of us can add items and check them off."
+                },
+                {
+                  "messageId": "grocery-2",
+                  "quote": "Sam should only be able to check off items, not add them."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "benefits-user",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "user",
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "Make a shared grocery list for me and Sam."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "benefits-sam",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "sam",
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "Make a shared grocery list for me and Sam."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "shared-lists-outcome",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "shared-store-lists",
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "I want a separate list for each store"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "authorize-adding",
+              "kind": "authorizedBy",
+              "fromId": "add-items",
+              "toId": "user-adds-items",
+              "evidence": [
+                {
+                  "messageId": "grocery-2",
+                  "quote": "Sam should only be able to check off items, not add them."
+                },
+                {
+                  "messageId": "grocery-2",
+                  "quote": "I add items and choose the store list."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "authorize-list-choice",
+              "kind": "authorizedBy",
+              "fromId": "choose-store-list",
+              "toId": "user-chooses-list",
+              "evidence": [
+                {
+                  "messageId": "grocery-2",
+                  "quote": "I add items and choose the store list."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "authorize-checking-off",
+              "kind": "authorizedBy",
+              "fromId": "check-off-items",
+              "toId": "both-check-off",
+              "evidence": [
+                {
+                  "messageId": "grocery-1",
+                  "quote": "Either of us can add items and check them off."
+                },
+                {
+                  "messageId": "grocery-2",
+                  "quote": "Sam should only be able to check off items, not add them."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "What would show that the lists are working well for you and Sam, and how would you like to check that?"
+          ]
+        },
+        "visibleQuestions": [
+          "For «Share grocery lists organized by store», what would count as success, and when would you review it?",
+          "What should this Thing reliably do first, and how would you check it?",
+          "What would show that the lists are working well for you and Sam, and how would you like to check that?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1,
+            "contextRestraint": 2
+          },
+          "facts": [
+            {
+              "id": "two-people",
+              "status": "preserved",
+              "note": "User/Sam."
+            },
+            {
+              "id": "store-lists",
+              "status": "preserved",
+              "note": "Store separation."
+            },
+            {
+              "id": "sam-checkoff-only",
+              "status": "preserved",
+              "note": "Corrected authorization."
+            },
+            {
+              "id": "user-adds-items",
+              "status": "preserved",
+              "note": "Corrected authorization."
+            }
+          ],
+          "notes": [
+            "No recipe feature and no superseded Sam-add right.",
+            "Raw question is broad success framing; shown first is generic and the third card repeats it."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-3",
+            "text": "What should this Thing reliably do first, and how would you check it?",
+            "sources": [
+              "criteria"
+            ],
+            "score": 1.49,
+            "confidence": 0.38,
+            "probabilities": {
+              "0": 0.06,
+              "1": 0.52,
+              "2": 0.28,
+              "3": 0.14
+            },
+            "alreadyAnsweredProbability": 0.18,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "shared-grocery-conflict",
+            "repeat": 2,
+            "baselineVisibleScore": 1,
+            "selectedScore": 1,
+            "comparison": "tied",
+            "selectedQuestion": "What should this Thing reliably do first, and how would you check it?",
+            "note": "Generic criteria question; no better than the baseline shown question."
+          }
+        }
+      },
+      {
+        "caseId": "private-journal",
+        "repeat": 1,
+        "elapsedMs": 24512,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Private On-Device Journal",
+          "purpose": "Let the user write, tag, and search their own journal entries while keeping everything on this device and never analyzing mood or suggesting therapy.",
+          "evidence": [
+            {
+              "messageId": "journal-1",
+              "quote": "I need a private journal where I can write an entry, tag it, and later search my own entries by tag or words."
+            },
+            {
+              "messageId": "journal-1",
+              "quote": "Keep everything on this device."
+            },
+            {
+              "messageId": "journal-1",
+              "quote": "It should never analyze my mood or suggest therapy."
+            }
+          ],
+          "entities": [
+            {
+              "id": "journal-owner",
+              "kind": "beneficiary",
+              "title": "Journal owner",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "I need a private journal"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "private-journal",
+              "kind": "thing",
+              "title": "Private journal",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "dataLocation",
+                  "value": "This device only"
+                },
+                {
+                  "key": "excludedBehavior",
+                  "value": "Mood analysis and therapy suggestions"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "I need a private journal"
+                },
+                {
+                  "messageId": "journal-1",
+                  "quote": "Keep everything on this device."
+                },
+                {
+                  "messageId": "journal-1",
+                  "quote": "It should never analyze my mood or suggest therapy."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "write-tag-and-find-entries",
+              "kind": "outcome",
+              "title": "Write, tag, and find personal entries",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "I can write an entry, tag it, and later search my own entries by tag or words."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "write-entry",
+              "kind": "operation",
+              "title": "Write a journal entry",
+              "parentId": "private-journal",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "write an entry"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "tag-entry",
+              "kind": "operation",
+              "title": "Tag a journal entry",
+              "parentId": "private-journal",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "write an entry, tag it"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "search-entries",
+              "kind": "operation",
+              "title": "Search personal entries",
+              "parentId": "private-journal",
+              "properties": [
+                {
+                  "key": "searchInputs",
+                  "value": "Tags or words"
+                },
+                {
+                  "key": "scope",
+                  "value": "The user's own entries"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "search my own entries by tag or words"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "device-only",
+              "kind": "acceptanceCriterion",
+              "title": "Keep everything on this device",
+              "parentId": "private-journal",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "Keep everything on this device."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "no-mood-analysis-or-therapy",
+              "kind": "acceptanceCriterion",
+              "title": "Never analyze mood or suggest therapy",
+              "parentId": "private-journal",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "It should never analyze my mood or suggest therapy."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "world-has-journal-owner",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "journal-owner",
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "I need a private journal"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-has-journaling-outcome",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "write-tag-and-find-entries",
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "I can write an entry, tag it, and later search my own entries by tag or words."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "Should opening the journal require a separate passcode, or is this device's lock enough?",
+            "What simple checks should confirm that writing, tagging, and searching work, everything stays on this device, and mood analysis and therapy suggestions never occur?"
+          ]
+        },
+        "visibleQuestions": [
+          "For «Write, tag, and find personal entries», what would count as success, and when would you review it?",
+          "For «Search personal entries», which changes need your approval?",
+          "For «Tag a journal entry», which changes need your approval?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1,
+            "contextRestraint": 1
+          },
+          "facts": [
+            {
+              "id": "journal-entry",
+              "status": "preserved",
+              "note": "Write operation."
+            },
+            {
+              "id": "tag-and-search",
+              "status": "preserved",
+              "note": "Tag and tag/word search operations."
+            },
+            {
+              "id": "device-local",
+              "status": "preserved",
+              "note": "Device-only property and criterion."
+            }
+          ],
+          "notes": [
+            "Mood/therapy exclusion retained; no cloud feature.",
+            "Raw device-lock versus passcode question is useful. Shown first hides it and later asks approval for normal operations."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-1",
+            "text": "Should opening the journal require a separate passcode, or is this device's lock enough?",
+            "sources": [
+              "proposal"
+            ],
+            "score": 2.37,
+            "confidence": 0.37,
+            "probabilities": {
+              "0": 0.01,
+              "1": 0.14,
+              "2": 0.32,
+              "3": 0.53
+            },
+            "alreadyAnsweredProbability": 0.1,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "private-journal",
+            "repeat": 1,
+            "baselineVisibleScore": 1,
+            "selectedScore": 2,
+            "comparison": "improved",
+            "selectedQuestion": "Should opening the journal require a separate passcode, or is this device's lock enough?",
+            "note": "Concrete privacy decision consistent with device-local boundary."
+          }
+        }
+      },
+      {
+        "caseId": "private-journal",
+        "repeat": 2,
+        "elapsedMs": 21530,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Private On-Device Journal",
+          "purpose": "Let the user write, tag, and search their own journal entries, keeping everything on this device and never analyzing mood or suggesting therapy.",
+          "evidence": [
+            {
+              "messageId": "journal-1",
+              "quote": "I need a private journal where I can write an entry, tag it, and later search my own entries by tag or words."
+            },
+            {
+              "messageId": "journal-1",
+              "quote": "Keep everything on this device."
+            },
+            {
+              "messageId": "journal-1",
+              "quote": "It should never analyze my mood or suggest therapy."
+            }
+          ],
+          "entities": [
+            {
+              "id": "journal",
+              "kind": "thing",
+              "title": "Private journal",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "dataLocation",
+                  "value": "Everything stays on this device"
+                },
+                {
+                  "key": "excludedBehavior",
+                  "value": "Never analyze mood or suggest therapy"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "I need a private journal"
+                },
+                {
+                  "messageId": "journal-1",
+                  "quote": "Keep everything on this device."
+                },
+                {
+                  "messageId": "journal-1",
+                  "quote": "It should never analyze my mood or suggest therapy."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "journal-user",
+              "kind": "beneficiary",
+              "title": "Journal owner",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "I can write an entry, tag it, and later search my own entries by tag or words."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "record-and-find-entries",
+              "kind": "outcome",
+              "title": "Write, tag, and find personal entries",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "searchMethods",
+                  "value": "By tag or words"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "I can write an entry, tag it, and later search my own entries by tag or words."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "device-only-storage",
+              "kind": "acceptanceCriterion",
+              "title": "Everything stays on this device",
+              "parentId": "journal",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "Keep everything on this device."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "no-mood-analysis-or-therapy",
+              "kind": "acceptanceCriterion",
+              "title": "Never analyze mood or suggest therapy",
+              "parentId": "journal",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "It should never analyze my mood or suggest therapy."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "world-has-journal-user",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "journal-user",
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "I need a private journal"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-has-journal-outcome",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "record-and-find-entries",
+              "evidence": [
+                {
+                  "messageId": "journal-1",
+                  "quote": "I can write an entry, tag it, and later search my own entries by tag or words."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "Should opening the journal require a password or device unlock?",
+            "What would a successful first test look like—for example, writing and tagging an entry, then finding it by both tag and words?",
+            "How would you like to verify that everything stays on this device and that mood analysis and therapy suggestions are absent?"
+          ]
+        },
+        "visibleQuestions": [
+          "For «Write, tag, and find personal entries», what would count as success, and when would you review it?",
+          "For «Everything stays on this device», what concrete test would show this criterion is met?",
+          "For «Never analyze mood or suggest therapy», what concrete test would show this criterion is met?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1,
+            "contextRestraint": 2
+          },
+          "facts": [
+            {
+              "id": "journal-entry",
+              "status": "preserved",
+              "note": "Outcome includes writing."
+            },
+            {
+              "id": "tag-and-search",
+              "status": "preserved",
+              "note": "Outcome includes tag/word search."
+            },
+            {
+              "id": "device-local",
+              "status": "preserved",
+              "note": "Property and criterion."
+            }
+          ],
+          "notes": [
+            "No mood/therapy/cloud behavior.",
+            "Raw privacy/local-test questions are appropriate; shown first remains generic while later criterion tests are useful."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-6",
+            "text": "For «Never analyze mood or suggest therapy», what concrete test would show this criterion is met?",
+            "sources": [
+              "criteria"
+            ],
+            "score": 2.56,
+            "confidence": 0.56,
+            "probabilities": {
+              "0": 0.06,
+              "1": 0.05,
+              "2": 0.16,
+              "3": 0.73
+            },
+            "alreadyAnsweredProbability": 0.54,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "private-journal",
+            "repeat": 2,
+            "baselineVisibleScore": 1,
+            "selectedScore": 2,
+            "comparison": "improved",
+            "selectedQuestion": "For «Never analyze mood or suggest therapy», what concrete test would show this criterion is met?",
+            "note": "Useful safety/privacy verification definition. It asks for a test; it does not invent that one has run."
+          }
+        }
+      },
+      {
+        "caseId": "goal-calendar-assistant",
+        "repeat": 1,
+        "elapsedMs": 19325,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Portfolio Planning Assistant",
+          "purpose": "Help the user finish a portfolio through small weekly tasks, suggested calendar blocks, and Friday reviews.",
+          "evidence": [
+            {
+              "messageId": "calendar-1",
+              "quote": "I want an assistant that turns my goal of finishing a portfolio into small weekly tasks."
+            }
+          ],
+          "entities": [
+            {
+              "id": "portfolio-assistant",
+              "kind": "thing",
+              "title": "Portfolio planning assistant",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "I want an assistant that turns my goal of finishing a portfolio into small weekly tasks."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "user",
+              "kind": "beneficiary",
+              "title": "The user",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "my goal of finishing a portfolio"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "finished-portfolio",
+              "kind": "outcome",
+              "title": "Finished portfolio",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "my goal of finishing a portfolio"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "weekly-task-planning",
+              "kind": "operation",
+              "title": "Break the portfolio goal into weekly tasks",
+              "parentId": "portfolio-assistant",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "turns my goal of finishing a portfolio into small weekly tasks"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "suggest-calendar-blocks",
+              "kind": "operation",
+              "title": "Suggest calendar blocks",
+              "parentId": "portfolio-assistant",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "It can suggest calendar blocks"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "calendar-suggestion-permission",
+              "kind": "authorizationRule",
+              "title": "Calendar suggestions are permitted",
+              "parentId": "portfolio-assistant",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "It can suggest calendar blocks"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "place-calendar-items",
+              "kind": "operation",
+              "title": "Place items on Google Calendar",
+              "parentId": "portfolio-assistant",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "must ask me before placing anything on my Google Calendar"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "calendar-user-approval",
+              "kind": "authorizationRule",
+              "title": "Ask the user before placing calendar items",
+              "parentId": "portfolio-assistant",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "must ask me before placing anything on my Google Calendar"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "friday-review",
+              "kind": "operation",
+              "title": "Review finished work and carry unfinished work forward",
+              "parentId": "portfolio-assistant",
+              "properties": [
+                {
+                  "key": "frequency",
+                  "value": "Every Friday"
+                },
+                {
+                  "key": "unfinishedWorkDestination",
+                  "value": "Next week"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "Every Friday I want to review what was finished and move unfinished work to next week."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "health-endpoint",
+              "kind": "interface",
+              "title": "Health check endpoint",
+              "parentId": "portfolio-assistant",
+              "properties": [
+                {
+                  "key": "path",
+                  "value": "/health"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "A useful first version must return a health check at /health."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "first-version-health-check",
+              "kind": "acceptanceCriterion",
+              "title": "First version returns a health check at /health",
+              "parentId": "portfolio-assistant",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "A useful first version must return a health check at /health."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "world-beneficiary",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "user",
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "my goal of finishing a portfolio"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-outcome",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "finished-portfolio",
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "my goal of finishing a portfolio"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "suggestions-authorized",
+              "kind": "authorizedBy",
+              "fromId": "suggest-calendar-blocks",
+              "toId": "calendar-suggestion-permission",
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "It can suggest calendar blocks"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "calendar-placement-approval",
+              "kind": "authorizedBy",
+              "fromId": "place-calendar-items",
+              "toId": "calendar-user-approval",
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "must ask me before placing anything on my Google Calendar"
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "What needs to be included in your portfolio before you consider it finished, and should the Friday review track those pieces?",
+            "Should the assistant create weekly tasks and carry unfinished work forward automatically, or show you a draft to approve?",
+            "What should /health return, and should a simple request that checks its response be the first-version test?"
+          ]
+        },
+        "visibleQuestions": [
+          "For «Finished portfolio», what would count as success, and when would you review it?",
+          "For «Review finished work and carry unfinished work forward», which changes need your approval?",
+          "For «Break the portfolio goal into weekly tasks», which changes need your approval?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 1,
+            "firstQuestionUsefulness": 0,
+            "contextRestraint": 1
+          },
+          "facts": [
+            {
+              "id": "portfolio-goal",
+              "status": "preserved",
+              "note": "Finished-portfolio outcome."
+            },
+            {
+              "id": "weekly-small-tasks",
+              "status": "preserved",
+              "note": "Weekly task operation."
+            },
+            {
+              "id": "suggest-not-place",
+              "status": "preserved",
+              "note": "Calendar placement gated by ask-user rule."
+            },
+            {
+              "id": "friday-review",
+              "status": "preserved",
+              "note": "Friday review/carry-forward."
+            },
+            {
+              "id": "health-assay",
+              "status": "partial",
+              "note": "/health criterion exists, but no Assay/verifiedBy test object or relation."
+            }
+          ],
+          "notes": [
+            "No auto placement or calendar-read authority.",
+            "Raw portfolio-completion and health-test questions are useful. Shown first asks when to review despite explicit Friday review, reopening an answered point.",
+            "It also asks approval for carry-forward although calendar placement is the stated boundary."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-5",
+            "text": "For «Review finished work and carry unfinished work forward», which changes need your approval?",
+            "sources": [
+              "criteria"
+            ],
+            "score": 2.24,
+            "confidence": 0.25,
+            "probabilities": {
+              "0": 0.09,
+              "1": 0.12,
+              "2": 0.24,
+              "3": 0.55
+            },
+            "alreadyAnsweredProbability": 0.33,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "goal-calendar-assistant",
+            "repeat": 1,
+            "baselineVisibleScore": 0,
+            "selectedScore": 1,
+            "comparison": "improved",
+            "selectedQuestion": "For «Review finished work and carry unfinished work forward», which changes need your approval?",
+            "note": "Reasonable unresolved boundary, but broad and lower priority than portfolio completion or /health verification. It is not scored as contradiction: calendar is the only explicit approval boundary, but local task movement remains ambiguous."
+          }
+        }
+      },
+      {
+        "caseId": "goal-calendar-assistant",
+        "repeat": 2,
+        "elapsedMs": 27041,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Portfolio Planning Assistant",
+          "purpose": "Help the user finish a portfolio through small weekly tasks, suggested calendar blocks, and Friday reviews.",
+          "evidence": [
+            {
+              "messageId": "calendar-1",
+              "quote": "I want an assistant that turns my goal of finishing a portfolio into small weekly tasks."
+            }
+          ],
+          "entities": [
+            {
+              "id": "portfolio-assistant",
+              "kind": "thing",
+              "title": "Portfolio planning assistant",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "I want an assistant that turns my goal of finishing a portfolio into small weekly tasks."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "user",
+              "kind": "beneficiary",
+              "title": "User finishing a portfolio",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "my goal of finishing a portfolio"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "finished-portfolio",
+              "kind": "outcome",
+              "title": "Finished portfolio",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "my goal of finishing a portfolio"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "weekly-task-planning",
+              "kind": "operation",
+              "title": "Turn portfolio goal into weekly tasks",
+              "parentId": "portfolio-assistant",
+              "properties": [
+                {
+                  "key": "taskSize",
+                  "value": "small"
+                },
+                {
+                  "key": "cadence",
+                  "value": "weekly"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "turns my goal of finishing a portfolio into small weekly tasks"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "suggest-calendar-blocks",
+              "kind": "operation",
+              "title": "Suggest calendar blocks",
+              "parentId": "portfolio-assistant",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "It can suggest calendar blocks"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "place-calendar-blocks",
+              "kind": "operation",
+              "title": "Place blocks on Google Calendar",
+              "parentId": "portfolio-assistant",
+              "properties": [
+                {
+                  "key": "target",
+                  "value": "Google Calendar"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "must ask me before placing anything on my Google Calendar"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "calendar-permission",
+              "kind": "authorizationRule",
+              "title": "Ask user before placing calendar entries",
+              "parentId": "portfolio-assistant",
+              "properties": [
+                {
+                  "key": "requirement",
+                  "value": "Ask the user before placing anything on their Google Calendar."
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "must ask me before placing anything on my Google Calendar"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "friday-review",
+              "kind": "evaluationPlan",
+              "title": "Friday completion review",
+              "parentId": "portfolio-assistant",
+              "properties": [
+                {
+                  "key": "cadence",
+                  "value": "Every Friday"
+                },
+                {
+                  "key": "review",
+                  "value": "Review what was finished."
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "Every Friday I want to review what was finished"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "roll-unfinished-work-forward",
+              "kind": "operation",
+              "title": "Move unfinished work to next week",
+              "parentId": "portfolio-assistant",
+              "properties": [
+                {
+                  "key": "cadence",
+                  "value": "Every Friday"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "Every Friday I want to review what was finished and move unfinished work to next week."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "health-endpoint",
+              "kind": "interface",
+              "title": "Health check endpoint",
+              "parentId": "portfolio-assistant",
+              "properties": [
+                {
+                  "key": "path",
+                  "value": "/health"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "return a health check at /health"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "first-version-health-check",
+              "kind": "acceptanceCriterion",
+              "title": "First version returns a health check at /health",
+              "parentId": "portfolio-assistant",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "A useful first version must return a health check at /health."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "world-beneficiary",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "user",
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "I want an assistant that turns my goal of finishing a portfolio into small weekly tasks."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-outcome",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "finished-portfolio",
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "my goal of finishing a portfolio"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "portfolio-friday-evaluation",
+              "kind": "evaluatedBy",
+              "fromId": "finished-portfolio",
+              "toId": "friday-review",
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "Every Friday I want to review what was finished"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "calendar-placement-authorization",
+              "kind": "authorizedBy",
+              "fromId": "place-calendar-blocks",
+              "toId": "calendar-permission",
+              "evidence": [
+                {
+                  "messageId": "calendar-1",
+                  "quote": "must ask me before placing anything on my Google Calendar"
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "What needs to be finished for you to consider the portfolio complete?",
+            "May the assistant create weekly tasks and move unfinished tasks forward automatically, or should it ask you first?",
+            "What response should /health return so you can verify the first version works?"
+          ]
+        },
+        "visibleQuestions": [
+          "For «Finished portfolio», what would count as success?",
+          "For «Move unfinished work to next week», which changes need your approval?",
+          "For «Suggest calendar blocks», which changes need your approval?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 1,
+            "firstQuestionUsefulness": 2,
+            "contextRestraint": 1
+          },
+          "facts": [
+            {
+              "id": "portfolio-goal",
+              "status": "preserved",
+              "note": "Portfolio outcome."
+            },
+            {
+              "id": "weekly-small-tasks",
+              "status": "preserved",
+              "note": "Small weekly tasks."
+            },
+            {
+              "id": "suggest-not-place",
+              "status": "preserved",
+              "note": "Placement approval gate."
+            },
+            {
+              "id": "friday-review",
+              "status": "preserved",
+              "note": "Friday review and move-forward."
+            },
+            {
+              "id": "health-assay",
+              "status": "partial",
+              "note": "Criterion/interface exists; test remains a question rather than graph assay."
+            }
+          ],
+          "notes": [
+            "No unsupported calendar read/automatic write.",
+            "Shown first portfolio-completion question is concrete and consequential. Later cards extend approval boundary to task movement/suggestion."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-3",
+            "text": "What response should /health return so you can verify the first version works?",
+            "sources": [
+              "proposal"
+            ],
+            "score": 2.62,
+            "confidence": 0.62,
+            "probabilities": {
+              "0": 0.02,
+              "1": 0.05,
+              "2": 0.22,
+              "3": 0.71
+            },
+            "alreadyAnsweredProbability": 0.13,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "goal-calendar-assistant",
+            "repeat": 2,
+            "baselineVisibleScore": 2,
+            "selectedScore": 2,
+            "comparison": "tied",
+            "selectedQuestion": "What response should /health return so you can verify the first version works?",
+            "note": "Concrete missing test-contract detail; as useful as the baseline portfolio-completion question."
+          }
+        }
+      },
+      {
+        "caseId": "underspecified-library",
+        "repeat": 1,
+        "elapsedMs": 10022,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Personal Book Tracker",
+          "purpose": "Help the user keep track of books they own in a pleasant, simple way.",
+          "evidence": [
+            {
+              "messageId": "library-1",
+              "quote": "I want something to keep track of books I own. Make it pleasant and simple."
+            }
+          ],
+          "entities": [
+            {
+              "id": "book-owner",
+              "kind": "beneficiary",
+              "title": "Book owner",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "library-1",
+                  "quote": "books I own"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "track-owned-books",
+              "kind": "outcome",
+              "title": "Keep track of owned books",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "library-1",
+                  "quote": "keep track of books I own"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "book-tracker",
+              "kind": "thing",
+              "title": "Personal book tracker",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "desiredExperience",
+                  "value": "Pleasant and simple"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "library-1",
+                  "quote": "I want something to keep track of books I own."
+                },
+                {
+                  "messageId": "library-1",
+                  "quote": "Make it pleasant and simple."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "world-has-book-owner",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "book-owner",
+              "evidence": [
+                {
+                  "messageId": "library-1",
+                  "quote": "I want something to keep track of books I own."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-has-tracking-outcome",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "track-owned-books",
+              "evidence": [
+                {
+                  "messageId": "library-1",
+                  "quote": "keep track of books I own"
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "What would make this useful first: seeing your whole collection, finding a particular book, or avoiding duplicate purchases?",
+            "How would you check that it feels pleasant and simple—for example, by trying to add and find a book?"
+          ]
+        },
+        "visibleQuestions": [
+          "For «Keep track of owned books», what would count as success, and when would you review it?",
+          "Which changes should wait for your approval?",
+          "What should this Thing reliably do first, and how would you check it?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1,
+            "contextRestraint": 2
+          },
+          "facts": [
+            {
+              "id": "owned-books",
+              "status": "preserved",
+              "note": "Purpose, beneficiary, outcome remain limited to owned-book tracking."
+            }
+          ],
+          "notes": [
+            "No scanner, social/lending/recommendation, or external integration invented.",
+            "Raw question keeps possible jobs open; shown generic success/review is weaker than catalog fields/status/lending."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-1",
+            "text": "What would make this useful first: seeing your whole collection, finding a particular book, or avoiding duplicate purchases?",
+            "sources": [
+              "proposal"
+            ],
+            "score": 2.51,
+            "confidence": 0.52,
+            "probabilities": {
+              "0": 0,
+              "1": 0.05,
+              "2": 0.38,
+              "3": 0.57
+            },
+            "alreadyAnsweredProbability": 0.05,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "underspecified-library",
+            "repeat": 1,
+            "baselineVisibleScore": 1,
+            "selectedScore": 2,
+            "comparison": "improved",
+            "selectedQuestion": "What would make this useful first: seeing your whole collection, finding a particular book, or avoiding duplicate purchases?",
+            "note": "Open, restrained way to choose a first job without inventing features."
+          }
+        }
+      },
+      {
+        "caseId": "underspecified-library",
+        "repeat": 2,
+        "elapsedMs": 11230,
+        "terminal": "run.completed",
+        "readiness": "unknown",
+        "proposal": {
+          "title": "Personal Book Library",
+          "purpose": "Help the user keep track of books they own in a pleasant, simple way.",
+          "evidence": [
+            {
+              "messageId": "library-1",
+              "quote": "I want something to keep track of books I own. Make it pleasant and simple."
+            }
+          ],
+          "entities": [
+            {
+              "id": "book-owner",
+              "kind": "beneficiary",
+              "title": "Book owner",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "library-1",
+                  "quote": "books I own"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "owned-book-tracking",
+              "kind": "outcome",
+              "title": "Keep track of owned books",
+              "parentId": "world",
+              "properties": [],
+              "evidence": [
+                {
+                  "messageId": "library-1",
+                  "quote": "keep track of books I own"
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "book-library",
+              "kind": "thing",
+              "title": "Personal book tracker",
+              "parentId": "world",
+              "properties": [
+                {
+                  "key": "experience",
+                  "value": "Pleasant and simple"
+                }
+              ],
+              "evidence": [
+                {
+                  "messageId": "library-1",
+                  "quote": "I want something to keep track of books I own."
+                },
+                {
+                  "messageId": "library-1",
+                  "quote": "Make it pleasant and simple."
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "relations": [
+            {
+              "id": "world-book-owner",
+              "kind": "hasBeneficiary",
+              "fromId": "world",
+              "toId": "book-owner",
+              "evidence": [
+                {
+                  "messageId": "library-1",
+                  "quote": "I want something to keep track of books I own."
+                }
+              ],
+              "assertion": "declared"
+            },
+            {
+              "id": "world-owned-book-tracking",
+              "kind": "hasOutcome",
+              "fromId": "world",
+              "toId": "owned-book-tracking",
+              "evidence": [
+                {
+                  "messageId": "library-1",
+                  "quote": "keep track of books I own"
+                }
+              ],
+              "assertion": "declared"
+            }
+          ],
+          "questions": [
+            "What would you most like to check about your books: whether you own a title, where it is, or whether you’ve read it?",
+            "What small test would show that the tracker is simple enough for you to use?"
+          ]
+        },
+        "visibleQuestions": [
+          "For «Keep track of owned books», what would count as success, and when would you review it?",
+          "Which changes should wait for your approval?",
+          "What should this Thing reliably do first, and how would you check it?"
+        ],
+        "review": {
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1,
+            "contextRestraint": 2
+          },
+          "facts": [
+            {
+              "id": "owned-books",
+              "status": "preserved",
+              "note": "No added product template."
+            }
+          ],
+          "notes": [
+            "No unsupported scanner, social behavior, or integration.",
+            "Raw question remains open and restrained; shown first stays generic criteria scaffolding."
+          ]
+        },
+        "shadow": {
+          "selected": {
+            "id": "candidate-1",
+            "text": "What would you most like to check about your books: whether you own a title, where it is, or whether you’ve read it?",
+            "sources": [
+              "proposal"
+            ],
+            "score": 2.42,
+            "confidence": 0.42,
+            "probabilities": {
+              "0": 0.01,
+              "1": 0.04,
+              "2": 0.47,
+              "3": 0.48
+            },
+            "alreadyAnsweredProbability": 0.06,
+            "excludedAsAnswered": false
+          },
+          "review": {
+            "caseId": "underspecified-library",
+            "repeat": 2,
+            "baselineVisibleScore": 1,
+            "selectedScore": 2,
+            "comparison": "improved",
+            "selectedQuestion": "What would you most like to check about your books: whether you own a title, where it is, or whether you’ve read it?",
+            "note": "Concrete, appropriately open question for an underspecified product."
+          }
+        }
+      }
+    ]
+  },
+  "graphProbes": {
+    "nativeAndWasmMatch": true,
+    "results": [
+      {
+        "id": "positive-baseline",
+        "expectation": "ready with no findings",
+        "blindSpot": "none expected",
+        "status": "ready",
+        "findings": []
+      },
+      {
+        "id": "missing-edge-complete-scope",
+        "expectation": "blocker: assistant.outcome-requires-evaluation",
+        "blindSpot": "none expected",
+        "status": "blocked",
+        "findings": [
+          {
+            "ruleId": "assistant.outcome-requires-evaluation",
+            "severity": "blocker",
+            "message": "outcome-1 requires a evaluatedBy relation to evaluationPlan"
+          }
+        ]
+      },
+      {
+        "id": "missing-edge-incomplete-scope",
+        "expectation": "unknown: assistant.outcome-requires-evaluation",
+        "blindSpot": "declared incomplete scope intentionally downgrades certainty",
+        "status": "unknown",
+        "findings": [
+          {
+            "ruleId": "assistant.outcome-requires-evaluation",
+            "severity": "unknown",
+            "message": "outcome-1 may require a evaluatedBy relation; scope outcome-links is incomplete"
+          },
+          {
+            "ruleId": "core.mandatory-scope-incomplete",
+            "severity": "unknown",
+            "message": "mandatory relation scope outcome-links is not declared complete"
+          }
+        ]
+      },
+      {
+        "id": "dependency-cycle",
+        "expectation": "blocker: assistant.no-dependency-cycles",
+        "blindSpot": "only configured dependsOn cycles are detected",
+        "status": "blocked",
+        "findings": [
+          {
+            "ruleId": "assistant.no-dependency-cycles",
+            "severity": "blocker",
+            "message": "forbidden dependency cycle includes planning-1"
+          },
+          {
+            "ruleId": "assistant.no-dependency-cycles",
+            "severity": "blocker",
+            "message": "forbidden dependency cycle includes progress-1"
+          }
+        ]
+      },
+      {
+        "id": "false-entailment",
+        "expectation": "semantic blind spot",
+        "blindSpot": "exact quote presence does not establish entailment",
+        "status": "unknown",
+        "findings": [
+          {
+            "ruleId": "assistant.criterion-requires-assay",
+            "severity": "unknown",
+            "message": "review-criterion may require a verifiedBy relation; scope assay-links is incomplete"
+          },
+          {
+            "ruleId": "assistant.outcome-requires-evaluation",
+            "severity": "unknown",
+            "message": "reviewed-french-work may require a evaluatedBy relation; scope outcome-links is incomplete"
+          },
+          {
+            "ruleId": "assistant.outcome-requires-indicator",
+            "severity": "unknown",
+            "message": "reviewed-french-work may require a measuredBy relation; scope outcome-links is incomplete"
+          },
+          {
+            "ruleId": "core.mandatory-scope-incomplete",
+            "severity": "unknown",
+            "message": "mandatory relation scope assay-links is not declared complete"
+          },
+          {
+            "ruleId": "core.mandatory-scope-incomplete",
+            "severity": "unknown",
+            "message": "mandatory relation scope outcome-links is not declared complete"
+          }
+        ]
+      },
+      {
+        "id": "irrelevant-indicator",
+        "expectation": "semantic blind spot",
+        "blindSpot": "kind-correct measuredBy edge does not test relevance",
+        "status": "ready",
+        "findings": []
+      },
+      {
+        "id": "known-constraint-conflict",
+        "expectation": "blocker: assistant.constraints-compatible",
+        "blindSpot": "only predeclared constraint pairs are checked",
+        "status": "blocked",
+        "findings": [
+          {
+            "ruleId": "assistant.constraints-compatible",
+            "severity": "blocker",
+            "message": "constraints routine-auto and manual-only are incompatible"
+          }
+        ]
+      },
+      {
+        "id": "conflicting-authorization-prose",
+        "expectation": "semantic blind spot",
+        "blindSpot": "conflicting authorization prose is not contradiction checked",
+        "status": "ready",
+        "findings": []
+      },
+      {
+        "id": "authorization-scope-mismatch",
+        "expectation": "semantic blind spot",
+        "blindSpot": "authorizedBy checks existence and endpoint types, not scope or operation semantics",
+        "status": "ready",
+        "findings": []
+      },
+      {
+        "id": "nonsense-assay-linked",
+        "expectation": "semantic blind spot",
+        "blindSpot": "verifiedBy checks acceptanceCriterion -> assay shape, not whether assay tests criterion",
+        "status": "ready",
+        "findings": []
+      }
+    ]
+  },
+  "systemOne": {
+    "model": "jev-1.13.0",
+    "caseCount": 36,
+    "repeats": 3,
+    "caseHash": "cd486a85ba06667800d41edd02be3c0c47b28bb73f2c349cd056498e12194b00",
+    "thresholds": {
+      "falseMax": 0.1,
+      "trueMin": 0.9,
+      "rawThreshold": 0.5
+    },
+    "overall": {
+      "expected": 108,
+      "completed": 108,
+      "missing": 0,
+      "complete": true,
+      "rawThresholdAccuracy": 1,
+      "rawThresholdAccuracyOnCompleted": 1,
+      "coverage": 0.8611111111111112,
+      "accepted": 93,
+      "acceptedErrors": 0,
+      "acceptedErrorRate": 0,
+      "brier": 0.004188888888888891
+    },
+    "dimensions": {
+      "evidence_entailment": {
+        "expected": 18,
+        "completed": 18,
+        "missing": 0,
+        "complete": true,
+        "rawThresholdAccuracy": 1,
+        "rawThresholdAccuracyOnCompleted": 1,
+        "coverage": 0.8333333333333334,
+        "accepted": 15,
+        "acceptedErrors": 0,
+        "acceptedErrorRate": 0,
+        "brier": 0.00425
+      },
+      "contradiction_resolution": {
+        "expected": 18,
+        "completed": 18,
+        "missing": 0,
+        "complete": true,
+        "rawThresholdAccuracy": 1,
+        "rawThresholdAccuracyOnCompleted": 1,
+        "coverage": 1,
+        "accepted": 18,
+        "acceptedErrors": 0,
+        "acceptedErrorRate": 0,
+        "brier": 0.0012555555555555564
+      },
+      "permission_scope": {
+        "expected": 18,
+        "completed": 18,
+        "missing": 0,
+        "complete": true,
+        "rawThresholdAccuracy": 1,
+        "rawThresholdAccuracyOnCompleted": 1,
+        "coverage": 0.8333333333333334,
+        "accepted": 15,
+        "acceptedErrors": 0,
+        "acceptedErrorRate": 0,
+        "brier": 0.00472777777777778
+      },
+      "indicator_relevance": {
+        "expected": 18,
+        "completed": 18,
+        "missing": 0,
+        "complete": true,
+        "rawThresholdAccuracy": 1,
+        "rawThresholdAccuracyOnCompleted": 1,
+        "coverage": 0.8333333333333334,
+        "accepted": 15,
+        "acceptedErrors": 0,
+        "acceptedErrorRate": 0,
+        "brier": 0.007294444444444443
+      },
+      "question_already_answered": {
+        "expected": 18,
+        "completed": 18,
+        "missing": 0,
+        "complete": true,
+        "rawThresholdAccuracy": 1,
+        "rawThresholdAccuracyOnCompleted": 1,
+        "coverage": 1,
+        "accepted": 18,
+        "acceptedErrors": 0,
+        "acceptedErrorRate": 0,
+        "brier": 0.0005055555555555556
+      },
+      "question_usefulness": {
+        "expected": 18,
+        "completed": 18,
+        "missing": 0,
+        "complete": true,
+        "rawThresholdAccuracy": 1,
+        "rawThresholdAccuracyOnCompleted": 1,
+        "coverage": 0.6666666666666666,
+        "accepted": 12,
+        "acceptedErrors": 0,
+        "acceptedErrorRate": 0,
+        "brier": 0.0070999999999999995
+      }
+    },
+    "kinds": {
+      "crisp": {
+        "expected": 90,
+        "completed": 90,
+        "missing": 0,
+        "complete": true,
+        "rawThresholdAccuracy": 1,
+        "rawThresholdAccuracyOnCompleted": 1,
+        "coverage": 0.9,
+        "accepted": 81,
+        "acceptedErrors": 0,
+        "acceptedErrorRate": 0,
+        "brier": 0.003606666666666669
+      },
+      "subjective": {
+        "expected": 18,
+        "completed": 18,
+        "missing": 0,
+        "complete": true,
+        "rawThresholdAccuracy": 1,
+        "rawThresholdAccuracyOnCompleted": 1,
+        "coverage": 0.6666666666666666,
+        "accepted": 12,
+        "acceptedErrors": 0,
+        "acceptedErrorRate": 0,
+        "brier": 0.0070999999999999995
+      }
+    },
+    "perCase": [
+      {
+        "caseId": "evidence-encrypted-backups",
+        "count": 3,
+        "mean": 0.9333333333333335,
+        "min": 0.92,
+        "max": 0.95,
+        "spread": 0.029999999999999916,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "evidence-assistant-is-not-fact",
+        "count": 3,
+        "mean": 0.043333333333333335,
+        "min": 0.04,
+        "max": 0.05,
+        "spread": 0.010000000000000002,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "evidence-explicit-negation",
+        "count": 3,
+        "mean": 0.01,
+        "min": 0.01,
+        "max": 0.01,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "evidence-csv-export",
+        "count": 3,
+        "mean": 0.88,
+        "min": 0.88,
+        "max": 0.88,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "evidence-unstated-latency",
+        "count": 3,
+        "mean": 0.03,
+        "min": 0.03,
+        "max": 0.03,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "evidence-role-paraphrase",
+        "count": 3,
+        "mean": 0.94,
+        "min": 0.94,
+        "max": 0.94,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "correction-push-replaces-email",
+        "count": 3,
+        "mean": 0.9733333333333333,
+        "min": 0.97,
+        "max": 0.98,
+        "spread": 0.010000000000000009,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "correction-undecided-channel",
+        "count": 3,
+        "mean": 0.03,
+        "min": 0.03,
+        "max": 0.03,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "correction-assistant-suggestion",
+        "count": 3,
+        "mean": 0.05000000000000001,
+        "min": 0.05,
+        "max": 0.05,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "correction-guest-checkout",
+        "count": 3,
+        "mean": 0.9633333333333333,
+        "min": 0.96,
+        "max": 0.97,
+        "spread": 0.010000000000000009,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "correction-latest-retention",
+        "count": 3,
+        "mean": 0.9700000000000001,
+        "min": 0.97,
+        "max": 0.97,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "correction-keep-both-open",
+        "count": 3,
+        "mean": 0.03333333333333333,
+        "min": 0.03,
+        "max": 0.04,
+        "spread": 0.010000000000000002,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "permission-auto-calendar",
+        "count": 3,
+        "mean": 0.96,
+        "min": 0.96,
+        "max": 0.96,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "permission-draft-first",
+        "count": 3,
+        "mean": 0.02,
+        "min": 0.02,
+        "max": 0.02,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "permission-assistant-proposed",
+        "count": 3,
+        "mean": 0.14333333333333334,
+        "min": 0.14,
+        "max": 0.15,
+        "spread": 0.009999999999999981,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "permission-small-expenses",
+        "count": 3,
+        "mean": 0.94,
+        "min": 0.94,
+        "max": 0.94,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "permission-never-send-email",
+        "count": 3,
+        "mean": 0.016666666666666666,
+        "min": 0.01,
+        "max": 0.02,
+        "spread": 0.01,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "permission-book-within-budget",
+        "count": 3,
+        "mean": 0.9566666666666667,
+        "min": 0.95,
+        "max": 0.96,
+        "spread": 0.010000000000000009,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "indicator-invoice-collection",
+        "count": 3,
+        "mean": 0.9,
+        "min": 0.9,
+        "max": 0.9,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "indicator-theme-color",
+        "count": 3,
+        "mean": 0.02,
+        "min": 0.02,
+        "max": 0.02,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "indicator-habit-consistency",
+        "count": 3,
+        "mean": 0.9033333333333333,
+        "min": 0.9,
+        "max": 0.91,
+        "spread": 0.010000000000000009,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "indicator-object-count",
+        "count": 3,
+        "mean": 0.05000000000000001,
+        "min": 0.05,
+        "max": 0.05,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "indicator-double-booking",
+        "count": 3,
+        "mean": 0.86,
+        "min": 0.86,
+        "max": 0.86,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "indicator-app-opens",
+        "count": 3,
+        "mean": 0.043333333333333335,
+        "min": 0.04,
+        "max": 0.05,
+        "spread": 0.010000000000000002,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "answered-friday-review",
+        "count": 3,
+        "mean": 0.98,
+        "min": 0.98,
+        "max": 0.98,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "answered-assistant-only",
+        "count": 3,
+        "mean": 0.03333333333333333,
+        "min": 0.03,
+        "max": 0.04,
+        "spread": 0.010000000000000002,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "answered-budget-cap",
+        "count": 3,
+        "mean": 0.9899999999999999,
+        "min": 0.99,
+        "max": 0.99,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "answered-auth-method-missing",
+        "count": 3,
+        "mean": 0.02,
+        "min": 0.02,
+        "max": 0.02,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "answered-no-calendar",
+        "count": 3,
+        "mean": 0.9899999999999999,
+        "min": 0.99,
+        "max": 0.99,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "answered-vague-reference",
+        "count": 3,
+        "mean": 0.03,
+        "min": 0.03,
+        "max": 0.03,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "useful-success-measure",
+        "count": 3,
+        "mean": 0.87,
+        "min": 0.87,
+        "max": 0.87,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "useful-premature-name",
+        "count": 3,
+        "mean": 0.016666666666666666,
+        "min": 0.01,
+        "max": 0.02,
+        "spread": 0.01,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "useful-permission-boundary",
+        "count": 3,
+        "mean": 0.89,
+        "min": 0.89,
+        "max": 0.89,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "useful-repeats-platform",
+        "count": 3,
+        "mean": 0.06,
+        "min": 0.06,
+        "max": 0.06,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "useful-booking-failure",
+        "count": 3,
+        "mean": 0.91,
+        "min": 0.91,
+        "max": 0.91,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      },
+      {
+        "caseId": "useful-philosophical",
+        "count": 3,
+        "mean": 0.04,
+        "min": 0.04,
+        "max": 0.04,
+        "spread": 0,
+        "thresholdFlip": false,
+        "decisionBandChanged": false
+      }
+    ],
+    "usage": {
+      "inputTokens": 41166,
+      "outputTokens": 2376,
+      "estimatedInputCostUsd": 0.0017289720000000003
+    },
+    "latencyMs": {
+      "mean": 191.52777777777777,
+      "min": 117,
+      "max": 389
+    }
+  },
+  "shadowRanking": {
+    "frozen": {
+      "version": "question-ranking-shadow-v1",
+      "createdAt": "2026-10-10T01:43:35.457Z",
+      "modelRequested": "jev-1.13.0",
+      "inputDirectory": "ontology-benchmark-baseline",
+      "inputHashes": {
+        "expense-split-correction-1.json": "048febbbeba9fe3fab03078b359f027c7aba2e3fb98d74130f9bc9533384bf11",
+        "expense-split-correction-2.json": "61b21acf24eac65822cdf878f7b8a3976525f4db2b74172cb3b53747b9c8f786",
+        "goal-calendar-assistant-1.json": "ccdee42d61f974f381a7080cd41670b4b747741f77aac0636089d9a1731464d4",
+        "goal-calendar-assistant-2.json": "7dcadb90d41da21a147cadea772b21afe8f9605e2ca7991d96d238294eaa1dd8",
+        "habit-streak-followup-1.json": "9665bc116e388f2166bf5ed15d1deaebe810c09bfeb66b6b04010cb7f9437aa9",
+        "habit-streak-followup-2.json": "539c398feb749830b69d505f3c91dc4c774d455993a4f1a009d7ba447049186e",
+        "private-journal-1.json": "2878528e9ed5c06580adb6abace05a6d495e7b72e87d08e07d20c31f40ef9077",
+        "private-journal-2.json": "12a9862a1d3b60986305a6dec094e387532ff473a05748c32a390fe6685b9ab0",
+        "shared-grocery-conflict-1.json": "78545a1b3ce7b5e5a225d335bf8967e5e20909a26e635dede5c7ad44e80a73a0",
+        "shared-grocery-conflict-2.json": "3975b7f7a3f3a9c28a13463e620c92ac7ad5b1ff31150d066e776e2e2b465ee5",
+        "studio-booking-1.json": "ea38666d8382cba1ce3cc6618e6abeebe34a305f0f728f0fb2ace717d1b85784",
+        "studio-booking-2.json": "04500b2813af8feb9602578e6c87f58f841931005d309fc0b5caa3a51cdb455f",
+        "todo-private-list-1.json": "d4cc9395204a63cc7c61374a9a264c8331a091a617b245f638f11cb1dab17cb0",
+        "todo-private-list-2.json": "7385835d77df6989d35feda7e0455e39da997c1ee714874c8232905e3e040c8a",
+        "underspecified-library-1.json": "0ec1536c620a71219abbec998589ad8042830ee5870c70d59c26cbf546f0c7ab",
+        "underspecified-library-2.json": "48f8a77e64e03617ea37b250e000c6e901734470ee5c571193104c158f5adebc"
+      },
+      "promptHash": "68643d2e69a2ba86d92d4d3d6e43e6a351d3b9d820735e387476c11dfd7980e9",
+      "scoreInstructions": "How useful is this candidate as the single NEXT question to ask the user creating this Thing? Preserve explicit exclusions and answered information. Prefer a specific concrete question over generic boilerplate. A graph obligation is useful only when it is appropriate for the current authoring stage. Evaluate only the named candidate against the role-aware conversation and compact draft.",
+      "scoreRubric": [
+        "Redundant because the user already answered it, contradicts explicit information, reopens excluded scope, assumes a false premise, or is off-topic.",
+        "Broad, generic, or low priority now. It may be relevant eventually but does not resolve a consequential uncertainty at the current authoring stage.",
+        "A useful unresolved question for the current authoring stage that would materially improve the draft.",
+        "A specific, concrete question that resolves a consequential priority, permission, safety, failure-path, or outcome gap now."
+      ],
+      "answeredInstructions": "Has the user already answered this candidate question in the role-aware conversation, including by explicitly rejecting or excluding the subject? Assistant messages provide context but are not user answers.",
+      "answeredExclusion": 0.9,
+      "policy": "Shadow ranking only. Confidence is descriptive model output, not a guarantee or production action threshold. Independent review compares selections later."
+    },
+    "summary": {
+      "runCount": 16,
+      "completed": 16,
+      "failed": 0,
+      "selectedCount": 16,
+      "modelVersions": [
+        "jev-1.13.0"
+      ],
+      "elapsedMs": 3379,
+      "usage": {
+        "inputTokens": 46366,
+        "outputTokens": 2671,
+        "estimatedInputCostUsd": 0.0019473720000000002
+      }
+    }
+  },
+  "limitations": [
+    "The shadow selection was not live in the authoring product and has not been tested with users.",
+    "It ranks candidates created by the existing pipeline; it cannot recover a missing graph relation or a missing candidate question.",
+    "The /health partial in baseline coverage means incomplete ontology/test-definition structure, not a lost user fact: the source asks for /health existence, and asking about response/test detail is appropriately non-inventive.",
+    "The carry-forward approval question is treated as an ambiguous-priority question, not an explicit user contradiction.",
+    "The microbenchmark uses simple curated cases with tailored prompts; repeats are not independent case diversity.",
+    "Production Codex resolved model ID and token cost are unknown.",
+    "No production prompt or semantic acceptance policy was changed."
+  ]
+}

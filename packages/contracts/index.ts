@@ -52,7 +52,7 @@ export type RulePackPin = { id: string, version: string, };
 
 export type WorldSnapshot = { worldId: string, title: string, revisionId: string, template: WorldTemplate, purpose: Purpose, environment: Environment, phase: string, stateKind: StateKind, things: Array<Thing>, thingTemplates: Array<ThingTemplate>, objects: Array<ModelObject>, relations: Array<ModelRelation>, completeness: Array<CompletenessDeclaration>, theory: Theory, moves: Array<MoveSummary>, rulePacks: Array<RulePackPin>, activeConstraints: Array<string>, };
 
-export type Query = { "kind": "workspace" } | { "kind": "readiness" } | { "kind": "children", parentId: string, };
+export type Query = { "kind": "workspace" } | { "kind": "readiness" } | { "kind": "changeImpact", baseline: WorldSnapshot, context: ImpactAnalysisContext, } | { "kind": "applyImpactPatch", patch: ImpactPatch, draftRevisionId: string, } | { "kind": "children", parentId: string, };
 
 export type CoreRequest = { apiVersion: number, snapshot: WorldSnapshot, query: Query, };
 
@@ -68,6 +68,150 @@ export type ReadinessEvaluation = { worldId: string, revisionId: string, templat
 
 export type WorkspaceResult = { snapshot: WorldSnapshot, readiness: ReadinessEvaluation, };
 
-export type CoreResult = { "kind": "workspace", snapshot: WorldSnapshot, readiness: ReadinessEvaluation, } | { "kind": "readiness", evaluation: ReadinessEvaluation, } | { "kind": "children", objects: Array<ModelObject>, };
+export type CoreResult = { "kind": "impactPatched", snapshot: WorldSnapshot, } | { "kind": "changeImpact", report: ChangeImpactReport, } | { "kind": "workspace", snapshot: WorldSnapshot, readiness: ReadinessEvaluation, } | { "kind": "readiness", evaluation: ReadinessEvaluation, } | { "kind": "children", objects: Array<ModelObject>, };
 
 export type CoreResponse = { "status": "ok", apiVersion: number, result: CoreResult, } | { "status": "error", apiVersion: number, code: string, message: string, };
+
+export type ImpactOrigin = "saved" | "hypothetical";
+
+export type ImpactSide = "baseline" | "proposed" | "both";
+
+export type ImpactChangeKind = "added" | "removed" | "modified";
+
+export type ImpactEntityKind = "thing" | "object" | "relation" | "context";
+
+export type EvidenceApplicability = "inputsMatch" | "needsRecheck" | "unknown";
+
+export type EvidenceProvenance = "synthetic" | "unverified" | "serverResolved";
+
+export type MetricStatus = "known" | "unknown";
+
+export type MetricComparability = "comparable" | "definitionChanged" | "windowChanged" | "unknown";
+
+export type MetricDefinition = "completedPlannedTasks" | "completedPlannedTasksIncludingCancelled";
+
+export type PlanItemStatus = "planned" | "cancelled";
+
+export type ImpactProperty = "status" | "plannedAt" | "completedAt" | "taskId" | "metricDefinition" | "windowStart" | "windowEnd" | "statement" | "definitionHash";
+
+export type SnapshotIdentity = { worldId: string, revisionId: string, snapshotHash: string, };
+
+export type ImpactChange = { id: string, entityKind: ImpactEntityKind, changeKind: ImpactChangeKind, title: string, thingId?: string, changedFields: Array<string>, };
+
+export type ImpactWitness = { seedId: string, side: ImpactSide, ruleId: string, objectIds: Array<string>, relationIds: Array<string>, };
+
+export type AffectedObject = { objectId: string, title: string, kind: string, side: ImpactSide, direct: boolean, witnesses: Array<ImpactWitness>, };
+
+export type ThingImpact = { thingId?: string, title: string, objects: Array<AffectedObject>, };
+
+export type ImpactDiagnostic = { code: string, message: string, scopeId?: string, side: ImpactSide, objectIds: Array<string>, };
+
+export type BoundObjectInput = { objectId: string, digest: string, };
+
+export type BoundRelationInput = { relationId: string, digest: string, };
+
+export type BoundThingRevision = { thingId: string, revisionId: string, };
+
+export type EvidenceBinding = { evidenceId: string, assayId: string, assayDefinitionHash?: string, objectInputs: Array<BoundObjectInput>, relationInputs: Array<BoundRelationInput>, thingRevisions: Array<BoundThingRevision>, rulePacks: Array<RulePackPin>, provenance: EvidenceProvenance, };
+
+export type EvidenceImpact = { evidenceId: string, assayId: string, applicability: EvidenceApplicability, provenance: EvidenceProvenance, reasons: Array<string>, objectIds: Array<string>, };
+
+export type CriterionImpact = { criterionId: string, assayIds: Array<string>, side: ImpactSide, witnesses: Array<ImpactWitness>, };
+
+export type ReportingWindow = { startUtc: string, endUtc: string, };
+
+export type PlanItem = { objectId: string, taskId: string, plannedAtUtc: string, status: PlanItemStatus, inputDigest: string, };
+
+export type CompletionObservation = { objectId: string, taskId: string, completedAtUtc: string, inputDigest: string, };
+
+export type MetricAssessment = { metricId: string, definition: MetricDefinition, definitionHash: string, window: ReportingWindow, status: MetricStatus, completedCount: number, plannedCount: number,
+/**
+ * Ratio in [0, 1]; consumers may format as a percentage.
+ */
+value?: number, inputRefs: Array<BoundObjectInput>, diagnostics: Array<string>, };
+
+export type MetricComparison = { metricId: string, baseline?: MetricAssessment, proposed?: MetricAssessment, comparability: MetricComparability,
+/**
+ * Proposed minus baseline ratio, only when comparable.
+ */
+delta?: number, };
+
+export type ImpactAnalysisContext = { origin: ImpactOrigin, evidenceBindings: Array<EvidenceBinding>, };
+
+export type ChangeImpactReport = { baseline: SnapshotIdentity, target: SnapshotIdentity, origin: ImpactOrigin, rulePacks: Array<RulePackPin>, changes: Array<ImpactChange>, affectedThings: Array<ThingImpact>, criteria: Array<CriterionImpact>, assays: Array<AffectedObject>, metrics: Array<MetricComparison>, evidence: Array<EvidenceImpact>, diagnostics: Array<ImpactDiagnostic>, complete: boolean, };
+
+export type ImpactPatchOperation = { "kind": "setThingRevision", thingId: string, revisionId: string, } | { "kind": "setProperty", objectId: string, property: ImpactProperty, value: string, } | { "kind": "addDependency", relationId: string, dependentId: string, dependencyId: string, } | { "kind": "removeDependency", relationId: string, } | { "kind": "setCriterionAssay", relationId: string, criterionId: string, assayId: string, linked: boolean, } | { "kind": "setMetricDefinition", metricId: string, definition: MetricDefinition, };
+
+export type ImpactPatch = { operations: Array<ImpactPatchOperation>, };
+
+export type ChangeImpactTarget = { "kind": "saved", revisionId: string, } | { "kind": "hypothetical", patch: ImpactPatch, };
+
+export type ChangeImpactApiRequest = { baselineRevisionId: string, target: ChangeImpactTarget, };
+
+export type ChangeImpactApiResponse = { report: ChangeImpactReport, baselineSnapshot: WorldSnapshot, targetSnapshot: WorldSnapshot, };
+
+export type Actor = "owner" | "implementer" | "verifier" | "deployer" | "system";
+
+export type PrincipalContext = { principalId: string, role: Actor, worldId: string, moveId?: string, operations: Array<string>, expiresAtMs: number, };
+
+export type ArtifactSourceRef = { namespace: string, repoId: string, repoName: string, commitSha: string, treeSha: string, contentDigest: string, };
+
+export type SourceRepository = { namespace: string, repoId: string, repoName: string, };
+
+export type RetainedPackageRef = { key: string, packageDigest: string, buildDigest: string, sourceDigest: string, sourceRef: ArtifactSourceRef, contractHash: string, planHash: string, runnerHash: string, runId: string, };
+
+export type DeploymentTarget = { targetId: string, thingId: string, connectionId: string, accountId: string, workerName: string, ownerPrincipalId: string, };
+
+export type HostedWorldConfig = { sourceRepository: SourceRepository, deploymentTargets: Array<DeploymentTarget>, };
+
+export type SourceBundle = { files: { [key in string]?: string }, };
+
+export type HttpContract = { method: string, path: string, status: number, contentType: string, responseShape: string, };
+
+export type WebAppKit = { kitId: string, version: string, entrypoint: string, assetsDirectory: string, requiredAsset: string, health: HttpContract, frontend: HttpContract, backend: HttpContract, runnerRef: string, runnerHash: string, };
+
+export type AssayDefinition = { assayId: string, criterionId: string, method: string, mandatory: boolean, runnerRef: string, runnerHash: string, };
+
+export type AssayPlan = { planId: string, version: string, planHash: string, assays: Array<AssayDefinition>, };
+
+export type MoveStatus = "open" | "promoted";
+
+export type Move = { moveId: string, title: string, baseRevisionId: string, desiredRevisionId: string, contractHash: string, planHash: string, status: MoveStatus, createdBy: Actor, createdAtMs: number, };
+
+export type Candidate = { candidateId: string, moveId: string, desiredRevisionId: string, baseRevisionId: string, source: SourceBundle, sourceDigest: string, sourceRef?: ArtifactSourceRef, contractHash: string, submittedBy: Actor, submittedAtMs: number, };
+
+export type ExecutionStatus = "completed" | "error" | "notRun";
+
+export type AssayResult = "pass" | "fail" | "unknown";
+
+export type AssayObservation = { assayId: string, executionStatus: ExecutionStatus, result: AssayResult, summary: string, raw?: string, };
+
+export type VerificationAggregate = "ready" | "blocked" | "unknown";
+
+export type RunStatus = "queued" | "running" | "completed" | "error";
+
+export type RunLease = { leaseId: string, verifierId: string, claimedAtMs: number, expiresAtMs: number, };
+
+export type AssayEvaluation = { verifierId: string, attempt: number, sourceDigest: string, contractHash: string, planHash: string, buildDigest?: string, packageRef?: RetainedPackageRef, observations: Array<AssayObservation>, aggregate: VerificationAggregate, completedAtMs: number, };
+
+export type VerificationRun = { runId: string, candidateId: string, sourceDigest: string, contractHash: string, planHash: string, status: RunStatus, aggregate: VerificationAggregate, attempt: number, activeLease?: RunLease, evaluations: Array<AssayEvaluation>, };
+
+export type WorldRevisionRecord = { revisionId: string, parentRevisionId?: string, candidateId?: string, packageRef?: RetainedPackageRef, createdBy: Actor, createdAtMs: number, };
+
+export type DeploymentStatus = "queued" | "running" | "succeeded" | "failed" | "uncertain";
+
+export type DeploymentRecord = { deploymentId: string, jobId: string, targetId: string, revisionId: string, packageRef: RetainedPackageRef, requesterPrincipalId: string, status: DeploymentStatus, progressSeq: number, publicationAuthorized: boolean, rollbackOfDeploymentId?: string, expectedHeadRevisionId?: string, expectedActiveProviderVersionId?: string, providerVersionId?: string, url?: string, failure?: string, createdAtMs: number, updatedAtMs: number, };
+
+export type RuntimeObservation = { observationId: string, deploymentId: string, healthy: boolean, summary: string, observedAtMs: number, };
+
+export type IdempotencyReceipt = { requestId: string, commandHash: string, result: WorldCommandResult, };
+
+export type WorldState = { worldId: string, title: string, desired: WorldSnapshot, headRevisionId: string, kit: WebAppKit, assayPlan: AssayPlan, moves: Array<Move>, candidates: Array<Candidate>, runs: Array<VerificationRun>, revisions: Array<WorldRevisionRecord>, receipts: Array<IdempotencyReceipt>, hosted?: HostedWorldConfig, retainedPackages: Array<RetainedPackageRef>, deployments: Array<DeploymentRecord>, runtimeObservations: Array<RuntimeObservation>, };
+
+export type WorldCommand = { "kind": "createWorld", worldId: string, title: string, runnerHash: string, requestId: string, } | { "kind": "createHostedWorld", worldId: string, title: string, runnerHash: string, sourceRepository: SourceRepository, deploymentTargets: Array<DeploymentTarget>, requestId: string, } | { "kind": "createMove", moveId: string, title: string, requestId: string, } | { "kind": "submitCandidate", moveId: string, candidateId: string, source: SourceBundle, requestId: string, } | { "kind": "submitHostedCandidate", moveId: string, candidateId: string, source: SourceBundle, sourceRef: ArtifactSourceRef, requestId: string, } | { "kind": "startVerification", candidateId: string, requestId: string, } | { "kind": "claimRun", runId: string, leaseId: string, verifierId: string, runnerHash: string, requestId: string, } | { "kind": "completeRun", runId: string, leaseId: string, sourceDigest: string, contractHash: string, planHash: string, buildDigest: string | null, observations: Array<AssayObservation>, requestId: string, } | { "kind": "completeHostedRun", runId: string, leaseId: string, sourceDigest: string, contractHash: string, planHash: string, packageRef?: RetainedPackageRef, observations: Array<AssayObservation>, requestId: string, } | { "kind": "promote", candidateId: string, expectedHeadRevisionId: string, requestId: string, } | { "kind": "requestDeployment", deploymentId: string, targetId: string, revisionId: string, expectedHeadRevisionId: string, requestId: string, } | { "kind": "registerDeploymentTarget", target: DeploymentTarget, requestId: string, } | { "kind": "authorizeDeploymentPublication", deploymentId: string, progressSeq: number, requestId: string, } | { "kind": "updateDeployment", deploymentId: string, progressSeq: number, status: DeploymentStatus, providerVersionId?: string, url?: string, failure?: string, requestId: string, } | { "kind": "requestRollback", deploymentId: string, targetId: string, previousDeploymentId: string, expectedActiveProviderVersionId: string, requestId: string, } | { "kind": "recordRuntimeObservation", deploymentId: string, healthy: boolean, summary: string, requestId: string, };
+
+export type WorldCommandRequest = { apiVersion: number, state: WorldState | null, actor: Actor, principal?: PrincipalContext, nowMs: number, command: WorldCommand, };
+
+export type WorldCommandResult = { "kind": "worldCreated", worldId: string, revisionId: string, moveId: string, } | { "kind": "hostedWorldCreated", worldId: string, revisionId: string, moveId: string, } | { "kind": "moveCreated", moveId: string, } | { "kind": "candidateSubmitted", candidateId: string, sourceDigest: string, } | { "kind": "hostedCandidateSubmitted", candidateId: string, sourceDigest: string, } | { "kind": "verificationStarted", runId: string, reused: boolean, } | { "kind": "runClaimed", runId: string, attempt: number, leaseExpiresAtMs: number, } | { "kind": "runCompleted", runId: string, aggregate: VerificationAggregate, } | { "kind": "hostedRunCompleted", runId: string, aggregate: VerificationAggregate, packageDigest: string | null, } | { "kind": "candidatePromoted", candidateId: string, revisionId: string, } | { "kind": "deploymentRequested", deploymentId: string, jobId: string, } | { "kind": "deploymentTargetRegistered", targetId: string, reused: boolean, } | { "kind": "deploymentPublicationAuthorized", deploymentId: string, } | { "kind": "deploymentUpdated", deploymentId: string, status: DeploymentStatus, } | { "kind": "rollbackRequested", deploymentId: string, jobId: string, } | { "kind": "runtimeObservationRecorded", observationId: string, };
+
+export type WorldCommandResponse = { "status": "ok", apiVersion: number, state: WorldState, result: WorldCommandResult, } | { "status": "error", apiVersion: number, code: string, message: string, };

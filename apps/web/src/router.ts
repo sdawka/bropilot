@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import WorldWorkspace from './views/WorldWorkspace.vue';
+import OntologyLab from './components/OntologyLab.vue';
 
 export const views = ['overview', 'map', 'theory', 'work', 'evaluations', 'history'] as const;
 export type WorkspaceView = typeof views[number];
@@ -11,6 +12,7 @@ export function isWorkspaceView(value: unknown): value is WorkspaceView {
 export const router = createRouter({
   history: createWebHistory(),
   routes: [
+    { path: '/lab/ontology', name: 'ontology-lab', component: OntologyLab },
     { path: '/', redirect: '/worlds/assistant-world/revisions/assistant-valid/overview' },
     {
       path: '/worlds/:worldId/revisions/:revisionId/:view?',
