@@ -20,11 +20,14 @@ export const meta = { id: "meta", version: "1", source: `
 .decl extends(From: sym, To: sym)
 .decl templateKnown(Ref: sym)
 .decl templateNode(Id: sym, Kind: sym)
+.decl templateNodeLink(Id: sym, Rel: sym)
 .decl packError(Pack: sym, Kind: sym, Detail: sym)
 .decl packRead(Key: sym, Pack: sym, Rel: sym)
 .decl packDerives(Rel: sym)
 .decl edbRelation(Rel: sym)
 .decl questionPolicy(Question: sym, Answer: sym, Level: sym)
+.decl questionSliceKind(Question: sym, Kind: sym)
+.decl questionSliceRel(Question: sym, Rel: sym)
 .decl findingLevel(Level: sym)
 .decl fieldDeclared(Kind: sym, Field: sym)
 .decl parentConstrained(Kind: sym)
@@ -49,7 +52,10 @@ export const meta = { id: "meta", version: "1", source: `
 .message "rules.unknownRelation" "Rule pack read {1} names a relation that is neither emitted by the engine nor derived by the template."
 .message "criterion.subjectKindUnknown" "Criterion {1} subjects a kind the template does not declare."
 .message "question.levelUnknown" "Question {1} maps an answer to an unknown finding level."
+.message "question.sliceKindUnknown" "Question {1} slices a kind the template does not declare."
+.message "question.sliceRelationUnknown" "Question {1} slices along a relation the template does not declare."
 .message "node.kindUnknown" "Prefilled node {1} has a kind the template does not declare."
+.message "node.relationUnknown" "Prefilled node {1} has a link whose relation the template does not declare."
 
 fieldDeclared(K,F) :- kindField(K,F,_,_).
 parentConstrained(K) :- kindParent(K,_).
@@ -83,5 +89,8 @@ violation("rules.unknownRelation",Key,"hard") :- packRead(Key,_,R), not edbRelat
 
 violation("criterion.subjectKindUnknown",C,"hard") :- criterion(C,_,K,_), not kind(K).
 violation("question.levelUnknown",Q,"hard") :- questionPolicy(Q,_,L), not findingLevel(L).
+violation("question.sliceKindUnknown",Q,"hard") :- questionSliceKind(Q,K), not kind(K).
+violation("question.sliceRelationUnknown",Q,"hard") :- questionSliceRel(Q,R), not relation(R).
 violation("node.kindUnknown",N,"hard") :- templateNode(N,K), not kind(K).
+violation("node.relationUnknown",N,"hard") :- templateNodeLink(N,R), not relation(R).
 ` };

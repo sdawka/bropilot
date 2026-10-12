@@ -46,11 +46,14 @@ export const FORM_DECLS = `
 .decl extends(From: sym, To: sym)
 .decl templateKnown(Ref: sym)
 .decl templateNode(Id: sym, Kind: sym)
+.decl templateNodeLink(Id: sym, Rel: sym)
 .decl packError(Pack: sym, Kind: sym, Detail: sym)
 .decl packRead(Key: sym, Pack: sym, Rel: sym)
 .decl packDerives(Rel: sym)
 .decl edbRelation(Rel: sym)
 .decl questionPolicy(Question: sym, Answer: sym, Level: sym)
+.decl questionSliceKind(Question: sym, Kind: sym)
+.decl questionSliceRel(Question: sym, Rel: sym)
 .decl findingLevel(Level: sym)
 `;
 

@@ -61,12 +61,25 @@ export const CriterionSchema = z.strictObject({
 
 export const RulePackSchema = z.strictObject({ id, version: z.union([z.string(), z.number()]).transform(String), source: z.string() });
 
+export const SLICE_DIRECTIONS = ["out", "in", "both"] as const;
+
+/** The bounded state a question sees: the subject, optionally its parent chain, and nodes within `hops` links. */
+export const SliceSchema = z.strictObject({
+  parents: z.boolean().default(true),
+  hops: z.number().int().nonnegative().default(0),
+  direction: z.enum(SLICE_DIRECTIONS).default("out"),
+  rels: z.array(name).optional(),
+  kinds: z.array(name).optional(),
+  fields: z.array(name).optional(),
+});
+
+/** `id` is the rule id of the semantic candidate the question resolves. `choices` are options for `choice` and levels for `score`. */
 export const QuestionSchema = z.strictObject({
   id,
   text: z.string().optional(),
   answer: z.enum(ANSWER_TYPES),
   choices: z.array(z.string()).optional(),
-  slice: z.string(),
+  slice: SliceSchema.default({ parents: true, hops: 0, direction: "out" }),
   benign: scalar,
   policy: z.array(z.strictObject({ answer: scalar, level: name })).min(1),
 });
@@ -76,6 +89,9 @@ export const TemplateNodeSchema = z.strictObject({
   kind: name,
   parent: name.optional(),
   fields: z.record(z.string(), z.unknown()).default({}),
+  provisional: z.boolean().optional(),
+  /** Outgoing links of the prefilled node; `from` is the node itself. */
+  links: z.array(z.strictObject({ rel: name, to: name, certainty: name.optional() })).optional(),
 });
 
 export const TemplateSourceSchema = z.strictObject({
@@ -99,5 +115,7 @@ export type Constraints = z.infer<typeof ConstraintsSchema>;
 export type Criterion = z.infer<typeof CriterionSchema>;
 export type RulePack = z.infer<typeof RulePackSchema>;
 export type Question = z.infer<typeof QuestionSchema>;
+export type Slice = z.infer<typeof SliceSchema>;
 export type TemplateNode = z.infer<typeof TemplateNodeSchema>;
 export type TemplateSource = z.infer<typeof TemplateSourceSchema>;
+export type TemplateInput = z.input<typeof TemplateSourceSchema>;

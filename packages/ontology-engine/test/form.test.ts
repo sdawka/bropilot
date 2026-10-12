@@ -37,7 +37,10 @@ describe("template form", () => {
     })],
     ["criterion.subjectKindUnknown", "crit.card-titled", () => edit((t) => { t.criteria[0].subject = "ticket"; })],
     ["question.levelUnknown", "card.vague", () => edit((t) => { t.questions[0].policy[0].level = "fatal"; })],
+    ["question.sliceKindUnknown", "card.vague", () => edit((t) => { Object.assign(t.questions[0].slice, { kinds: ["lane"] }); })],
+    ["question.sliceRelationUnknown", "card.vague", () => edit((t) => { Object.assign(t.questions[0].slice, { rels: ["follows"] }); })],
     ["node.kindUnknown", "$self.inbox", () => edit((t) => { t.nodes[0].kind = "ticket"; })],
+    ["node.relationUnknown", "$self.inbox", () => edit((t) => { Object.assign(t.nodes[0], { links: [{ rel: "mentions", to: "$self" }] }); })],
   ];
 
   for (const [rule, subject, raw, s] of cases) {

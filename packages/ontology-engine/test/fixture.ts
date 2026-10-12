@@ -65,7 +65,7 @@ export const board = () => ({
   criteria: [{ id: "crit.card-titled", owner: "product", subject: "card", severity: "hard", hooks: ["hook.title"] }],
   rules: [{ id: "board", version: "1", source: BOARD_RULES }],
   questions: [{
-    id: "card.vague", answer: "yes-no", slice: "card title", benign: "no",
+    id: "card.vague", answer: "yes-no", slice: { fields: ["title"] }, benign: "no",
     policy: [{ answer: "yes", level: "warning" }],
   }],
   nodes: [{ id: "$self.inbox", kind: "card", parent: "$self", fields: { title: "Inbox for $self" } }],

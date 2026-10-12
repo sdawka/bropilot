@@ -1,6 +1,8 @@
+import type { Judgment, Provenance } from "../judge/types";
 import { explain, render, type DerivationTree, type Result, type Tuple } from "../rules";
 
-export type Level = "error" | "missing" | "warning" | "info";
+/** `review` and `pass` are reachable only through judgment. */
+export type Level = "error" | "missing" | "warning" | "review" | "info" | "pass";
 /** Levels a question policy may map an answer to; `pass` is reachable only through judgment. */
 export const FINDING_LEVELS = ["error", "missing", "warning", "info", "pass"] as const;
 
@@ -15,9 +17,12 @@ export interface Finding {
   derivation: DerivationTree;
   /** `<pack id>@<version>` whose rule derived the finding. */
   pack?: string;
+  /** Set on a judged semantic candidate. */
+  judgment?: Judgment;
+  provenance?: Provenance;
 }
 
-const LEVEL_ORDER: Level[] = ["error", "missing", "warning", "info"];
+const LEVEL_ORDER: Level[] = ["error", "missing", "warning", "review", "info", "pass"];
 const SEVERITY_LEVEL: Record<string, Level> = { hard: "error", soft: "warning", advisory: "info" };
 const DEPTH = 64;
 
@@ -56,4 +61,15 @@ export function fold(result: Result, packNames: string[]): Finding[] {
   add("warning", () => "warning");
   add("semanticCandidate", () => "info", "semantic:");
   return findings.sort(compareFindings);
+}
+
+export const isSemantic = (f: Finding): boolean => f.rule.startsWith("semantic:");
+
+/** `actionable`: no error or missing. `buildable`: also no warning, no review and no semantic candidate short of a confident judgment. */
+export function verdicts(findings: Finding[], incomplete: boolean): { buildable: boolean; actionable: boolean } {
+  const has = (p: (f: Finding) => boolean) => findings.some(p);
+  const blocking = has((f) => f.level === "error" || f.level === "missing");
+  const open = has((f) => isSemantic(f) && f.judgment?.status !== "confident");
+  const soft = has((f) => f.level === "warning" || f.level === "review");
+  return { buildable: !incomplete && !blocking && !open && !soft, actionable: !incomplete && !blocking };
 }

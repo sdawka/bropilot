@@ -14,3 +14,5 @@ export { FINDING_LEVELS, type Finding, type Level } from "./evaluate/findings";
 export { CORE_PACKS, evaluate, type EvaluateOptions, type Readiness } from "./evaluate/evaluate";
 export { diff, diffFindings, type GraphDelta } from "./evaluate/diff";
 export { completeness, consistency, meta, metamodel } from "./evaluate/packs";
+export * from "./judge";
+export * from "./adapters/artyfact";

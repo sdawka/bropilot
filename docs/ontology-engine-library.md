@@ -141,6 +141,18 @@ Recommended home: `packages/ontology-engine` in this repository, published to np
 - `extends` merges wholesale per key: kinds and relations replace by name, everything else by id, child wins. Template, node and link schemas are strict.
 - `evaluate` caches template form by hash and throws `TemplateFormError` (`rule`, `templateHash`, `findings`) on an invalid template.
 
+## Implementation notes (milestone 2, 2026-10-12)
+
+`src/judge/` and `src/adapters/artyfact/` are built. All six artyfact rule packs are ported as template packs on `template.meta.artyfact-genome@1`, and the Keep in Touch example reproduces artyfact's findings rule for rule.
+
+- A question matches a candidate when the question id equals the candidate's rule id. The slice is structured (`parents`, `hops`, `direction`, `rels`, `kinds`, `fields`), so it is hashable and `meta@1` can reject slices naming unknown kinds or relations.
+- Levels `review` and `pass` exist and come only from judgment. A confident answer the policy does not map stays `unknown`. Provenance records provider, state hash, question hash and thresholds, never timing.
+- `buildable` also blocks on `review` and on any semantic finding without a confident judgment. `evaluate` stays synchronous; `judge` and `evaluateAndJudge` are async.
+- Ported packs are named `artyfact.*` and read `a`-prefixed relations derived by `artyfact.facts@1`, because `node`, `criterion` and `ref` already exist in the generic EDB. Rule ids and messages are verbatim. The dialect has no lowercase, so topology text rules match case-insensitively with generated character classes.
+- Adapter mapping: criterion hooks, hook criteria, `satisfies`, claim activities, step requirement refs and step next objects stay as list fields; `stepNext` links exist alongside. Unresolved step targets are fields. Required but unpinned kits and artifacts are nodes. Lost on load: a cross link's `label` and `source`, whether `refines` came from a field or a link, and whether a thing's sections were defaulted from its template.
+- The generic core adds `node.provisional` missing findings on Keep in Touch that artyfact does not have, so the example is actionable but not buildable under this engine. That is the intended stricter reading, not a parity failure.
+- The reference for parity tests is artyfact's own `toFacts` and `validate`, vendored under `test/vendor/artyfact/` with only import lines changed.
+
 ## Decisions
 
 Recorded in `decision_log.md` on 2026-10-12: the package lives in this repository as `packages/ontology-engine`; the `@artyfact/rules` Datalog dialect is the rule language; artyfact-cf keeps YAML behind the loader adapter and the canonical instance format is the JSON graph.

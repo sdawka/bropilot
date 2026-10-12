@@ -5,7 +5,7 @@ import { sha256Hex } from "../rules/sha256";
 import { parse, run, type Result } from "../rules";
 import { edbProgram } from "./edb";
 import { toFacts } from "./facts";
-import { compareFindings, fold, type Finding } from "./findings";
+import { compareFindings, fold, verdicts, type Finding } from "./findings";
 import { completeness, consistency, metamodel } from "./packs";
 
 export const CORE_PACKS = [metamodel, completeness, consistency];
@@ -48,9 +48,6 @@ export function evaluate(template: Template, input: Graph | unknown, opts: Evalu
   const missing = new Set(rows("missing").map(pairKey));
   const required = new Set([...rows("obligation").map(pairKey), ...missing]);
   const incomplete = runs.some((r) => r.result.incomplete);
-  const has = (p: (f: Finding) => boolean) => findings.some(p);
-  const blocking = has((f) => f.level === "error" || f.level === "missing");
-  const unknown = has((f) => f.rule.startsWith("semantic:"));
 
   return {
     snapshotHash: graphHash(graph),
@@ -65,7 +62,6 @@ export function evaluate(template: Template, input: Graph | unknown, opts: Evalu
     consistency: { violations: rows("violation").length },
     judgments: { confident: 0, review: 0, unknown: 0 },
     incomplete,
-    buildable: !incomplete && !blocking && !unknown && !has((f) => f.level === "warning"),
-    actionable: !incomplete && !blocking,
+    ...verdicts(findings, incomplete),
   };
 }
