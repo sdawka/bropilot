@@ -1,6 +1,8 @@
 import { hashOf } from "../canon";
 import { EDB_RELATIONS, edbProgram, FORM_DECLS, TEMPLATE_DECLS } from "../evaluate/edb";
 import { templateFacts, type Facts } from "../evaluate/facts";
+import { compilePattern } from "../evaluate/text";
+import type { TextConstraints } from "./schema";
 import { fold, FINDING_LEVELS, type Finding } from "../evaluate/findings";
 import { meta } from "../evaluate/packs/meta";
 import { factSet, parse, run, stratify, RuleParseError, StratificationError, type Program, type Tuple } from "../rules";
@@ -44,6 +46,24 @@ function packFacts(t: Template): Record<string, Tuple[]> {
   return out;
 }
 
+/** Declared text constraints as written, per kind field and for `textDefaults` (scope: the template ref, field `*`). */
+function textDeclFacts(t: Template): Facts {
+  const out: Facts = { textBound: [], textPatternInvalid: [], textDistinctDecl: [], textDefaultDistinct: [] };
+  const add = (scope: string, field: string, c: TextConstraints) => {
+    for (const key of ["minLength", "minWords"] as const) if (c[key] !== undefined) out.textBound.push([scope, field, key, c[key]]);
+    if (c.pattern !== undefined && !compilePattern(c.pattern)) out.textPatternInvalid.push([scope, field]);
+  };
+  for (const [k, kind] of Object.entries(t.kinds)) for (const fd of kind.fields) {
+    add(k, fd.name, fd);
+    for (const o of fd.distinctFrom ?? []) out.textDistinctDecl.push([k, fd.name, o]);
+  }
+  if (t.textDefaults) {
+    add(t.ref, "*", t.textDefaults);
+    for (const o of t.textDefaults.distinctFrom ?? []) out.textDefaultDistinct.push([t.ref, o]);
+  }
+  return out;
+}
+
 /** Template set plus the meta-level facts meta@1 reads. */
 export function formFacts(t: Template, store?: TemplateStore): Facts {
   const edges = store ? resolveLineage(t.ref, t.extends, store) : { edges: t.edges, ancestors: [] };
@@ -59,6 +79,7 @@ export function formFacts(t: Template, store?: TemplateStore): Facts {
     questionSliceRel: t.questions.flatMap((q) => (q.slice.rels ?? []).map((r) => [q.id, r])),
     findingLevel: FINDING_LEVELS.map((l) => [l]),
     edbRelation: EDB_RELATIONS.map((r) => [r]),
+    ...textDeclFacts(t),
     ...packFacts(t),
   };
 }

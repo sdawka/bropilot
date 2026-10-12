@@ -58,7 +58,7 @@ describe("evaluate", () => {
     expect(r.completeness).toEqual({ required: 11, satisfied: 11, missing: [] });
     expect(r).toMatchObject({ buildable: true, actionable: true, incomplete: false, consistency: { violations: 0 } });
     expect(r.template).toMatchObject({ ref: "template.test.board@1", hash: template.hash, form: { valid: true } });
-    expect(r.packs.map((p) => `${p.id}@${p.version}`)).toEqual(["metamodel@1", "completeness@1", "consistency@1", "board@1"]);
+    expect(r.packs.map((p) => `${p.id}@${p.version}`)).toEqual(["metamodel@1", "completeness@1", "consistency@1", "text@1", "board@1"]);
   });
 
   for (const [pack, rule, level, subject, mutate] of cases) {

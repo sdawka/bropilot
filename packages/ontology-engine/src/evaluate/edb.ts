@@ -12,6 +12,11 @@ export const GRAPH_DECLS = `
 .decl declared(Scope: sym, Status: sym)
 .decl provisional(Id: sym)
 .decl evidence(Id: sym, Subject: sym, Kind: sym)
+.decl fieldLen(Node: sym, Field: sym, Chars: num)
+.decl fieldWords(Node: sym, Field: sym, Words: num)
+.decl fieldPlaceholder(Node: sym, Field: sym, Token: sym)
+.decl fieldSameAs(Node: sym, Field: sym, Other: sym)
+.decl fieldPatternMiss(Node: sym, Field: sym)
 `;
 
 export const TEMPLATE_DECLS = `
@@ -40,6 +45,10 @@ export const TEMPLATE_DECLS = `
 .decl criterionHook(Id: sym, Hook: sym)
 .decl question(Id: sym, Answer: sym)
 .decl typeAccepts(Type: sym, Observed: sym)
+.decl textMinLen(Kind: sym, Field: sym, N: num)
+.decl textMinWords(Kind: sym, Field: sym, N: num)
+.decl textDistinct(Kind: sym, Field: sym, Other: sym)
+.decl textPattern(Kind: sym, Field: sym)
 `;
 
 export const FORM_DECLS = `
@@ -55,6 +64,10 @@ export const FORM_DECLS = `
 .decl questionSliceKind(Question: sym, Kind: sym)
 .decl questionSliceRel(Question: sym, Rel: sym)
 .decl findingLevel(Level: sym)
+.decl textBound(Scope: sym, Field: sym, Key: sym, N: num)
+.decl textPatternInvalid(Scope: sym, Field: sym)
+.decl textDistinctDecl(Scope: sym, Field: sym, Other: sym)
+.decl textDefaultDistinct(Scope: sym, Other: sym)
 `;
 
 /** Every EDB relation an instance evaluation emits; template packs may read these and nothing else they do not derive. */

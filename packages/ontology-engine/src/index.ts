@@ -13,7 +13,8 @@ export { graphFacts, templateFacts, toFacts, type Facts } from "./evaluate/facts
 export { FINDING_LEVELS, type Finding, type Level } from "./evaluate/findings";
 export { CORE_PACKS, evaluate, type EvaluateOptions, type Readiness } from "./evaluate/evaluate";
 export { diff, diffFindings, type GraphDelta } from "./evaluate/diff";
-export { completeness, consistency, meta, metamodel } from "./evaluate/packs";
+export { completeness, consistency, meta, metamodel, text } from "./evaluate/packs";
+export { compilePattern, isPlaceholder, kindTextConstraints, normaliseText, textLength, textWords } from "./evaluate/text";
 export * from "./judge";
 export * from "./adapters/artyfact";
 export * from "./adapters/product";

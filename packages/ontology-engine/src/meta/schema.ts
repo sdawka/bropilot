@@ -9,11 +9,36 @@ export const FIELD_TYPES = ["string", "number", "boolean", "ref", "refs", "list"
 export const SEVERITIES = ["hard", "soft", "advisory"] as const;
 export const ANSWER_TYPES = ["yes-no", "choice", "score"] as const;
 
+/**
+ * Deterministic text-quality constraints on a string field. Negative bounds, an unknown `distinctFrom` field and a
+ * `pattern` that does not compile are form errors in meta@1 rather than parse errors, so they carry a finding.
+ */
+export const TEXT_KEYS = ["minLength", "minWords", "placeholders", "distinctFrom", "pattern"] as const;
+const textShape = {
+  minLength: z.number().int().optional(),
+  minWords: z.number().int().optional(),
+  /** Case-insensitive tokens or short phrases; a value equal to one, or containing one as a whole word, is a placeholder. */
+  placeholders: z.array(z.string().min(1)).optional(),
+  /** Other field names of the same kind, or the literal `"id"`. */
+  distinctFrom: z.array(name).optional(),
+  /** A JavaScript regular expression source, compiled without flags and tested against the trimmed value. */
+  pattern: z.string().optional(),
+};
+export const TextConstraintsSchema = z.strictObject(textShape);
+
+/** Engine placeholder tokens, applied only when a template opts in with `textDefaults`. */
+export const DEFAULT_PLACEHOLDERS: readonly string[] = [
+  "tbd", "todo", "tba", "fixme", "xxx", "???", "lorem ipsum", "placeholder", "n/a", "none yet", "to be defined", "to be determined",
+];
+/** Field names `textDefaults` applies to. */
+export const TEXT_DEFAULT_FIELDS: readonly string[] = ["description", "title"];
+
 export const FieldSchema = z.strictObject({
   name,
   type: z.enum(FIELD_TYPES),
   required: z.boolean().optional(),
   enum: z.array(scalar).optional(),
+  ...textShape,
 });
 
 export const KindSchema = z.strictObject({
@@ -106,6 +131,11 @@ export const TemplateSourceSchema = z.strictObject({
   rules: z.array(RulePackSchema).default([]),
   questions: z.array(QuestionSchema).default([]),
   nodes: z.array(TemplateNodeSchema).default([]),
+  /**
+   * Opt-in text constraints for every declared string field named `description` or `title`. A field's own text
+   * keys win key by key. `placeholders` defaults to `DEFAULT_PLACEHOLDERS`; `{}` opts in with only that.
+   */
+  textDefaults: TextConstraintsSchema.optional(),
 });
 
 export type Field = z.infer<typeof FieldSchema>;
@@ -116,6 +146,7 @@ export type Criterion = z.infer<typeof CriterionSchema>;
 export type RulePack = z.infer<typeof RulePackSchema>;
 export type Question = z.infer<typeof QuestionSchema>;
 export type Slice = z.infer<typeof SliceSchema>;
+export type TextConstraints = z.infer<typeof TextConstraintsSchema>;
 export type TemplateNode = z.infer<typeof TemplateNodeSchema>;
 export type TemplateSource = z.infer<typeof TemplateSourceSchema>;
 export type TemplateInput = z.input<typeof TemplateSourceSchema>;

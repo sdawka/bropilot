@@ -163,6 +163,14 @@ Two more adapters prove the acceptance criterion that a template with kinds and 
 
 **Open design point.** The engine's `provisional` flag yields a `missing` finding, and any `missing` makes a graph not actionable. For a spec whose only purpose is `proposed`, that means "not actionable", while the prototypes treat it as workable but not shippable. The product adapter therefore reports uncommitted status as a template warning (actionable, not buildable) and only sets the engine flag on request. Whether `provisional` should block actionability or only buildability is a decision to take before artyfact-cf switches over.
 
+## Implementation notes (milestone 4, 2026-10-12): content quality
+
+Two layers now look at what nodes say, not only whether they exist.
+
+**Deterministic text checks** (`text@1` core pack, always on). Kind fields may declare `minLength`, `minWords`, `placeholders`, `distinctFrom` and `pattern`; a template-level `textDefaults` block applies a default placeholder list to `description` and `title` when a template opts in. Rules: `text.empty` (whitespace-only required field; an empty string is still `field.required`, so one blank field gives exactly one finding), `text.short`, `text.placeholder` (wins over short), `text.sameAsId`, `text.sameAsField`, `text.pattern`. One finding per node per rule; the field is in the derivation. Degraded copies of Keep in Touch and tidepool prove the rules fire on exactly the ten planted nodes each. With defaults on, the only hit on real content is Keep in Touch's `binding.d1`, whose genuine description contains the word "placeholder"; it is pinned, not suppressed.
+
+**Semantic probes and providers** (`src/judge/`). `openRouterProvider` targets the OpenRouter decisions API with `perplexity/pplx-decider-v1-27b` as default model behind the `SystemOne` interface; `providerFromEnv` picks fake, OpenRouter or off. A reusable catalogue offers `text.vague`, `text.unmeasurable`, `pair.contradiction` and `criterion.unfalsifiable`; the `semantic.probe@1` pack emits candidates, with pair candidates encoded as `(A, B)` because the dialect cannot concatenate strings, and `judge` rewriting the judged subject to `A|B`. Fixtures plant 14 natural-language problems and 5 controls across the three vocabularies. A live suite runs only when `OPENROUTER_API_KEY` is set and records every answer to an auditable results file; one run makes 261 calls. Live results are not yet recorded; the mocked suite proves wire format and plumbing only.
+
 ## Decisions
 
 Recorded in `decision_log.md` on 2026-10-12: the package lives in this repository as `packages/ontology-engine`; the `@artyfact/rules` Datalog dialect is the rule language; artyfact-cf keeps YAML behind the loader adapter and the canonical instance format is the JSON graph.

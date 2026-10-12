@@ -29,7 +29,12 @@ export const meta = { id: "meta", version: "1", source: `
 .decl questionSliceKind(Question: sym, Kind: sym)
 .decl questionSliceRel(Question: sym, Rel: sym)
 .decl findingLevel(Level: sym)
+.decl textBound(Scope: sym, Field: sym, Key: sym, N: num)
+.decl textPatternInvalid(Scope: sym, Field: sym)
+.decl textDistinctDecl(Scope: sym, Field: sym, Other: sym)
+.decl textDefaultDistinct(Scope: sym, Other: sym)
 .decl fieldDeclared(Kind: sym, Field: sym)
+.decl fieldDeclaredAnywhere(Field: sym)
 .decl parentConstrained(Kind: sym)
 .decl extendsReach(X: sym, Y: sym)
 .decl violation(Rule: sym, Subject: sym, Severity: sym) .output
@@ -56,9 +61,17 @@ export const meta = { id: "meta", version: "1", source: `
 .message "question.sliceRelationUnknown" "Question {1} slices along a relation the template does not declare."
 .message "node.kindUnknown" "Prefilled node {1} has a kind the template does not declare."
 .message "node.relationUnknown" "Prefilled node {1} has a link whose relation the template does not declare."
+.message "kind.textBoundNegative" "Kind {1} declares a negative minimum length or word count on a field."
+.message "kind.textPatternInvalid" "Kind {1} declares a field pattern that is not a valid regular expression."
+.message "kind.textDistinctUnknown" "Kind {1} declares a field distinct from a field it does not declare."
+.message "kind.textDistinctSelf" "Kind {1} declares a field distinct from itself."
+.message "template.textBoundNegative" "Template {1} declares a negative minimum length or word count in textDefaults."
+.message "template.textPatternInvalid" "Template {1} declares a textDefaults pattern that is not a valid regular expression."
+.message "template.textDistinctUnknown" "Template {1} declares textDefaults distinct from a field no kind declares."
 
 fieldDeclared(K,F) :- kindField(K,F,_,_).
 parentConstrained(K) :- kindParent(K,_).
+fieldDeclaredAnywhere(F) :- kindField(_,F,_,_).
 extendsReach(X,Y) :- extends(X,Y).
 extendsReach(X,Z) :- extends(X,Y), extendsReach(Y,Z).
 
@@ -93,4 +106,12 @@ violation("question.sliceKindUnknown",Q,"hard") :- questionSliceKind(Q,K), not k
 violation("question.sliceRelationUnknown",Q,"hard") :- questionSliceRel(Q,R), not relation(R).
 violation("node.kindUnknown",N,"hard") :- templateNode(N,K), not kind(K).
 violation("node.relationUnknown",N,"hard") :- templateNodeLink(N,R), not relation(R).
+
+violation("kind.textBoundNegative",K,"hard") :- textBound(K,F,_,N), F != "*", N < 0.
+violation("kind.textPatternInvalid",K,"hard") :- textPatternInvalid(K,F), F != "*".
+violation("kind.textDistinctUnknown",K,"hard") :- textDistinctDecl(K,_,O), O != "id", not fieldDeclared(K,O).
+violation("kind.textDistinctSelf",K,"hard") :- textDistinctDecl(K,F,F).
+violation("template.textBoundNegative",T,"hard") :- textBound(T,"*",_,N), N < 0.
+violation("template.textPatternInvalid",T,"hard") :- textPatternInvalid(T,"*").
+violation("template.textDistinctUnknown",T,"hard") :- textDefaultDistinct(T,O), O != "id", not fieldDeclaredAnywhere(O).
 ` };

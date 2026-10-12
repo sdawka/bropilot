@@ -10,6 +10,7 @@
   },
   "scripts": {
     "test": "vitest run",
+    "test:live": "vitest run test/semantic/live.test.ts",
     "typecheck": "tsc -p . --noEmit"
   },
   "dependencies": {

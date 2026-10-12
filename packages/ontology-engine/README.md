@@ -11,8 +11,8 @@ TypeScript ESM. The runtime dependencies are `zod` and `yaml`. Hashing is synchr
 | `src/rules/` | The Datalog engine moved verbatim from `@artyfact/rules`; see `src/rules/README.md` for the dialect. |
 | `src/meta/` | `meta@1` zod schemas, cardinality grammar (`1`, `0..1`, `1..*`, `0..5`), `loadTemplate` with `extends` resolved through a `TemplateStore`, `templateHash`, `instantiateNodes` for `$self`, and `checkTemplateForm`. |
 | `src/graph/` | The canonical JSON graph (`template`, `nodes`, `links`, `declarations`, `evidence`), `parseGraph` and `graphHash`. |
-| `src/evaluate/` | `toFacts`, the engine-owned packs `metamodel@1`, `completeness@1`, `consistency@1` and `meta@1`, `evaluate` returning `Readiness`, `diff` and `diffFindings`. |
-| `src/judge/` | The System One provider interface, `httpSystemOne`, `fakeSystemOne` with `#s1low`, `#s1no`, `#s1pick:` and `#s1harm` directives, `offSystemOne`, `S1Error`, the confidence policy, `buildSlice`, `judge` and `evaluateAndJudge`. |
+| `src/evaluate/` | `toFacts`, the engine-owned packs `metamodel@1`, `completeness@1`, `consistency@1`, `text@1` and `meta@1`, `evaluate` returning `Readiness`, `diff` and `diffFindings`. |
+| `src/judge/` | The System One provider interface, `httpSystemOne`, `openRouterProvider` and `providerFromEnv`, `fakeSystemOne` with `#s1low`, `#s1no`, `#s1pick:` and `#s1harm` directives, `offSystemOne`, `S1Error`, the confidence policy, `buildSlice`, `judge` and `evaluateAndJudge`, the reusable semantic question catalogue and the `semantic.probe@1` pack. |
 | `src/adapters/artyfact/` | The `template.meta.artyfact-genome@1` base template, `loadArtyfactSystem` for an artyfact system directory, `loadArtyfactTemplate` and `artyfactMetaStore` for artyfact templates, and the ported artyfact rule packs. |
 | `src/adapters/product/` | `template.meta.product-spec@1` for the uip/lfp product graphs with `productGraphToGraph`, and `template.meta.bropilot-spaces@3` for the older spaces graphs with `spacesGraphToGraph`. |
 | `src/adapters/world/` | `template.meta.world@1` with `world.readiness@1`, `worldTemplateToMeta` and `worldSnapshotToGraph` for world-core `WorldSnapshot`s, and `toWorldFindings` and `worldStatus` to read a readiness in world-core's terms. |
@@ -30,6 +30,8 @@ TypeScript ESM. The runtime dependencies are `zod` and `yaml`. Hashing is synchr
 | Provider throws | `unknown`, provider `error` | `info` |
 
 Provenance records the provider, model, `stateHash`, `questionHash` and thresholds. It carries no timing, so the judged `Readiness` JSON is reproducible with the fake provider.
+
+A yes-no question with exactly two `choices` sends them on the wire as the `true` and `false` criteria; otherwise both criteria repeat the question text.
 
 ## artyfact adapter
 
@@ -127,15 +129,87 @@ for (const f of readiness.findings) console.log(f.level, f.rule, f.subject, f.me
 
 ## Fact relations
 
-Graph set: `graphTemplate/1`, `node(Id, Kind, Parent)` with `""` for roots, `field(Node, Field, Value)`, `fieldType(Node, Field, Type)`, `parent/2`, `link(From, Rel, To, Certainty)`, `known/1`, `ref(From, Via, To)`, `declared(Scope, Status)`, `provisional/1`, `evidence(Id, Subject, Kind)`.
+Graph set: `graphTemplate/1`, `node(Id, Kind, Parent)` with `""` for roots, `field(Node, Field, Value)`, `fieldType(Node, Field, Type)`, `parent/2`, `link(From, Rel, To, Certainty)`, `known/1`, `ref(From, Via, To)`, `declared(Scope, Status)`, `provisional/1`, `evidence(Id, Subject, Kind)`, and the text measurements `fieldLen(Node, Field, Chars)`, `fieldWords(Node, Field, Words)`, `fieldPlaceholder(Node, Field, Token)`, `fieldSameAs(Node, Field, OtherField)` (`OtherField` may be `"id"`) and `fieldPatternMiss(Node, Field)`.
 
-Template set: `templateRef/1`, `kind/1`, `kindField(Kind, Field, Type, Required)`, `kindFieldEnum/3`, `kindParent/2`, `requiredField/2`, `requiredChild(Kind, Child, Min, Max)`, `requiredRel(Kind, Rel, Min, Max)`, `relation/1`, `relEndpoint(Rel, Side, Kind)`, `relCard(Rel, Dir, Min, Max)`, `relAcyclic/1`, `relInverse/2`, `relCertainty/2`, `forbiddenCycle/2`, `incompatible/4`, `incompatibleSize/2`, `exclusive/2`, `exactlyOne/4`, `completeScope/2`, `criterion/4`, `criterionGate/2`, `criterionHook/2`, `question/2`, `typeAccepts/2`.
+Template set: `templateRef/1`, `kind/1`, `kindField(Kind, Field, Type, Required)`, `kindFieldEnum/3`, `kindParent/2`, `requiredField/2`, `requiredChild(Kind, Child, Min, Max)`, `requiredRel(Kind, Rel, Min, Max)`, `relation/1`, `relEndpoint(Rel, Side, Kind)`, `relCard(Rel, Dir, Min, Max)`, `relAcyclic/1`, `relInverse/2`, `relCertainty/2`, `forbiddenCycle/2`, `incompatible/4`, `incompatibleSize/2`, `exclusive/2`, `exactlyOne/4`, `completeScope/2`, `criterion/4`, `criterionGate/2`, `criterionHook/2`, `question/2`, `typeAccepts/2`, `textMinLen(Kind, Field, N)`, `textMinWords(Kind, Field, N)`, `textDistinct(Kind, Field, Other)`, `textPattern(Kind, Field)`.
 
-Form set, used only by `meta@1`: includes `questionSliceKind/2`, `questionSliceRel/2` and `templateNodeLink/2`, so a slice or a prefilled node that names an unknown kind or relation is a form error.
+Form set, used only by `meta@1`: includes `questionSliceKind/2`, `questionSliceRel/2` and `templateNodeLink/2`, so a slice or a prefilled node that names an unknown kind or relation is a form error, and `textBound/4`, `textPatternInvalid/2`, `textDistinctDecl/3` and `textDefaultDistinct/2`, the text constraints as written.
 
 The exact declarations are `EDB_DECLS`. An unbounded maximum is `-1`. Field values are encoded as `sym`: numbers and booleans as their string form, objects as canonical JSON, and each list element as its own `field` row. A link without `certainty` takes the relation's default, else `declared`.
 
 Template rule packs run in their own evaluation after the core packs. They may read the relations above and relations they derive themselves, and they must `.decl` what they read. They output `violation(Rule, Subject, Severity)`, `missing(Rule, Subject)`, `warning(Rule, Subject)` or `semanticCandidate(Rule, Subject, Text)`.
+
+## Text quality
+
+A graph whose nodes exist but whose text is blank, placeholder or lazy is incomplete without any model. A kind field may declare, and `text@1` checks on every evaluation:
+
+| Key | Meaning | Rule | Level |
+|---|---|---|---|
+| `required` (existing) | A whitespace-only value is blank | `text.empty` | `missing` |
+| `minLength` | Trimmed length in code points | `text.short` | `missing` |
+| `minWords` | Whitespace-separated tokens with a letter or digit | `text.short` | `missing` |
+| `placeholders` | Case-insensitive tokens or phrases; the trimmed value equals one or contains it as a whole word | `text.placeholder` | `missing` |
+| `distinctFrom` | Other fields of the kind or `"id"`; equal after lower-casing and collapsing every run of non-letters and non-digits | `text.sameAsId`, `text.sameAsField` | soft, `warning` |
+| `pattern` | A JavaScript regular expression source, no flags, tested against the trimmed value | `text.pattern` | hard, `error` |
+
+A template opts into defaults with `textDefaults`, which takes the same keys and applies to every declared `string` field named `description` or `title`. `textDefaults: {}` turns on the engine placeholder list (`DEFAULT_PLACEHOLDERS`: tbd, todo, tba, fixme, xxx, ???, lorem ipsum, placeholder, n/a, none yet, to be defined, to be determined); `placeholders` replaces it. A field's own keys win key by key. A default `distinctFrom` keeps only `"id"` and fields the kind declares, never the field itself. Through `extends`, the nearest `textDefaults` wins wholesale. Without `textDefaults`, only what fields declare applies.
+
+The Datalog dialect has no string functions, so `toFacts` computes the measurements. Length and words are emitted for every non-empty scalar string in a constrained or required field; placeholder, sameness and pattern facts only for constrained fields that are not blank. Findings name the node, once per rule; the field and the measurement are derivation leaves.
+
+One blank field gives one finding. An empty string is not emitted as a field, so `field.required` from `completeness@1` reports it. A whitespace-only value is a field, so completeness is satisfied and `text.empty` reports it. Every other text rule needs a non-blank value, and a placeholder is not also reported as short. A blank optional field is silent, like an absent one. `text.empty` needs no opt-in: it applies to every required field.
+
+Form errors in `meta@1`: `kind.textBoundNegative`, `kind.textPatternInvalid`, `kind.textDistinctUnknown` and `kind.textDistinctSelf`, and `template.textBoundNegative`, `template.textPatternInvalid` and `template.textDistinctUnknown` for `textDefaults`, where an unknown field is one no kind declares.
+
+`test/text.test.ts` runs degraded copies of Keep in Touch's `ontology.yaml` and of `tidepool.graph.json` (`test/fixtures/text/degrade.mjs` regenerates them) under test-local templates with the defaults on. On real content the only hit is Keep in Touch's `binding.d1`, whose description is "Template placeholder, superseded by binding.contactsStore": a whole-word match on prose that describes a placeholder node.
+
+## Semantic probes and providers
+
+Some problems need judgment rather than structure: a statement too vague to build, an outcome nobody can measure, two nodes that cannot both hold. `src/judge/catalogue.ts` holds four reusable `meta@1` questions, modelled on sys1's `ambiguity_detection`, `criteria_fulfillment` and `consistency_check` categories, and `src/judge/probe.ts` holds the `semantic.probe@1` pack that emits their candidates.
+
+| Rule | Asked of | Question | Benign | Policy |
+|---|---|---|---|---|
+| `text.vague` | Every node with a statement field | Is this statement too vague to act on or verify? | no | yes is `warning`, no is `pass` |
+| `text.unmeasurable` | Statements of the `measurable` kinds | Can this be measured or tested as stated? | yes | no is `warning`, yes is `pass` |
+| `criterion.unfalsifiable` | Statements of the `criteria` kinds | Is this acceptance criterion unfalsifiable? | no | yes is `warning`, no is `pass` |
+| `pair.contradiction` | Two nodes with statements under one non-root parent, or linked by a `probePairs` relation | Do these two statements contradict each other? | no | yes is `error`, no is `pass` |
+
+A template includes them with `withSemanticProbes(source, options)`, which appends the catalogue questions and the configured pack to a template source; questions or a pack the template already declares under the same id win. The pack fires a rule only when the template declares its question, so `rules: ["text.vague"]` enables one rule. A candidate with no catalogue entry stays unknown, as for any question.
+
+```ts
+import { loadTemplate, productSpec, withSemanticProbes } from "@bropilot/ontology-engine";
+
+const template = loadTemplate(withSemanticProbes(productSpec, {
+  texts: ["description"],                       // fields holding statements; each list element is one statement
+  measurable: ["outcome", "goal", "hypothesis"], // kinds asked text.unmeasurable
+  criteria: ["rule", "test"],                    // kinds asked criterion.unfalsifiable
+  probePairs: [],                                // relations whose two ends are compared
+  siblings: ["purpose", "summary", "rule"],      // kinds whose same-parent siblings are compared; ["*"] is every kind
+  fields: ["title", "description"],              // what every slice node shows the provider
+}));
+```
+
+The defaults are `texts: ["description"]`, `measurable: ["outcome", "claim", "criterion"]`, `criteria: ["criterion"]`, no `probePairs` and `siblings: ["*"]`. Sibling pairing grows with the square of a parent's children, so a vocabulary whose nodes share one root parent should name its sibling kinds. Single-node slices show the subject and its parent chain. The statement is the candidate text.
+
+A pair rule's id starts with `pair.`. The dialect cannot build strings, so the pack emits `semanticCandidate(Rule, A, B)` with `A < B` and the second node in the text column; `evaluate` reports the candidate on `A`. `judge` joins the two into the subject `A|B`, and `buildSlice` resolves a subject that is not itself a node but splits at `|` into two nodes: `subject` is `A`, `counterpart` is `B`, and parents and hops start from both.
+
+### Providers
+
+`openRouterProvider({ apiKey, model?, fetch?, concurrency? })` calls the OpenRouter Decisions API, `POST https://openrouter.ai/api/alpha/decisions` with `{ model, state, questions }`. The default model is `perplexity/pplx-decider-v1-27b`. Yes-no questions go as `noul`, choice as `choice` and score as `score`. A score comes back as an expected value, so the provider reports the most probable level, which is what policy keys match. Timeouts, 429 and 5xx are retried; an error body, a non-JSON body or an answer that does not fit its primitive is an `S1Error`, which `judge` records as an unknown judgment with provider `error`. Requests in flight are capped at `concurrency` (default 4) because `judge` asks every candidate at once. The key is used only in the `Authorization` header. It is never part of a reply, provenance or the provider object, and it is redacted from error messages.
+
+`providerFromEnv(env)` follows artyfact's precedence: `FAKE_S1=1` gives the fake provider, then `OPENROUTER_API_KEY` gives OpenRouter with `OPENROUTER_MODEL` or the default, else the provider is off.
+
+### Live suite
+
+`test/fixtures/semantic/` holds degraded copies of the three vocabularies with planted problems and clean controls: the Keep in Touch YAML directory, tidepool's product graph and the `assistant-valid` world snapshot. Each has an `*.expectations.json` naming every planted problem's rule, subjects and expected level, and the controls. `test/semantic/vocabularies.ts` sets the probe options per vocabulary. Without a key, `test/semantic/probe.test.ts` checks with the fake provider that the pack emits exactly the candidates its options select, including every planted problem and control.
+
+`test/semantic/live.test.ts` is skipped unless `OPENROUTER_API_KEY` is set. It judges each degraded fixture through OpenRouter and requires every planted problem at its expected level with confidence at least 0.9, and no control at `warning` or `error`. Misses are reported one by one. Every answer is written to `test/fixtures/semantic/live-results.<model>.json` with the question, subjects, statement, probabilities, confidence, latency, model and input tokens, plus a verdict per planted problem and control.
+
+```sh
+OPENROUTER_API_KEY=… npm run test:live -w @bropilot/ontology-engine
+OPENROUTER_API_KEY=… OPENROUTER_MODEL=cloudflare/clef npm run test:live -w @bropilot/ontology-engine
+```
+
+One run makes 261 calls before retries: 233 for Keep in Touch, 18 for tidepool and 10 for the world snapshot. `probe.test.ts` pins these counts. The requests total about 430,000 characters, roughly 110,000 input tokens. Decision models bill input tokens only, so a run costs about half a cent on `perplexity/pplx-decider-v1-27b` at $0.04 per million and about three cents on `cloudflare/clef` at $0.24 per million.
 
 ## Readiness
 

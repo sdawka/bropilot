@@ -6,6 +6,7 @@ import { SliceSchema, type Question } from "../meta/schema";
 import type { Template } from "../meta/template";
 import { S1Error } from "./provider";
 import { decide, thresholdsOf } from "./policy";
+import { PAIR_PREFIX, PAIR_SEPARATOR } from "./probe";
 import { buildSlice } from "./slice";
 import type { AskOptions, Provenance, SystemOne, Thresholds } from "./types";
 import { toWire } from "./wire";
@@ -19,10 +20,16 @@ const errorOf = (e: unknown): NonNullable<Provenance["error"]> =>
   e instanceof S1Error ? { name: e.name, code: e.code, message: e.message, ...(e.status !== undefined && { status: e.status }) }
     : { name: (e as Error)?.name ?? "Error", message: String((e as Error)?.message ?? e) };
 
-async function judgeOne(f: Finding, q: Question | undefined, g: Graph, s1: SystemOne, t: Thresholds, ask?: AskOptions): Promise<Finding> {
-  const rule = f.rule.slice(SEMANTIC.length);
-  const candidate = { rule, text: String(f.derivation.tuple[2] ?? "") };
-  const state = buildSlice(g, f.subject ?? "", q?.slice ?? DEFAULT_SLICE, candidate);
+/** A `pair.` candidate carries its second node in the text column; the judged finding's subject is `a|b`. */
+const subjectOf = (rule: string, f: Finding, text: string): string =>
+  rule.startsWith(PAIR_PREFIX) && text !== "" ? `${f.subject ?? ""}${PAIR_SEPARATOR}${text}` : f.subject ?? "";
+
+async function judgeOne(input: Finding, q: Question | undefined, g: Graph, s1: SystemOne, t: Thresholds, ask?: AskOptions): Promise<Finding> {
+  const rule = input.rule.slice(SEMANTIC.length);
+  const candidate = { rule, text: String(input.derivation.tuple[2] ?? "") };
+  const subject = subjectOf(rule, input, candidate.text);
+  const f: Finding = subject === (input.subject ?? "") ? input : { ...input, subject };
+  const state = buildSlice(g, subject, q?.slice ?? DEFAULT_SLICE, candidate);
   const base = { stateHash: hashOf(state), questionHash: hashOf(q ?? null), thresholds: t };
   if (!q) return { ...f, level: "info", judgment: { question: rule, status: "unknown" }, provenance: { provider: "off", model: "off", ...base } };
   try {

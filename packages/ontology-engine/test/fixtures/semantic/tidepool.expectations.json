@@ -1,0 +1,65 @@
+{
+  "fixture": "tidepool-degraded.graph.json",
+  "vocabulary": "product-spec",
+  "planted": [
+    {
+      "id": "vague.volunteers-will-love-it",
+      "rule": "text.vague",
+      "subjects": [
+        "feature-photo-id-suggestions"
+      ],
+      "level": "warning",
+      "note": "Feature description: volunteers are going to love it."
+    },
+    {
+      "id": "vague.make-it-better",
+      "rule": "text.vague",
+      "subjects": [
+        "capability-volunteer-engagement"
+      ],
+      "level": "warning",
+      "note": "Capability description: make the whole volunteering experience better."
+    },
+    {
+      "id": "unmeasurable.belonging",
+      "rule": "text.unmeasurable",
+      "subjects": [
+        "outcome-volunteers-come-back-for-the-next-good"
+      ],
+      "level": "warning",
+      "note": "Outcome description: a deeper sense of belonging to the shoreline."
+    },
+    {
+      "id": "contradiction.offline-purpose-vs-online-rule",
+      "rule": "pair.contradiction",
+      "subjects": [
+        "purpose-turn-volunteer-shore-walks-into-survey",
+        "rule-every-observation-carries-a-gps-fix"
+      ],
+      "level": "error",
+      "note": "Purpose requires logging with no signal; the rule refuses to save without a live connection."
+    },
+    {
+      "id": "contradiction.offline-summary-vs-online-rule",
+      "rule": "pair.contradiction",
+      "subjects": [
+        "rule-every-observation-carries-a-gps-fix",
+        "summary-an-offline-first-field-app-for-timed"
+      ],
+      "level": "error",
+      "note": "The existing offline-first summary against the same always-online rule."
+    }
+  ],
+  "controls": [
+    {
+      "id": "control.percent-cover",
+      "subject": "term-percent-cover",
+      "note": "Existing term: share of a quadrat's area occupied by one species, in 5% steps."
+    },
+    {
+      "id": "control.single-verdict",
+      "subject": "rule-a-record-has-exactly-one-final-verdict",
+      "note": "At most one final verdict; a second is rejected. Paired with the purpose, summary and the other rules."
+    }
+  ]
+}

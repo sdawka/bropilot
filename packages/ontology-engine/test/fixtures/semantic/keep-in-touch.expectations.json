@@ -1,0 +1,69 @@
+{
+  "fixture": "keep-in-touch-degraded",
+  "vocabulary": "artyfact",
+  "planted": [
+    {
+      "id": "vague.error-handling",
+      "rule": "text.vague",
+      "subjects": [
+        "operation.contact.log"
+      ],
+      "level": "warning",
+      "note": "Description says it handles any errors properly, with no failure behaviour named."
+    },
+    {
+      "id": "vague.fast-enough",
+      "rule": "text.vague",
+      "subjects": [
+        "operation.data.export"
+      ],
+      "level": "warning",
+      "note": "Export must be fast enough that nobody minds waiting: no threshold."
+    },
+    {
+      "id": "unmeasurable.richer-relationships",
+      "rule": "text.unmeasurable",
+      "subjects": [
+        "T2"
+      ],
+      "level": "warning",
+      "note": "Claim outcome: relationships become richer in ways that matter to each person."
+    },
+    {
+      "id": "unfalsifiable.reasonable-storage",
+      "rule": "criterion.unfalsifiable",
+      "subjects": [
+        "C.webapp.contact.storage"
+      ],
+      "level": "warning",
+      "note": "Criterion: storage behaves the way a reasonable person would expect."
+    },
+    {
+      "id": "contradiction.owner-only-vs-shared-goal",
+      "rule": "pair.contradiction",
+      "subjects": [
+        "operation.goal.save",
+        "policy.ownerOnly"
+      ],
+      "level": "error",
+      "note": "Owner-only policy governs goal save, whose description shares the goal with all of the owner's contacts."
+    },
+    {
+      "id": "contradiction.five-vs-all",
+      "rule": "pair.contradiction",
+      "subjects": [
+        "component.SuggestionCollection",
+        "component.TodayControls"
+      ],
+      "level": "error",
+      "note": "At most five suggestions vs a toggle listing every due suggestion with no cap; siblings under screen.today."
+    }
+  ],
+  "controls": [
+    {
+      "id": "control.bounded-prompts",
+      "subject": "C.webapp.prompts.bounded",
+      "note": "Six due goals yield exactly five ordered cards: concrete, measurable, falsifiable."
+    }
+  ]
+}

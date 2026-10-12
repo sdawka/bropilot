@@ -6,9 +6,9 @@ import { parse, run, type Result } from "../rules";
 import { edbProgram } from "./edb";
 import { toFacts } from "./facts";
 import { compareFindings, fold, verdicts, type Finding } from "./findings";
-import { completeness, consistency, metamodel } from "./packs";
+import { completeness, consistency, metamodel, text } from "./packs";
 
-export const CORE_PACKS = [metamodel, completeness, consistency];
+export const CORE_PACKS = [metamodel, completeness, consistency, text];
 
 export interface EvaluateOptions { maxIterations?: number; form?: TemplateForm }
 

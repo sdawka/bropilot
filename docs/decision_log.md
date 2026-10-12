@@ -85,3 +85,7 @@
 - **2026-10-12T15:48:20-04:00** — Keep the `@artyfact/rules` Datalog dialect as the engine's rule language.
 
 - **2026-10-12T15:48:20-04:00** — Keep YAML in `artyfact-cf` behind a loader adapter; the engine's canonical instance format is the JSON graph.
+
+- **2026-10-12T17:20:00-04:00** — Add deterministic, template-declarable text-quality checks (minimum length, placeholder words, title distinct from id) to the ontology engine.
+
+- **2026-10-12T17:20:00-04:00** — Add a real-provider semantic suite for vague and contradictory content, run through the OpenRouter decisions API with the Perplexity decision model, behind a provider abstraction so the model is swappable.

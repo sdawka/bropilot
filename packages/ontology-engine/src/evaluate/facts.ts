@@ -3,6 +3,7 @@ import type { Graph } from "../graph/graph";
 import { maxOf, parseCardinality } from "../meta/cardinality";
 import type { Template } from "../meta/template";
 import { factSet, type FactSet, type Tuple } from "../rules";
+import { compilePattern, isPlaceholder, kindTextConstraints, normaliseText, textLength, textWords } from "./text";
 
 export type Facts = Record<string, Tuple[]>;
 
@@ -35,6 +36,12 @@ export function templateFacts(t: Template): Facts {
       f.push("kindField", k, fd.name, fd.type, fd.required ?? false);
       if (fd.required) f.push("requiredField", k, fd.name);
       for (const v of fd.enum ?? []) f.push("kindFieldEnum", k, fd.name, String(v));
+    }
+    for (const [fd, c] of kindTextConstraints(kind, t.textDefaults)) {
+      if (c.minLength !== undefined) f.push("textMinLen", k, fd, c.minLength);
+      if (c.minWords !== undefined) f.push("textMinWords", k, fd, c.minWords);
+      for (const o of c.distinctFrom ?? []) f.push("textDistinct", k, fd, o);
+      if (c.pattern !== undefined) f.push("textPattern", k, fd);
     }
     for (const p of kind.parents ?? []) f.push("kindParent", k, p);
     for (const fd of kind.completeness.fields) f.push("requiredField", k, fd);
@@ -77,14 +84,55 @@ export function templateFacts(t: Template): Facts {
   return f.out;
 }
 
+/** Per kind: the text constraints in force and the fields it requires. */
+function textPlan(t: Template) {
+  const plans = new Map<string, { text: ReturnType<typeof kindTextConstraints>; required: Set<string> }>();
+  return (k: string) => {
+    let p = plans.get(k);
+    const kind = t.kinds[k];
+    if (!p && kind) {
+      const required = new Set([...kind.fields.filter((x) => x.required).map((x) => x.name), ...kind.completeness.fields]);
+      plans.set(k, p = { text: kindTextConstraints(kind, t.textDefaults), required });
+    }
+    return p;
+  };
+}
+
+/**
+ * Text facts for one node. Only non-empty scalar strings are measured (an empty string is no field at all, so the
+ * required-field rule owns it). Length and words are emitted for every constrained or required field; placeholder,
+ * sameness and pattern facts only for constrained fields whose trimmed value is not blank.
+ */
+function textFacts(f: Emitter, n: Graph["nodes"][number], plan: ReturnType<ReturnType<typeof textPlan>>): void {
+  if (!plan) return;
+  const str = (v: unknown): string | undefined => (typeof v === "string" && v !== "" ? v : undefined);
+  for (const [name, raw] of Object.entries(n.fields)) {
+    const v = str(raw);
+    const c = plan.text.get(name);
+    if (v === undefined || (!c && !plan.required.has(name))) continue;
+    const len = textLength(v);
+    f.push("fieldLen", n.id, name, len);
+    f.push("fieldWords", n.id, name, textWords(v));
+    if (!c || len === 0) continue;
+    for (const tok of c.placeholders ?? []) if (isPlaceholder(v, tok)) f.push("fieldPlaceholder", n.id, name, tok);
+    for (const o of c.distinctFrom ?? []) {
+      const other = o === "id" ? n.id : str(n.fields[o]);
+      if (other !== undefined && normaliseText(other) !== "" && normaliseText(other) === normaliseText(v)) f.push("fieldSameAs", n.id, name, o);
+    }
+    if (c.pattern !== undefined && compilePattern(c.pattern)?.test(v.trim()) === false) f.push("fieldPatternMiss", n.id, name);
+  }
+}
+
 export function graphFacts(t: Template, g: Graph): Facts {
   const f = new Emitter();
+  const plan = textPlan(t);
   f.push("graphTemplate", g.template);
   for (const n of g.nodes) {
     f.push("node", n.id, n.kind, n.parent ?? "");
     f.push("known", n.id);
     if (n.parent !== undefined) f.push("parent", n.id, n.parent);
     if (n.provisional) f.push("provisional", n.id);
+    textFacts(f, n, plan(n.kind));
     const declared = new Map((t.kinds[n.kind]?.fields ?? []).map((d) => [d.name, d.type]));
     for (const [name, v] of Object.entries(n.fields)) {
       const values = (Array.isArray(v) ? v : [v]).map(encode).filter((x): x is string => x !== undefined);

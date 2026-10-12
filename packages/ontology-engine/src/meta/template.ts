@@ -48,6 +48,12 @@ const mergeById = <T extends { id: string }>(lists: T[][]): T[] => {
   return [...out.values()];
 };
 
+/** The nearest `textDefaults` in the chain wins wholesale; absent everywhere, the key is left out so hashes are unchanged. */
+const textDefaultsOf = (chain: TemplateSource[]) => {
+  const t = chain.find((s) => s.textDefaults !== undefined)?.textDefaults;
+  return t === undefined ? {} : { textDefaults: t };
+};
+
 function merge(chain: TemplateSource[]): Omit<TemplateSource, "id" | "version" | "meta" | "extends"> {
   const top = [...chain].reverse();
   const c = top.map((s) => s.constraints);
@@ -65,6 +71,7 @@ function merge(chain: TemplateSource[]): Omit<TemplateSource, "id" | "version" |
     rules: mergeById(top.map((s) => s.rules)),
     questions: mergeById(top.map((s) => s.questions)),
     nodes: mergeById(top.map((s) => s.nodes)),
+    ...textDefaultsOf(chain),
   };
 }
 
