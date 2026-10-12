@@ -6,11 +6,11 @@
 - Goal: `goal.model` within [[goals]]; slice A in [[roadmap]]. The current task is a local contract, not deployment or hosted model authoring.
 - Next action: describe the minimum accepted-Template draft delta and create/correct/apply transitions; pin base revision, provenance, scope, protected fields, idempotency and rejection cases before implementation.
 - Independent external action: provider preflight in `execution.provider-preflight` can proceed without blocking the local contract.
-- Working state: `feat/candidate-verification`, `/private/tmp/bropilot-world-foundation`, existing [PR #9](https://github.com/sdawka/bropilot/pull/9). No merge or deployment.
+- Working state: `v4`, `/private/tmp/bropilot-v4-integration`. The feature implementation is retained from `774e77c`; the original feature worktree remains intact. [Source PR #9](https://github.com/sdawka/bropilot/pull/9) retains the implementation history. No merge to main or deployment.
 - Latest implementation evidence: `f9d700d` passed complete build/check (422 tests including 80 browser cases), independent review and both hosted foundation checks. Advisory impact/clarity is complete locally; canonical adoption, complete packets and composition remain open.
 - External/mirror evidence: GitHub/Artifacts repository heads are verified. GRREAT authentication and the initial six-record mirror have verified receipts; enrichment uses independent review and versioned sync, with the current receipt in [[journals/2026-10-10]]. These facts do not establish a deployed platform, OAuth-connected app or live calendar.
 - Blockers: live provider acceptance needs external setup/authority; detailed assistant/calendar contract needs decisions. Neither blocks local authoring/packet research. Markdown stays authoritative; preserve `.sync.json` and expose conflicts.
-- Last updated: 2026-10-10T20:23:11-04:00. Evidence/history: [[analysis]] and [[journals/2026-10-10]].
+- Last updated: 2026-10-11T22:49:01-04:00. Evidence/history: [[analysis]] and [[journals/2026-10-10]].
 
 - Responsible role: domain/API integration, with UI and verifier review at the acceptance boundary.
 - Done when: an implementable contract names exact inputs/outputs and positive, correction, retry, stale-base, unauthorized-field and incomplete-model cases, with an owned follow-on model/Template/Kit/Rule Pack compatibility/migration contract. Subsequent implementation and tests remain separate work.
