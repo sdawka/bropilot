@@ -1,0 +1,3499 @@
+{
+  "version": 1,
+  "recordedAt": "2026-10-09T22:45:18-04:00",
+  "limitations": [
+    "Synthetic conversations; independent but nonblind model-assisted ratings, zero human ratings.",
+    "Offline reselection reuses the same proposals and model judgments; it is not a live rerun.",
+    "Known graph counterexamples do not establish general semantic reliability."
+  ],
+  "review": {
+    "reviewVersion": "ontology-usefulness-review-v4",
+    "reviewedAt": "2026-10-09T22:43:36-04:00",
+    "reviewMethod": {
+      "kind": "nonblind-model-assisted",
+      "humanRatingsClaimed": false,
+      "rubric": {
+        "firstQuestionUsefulness": {
+          "0": "redundant, based on a wrong premise, or asks for an already supplied answer",
+          "1": "generic, relevant but lower priority, or only weakly consequential",
+          "2": "concrete, unanswered, and consequential"
+        },
+        "fidelity": "0..2; consistency with the supplied conversation, including corrections and exclusions",
+        "coverage": "0..2; preservation of consequential supplied facts in the proposal; an absent typed Assay is recorded separately from a lost /health fact"
+      },
+      "evidenceScope": [
+        "supplied benchmark messages and expected/forbidden facts",
+        "new-pipeline proposal",
+        "new-pipeline selected first question",
+        "archived baseline rubric result for comparison"
+      ],
+      "offlineReselection": {
+        "measurement": "offline_reselection",
+        "liveRerun": false,
+        "sourceRun": ".test-artifacts/ontology-baseline-v4",
+        "manifest": {
+          "path": ".test-artifacts/ontology-baseline-reselected-v4/manifest.json",
+          "sha256": "da5308f40a165132c86656bec70f13275e8a4cb4f389f47da62b7616dcedcf2c",
+          "bytes": 27149,
+          "gitHead": "a095e1b8806541d391d1dd999c8b6e70d0e806ae",
+          "casesHash": "fe78f2d96326c8ecb7ceb40e9f70ebf035f0f65c73ae2cb8e0fb0eda40be11c1",
+          "selectionPolicyHash": "05be08cbb7d50a2faa7a4ce36f8ba005833227b6a4fd0852c17fea80fa625c51",
+          "reselectedAt": "2026-10-10T02:38:58.010Z"
+        },
+        "controlledContext": "Same eight proposals and model judgments as the frozen live run; only deterministic selection policy was applied offline.",
+        "aggregate": {
+          "cases": 8,
+          "changedSelections": 3,
+          "fidelity": {
+            "earned": 15,
+            "possible": 16,
+            "delta": 0
+          },
+          "coverage": {
+            "earned": 15,
+            "possible": 16,
+            "delta": 0
+          },
+          "firstQuestionUsefulness": {
+            "earned": 16,
+            "possible": 16,
+            "delta": 3,
+            "counts": {
+              "0": 0,
+              "1": 0,
+              "2": 8
+            }
+          }
+        },
+        "changedCases": [
+          {
+            "caseId": "expense-split-correction",
+            "previousQuestion": "Is the household itself the intended beneficiary of the tracker, or is it for your personal review of household spending?",
+            "previousScore": 0,
+            "reselectedQuestion": "Should each monthly review show the previous calendar month's spending?",
+            "reselectedScore": 2,
+            "assessment": "Concrete unresolved reporting-period choice. It avoids asking the user to repeat the explicit correction, although the proposal's household-beneficiary fidelity defect remains."
+          },
+          {
+            "caseId": "goal-calendar-assistant",
+            "previousQuestion": "Should the Friday review move unfinished tasks forward automatically, or ask you before changing next week\u2019s plan?",
+            "previousScore": 2,
+            "reselectedQuestion": "What should the /health check report: simply whether the assistant is available, or whether its planning and calendar connections are working too?",
+            "reselectedScore": 2,
+            "assessment": "Concrete unresolved health-check semantics tied to the supplied first-version criterion. Asking about connection coverage does not assert calendar-read authority."
+          },
+          {
+            "caseId": "shared-grocery-conflict",
+            "previousQuestion": "What should this Thing reliably do first, and how would you check it?",
+            "previousScore": 1,
+            "reselectedQuestion": "Should Sam also be able to undo a checkmark if an item was checked off by mistake?",
+            "reselectedScore": 2,
+            "assessment": "Concrete permission and recovery behavior consistent with Sam's corrected check-off-only role."
+          }
+        ],
+        "unchangedCases": [
+          "todo-private-list",
+          "habit-streak-followup",
+          "studio-booking",
+          "private-journal",
+          "underspecified-library"
+        ],
+        "interpretation": "The offline policy removes the observed question-ranking losses on this eight-case set. This is an in-sample policy comparison, not new live model evidence and not held-out validation."
+      }
+    },
+    "sourceContext": {
+      "originalCases": {
+        "path": "packages/ontology-lab/benchmark/cases.mjs",
+        "sha256": "6cda45176479debf95849f5dd592473147ca8e0c4cc45c6e053e1ebc2f41e854",
+        "bytes": 16828
+      },
+      "archivedResults": {
+        "path": "packages/ontology-lab/benchmark/results-2026-10-09.json",
+        "sha256": "23ba055f824ddd85b796bffe22ca3c4730eaec665664cebee0ce58439348fee8",
+        "bytes": 174908
+      },
+      "baselineReviewPacket": {
+        "path": ".test-artifacts/ontology-baseline-v4/review-packet.json",
+        "sha256": "923e97d15f1964528b57531c2dd811d665599959a90f5f0f6ba138f7a90d3be3",
+        "bytes": 501326
+      },
+      "baselineManifest": {
+        "path": ".test-artifacts/ontology-baseline-v4/manifest.json",
+        "sha256": "8db6d080ac1d31d52c5501832108232425e5fab4609b5cc227f5cc781a4b0184",
+        "bytes": 26877,
+        "manifestHashFromSummary": "46a4072e57198de84e1ef3908adba3ca4439c4a476924b62024b14be4c692c51",
+        "casesHash": "fe78f2d96326c8ecb7ceb40e9f70ebf035f0f65c73ae2cb8e0fb0eda40be11c1",
+        "sourceHashes": {
+          "packages/ontology-lab/runner.mjs": "a8a2b57d7771116465a25138856bdf7246a21b64e4f9d118eb3de952e37b03b0",
+          "packages/ontology-lab/question-model.mjs": "a792bd1fbb8ae4f7411524200982e751a1c641488d2cc8dc946b148d34195e42",
+          "packages/ontology-lab/question-policy.mjs": "3e0aac744eb932de667698560a916a5203a3b52f541db205b1f4021e120cf7fa",
+          "packages/ontology-lab/domain.mjs": "8e66a3610016d7d4a2a038700e2cb12308b7c39cb0ca0d4b33d1dc8a25f38dbe",
+          "packages/ontology-lab/semantic-review.mjs": "0d1f04f2d92d28d580f4b2d9b3dc28e1f8e2f25654db5331d3066962360bf076",
+          "packages/ontology-lab/benchmark/heldout-cases.mjs": "e97381f558136d61ac22c473c899dcd89e01e0982f6471ab8a6d34ae14a9b93a"
+        }
+      }
+    },
+    "baseline": {
+      "status": "complete",
+      "summaryEvidence": {
+        "completed": 8,
+        "failed": 0,
+        "humanRatings": 0,
+        "pipelineReportedUnratedCompletedRuns": 8,
+        "independentlyRatedHere": 8
+      },
+      "aggregate": {
+        "cases": 8,
+        "fidelity": {
+          "earned": 15,
+          "possible": 16
+        },
+        "coverage": {
+          "earned": 15,
+          "possible": 16
+        },
+        "firstQuestionUsefulness": {
+          "earned": 13,
+          "possible": 16,
+          "counts": {
+            "0": 1,
+            "1": 1,
+            "2": 6
+          }
+        }
+      },
+      "cases": [
+        {
+          "caseId": "todo-private-list",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "inputEvidence": "The user asks for today's unfinished tasks and excludes sharing, reminders, accounts, and calendar.",
+          "proposalEvidence": "The proposal preserves private ownership, add/complete/view operations, offline browser use, and the exclusions.",
+          "selectedQuestion": "For \u2018today,\u2019 which date should the app use when deciding which unfinished tasks to show: your browser\u2019s local date, or UTC?",
+          "assessment": "Concrete and consequential around the meaning of today; it does not reopen an excluded feature.",
+          "archivedBaseline": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          }
+        },
+        {
+          "caseId": "expense-split-correction",
+          "scores": {
+            "fidelity": 1,
+            "coverage": 2,
+            "firstQuestionUsefulness": 0
+          },
+          "inputEvidence": "The user corrects the scope to \u2018Only help me understand spending\u2019 and excludes roommates, reimbursements, bank accounts, and imports.",
+          "proposalEvidence": "The purpose says it helps the user understand spending and all purchase/totals/review facts are present, but the beneficiary entity is \u2018User's household.\u2019",
+          "selectedQuestion": "Is the household itself the intended beneficiary of the tracker, or is it for your personal review of household spending?",
+          "assessment": "The beneficiary classification conflicts with the correction, and the question asks the user to resolve a premise they already resolved. The supplied facts are otherwise covered.",
+          "archivedBaseline": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          }
+        },
+        {
+          "caseId": "habit-streak-followup",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "inputEvidence": "Water, walking, one-tap completion, weekly streaks, no notifications, and planned versus unplanned rest-day behavior are supplied.",
+          "proposalEvidence": "All supplied facts are preserved; the short final reply is represented in the streak properties without turning assistant wording into a new fact.",
+          "selectedQuestion": "Should the weekly streak count consecutive days, or completed weeks that include both habits?",
+          "assessment": "Concrete unresolved streak semantics with direct product consequences.",
+          "archivedBaseline": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          }
+        },
+        {
+          "caseId": "studio-booking",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "inputEvidence": "One room, two-hour requests, approval before booking, no overlaps, and a 24-hour cancellation cutoff are explicit.",
+          "proposalEvidence": "The proposal preserves all five constraints and does not add payment or extra rooms.",
+          "selectedQuestion": "What should happen when the owner rejects a request, or doesn\u2019t respond before the requested slot?",
+          "assessment": "Concrete unanswered lifecycle behavior that affects availability and member communication.",
+          "archivedBaseline": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          }
+        },
+        {
+          "caseId": "private-journal",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "inputEvidence": "The journal is private, device-only, searchable by tags or words, and must not analyze mood or suggest therapy.",
+          "proposalEvidence": "All operations, storage boundary, and excluded behaviors are explicit acceptance criteria or properties.",
+          "selectedQuestion": "Should the journal be usable only by you, or may someone else on this device access it too?",
+          "assessment": "Concrete access-control choice within the stated device-only boundary; \u2018private\u2019 does not itself specify shared-device behavior.",
+          "archivedBaseline": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          }
+        },
+        {
+          "caseId": "shared-grocery-conflict",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          },
+          "inputEvidence": "The correction limits Sam to checking items off; the user adds items and chooses the store list.",
+          "proposalEvidence": "The corrected permissions, two beneficiaries, separate store lists, and recipe-planning exclusion are preserved.",
+          "selectedQuestion": "What should this Thing reliably do first, and how would you check it?",
+          "assessment": "Relevant but generic and lower priority than unresolved retention, clearing, undo, or store-management behavior.",
+          "archivedBaseline": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          }
+        },
+        {
+          "caseId": "underspecified-library",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "inputEvidence": "The only grounded purpose is keeping track of owned books in a pleasant, simple product.",
+          "proposalEvidence": "The proposal remains limited to the owner, the tracker, and the owned-book outcome; no scanner, integration, sharing, or recommendation is asserted.",
+          "selectedQuestion": "What should the Personal book tracker remember for each book you own\u2014for example, just its title and author, or also details like where it is and whether you\u2019ve lent it out?",
+          "assessment": "Concrete and consequential schema question; examples are framed as choices rather than asserted features.",
+          "archivedBaseline": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          }
+        },
+        {
+          "caseId": "goal-calendar-assistant",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 1,
+            "firstQuestionUsefulness": 2
+          },
+          "inputEvidence": "The user supplies portfolio weekly tasks, approval before Google Calendar placement, Friday review/carry-forward, and a /health first-version check.",
+          "proposalEvidence": "The proposal preserves the goal, task cadence, approval boundary, Friday behavior, /health interface, and /health acceptance criterion. It does not assert calendar-read permission or automatic calendar placement.",
+          "selectedQuestion": "Should the Friday review move unfinished tasks forward automatically, or ask you before changing next week\u2019s plan?",
+          "assessment": "Concrete consequential authorization boundary. Coverage loses one point because /health is retained as a fact but has no explicit Assay/verifiedBy representation; this is a missing typed test link, not a lost /health fact.",
+          "archivedBaseline": {
+            "fidelity": 2,
+            "coverage": 1,
+            "firstQuestionUsefulness": 0
+          }
+        }
+      ],
+      "actionableDefects": [
+        {
+          "priority": 1,
+          "defect": "Correction-aware beneficiary resolution failed for expense-split-correction.",
+          "evidence": "The final user message says the tracker should only help \u2018me\u2019 understand spending, but the proposal declares the household as beneficiary and the selected question asks which beneficiary was intended.",
+          "nextAction": "Treat explicit later corrections as authoritative for beneficiary selection and suppress questions whose alternatives are resolved by that correction."
+        },
+        {
+          "priority": 2,
+          "defect": "Concrete acceptance criteria can remain unlinked to an explicit Assay.",
+          "evidence": "goal-calendar-assistant retains /health as interface and criterion, but no Assay/verifiedBy object or relation represents the supplied check target.",
+          "nextAction": "Add or preserve the criterion-to-Assay mapping while keeping configured tests distinct from executed evidence."
+        },
+        {
+          "priority": 3,
+          "defect": "Generic fallback questions can still win despite domain-specific candidates.",
+          "evidence": "shared-grocery-conflict selects \u2018What should this Thing reliably do first, and how would you check it?\u2019 after the corrected permissions are already modeled.",
+          "nextAction": "Rank unresolved workflow questions such as completed-item retention, undo, or store creation above generic first-promise prompts."
+        }
+      ]
+    },
+    "heldout": {
+      "status": "complete",
+      "expectedCases": 33,
+      "ratedCases": 33,
+      "notRatedCases": 0,
+      "humanRatings": 0,
+      "failures": 0,
+      "sourceContext": {
+        "liveManifest": {
+          "path": ".test-artifacts/ontology-heldout-v4/manifest.json",
+          "sha256": "b5c2d0170a550b84a04493d4089c65ffd962522ed609fcceb8c899ce857a9c9c",
+          "bytes": 71463,
+          "manifestHashFromSummary": "db95bf48bb6cce5e095aad79c5f6be31283e71db9b80feee238c4ca26cc78429",
+          "gitHead": "a095e1b8806541d391d1dd999c8b6e70d0e806ae",
+          "casesHash": "02fa17ca763a83a4c3831c283ec166e12e293692c1f12437431b221ace419d93"
+        },
+        "liveReviewPacket": {
+          "path": ".test-artifacts/ontology-heldout-v4/review-packet.json",
+          "sha256": "51a807fbc94b93e40e5df1c6cb848234abf5d15088223f5926131714abe12ad5",
+          "bytes": 1707916
+        },
+        "reselectedManifest": {
+          "path": ".test-artifacts/ontology-heldout-reselected-v4/manifest.json",
+          "sha256": "3ae7deef5ff5b8636b2312406fe2cc22c4e67fcfbc6cb9175687c287bf8d4cad",
+          "bytes": 71734,
+          "measurement": "offline_reselection",
+          "selectionPolicyHash": "05be08cbb7d50a2faa7a4ce36f8ba005833227b6a4fd0852c17fea80fa625c51",
+          "reselectedAt": "2026-10-10T02:40:11.487Z"
+        }
+      },
+      "aggregate": {
+        "fidelity": {
+          "earned": 66,
+          "possible": 66
+        },
+        "coverage": {
+          "earned": 66,
+          "possible": 66
+        },
+        "firstQuestionUsefulness": {
+          "earned": 48,
+          "possible": 66,
+          "counts": {
+            "0": 4,
+            "1": 10,
+            "2": 19
+          }
+        }
+      },
+      "cases": [
+        {
+          "caseId": "meal-plan-allergy",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          },
+          "question": "What should this Thing reliably do first, and how would you check it?",
+          "evidence": "Five dinners, two adults, peanut allergy, device-only storage, and exclusions are preserved; the question is generic."
+        },
+        {
+          "caseId": "carpool-correction",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "What pickup time should the carpool use, and does it vary by weekday?",
+          "evidence": "The correction gives the user sole edit authority and Jordan view-only access; weekday-specific pickup timing is unresolved and consequential."
+        },
+        {
+          "caseId": "dog-walk-ambiguity",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "What should count as \u2018enough exercise\u2019 for your dog each day?",
+          "evidence": "Walk logging, daily exercise, and exclusions are preserved; the question directly resolves the central ambiguity."
+        },
+        {
+          "caseId": "freelance-invoice-private",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "Should paid status be updated manually, or marked paid automatically from another source?",
+          "evidence": "All fields and local-storage/exclusion boundaries are preserved; payment-state updates are unresolved, and the question explicitly notes that bank connection is out of scope."
+        },
+        {
+          "caseId": "roommate-chore-correction",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          },
+          "question": "What would count as a useful outcome, and when should it be reviewed?",
+          "evidence": "The corrected Lee/user permissions and no-reminder boundary are preserved; the question is generic and lower priority than recurrence or history."
+        },
+        {
+          "caseId": "campground-booking",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "Should pending requests reserve a site, or can competing requests remain pending?",
+          "evidence": "Approval, date range, overlap prohibition, and no-payment scope are preserved; pending-request reservation is a consequential unresolved conflict rule."
+        },
+        {
+          "caseId": "music-practice-log",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "For weekly totals, should the week start on Monday or Sunday?",
+          "evidence": "Both instruments, minutes/notes, weekly totals, offline/private scope, and exclusions are preserved; week boundary changes the result."
+        },
+        {
+          "caseId": "seed-swap-contacts",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "Should contact work through a private request or only show each member\u2019s stated preference?",
+          "evidence": "Seeds, contact preference, member-controlled email visibility, no addresses, and no chat are preserved; the question concretely defines contact behavior without asserting a feature."
+        },
+        {
+          "caseId": "photo-declutter",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "Should delete candidates remain review-only, with no automatic deletion?",
+          "evidence": "All three buckets and local chosen-file limits are preserved; deletion authority is a high-impact unresolved boundary."
+        },
+        {
+          "caseId": "volunteer-shifts",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "How should we test that volunteers see only names and confirmed shifts, with phone numbers hidden?",
+          "evidence": "Open times, coordinator confirmation, and exact visibility limits are preserved; the proposed privacy check is concrete and consequential."
+        },
+        {
+          "caseId": "language-flashcards",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          },
+          "question": "Should the flashcards help review words, or only provide prompts and answers with a way to mark known cards?",
+          "evidence": "User-added prompt/answer cards, known state, and exclusions are preserved; the question's two alternatives overlap and do not define what additional review behavior means."
+        },
+        {
+          "caseId": "museum-membership-correction",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          },
+          "question": "What should this Thing reliably do first, and how would you check it?",
+          "evidence": "Attendance is removed, exports are manager-only, and marketing email is excluded; the selected question is generic."
+        },
+        {
+          "caseId": "tenant-maintenance-private",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "After assignment, can a worker see the full report or only repair-needed details?",
+          "evidence": "Issue/photo/time and staged visibility are preserved; post-assignment field visibility is a concrete privacy decision."
+        },
+        {
+          "caseId": "trip-packing-list",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 0
+          },
+          "question": "Should the list start empty, or include a starter set of items for a three-day hike?",
+          "evidence": "The proposal preserves the trip, list actions, and exclusions, but offering a prepared starter gear set conflicts with the explicit no-gear-recommendation boundary."
+        },
+        {
+          "caseId": "kids-allowance-permissions",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "Do completed chores contribute to earnings or stay separate from money records?",
+          "evidence": "Alex's view-only balance and user-only money edits are preserved; chore-to-earnings semantics are unresolved and consequential."
+        },
+        {
+          "caseId": "laundry-queue",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "When both washers are occupied, should requests enter one shared queue?",
+          "evidence": "Two washers, requests, cancellation, and exclusions are preserved; queue semantics define next availability."
+        },
+        {
+          "caseId": "workout-log-private",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "Should the weekly summary use a calendar week or the last seven days?",
+          "evidence": "Fields, local scope, weekly summary, and safety exclusions are preserved; the aggregation window is concrete and consequential."
+        },
+        {
+          "caseId": "donation-tracker",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "Should donor identity be stored locally or omitted altogether?",
+          "evidence": "All donation fields and exclusions are preserved; local identity retention remains a concrete privacy choice distinct from sharing."
+        },
+        {
+          "caseId": "club-vote-private",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 0
+          },
+          "question": "After the organizer closes the vote, should members still submit or change ballots before results?",
+          "evidence": "Secret one-ballot voting and organizer limits are preserved, but allowing submissions after the vote is closed rests on a contradictory premise."
+        },
+        {
+          "caseId": "garden-watering-correction",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "Is Morgan the only person who may record completion, or may others also do it?",
+          "evidence": "The reminder removal, schedule authority, and Morgan permission are preserved; the correction does not explicitly say Morgan is exclusive."
+        },
+        {
+          "caseId": "device-repair-log",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          },
+          "question": "Should the log simply store details, with no evaluation or success measure?",
+          "evidence": "All repair fields, device scope, private use, and exclusions are preserved; the evaluation question is relevant but lower priority than the supplied rubric topics."
+        },
+        {
+          "caseId": "reading-annotations-local",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "Should loss of the device lose annotations, or should a user-managed local export exist?",
+          "evidence": "Organization, on-device storage, and no-publish/no-sync/no-recommendation limits are preserved; local export is a concrete recovery decision that does not assert sync."
+        },
+        {
+          "caseId": "tool-lending-neighborhood",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 0
+          },
+          "question": "Should a tool listing appear when its owner offers it, or only after the owner approves the listing?",
+          "evidence": "Tools, request approval, and location/privacy boundaries are preserved, but the input assigns approval to requests; introducing owner approval of the owner's own listing is a wrong premise."
+        },
+        {
+          "caseId": "event-guest-privacy",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 0
+          },
+          "question": "Should the guest list start private and become visible only when explicitly published?",
+          "evidence": "Fields, dietary privacy, post-publication names, and no-invitation scope are preserved; the selected question repeats the supplied publication boundary."
+        },
+        {
+          "caseId": "class-attendance-correction",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          },
+          "question": "What counts as attendance being complete, and how would you check it?",
+          "evidence": "Teacher-only attendance, assistant roster viewing, and exclusions are preserved; the question is relevant but generic and below session/correction behavior."
+        },
+        {
+          "caseId": "parcel-pickup-log",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "Who may mark a package as picked up?",
+          "evidence": "All fields, volunteer add permission, coordinator name-edit authority, and no-content-scan rule are preserved; pickup authority is concrete and unspecified."
+        },
+        {
+          "caseId": "feedback-inbox-ambiguity",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "How should feedback be ordered to show what needs attention first?",
+          "evidence": "Fields, triage outcome, identity privacy, and no-auto-reply limit are preserved; the question resolves the central ambiguity."
+        },
+        {
+          "caseId": "emergency-contact-private",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "Should contacts require phone unlock or be available on the lock screen?",
+          "evidence": "Contact fields, phone-local storage, and exclusions are preserved; access speed versus privacy is concrete and consequential."
+        },
+        {
+          "caseId": "recipe-box-restraint",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          },
+          "question": "Is title and notes enough for success, or is another check needed?",
+          "evidence": "Existing recipes, title/notes, and all exclusions are preserved; the outcome-check question is generic and lower priority than ingredients or retrieval."
+        },
+        {
+          "caseId": "equipment-checkout",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 2
+          },
+          "question": "Does an item become unavailable on approval or pickup?",
+          "evidence": "Equipment types, staff approval, due dates, and double-checkout prevention are preserved; availability transition timing is consequential."
+        },
+        {
+          "caseId": "daily-reflection-boundary",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          },
+          "question": "Which changes should wait for your approval?",
+          "evidence": "Entry format, user-chosen question, device storage, and mental-health/contact exclusions are preserved; the selected question is generic and lacks a named operation."
+        },
+        {
+          "caseId": "conference-session-choice",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          },
+          "question": "Should the shortlist stay manual, or also remind you when a session is coming up?",
+          "evidence": "All fields, user choice, and no-registration/no-scraping limits are preserved; reminders are an unsolicited adjacent feature and lower priority than schedule conflicts."
+        },
+        {
+          "caseId": "commute-log-local",
+          "scores": {
+            "fidelity": 2,
+            "coverage": 2,
+            "firstQuestionUsefulness": 1
+          },
+          "question": "What should this Thing reliably do first, and how would you check it?",
+          "evidence": "Method, duration, monthly summary, phone-local scope, and all exclusions are preserved; the question is generic."
+        }
+      ],
+      "offlineReselection": {
+        "measurement": "offline_reselection",
+        "liveRerun": false,
+        "sameProposalsAndJudgments": true,
+        "changedSelections": 8,
+        "aggregate": {
+          "fidelity": {
+            "earned": 66,
+            "possible": 66,
+            "delta": 0
+          },
+          "coverage": {
+            "earned": 66,
+            "possible": 66,
+            "delta": 0
+          },
+          "firstQuestionUsefulness": {
+            "earned": 49,
+            "possible": 66,
+            "delta": 1,
+            "counts": {
+              "0": 3,
+              "1": 11,
+              "2": 19
+            }
+          }
+        },
+        "differences": [
+          {
+            "caseId": "seed-swap-contacts",
+            "liveScore": 2,
+            "reselectedScore": 1,
+            "reselectedQuestion": "What would count as a useful outcome, and when should it be reviewed?",
+            "assessment": "Regression to a generic outcome prompt."
+          },
+          {
+            "caseId": "language-flashcards",
+            "liveScore": 1,
+            "reselectedScore": 2,
+            "reselectedQuestion": "What should happen after you mark a card as known: hide it from practice or keep showing it?",
+            "assessment": "Improves to concrete known-card behavior."
+          },
+          {
+            "caseId": "museum-membership-correction",
+            "liveScore": 1,
+            "reselectedScore": 1,
+            "reselectedQuestion": "What would show that membership tracking is working well, and how would you check it?",
+            "assessment": "Different wording, still generic."
+          },
+          {
+            "caseId": "donation-tracker",
+            "liveScore": 2,
+            "reselectedScore": 2,
+            "reselectedQuestion": "What would count as a successful retrieval check for a saved donation and receipt photo?",
+            "assessment": "Different concrete question, same score."
+          },
+          {
+            "caseId": "garden-watering-correction",
+            "liveScore": 2,
+            "reselectedScore": 1,
+            "reselectedQuestion": "What would count as a useful outcome, and when should it be reviewed?",
+            "assessment": "Regression from a concrete correction-aware permission question to a generic prompt."
+          },
+          {
+            "caseId": "event-guest-privacy",
+            "liveScore": 0,
+            "reselectedScore": 2,
+            "reselectedQuestion": "Will guests enter their own names and dietary notes, or will you enter them yourself?",
+            "assessment": "Fixes the redundant publication question with a concrete data-entry/authority choice."
+          },
+          {
+            "caseId": "parcel-pickup-log",
+            "liveScore": 2,
+            "reselectedScore": 1,
+            "reselectedQuestion": "For track package arrivals and pickups, what would count as success, and when would you review it?",
+            "assessment": "Regression from concrete pickup authority to a generic success/review prompt."
+          },
+          {
+            "caseId": "commute-log-local",
+            "liveScore": 1,
+            "reselectedScore": 2,
+            "reselectedQuestion": "Should the monthly summary show total commute time, average trip time, and days using each commute method?",
+            "assessment": "Improves from a generic prompt to concrete summary contents."
+          }
+        ]
+      },
+      "severeRegressions": [
+        {
+          "caseId": "trip-packing-list",
+          "kind": "wrong-premise question",
+          "evidence": "The selected starter-set option is effectively gear recommendation despite an explicit no-gear-recommendation boundary."
+        },
+        {
+          "caseId": "club-vote-private",
+          "kind": "contradictory question",
+          "evidence": "The selected question asks whether ballots remain open after the organizer closes the vote."
+        },
+        {
+          "caseId": "tool-lending-neighborhood",
+          "kind": "wrong-scope question",
+          "evidence": "The input requires owner approval for requests, but the question extends approval to the owner's own listing."
+        },
+        {
+          "caseId": "event-guest-privacy",
+          "kind": "redundant question",
+          "evidence": "The selected question repeats that guests see attendee names only after the host publishes them; offline reselection fixes this case."
+        }
+      ],
+      "actionableDefects": [
+        "Block candidate questions that offer an explicitly excluded feature as an option, including starter gear under a no-gear-recommendation boundary.",
+        "Treat ordinary lifecycle words such as close as resolved state transitions unless the conversation supplies a reason to reopen them.",
+        "Keep authorization scope attached to the named operation so request approval does not migrate to listing approval.",
+        "Reject questions that merely restate an explicit publication or visibility condition.",
+        "The continuous-probability reselection policy needs an anti-regression guard: it improved three cases but displaced three score-2 questions with generic score-1 prompts."
+      ]
+    }
+  },
+  "live": {
+    "baseline": {
+      "summary": {
+        "benchmarkVersion": "ontology-heldout-conversations-v1",
+        "finishedAt": "2026-10-10T02:35:47.254Z",
+        "output": "/private/tmp/bropilot-world-foundation/.test-artifacts/ontology-baseline-v4",
+        "manifestHash": "46a4072e57198de84e1ef3908adba3ca4439c4a476924b62024b14be4c692c51",
+        "cases": {
+          "distinct": 8,
+          "attemptedRepetitions": 8,
+          "completedRepetitions": 8
+        },
+        "failures": {
+          "count": 0,
+          "byTerminal": {}
+        },
+        "stageTimingMs": {
+          "extraction": {
+            "count": 8,
+            "p50": 21400,
+            "p95": 52920
+          },
+          "mapping": {
+            "count": 8,
+            "p50": 2,
+            "p95": 3
+          },
+          "structural": {
+            "count": 8,
+            "p50": 7,
+            "p95": 18
+          },
+          "semantic": {
+            "count": 8,
+            "p50": 772,
+            "p95": 1017
+          },
+          "questions": {
+            "count": 8,
+            "p50": 4230,
+            "p95": 7174
+          },
+          "ranking": {
+            "count": 8,
+            "p50": 436,
+            "p95": 834
+          },
+          "feedback": {
+            "count": 8,
+            "p50": 0,
+            "p95": 2
+          },
+          "total": {
+            "count": 8,
+            "p50": 27355,
+            "p95": 61569
+          }
+        },
+        "semanticCoverage": {
+          "completedWithEvaluation": 8,
+          "completedWithSemanticReview": 8,
+          "semanticJudgments": 236,
+          "readiness": {
+            "ready": 0,
+            "unknown": 8,
+            "blocked": 0
+          }
+        },
+        "ratings": {
+          "expectedCompletedRuns": 8,
+          "ratedRuns": 0,
+          "unratedCompletedRuns": 8,
+          "human": {
+            "count": 0,
+            "pass": 0,
+            "fail": 0,
+            "uncertain": 0
+          },
+          "modelAssisted": {
+            "count": 0,
+            "pass": 0,
+            "fail": 0,
+            "uncertain": 0
+          }
+        },
+        "caveat": "Frozen synthetic held-out conversations assess this pipeline only. Completion, System One judgments, and model-assisted review are not human evaluation or evidence of production usefulness."
+      },
+      "manifest": {
+        "benchmarkVersion": "ontology-heldout-conversations-v1",
+        "startedAt": "2026-10-10T02:33:08.817Z",
+        "repeats": 1,
+        "concurrency": 2,
+        "gitHead": "a095e1b8806541d391d1dd999c8b6e70d0e806ae",
+        "codexVersion": "codex-cli 0.161.0",
+        "models": {
+          "extraction": "Local Codex CLI default",
+          "questions": "gpt-6-luna",
+          "semantic": "TypeSafe System One configured from an authorized env file"
+        },
+        "sourceHashes": {
+          "packages/ontology-lab/runner.mjs": "a8a2b57d7771116465a25138856bdf7246a21b64e4f9d118eb3de952e37b03b0",
+          "packages/ontology-lab/question-model.mjs": "a792bd1fbb8ae4f7411524200982e751a1c641488d2cc8dc946b148d34195e42",
+          "packages/ontology-lab/question-policy.mjs": "3e0aac744eb932de667698560a916a5203a3b52f541db205b1f4021e120cf7fa",
+          "packages/ontology-lab/domain.mjs": "8e66a3610016d7d4a2a038700e2cb12308b7c39cb0ca0d4b33d1dc8a25f38dbe",
+          "packages/ontology-lab/semantic-review.mjs": "0d1f04f2d92d28d580f4b2d9b3dc28e1f8e2f25654db5331d3066962360bf076",
+          "packages/ontology-lab/benchmark/heldout-cases.mjs": "e97381f558136d61ac22c473c899dcd89e01e0982f6471ab8a6d34ae14a9b93a"
+        },
+        "casesHash": "fe78f2d96326c8ecb7ceb40e9f70ebf035f0f65c73ae2cb8e0fb0eda40be11c1",
+        "scoring": "Pre-authored facts, exclusions, question topics and coverage labels. Lexical signals are review aids only. Human and model-assisted ratings are counted separately; absence of a rating is reported as unrated.",
+        "privacy": "The authorized env-file path and credential are intentionally omitted from this artifact."
+      }
+    },
+    "heldout": {
+      "summary": {
+        "benchmarkVersion": "ontology-heldout-conversations-v1",
+        "finishedAt": "2026-10-10T02:39:43.510Z",
+        "output": "/private/tmp/bropilot-world-foundation/.test-artifacts/ontology-heldout-v4",
+        "manifestHash": "db95bf48bb6cce5e095aad79c5f6be31283e71db9b80feee238c4ca26cc78429",
+        "cases": {
+          "distinct": 33,
+          "attemptedRepetitions": 33,
+          "completedRepetitions": 33
+        },
+        "failures": {
+          "count": 0,
+          "byTerminal": {}
+        },
+        "stageTimingMs": {
+          "extraction": {
+            "count": 33,
+            "p50": 17690,
+            "p95": 32677
+          },
+          "mapping": {
+            "count": 33,
+            "p50": 1,
+            "p95": 3
+          },
+          "structural": {
+            "count": 33,
+            "p50": 6,
+            "p95": 25
+          },
+          "semantic": {
+            "count": 33,
+            "p50": 534,
+            "p95": 999
+          },
+          "questions": {
+            "count": 33,
+            "p50": 4125,
+            "p95": 6560
+          },
+          "ranking": {
+            "count": 33,
+            "p50": 393,
+            "p95": 552
+          },
+          "feedback": {
+            "count": 33,
+            "p50": 0,
+            "p95": 1
+          },
+          "total": {
+            "count": 33,
+            "p50": 23982,
+            "p95": 38286
+          }
+        },
+        "semanticCoverage": {
+          "completedWithEvaluation": 33,
+          "completedWithSemanticReview": 33,
+          "semanticJudgments": 808,
+          "readiness": {
+            "ready": 0,
+            "unknown": 33,
+            "blocked": 0
+          }
+        },
+        "ratings": {
+          "expectedCompletedRuns": 33,
+          "ratedRuns": 0,
+          "unratedCompletedRuns": 33,
+          "human": {
+            "count": 0,
+            "pass": 0,
+            "fail": 0,
+            "uncertain": 0
+          },
+          "modelAssisted": {
+            "count": 0,
+            "pass": 0,
+            "fail": 0,
+            "uncertain": 0
+          }
+        },
+        "caveat": "Frozen synthetic held-out conversations assess this pipeline only. Completion, System One judgments, and model-assisted review are not human evaluation or evidence of production usefulness."
+      },
+      "manifest": {
+        "benchmarkVersion": "ontology-heldout-conversations-v1",
+        "startedAt": "2026-10-10T02:32:51.782Z",
+        "repeats": 1,
+        "concurrency": 2,
+        "gitHead": "a095e1b8806541d391d1dd999c8b6e70d0e806ae",
+        "codexVersion": "codex-cli 0.161.0",
+        "models": {
+          "extraction": "Local Codex CLI default",
+          "questions": "gpt-6-luna",
+          "semantic": "TypeSafe System One configured from an authorized env file"
+        },
+        "sourceHashes": {
+          "packages/ontology-lab/runner.mjs": "a8a2b57d7771116465a25138856bdf7246a21b64e4f9d118eb3de952e37b03b0",
+          "packages/ontology-lab/question-model.mjs": "a792bd1fbb8ae4f7411524200982e751a1c641488d2cc8dc946b148d34195e42",
+          "packages/ontology-lab/question-policy.mjs": "3e0aac744eb932de667698560a916a5203a3b52f541db205b1f4021e120cf7fa",
+          "packages/ontology-lab/domain.mjs": "8e66a3610016d7d4a2a038700e2cb12308b7c39cb0ca0d4b33d1dc8a25f38dbe",
+          "packages/ontology-lab/semantic-review.mjs": "0d1f04f2d92d28d580f4b2d9b3dc28e1f8e2f25654db5331d3066962360bf076",
+          "packages/ontology-lab/benchmark/heldout-cases.mjs": "e97381f558136d61ac22c473c899dcd89e01e0982f6471ab8a6d34ae14a9b93a"
+        },
+        "casesHash": "02fa17ca763a83a4c3831c283ec166e12e293692c1f12437431b221ace419d93",
+        "scoring": "Pre-authored facts, exclusions, question topics and coverage labels. Lexical signals are review aids only. Human and model-assisted ratings are counted separately; absence of a rating is reported as unrated.",
+        "privacy": "The authorized env-file path and credential are intentionally omitted from this artifact."
+      }
+    }
+  },
+  "reselectionManifests": {
+    "baseline": {
+      "benchmarkVersion": "ontology-heldout-conversations-v1",
+      "startedAt": "2026-10-10T02:33:08.817Z",
+      "repeats": 1,
+      "concurrency": 2,
+      "gitHead": "a095e1b8806541d391d1dd999c8b6e70d0e806ae",
+      "codexVersion": "codex-cli 0.161.0",
+      "models": {
+        "extraction": "Local Codex CLI default",
+        "questions": "gpt-6-luna",
+        "semantic": "TypeSafe System One configured from an authorized env file"
+      },
+      "sourceHashes": {
+        "packages/ontology-lab/runner.mjs": "a8a2b57d7771116465a25138856bdf7246a21b64e4f9d118eb3de952e37b03b0",
+        "packages/ontology-lab/question-model.mjs": "a792bd1fbb8ae4f7411524200982e751a1c641488d2cc8dc946b148d34195e42",
+        "packages/ontology-lab/question-policy.mjs": "3e0aac744eb932de667698560a916a5203a3b52f541db205b1f4021e120cf7fa",
+        "packages/ontology-lab/domain.mjs": "8e66a3610016d7d4a2a038700e2cb12308b7c39cb0ca0d4b33d1dc8a25f38dbe",
+        "packages/ontology-lab/semantic-review.mjs": "0d1f04f2d92d28d580f4b2d9b3dc28e1f8e2f25654db5331d3066962360bf076",
+        "packages/ontology-lab/benchmark/heldout-cases.mjs": "e97381f558136d61ac22c473c899dcd89e01e0982f6471ab8a6d34ae14a9b93a"
+      },
+      "casesHash": "fe78f2d96326c8ecb7ceb40e9f70ebf035f0f65c73ae2cb8e0fb0eda40be11c1",
+      "scoring": "Pre-authored facts, exclusions, question topics and coverage labels. Lexical signals are review aids only. Human and model-assisted ratings are counted separately; absence of a rating is reported as unrated.",
+      "privacy": "The authorized env-file path and credential are intentionally omitted from this artifact.",
+      "measurement": "offline_reselection",
+      "sourceRun": "/private/tmp/bropilot-world-foundation/.test-artifacts/ontology-baseline-v4",
+      "selectionPolicyHash": "05be08cbb7d50a2faa7a4ce36f8ba005833227b6a4fd0852c17fea80fa625c51",
+      "reselectedAt": "2026-10-10T02:38:58.010Z"
+    },
+    "heldout": {
+      "benchmarkVersion": "ontology-heldout-conversations-v1",
+      "startedAt": "2026-10-10T02:32:51.782Z",
+      "repeats": 1,
+      "concurrency": 2,
+      "gitHead": "a095e1b8806541d391d1dd999c8b6e70d0e806ae",
+      "codexVersion": "codex-cli 0.161.0",
+      "models": {
+        "extraction": "Local Codex CLI default",
+        "questions": "gpt-6-luna",
+        "semantic": "TypeSafe System One configured from an authorized env file"
+      },
+      "sourceHashes": {
+        "packages/ontology-lab/runner.mjs": "a8a2b57d7771116465a25138856bdf7246a21b64e4f9d118eb3de952e37b03b0",
+        "packages/ontology-lab/question-model.mjs": "a792bd1fbb8ae4f7411524200982e751a1c641488d2cc8dc946b148d34195e42",
+        "packages/ontology-lab/question-policy.mjs": "3e0aac744eb932de667698560a916a5203a3b52f541db205b1f4021e120cf7fa",
+        "packages/ontology-lab/domain.mjs": "8e66a3610016d7d4a2a038700e2cb12308b7c39cb0ca0d4b33d1dc8a25f38dbe",
+        "packages/ontology-lab/semantic-review.mjs": "0d1f04f2d92d28d580f4b2d9b3dc28e1f8e2f25654db5331d3066962360bf076",
+        "packages/ontology-lab/benchmark/heldout-cases.mjs": "e97381f558136d61ac22c473c899dcd89e01e0982f6471ab8a6d34ae14a9b93a"
+      },
+      "casesHash": "02fa17ca763a83a4c3831c283ec166e12e293692c1f12437431b221ace419d93",
+      "scoring": "Pre-authored facts, exclusions, question topics and coverage labels. Lexical signals are review aids only. Human and model-assisted ratings are counted separately; absence of a rating is reported as unrated.",
+      "privacy": "The authorized env-file path and credential are intentionally omitted from this artifact.",
+      "measurement": "offline_reselection",
+      "sourceRun": "/private/tmp/bropilot-world-foundation/.test-artifacts/ontology-heldout-v4",
+      "selectionPolicyHash": "05be08cbb7d50a2faa7a4ce36f8ba005833227b6a4fd0852c17fea80fa625c51",
+      "reselectedAt": "2026-10-10T02:40:11.487Z"
+    }
+  },
+  "graphProbes": [
+    {
+      "id": "positive-baseline",
+      "summary": {
+        "total": 27,
+        "evaluated": 27,
+        "supported": 8,
+        "flagged": 0,
+        "unknown": 19,
+        "coverage": 0.2962962962962963,
+        "byKind": {
+          "claim_entailment": {
+            "total": 17,
+            "supported": 0,
+            "flagged": 0,
+            "unknown": 17
+          },
+          "relation_relevance": {
+            "total": 8,
+            "supported": 7,
+            "flagged": 0,
+            "unknown": 1
+          },
+          "contradiction": {
+            "total": 1,
+            "supported": 1,
+            "flagged": 0,
+            "unknown": 0
+          },
+          "permission_scope": {
+            "total": 1,
+            "supported": 0,
+            "flagged": 0,
+            "unknown": 1
+          }
+        },
+        "skipped": []
+      },
+      "judgments": [
+        {
+          "id": "contradiction:proposal",
+          "kind": "contradiction",
+          "subject": {
+            "id": "proposal",
+            "title": "Personal assistant World"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.1,
+            "no": 0.9
+          }
+        },
+        {
+          "id": "permission_scope:rel-auth",
+          "kind": "permission_scope",
+          "subject": {
+            "id": "rel-auth",
+            "kind": "authorizedBy",
+            "fromId": "operation-plan",
+            "toId": "auth-routine"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.2,
+            "no": 0.8
+          }
+        },
+        {
+          "id": "relation_relevance:rel-beneficiary",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-beneficiary",
+            "kind": "hasBeneficiary",
+            "fromId": "assistant-world",
+            "toId": "user"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.94,
+            "no": 0.06000000000000005
+          }
+        },
+        {
+          "id": "claim_entailment:purpose",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "purpose",
+            "text": "Improve the user's life by organizing goals, tasks, calendar blocks and progress review."
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.84,
+            "no": 0.16000000000000003
+          }
+        },
+        {
+          "id": "relation_relevance:rel-outcome",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-outcome",
+            "kind": "hasOutcome",
+            "fromId": "assistant-world",
+            "toId": "outcome-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.95,
+            "no": 0.050000000000000044
+          }
+        },
+        {
+          "id": "claim_entailment:user",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "user",
+            "kind": "beneficiary",
+            "title": "User"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.6,
+            "no": 0.4
+          }
+        },
+        {
+          "id": "relation_relevance:rel-indicator",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-indicator",
+            "kind": "measuredBy",
+            "fromId": "outcome-1",
+            "toId": "indicator-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.93,
+            "no": 0.06999999999999995
+          }
+        },
+        {
+          "id": "claim_entailment:outcome-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "outcome-1",
+            "kind": "outcome",
+            "title": "Goals reliably become reviewed calendar work"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.73,
+            "no": 0.27
+          }
+        },
+        {
+          "id": "relation_relevance:rel-evaluation",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-evaluation",
+            "kind": "evaluatedBy",
+            "fromId": "outcome-1",
+            "toId": "evaluation-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.95,
+            "no": 0.050000000000000044
+          }
+        },
+        {
+          "id": "claim_entailment:indicator-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "indicator-1",
+            "kind": "indicator",
+            "title": "Planned work completion trend"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.78,
+            "no": 0.21999999999999997
+          }
+        },
+        {
+          "id": "relation_relevance:rel-auth",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-auth",
+            "kind": "authorizedBy",
+            "fromId": "operation-plan",
+            "toId": "auth-routine"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.93,
+            "no": 0.06999999999999995
+          }
+        },
+        {
+          "id": "claim_entailment:evaluation-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "evaluation-1",
+            "kind": "evaluationPlan",
+            "title": "Review progress against planned work"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.8,
+            "no": 0.19999999999999996
+          }
+        },
+        {
+          "id": "relation_relevance:rel-assay",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-assay",
+            "kind": "verifiedBy",
+            "fromId": "criterion-1",
+            "toId": "assay-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.93,
+            "no": 0.06999999999999995
+          }
+        },
+        {
+          "id": "claim_entailment:interface-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "interface-1",
+            "kind": "interface",
+            "title": "Assistant interface"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.73,
+            "no": 0.27
+          }
+        },
+        {
+          "id": "relation_relevance:rel-plan-calendar",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-plan-calendar",
+            "kind": "dependsOn",
+            "fromId": "planning-1",
+            "toId": "calendar-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.9,
+            "no": 0.09999999999999998
+          }
+        },
+        {
+          "id": "claim_entailment:planning-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "planning-1",
+            "kind": "service",
+            "title": "Planning service"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.79,
+            "no": 0.20999999999999996
+          }
+        },
+        {
+          "id": "relation_relevance:rel-plan-progress",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-plan-progress",
+            "kind": "dependsOn",
+            "fromId": "planning-1",
+            "toId": "progress-1"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.88,
+            "no": 0.12
+          }
+        },
+        {
+          "id": "claim_entailment:calendar-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "calendar-1",
+            "kind": "adapter",
+            "title": "Disconnected calendar adapter model"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.8,
+            "no": 0.19999999999999996
+          }
+        },
+        {
+          "id": "claim_entailment:progress-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "progress-1",
+            "kind": "store",
+            "title": "Progress store"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.81,
+            "no": 0.18999999999999995
+          }
+        },
+        {
+          "id": "claim_entailment:subsystem-planning",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "subsystem-planning",
+            "kind": "subsystem",
+            "title": "Goal-to-calendar planning"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.82,
+            "no": 0.18000000000000005
+          }
+        },
+        {
+          "id": "claim_entailment:operation-plan",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "operation-plan",
+            "kind": "operation",
+            "title": "Plan assistant-owned calendar block"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.75,
+            "no": 0.25
+          }
+        },
+        {
+          "id": "claim_entailment:auth-routine",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "auth-routine",
+            "kind": "authorizationRule",
+            "title": "Routine assistant-owned blocks only"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.61,
+            "no": 0.39
+          }
+        },
+        {
+          "id": "claim_entailment:criterion-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "criterion-1",
+            "kind": "acceptanceCriterion",
+            "title": "Calendar changes respect routine policy"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.67,
+            "no": 0.32999999999999996
+          }
+        },
+        {
+          "id": "claim_entailment:assay-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "assay-1",
+            "kind": "assay",
+            "title": "Routine calendar policy assay"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.72,
+            "no": 0.28
+          }
+        },
+        {
+          "id": "claim_entailment:goal-french",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "goal-french",
+            "kind": "goal",
+            "title": "Build a sustainable French practice"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.61,
+            "no": 0.39
+          }
+        },
+        {
+          "id": "claim_entailment:task-french-listening",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "task-french-listening",
+            "kind": "task",
+            "title": "Complete a focused French listening session"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.73,
+            "no": 0.27
+          }
+        },
+        {
+          "id": "claim_entailment:block-french-tuesday",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "block-french-tuesday",
+            "kind": "calendarBlock",
+            "title": "French listening session \u2014 Tuesday"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.82,
+            "no": 0.18000000000000005
+          }
+        }
+      ]
+    },
+    {
+      "id": "false-entailment",
+      "summary": {
+        "total": 13,
+        "evaluated": 13,
+        "supported": 0,
+        "flagged": 4,
+        "unknown": 9,
+        "coverage": 0.3076923076923077,
+        "byKind": {
+          "claim_entailment": {
+            "total": 8,
+            "supported": 0,
+            "flagged": 3,
+            "unknown": 5
+          },
+          "relation_relevance": {
+            "total": 3,
+            "supported": 0,
+            "flagged": 0,
+            "unknown": 3
+          },
+          "contradiction": {
+            "total": 1,
+            "supported": 0,
+            "flagged": 0,
+            "unknown": 1
+          },
+          "permission_scope": {
+            "total": 1,
+            "supported": 0,
+            "flagged": 1,
+            "unknown": 0
+          }
+        },
+        "skipped": []
+      },
+      "judgments": [
+        {
+          "id": "contradiction:proposal",
+          "kind": "contradiction",
+          "subject": {
+            "id": "proposal",
+            "title": "Private entries are automatically published to the public web"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.39,
+            "no": 0.61
+          }
+        },
+        {
+          "id": "permission_scope:schedule-authorized",
+          "kind": "permission_scope",
+          "subject": {
+            "id": "schedule-authorized",
+            "kind": "authorizedBy",
+            "fromId": "schedule-work",
+            "toId": "important-change-policy"
+          },
+          "disposition": "flagged",
+          "probabilities": {
+            "yes": 0.09,
+            "no": 0.91
+          }
+        },
+        {
+          "id": "relation_relevance:has-user",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "has-user",
+            "kind": "hasBeneficiary",
+            "fromId": "lab-probe-false-entailment",
+            "toId": "user"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.17,
+            "no": 0.83
+          }
+        },
+        {
+          "id": "claim_entailment:purpose",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "purpose",
+            "text": "The app publishes every private entry publicly without asking."
+          },
+          "disposition": "flagged",
+          "probabilities": {
+            "yes": 0.01,
+            "no": 0.99
+          }
+        },
+        {
+          "id": "relation_relevance:has-reviewed-work",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "has-reviewed-work",
+            "kind": "hasOutcome",
+            "fromId": "lab-probe-false-entailment",
+            "toId": "reviewed-french-work"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.13,
+            "no": 0.87
+          }
+        },
+        {
+          "id": "claim_entailment:user",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "user",
+            "kind": "beneficiary",
+            "title": "User"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.24,
+            "no": 0.76
+          }
+        },
+        {
+          "id": "relation_relevance:schedule-authorized",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "schedule-authorized",
+            "kind": "authorizedBy",
+            "fromId": "schedule-work",
+            "toId": "important-change-policy"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.49,
+            "no": 0.51
+          }
+        },
+        {
+          "id": "claim_entailment:reviewed-french-work",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "reviewed-french-work",
+            "kind": "outcome",
+            "title": "Reviewed French practice work"
+          },
+          "disposition": "flagged",
+          "probabilities": {
+            "yes": 0.08,
+            "no": 0.92
+          }
+        },
+        {
+          "id": "claim_entailment:french-goal",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "french-goal",
+            "kind": "goal",
+            "title": "Learn French"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.23,
+            "no": 0.77
+          }
+        },
+        {
+          "id": "claim_entailment:weekly-french-block",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "weekly-french-block",
+            "kind": "calendarBlock",
+            "title": "Weekly French practice block"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.14,
+            "no": 0.86
+          }
+        },
+        {
+          "id": "claim_entailment:schedule-work",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "schedule-work",
+            "kind": "operation",
+            "title": "Schedule French practice"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.29,
+            "no": 0.71
+          }
+        },
+        {
+          "id": "claim_entailment:important-change-policy",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "important-change-policy",
+            "kind": "authorizationRule",
+            "title": "Ask before important changes"
+          },
+          "disposition": "flagged",
+          "probabilities": {
+            "yes": 0.04,
+            "no": 0.96
+          }
+        },
+        {
+          "id": "claim_entailment:review-criterion",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "review-criterion",
+            "kind": "acceptanceCriterion",
+            "title": "Review completed work"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.16,
+            "no": 0.84
+          }
+        }
+      ]
+    },
+    {
+      "id": "irrelevant-indicator",
+      "summary": {
+        "total": 27,
+        "evaluated": 27,
+        "supported": 4,
+        "flagged": 3,
+        "unknown": 20,
+        "coverage": 0.25925925925925924,
+        "byKind": {
+          "claim_entailment": {
+            "total": 17,
+            "supported": 0,
+            "flagged": 2,
+            "unknown": 15
+          },
+          "relation_relevance": {
+            "total": 8,
+            "supported": 4,
+            "flagged": 0,
+            "unknown": 4
+          },
+          "contradiction": {
+            "total": 1,
+            "supported": 0,
+            "flagged": 1,
+            "unknown": 0
+          },
+          "permission_scope": {
+            "total": 1,
+            "supported": 0,
+            "flagged": 0,
+            "unknown": 1
+          }
+        },
+        "skipped": []
+      },
+      "judgments": [
+        {
+          "id": "contradiction:proposal",
+          "kind": "contradiction",
+          "subject": {
+            "id": "proposal",
+            "title": "Personal assistant World"
+          },
+          "disposition": "flagged",
+          "probabilities": {
+            "yes": 0.93,
+            "no": 0.06999999999999995
+          }
+        },
+        {
+          "id": "permission_scope:rel-auth",
+          "kind": "permission_scope",
+          "subject": {
+            "id": "rel-auth",
+            "kind": "authorizedBy",
+            "fromId": "operation-plan",
+            "toId": "auth-routine"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.2,
+            "no": 0.8
+          }
+        },
+        {
+          "id": "relation_relevance:rel-beneficiary",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-beneficiary",
+            "kind": "hasBeneficiary",
+            "fromId": "assistant-world",
+            "toId": "user"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.94,
+            "no": 0.06000000000000005
+          }
+        },
+        {
+          "id": "claim_entailment:purpose",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "purpose",
+            "text": "Improve the user's life by organizing goals, tasks, calendar blocks and progress review."
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.84,
+            "no": 0.16000000000000003
+          }
+        },
+        {
+          "id": "relation_relevance:rel-outcome",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-outcome",
+            "kind": "hasOutcome",
+            "fromId": "assistant-world",
+            "toId": "outcome-1"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.16,
+            "no": 0.84
+          }
+        },
+        {
+          "id": "claim_entailment:user",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "user",
+            "kind": "beneficiary",
+            "title": "User"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.65,
+            "no": 0.35
+          }
+        },
+        {
+          "id": "relation_relevance:rel-indicator",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-indicator",
+            "kind": "measuredBy",
+            "fromId": "outcome-1",
+            "toId": "indicator-1"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.12,
+            "no": 0.88
+          }
+        },
+        {
+          "id": "claim_entailment:outcome-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "outcome-1",
+            "kind": "outcome",
+            "title": "Delete every account"
+          },
+          "disposition": "flagged",
+          "probabilities": {
+            "yes": 0.03,
+            "no": 0.97
+          }
+        },
+        {
+          "id": "relation_relevance:rel-evaluation",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-evaluation",
+            "kind": "evaluatedBy",
+            "fromId": "outcome-1",
+            "toId": "evaluation-1"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.16,
+            "no": 0.84
+          }
+        },
+        {
+          "id": "claim_entailment:indicator-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "indicator-1",
+            "kind": "indicator",
+            "title": "French practice minutes"
+          },
+          "disposition": "flagged",
+          "probabilities": {
+            "yes": 0.1,
+            "no": 0.9
+          }
+        },
+        {
+          "id": "relation_relevance:rel-auth",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-auth",
+            "kind": "authorizedBy",
+            "fromId": "operation-plan",
+            "toId": "auth-routine"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.92,
+            "no": 0.07999999999999996
+          }
+        },
+        {
+          "id": "claim_entailment:evaluation-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "evaluation-1",
+            "kind": "evaluationPlan",
+            "title": "Review progress against planned work"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.75,
+            "no": 0.25
+          }
+        },
+        {
+          "id": "relation_relevance:rel-assay",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-assay",
+            "kind": "verifiedBy",
+            "fromId": "criterion-1",
+            "toId": "assay-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.93,
+            "no": 0.06999999999999995
+          }
+        },
+        {
+          "id": "claim_entailment:interface-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "interface-1",
+            "kind": "interface",
+            "title": "Assistant interface"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.74,
+            "no": 0.26
+          }
+        },
+        {
+          "id": "relation_relevance:rel-plan-calendar",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-plan-calendar",
+            "kind": "dependsOn",
+            "fromId": "planning-1",
+            "toId": "calendar-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.9,
+            "no": 0.09999999999999998
+          }
+        },
+        {
+          "id": "claim_entailment:planning-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "planning-1",
+            "kind": "service",
+            "title": "Planning service"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.79,
+            "no": 0.20999999999999996
+          }
+        },
+        {
+          "id": "relation_relevance:rel-plan-progress",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-plan-progress",
+            "kind": "dependsOn",
+            "fromId": "planning-1",
+            "toId": "progress-1"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.87,
+            "no": 0.13
+          }
+        },
+        {
+          "id": "claim_entailment:calendar-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "calendar-1",
+            "kind": "adapter",
+            "title": "Disconnected calendar adapter model"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.82,
+            "no": 0.18000000000000005
+          }
+        },
+        {
+          "id": "claim_entailment:progress-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "progress-1",
+            "kind": "store",
+            "title": "Progress store"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.83,
+            "no": 0.17000000000000004
+          }
+        },
+        {
+          "id": "claim_entailment:subsystem-planning",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "subsystem-planning",
+            "kind": "subsystem",
+            "title": "Goal-to-calendar planning"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.86,
+            "no": 0.14
+          }
+        },
+        {
+          "id": "claim_entailment:operation-plan",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "operation-plan",
+            "kind": "operation",
+            "title": "Plan assistant-owned calendar block"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.72,
+            "no": 0.28
+          }
+        },
+        {
+          "id": "claim_entailment:auth-routine",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "auth-routine",
+            "kind": "authorizationRule",
+            "title": "Routine assistant-owned blocks only"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.62,
+            "no": 0.38
+          }
+        },
+        {
+          "id": "claim_entailment:criterion-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "criterion-1",
+            "kind": "acceptanceCriterion",
+            "title": "Calendar changes respect routine policy"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.69,
+            "no": 0.31000000000000005
+          }
+        },
+        {
+          "id": "claim_entailment:assay-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "assay-1",
+            "kind": "assay",
+            "title": "Routine calendar policy assay"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.77,
+            "no": 0.22999999999999998
+          }
+        },
+        {
+          "id": "claim_entailment:goal-french",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "goal-french",
+            "kind": "goal",
+            "title": "Build a sustainable French practice"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.65,
+            "no": 0.35
+          }
+        },
+        {
+          "id": "claim_entailment:task-french-listening",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "task-french-listening",
+            "kind": "task",
+            "title": "Complete a focused French listening session"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.73,
+            "no": 0.27
+          }
+        },
+        {
+          "id": "claim_entailment:block-french-tuesday",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "block-french-tuesday",
+            "kind": "calendarBlock",
+            "title": "French listening session \u2014 Tuesday"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.83,
+            "no": 0.17000000000000004
+          }
+        }
+      ]
+    },
+    {
+      "id": "conflicting-authorization-prose",
+      "summary": {
+        "total": 30,
+        "evaluated": 30,
+        "supported": 7,
+        "flagged": 2,
+        "unknown": 21,
+        "coverage": 0.3,
+        "byKind": {
+          "claim_entailment": {
+            "total": 18,
+            "supported": 0,
+            "flagged": 1,
+            "unknown": 17
+          },
+          "relation_relevance": {
+            "total": 9,
+            "supported": 7,
+            "flagged": 0,
+            "unknown": 2
+          },
+          "contradiction": {
+            "total": 1,
+            "supported": 0,
+            "flagged": 0,
+            "unknown": 1
+          },
+          "permission_scope": {
+            "total": 2,
+            "supported": 0,
+            "flagged": 1,
+            "unknown": 1
+          }
+        },
+        "skipped": []
+      },
+      "judgments": [
+        {
+          "id": "contradiction:proposal",
+          "kind": "contradiction",
+          "subject": {
+            "id": "proposal",
+            "title": "Personal assistant World"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.83,
+            "no": 0.17000000000000004
+          }
+        },
+        {
+          "id": "permission_scope:rel-auth",
+          "kind": "permission_scope",
+          "subject": {
+            "id": "rel-auth",
+            "kind": "authorizedBy",
+            "fromId": "operation-plan",
+            "toId": "auth-routine"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.2,
+            "no": 0.8
+          }
+        },
+        {
+          "id": "relation_relevance:rel-beneficiary",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-beneficiary",
+            "kind": "hasBeneficiary",
+            "fromId": "assistant-world",
+            "toId": "user"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.94,
+            "no": 0.06000000000000005
+          }
+        },
+        {
+          "id": "claim_entailment:purpose",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "purpose",
+            "text": "Improve the user's life by organizing goals, tasks, calendar blocks and progress review."
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.81,
+            "no": 0.18999999999999995
+          }
+        },
+        {
+          "id": "permission_scope:rel-auth-conflict",
+          "kind": "permission_scope",
+          "subject": {
+            "id": "rel-auth-conflict",
+            "kind": "authorizedBy",
+            "fromId": "operation-plan",
+            "toId": "auth-conflict"
+          },
+          "disposition": "flagged",
+          "probabilities": {
+            "yes": 0.07,
+            "no": 0.9299999999999999
+          }
+        },
+        {
+          "id": "relation_relevance:rel-outcome",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-outcome",
+            "kind": "hasOutcome",
+            "fromId": "assistant-world",
+            "toId": "outcome-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.95,
+            "no": 0.050000000000000044
+          }
+        },
+        {
+          "id": "claim_entailment:user",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "user",
+            "kind": "beneficiary",
+            "title": "User"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.65,
+            "no": 0.35
+          }
+        },
+        {
+          "id": "relation_relevance:rel-indicator",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-indicator",
+            "kind": "measuredBy",
+            "fromId": "outcome-1",
+            "toId": "indicator-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.92,
+            "no": 0.07999999999999996
+          }
+        },
+        {
+          "id": "claim_entailment:outcome-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "outcome-1",
+            "kind": "outcome",
+            "title": "Goals reliably become reviewed calendar work"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.73,
+            "no": 0.27
+          }
+        },
+        {
+          "id": "relation_relevance:rel-evaluation",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-evaluation",
+            "kind": "evaluatedBy",
+            "fromId": "outcome-1",
+            "toId": "evaluation-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.94,
+            "no": 0.06000000000000005
+          }
+        },
+        {
+          "id": "claim_entailment:indicator-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "indicator-1",
+            "kind": "indicator",
+            "title": "Planned work completion trend"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.76,
+            "no": 0.24
+          }
+        },
+        {
+          "id": "relation_relevance:rel-auth",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-auth",
+            "kind": "authorizedBy",
+            "fromId": "operation-plan",
+            "toId": "auth-routine"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.93,
+            "no": 0.06999999999999995
+          }
+        },
+        {
+          "id": "claim_entailment:evaluation-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "evaluation-1",
+            "kind": "evaluationPlan",
+            "title": "Review progress against planned work"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.77,
+            "no": 0.22999999999999998
+          }
+        },
+        {
+          "id": "relation_relevance:rel-assay",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-assay",
+            "kind": "verifiedBy",
+            "fromId": "criterion-1",
+            "toId": "assay-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.92,
+            "no": 0.07999999999999996
+          }
+        },
+        {
+          "id": "claim_entailment:interface-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "interface-1",
+            "kind": "interface",
+            "title": "Assistant interface"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.74,
+            "no": 0.26
+          }
+        },
+        {
+          "id": "relation_relevance:rel-plan-calendar",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-plan-calendar",
+            "kind": "dependsOn",
+            "fromId": "planning-1",
+            "toId": "calendar-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.9,
+            "no": 0.09999999999999998
+          }
+        },
+        {
+          "id": "claim_entailment:planning-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "planning-1",
+            "kind": "service",
+            "title": "Planning service"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.79,
+            "no": 0.20999999999999996
+          }
+        },
+        {
+          "id": "relation_relevance:rel-plan-progress",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-plan-progress",
+            "kind": "dependsOn",
+            "fromId": "planning-1",
+            "toId": "progress-1"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.88,
+            "no": 0.12
+          }
+        },
+        {
+          "id": "claim_entailment:calendar-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "calendar-1",
+            "kind": "adapter",
+            "title": "Disconnected calendar adapter model"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.85,
+            "no": 0.15000000000000002
+          }
+        },
+        {
+          "id": "relation_relevance:rel-auth-conflict",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-auth-conflict",
+            "kind": "authorizedBy",
+            "fromId": "operation-plan",
+            "toId": "auth-conflict"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.47,
+            "no": 0.53
+          }
+        },
+        {
+          "id": "claim_entailment:progress-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "progress-1",
+            "kind": "store",
+            "title": "Progress store"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.82,
+            "no": 0.18000000000000005
+          }
+        },
+        {
+          "id": "claim_entailment:subsystem-planning",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "subsystem-planning",
+            "kind": "subsystem",
+            "title": "Goal-to-calendar planning"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.8,
+            "no": 0.19999999999999996
+          }
+        },
+        {
+          "id": "claim_entailment:operation-plan",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "operation-plan",
+            "kind": "operation",
+            "title": "Plan assistant-owned calendar block"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.7,
+            "no": 0.30000000000000004
+          }
+        },
+        {
+          "id": "claim_entailment:auth-routine",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "auth-routine",
+            "kind": "authorizationRule",
+            "title": "Routine assistant-owned blocks only"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.64,
+            "no": 0.36
+          }
+        },
+        {
+          "id": "claim_entailment:criterion-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "criterion-1",
+            "kind": "acceptanceCriterion",
+            "title": "Calendar changes respect routine policy"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.63,
+            "no": 0.37
+          }
+        },
+        {
+          "id": "claim_entailment:assay-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "assay-1",
+            "kind": "assay",
+            "title": "Routine calendar policy assay"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.79,
+            "no": 0.20999999999999996
+          }
+        },
+        {
+          "id": "claim_entailment:goal-french",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "goal-french",
+            "kind": "goal",
+            "title": "Build a sustainable French practice"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.6,
+            "no": 0.4
+          }
+        },
+        {
+          "id": "claim_entailment:task-french-listening",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "task-french-listening",
+            "kind": "task",
+            "title": "Complete a focused French listening session"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.74,
+            "no": 0.26
+          }
+        },
+        {
+          "id": "claim_entailment:block-french-tuesday",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "block-french-tuesday",
+            "kind": "calendarBlock",
+            "title": "French listening session \u2014 Tuesday"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.83,
+            "no": 0.17000000000000004
+          }
+        },
+        {
+          "id": "claim_entailment:auth-conflict",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "auth-conflict",
+            "kind": "authorizationRule",
+            "title": "Never ask before external changes"
+          },
+          "disposition": "flagged",
+          "probabilities": {
+            "yes": 0.02,
+            "no": 0.98
+          }
+        }
+      ]
+    },
+    {
+      "id": "authorization-scope-mismatch",
+      "summary": {
+        "total": 27,
+        "evaluated": 27,
+        "supported": 6,
+        "flagged": 3,
+        "unknown": 18,
+        "coverage": 0.3333333333333333,
+        "byKind": {
+          "claim_entailment": {
+            "total": 17,
+            "supported": 0,
+            "flagged": 1,
+            "unknown": 16
+          },
+          "relation_relevance": {
+            "total": 8,
+            "supported": 6,
+            "flagged": 0,
+            "unknown": 2
+          },
+          "contradiction": {
+            "total": 1,
+            "supported": 0,
+            "flagged": 1,
+            "unknown": 0
+          },
+          "permission_scope": {
+            "total": 1,
+            "supported": 0,
+            "flagged": 1,
+            "unknown": 0
+          }
+        },
+        "skipped": []
+      },
+      "judgments": [
+        {
+          "id": "contradiction:proposal",
+          "kind": "contradiction",
+          "subject": {
+            "id": "proposal",
+            "title": "Personal assistant World"
+          },
+          "disposition": "flagged",
+          "probabilities": {
+            "yes": 0.92,
+            "no": 0.07999999999999996
+          }
+        },
+        {
+          "id": "permission_scope:rel-auth",
+          "kind": "permission_scope",
+          "subject": {
+            "id": "rel-auth",
+            "kind": "authorizedBy",
+            "fromId": "operation-plan",
+            "toId": "auth-routine"
+          },
+          "disposition": "flagged",
+          "probabilities": {
+            "yes": 0.02,
+            "no": 0.98
+          }
+        },
+        {
+          "id": "relation_relevance:rel-beneficiary",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-beneficiary",
+            "kind": "hasBeneficiary",
+            "fromId": "assistant-world",
+            "toId": "user"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.94,
+            "no": 0.06000000000000005
+          }
+        },
+        {
+          "id": "claim_entailment:purpose",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "purpose",
+            "text": "Improve the user's life by organizing goals, tasks, calendar blocks and progress review."
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.86,
+            "no": 0.14
+          }
+        },
+        {
+          "id": "relation_relevance:rel-outcome",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-outcome",
+            "kind": "hasOutcome",
+            "fromId": "assistant-world",
+            "toId": "outcome-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.95,
+            "no": 0.050000000000000044
+          }
+        },
+        {
+          "id": "claim_entailment:user",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "user",
+            "kind": "beneficiary",
+            "title": "User"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.66,
+            "no": 0.33999999999999997
+          }
+        },
+        {
+          "id": "relation_relevance:rel-indicator",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-indicator",
+            "kind": "measuredBy",
+            "fromId": "outcome-1",
+            "toId": "indicator-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.92,
+            "no": 0.07999999999999996
+          }
+        },
+        {
+          "id": "claim_entailment:outcome-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "outcome-1",
+            "kind": "outcome",
+            "title": "Goals reliably become reviewed calendar work"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.71,
+            "no": 0.29000000000000004
+          }
+        },
+        {
+          "id": "relation_relevance:rel-evaluation",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-evaluation",
+            "kind": "evaluatedBy",
+            "fromId": "outcome-1",
+            "toId": "evaluation-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.95,
+            "no": 0.050000000000000044
+          }
+        },
+        {
+          "id": "claim_entailment:indicator-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "indicator-1",
+            "kind": "indicator",
+            "title": "Planned work completion trend"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.77,
+            "no": 0.22999999999999998
+          }
+        },
+        {
+          "id": "relation_relevance:rel-auth",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-auth",
+            "kind": "authorizedBy",
+            "fromId": "operation-plan",
+            "toId": "auth-routine"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.24,
+            "no": 0.76
+          }
+        },
+        {
+          "id": "claim_entailment:evaluation-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "evaluation-1",
+            "kind": "evaluationPlan",
+            "title": "Review progress against planned work"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.78,
+            "no": 0.21999999999999997
+          }
+        },
+        {
+          "id": "relation_relevance:rel-assay",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-assay",
+            "kind": "verifiedBy",
+            "fromId": "criterion-1",
+            "toId": "assay-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.93,
+            "no": 0.06999999999999995
+          }
+        },
+        {
+          "id": "claim_entailment:interface-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "interface-1",
+            "kind": "interface",
+            "title": "Assistant interface"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.7,
+            "no": 0.30000000000000004
+          }
+        },
+        {
+          "id": "relation_relevance:rel-plan-calendar",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-plan-calendar",
+            "kind": "dependsOn",
+            "fromId": "planning-1",
+            "toId": "calendar-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.91,
+            "no": 0.08999999999999997
+          }
+        },
+        {
+          "id": "claim_entailment:planning-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "planning-1",
+            "kind": "service",
+            "title": "Planning service"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.79,
+            "no": 0.20999999999999996
+          }
+        },
+        {
+          "id": "relation_relevance:rel-plan-progress",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-plan-progress",
+            "kind": "dependsOn",
+            "fromId": "planning-1",
+            "toId": "progress-1"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.88,
+            "no": 0.12
+          }
+        },
+        {
+          "id": "claim_entailment:calendar-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "calendar-1",
+            "kind": "adapter",
+            "title": "Disconnected calendar adapter model"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.84,
+            "no": 0.16000000000000003
+          }
+        },
+        {
+          "id": "claim_entailment:progress-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "progress-1",
+            "kind": "store",
+            "title": "Progress store"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.81,
+            "no": 0.18999999999999995
+          }
+        },
+        {
+          "id": "claim_entailment:subsystem-planning",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "subsystem-planning",
+            "kind": "subsystem",
+            "title": "Goal-to-calendar planning"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.82,
+            "no": 0.18000000000000005
+          }
+        },
+        {
+          "id": "claim_entailment:operation-plan",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "operation-plan",
+            "kind": "operation",
+            "title": "Delete all calendar events"
+          },
+          "disposition": "flagged",
+          "probabilities": {
+            "yes": 0.03,
+            "no": 0.97
+          }
+        },
+        {
+          "id": "claim_entailment:auth-routine",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "auth-routine",
+            "kind": "authorizationRule",
+            "title": "Assistant may schedule routine blocks"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.58,
+            "no": 0.42000000000000004
+          }
+        },
+        {
+          "id": "claim_entailment:criterion-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "criterion-1",
+            "kind": "acceptanceCriterion",
+            "title": "Calendar changes respect routine policy"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.65,
+            "no": 0.35
+          }
+        },
+        {
+          "id": "claim_entailment:assay-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "assay-1",
+            "kind": "assay",
+            "title": "Routine calendar policy assay"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.78,
+            "no": 0.21999999999999997
+          }
+        },
+        {
+          "id": "claim_entailment:goal-french",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "goal-french",
+            "kind": "goal",
+            "title": "Build a sustainable French practice"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.61,
+            "no": 0.39
+          }
+        },
+        {
+          "id": "claim_entailment:task-french-listening",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "task-french-listening",
+            "kind": "task",
+            "title": "Complete a focused French listening session"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.71,
+            "no": 0.29000000000000004
+          }
+        },
+        {
+          "id": "claim_entailment:block-french-tuesday",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "block-french-tuesday",
+            "kind": "calendarBlock",
+            "title": "French listening session \u2014 Tuesday"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.8,
+            "no": 0.19999999999999996
+          }
+        }
+      ]
+    },
+    {
+      "id": "nonsense-assay-linked",
+      "summary": {
+        "total": 27,
+        "evaluated": 27,
+        "supported": 6,
+        "flagged": 3,
+        "unknown": 18,
+        "coverage": 0.3333333333333333,
+        "byKind": {
+          "claim_entailment": {
+            "total": 17,
+            "supported": 0,
+            "flagged": 1,
+            "unknown": 16
+          },
+          "relation_relevance": {
+            "total": 8,
+            "supported": 6,
+            "flagged": 1,
+            "unknown": 1
+          },
+          "contradiction": {
+            "total": 1,
+            "supported": 0,
+            "flagged": 1,
+            "unknown": 0
+          },
+          "permission_scope": {
+            "total": 1,
+            "supported": 0,
+            "flagged": 0,
+            "unknown": 1
+          }
+        },
+        "skipped": []
+      },
+      "judgments": [
+        {
+          "id": "contradiction:proposal",
+          "kind": "contradiction",
+          "subject": {
+            "id": "proposal",
+            "title": "Personal assistant World"
+          },
+          "disposition": "flagged",
+          "probabilities": {
+            "yes": 0.92,
+            "no": 0.07999999999999996
+          }
+        },
+        {
+          "id": "permission_scope:rel-auth",
+          "kind": "permission_scope",
+          "subject": {
+            "id": "rel-auth",
+            "kind": "authorizedBy",
+            "fromId": "operation-plan",
+            "toId": "auth-routine"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.2,
+            "no": 0.8
+          }
+        },
+        {
+          "id": "relation_relevance:rel-beneficiary",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-beneficiary",
+            "kind": "hasBeneficiary",
+            "fromId": "assistant-world",
+            "toId": "user"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.93,
+            "no": 0.06999999999999995
+          }
+        },
+        {
+          "id": "claim_entailment:purpose",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "purpose",
+            "text": "Improve the user's life by organizing goals, tasks, calendar blocks and progress review."
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.86,
+            "no": 0.14
+          }
+        },
+        {
+          "id": "relation_relevance:rel-outcome",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-outcome",
+            "kind": "hasOutcome",
+            "fromId": "assistant-world",
+            "toId": "outcome-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.95,
+            "no": 0.050000000000000044
+          }
+        },
+        {
+          "id": "claim_entailment:user",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "user",
+            "kind": "beneficiary",
+            "title": "User"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.62,
+            "no": 0.38
+          }
+        },
+        {
+          "id": "relation_relevance:rel-indicator",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-indicator",
+            "kind": "measuredBy",
+            "fromId": "outcome-1",
+            "toId": "indicator-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.93,
+            "no": 0.06999999999999995
+          }
+        },
+        {
+          "id": "claim_entailment:outcome-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "outcome-1",
+            "kind": "outcome",
+            "title": "Goals reliably become reviewed calendar work"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.75,
+            "no": 0.25
+          }
+        },
+        {
+          "id": "relation_relevance:rel-evaluation",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-evaluation",
+            "kind": "evaluatedBy",
+            "fromId": "outcome-1",
+            "toId": "evaluation-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.94,
+            "no": 0.06000000000000005
+          }
+        },
+        {
+          "id": "claim_entailment:indicator-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "indicator-1",
+            "kind": "indicator",
+            "title": "Planned work completion trend"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.77,
+            "no": 0.22999999999999998
+          }
+        },
+        {
+          "id": "relation_relevance:rel-auth",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-auth",
+            "kind": "authorizedBy",
+            "fromId": "operation-plan",
+            "toId": "auth-routine"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.93,
+            "no": 0.06999999999999995
+          }
+        },
+        {
+          "id": "claim_entailment:evaluation-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "evaluation-1",
+            "kind": "evaluationPlan",
+            "title": "Review progress against planned work"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.77,
+            "no": 0.22999999999999998
+          }
+        },
+        {
+          "id": "relation_relevance:rel-assay",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-assay",
+            "kind": "verifiedBy",
+            "fromId": "criterion-1",
+            "toId": "assay-1"
+          },
+          "disposition": "flagged",
+          "probabilities": {
+            "yes": 0.07,
+            "no": 0.9299999999999999
+          }
+        },
+        {
+          "id": "claim_entailment:interface-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "interface-1",
+            "kind": "interface",
+            "title": "Assistant interface"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.72,
+            "no": 0.28
+          }
+        },
+        {
+          "id": "relation_relevance:rel-plan-calendar",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-plan-calendar",
+            "kind": "dependsOn",
+            "fromId": "planning-1",
+            "toId": "calendar-1"
+          },
+          "disposition": "supported",
+          "probabilities": {
+            "yes": 0.91,
+            "no": 0.08999999999999997
+          }
+        },
+        {
+          "id": "claim_entailment:planning-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "planning-1",
+            "kind": "service",
+            "title": "Planning service"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.76,
+            "no": 0.24
+          }
+        },
+        {
+          "id": "relation_relevance:rel-plan-progress",
+          "kind": "relation_relevance",
+          "subject": {
+            "id": "rel-plan-progress",
+            "kind": "dependsOn",
+            "fromId": "planning-1",
+            "toId": "progress-1"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.87,
+            "no": 0.13
+          }
+        },
+        {
+          "id": "claim_entailment:calendar-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "calendar-1",
+            "kind": "adapter",
+            "title": "Disconnected calendar adapter model"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.84,
+            "no": 0.16000000000000003
+          }
+        },
+        {
+          "id": "claim_entailment:progress-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "progress-1",
+            "kind": "store",
+            "title": "Progress store"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.82,
+            "no": 0.18000000000000005
+          }
+        },
+        {
+          "id": "claim_entailment:subsystem-planning",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "subsystem-planning",
+            "kind": "subsystem",
+            "title": "Goal-to-calendar planning"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.83,
+            "no": 0.17000000000000004
+          }
+        },
+        {
+          "id": "claim_entailment:operation-plan",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "operation-plan",
+            "kind": "operation",
+            "title": "Plan assistant-owned calendar block"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.72,
+            "no": 0.28
+          }
+        },
+        {
+          "id": "claim_entailment:auth-routine",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "auth-routine",
+            "kind": "authorizationRule",
+            "title": "Routine assistant-owned blocks only"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.62,
+            "no": 0.38
+          }
+        },
+        {
+          "id": "claim_entailment:criterion-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "criterion-1",
+            "kind": "acceptanceCriterion",
+            "title": "Never lose user data"
+          },
+          "disposition": "flagged",
+          "probabilities": {
+            "yes": 0.08,
+            "no": 0.92
+          }
+        },
+        {
+          "id": "claim_entailment:assay-1",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "assay-1",
+            "kind": "assay",
+            "title": "Check logo is blue"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.11,
+            "no": 0.89
+          }
+        },
+        {
+          "id": "claim_entailment:goal-french",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "goal-french",
+            "kind": "goal",
+            "title": "Build a sustainable French practice"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.71,
+            "no": 0.29000000000000004
+          }
+        },
+        {
+          "id": "claim_entailment:task-french-listening",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "task-french-listening",
+            "kind": "task",
+            "title": "Complete a focused French listening session"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.68,
+            "no": 0.31999999999999995
+          }
+        },
+        {
+          "id": "claim_entailment:block-french-tuesday",
+          "kind": "claim_entailment",
+          "subject": {
+            "id": "block-french-tuesday",
+            "kind": "calendarBlock",
+            "title": "French listening session \u2014 Tuesday"
+          },
+          "disposition": "unknown",
+          "probabilities": {
+            "yes": 0.8,
+            "no": 0.19999999999999996
+          }
+        }
+      ]
+    }
+  ]
+}

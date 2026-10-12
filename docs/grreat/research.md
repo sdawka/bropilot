@@ -54,27 +54,78 @@ Draft rules for Automatic routine changes:
 
 Suggested first demonstration: goal capture and three scheduled practice blocks, a calendar conflict that triggers an automatic revision, and a progress review that updates remaining work. Candidate managed Things are the assistant interface, goal/task planning service, calendar adapter and progress/context store; the user's real calendar is an external system whose effects are observable and individually reconciled, not part of atomic source promotion. These are proposed model boundaries to qualify in M1.
 
-## Questions that affect the next milestone
+## Current delivery knowledge
 
-Resolve section 12's boundaries through focused design or research, preserving answers in the appropriate existing record:
+| Area | Established evidence | Remaining uncertainty |
+| --- | --- | --- |
+| Typed model/inference | Rust owns versioned types, deterministic readiness and bounded Ascent reachability; native/workerd parity and synthetic impact are verified | Generic canonical authoring/adoption, mappings and coverage obligations |
+| Verification/promotion | Persisted candidates, protected local runner, evidence bindings, leases and single-candidate CAS are locally verified | Live provider acceptance and generic composition |
+| Cloudflare | Hosted identity/OAuth/Artifacts/package/publication adapters are implemented and locally verified; this repository’s Git mirror is live verified | Provisioned platform, registered identity/OAuth and live realized-app release |
+| Authoring quality | Codex extraction, optional bounded System One and Luna question selection are locally exercised | Cross-revision answer lifecycle, human usefulness and reliable held-out question selection |
+| Project memory | Authenticated GRREAT sync applied six records/five links with clean receipts; Markdown remains authoritative | Expanded records require reviewed preview/sync; mirror is not product deployment |
 
-1. Define the smallest initial system ontology, World/Thing Templates, Kit, Rule Pack and personal assistant scenario, including readiness and demonstration criteria.
-2. The foundation now uses compiled Ascent rules with runtime Template data, bounded derivation, deterministic witnesses and source attribution. Native/actual workerd parity is locally verified; persistent fact storage and the trusted verifier boundary remain open.
-3. Define semantic-to-source mappings, Task Packet format and harness-neutral CLI/API operations, including stale packet detection, scoped credentials and on-demand context expansion.
-4. Establish the verifier trust boundary, protected Assay storage, exact-input evidence freshness and permission enforcement. Resolve composition compatibility and conflict handling before promotion implementation.
-5. Verify current Artifacts fork/token/event capabilities and the minimum deployment adapter; choose additional Cloudflare services only as required. Define collaborator authentication and domain capabilities.
-6. Refine workspace interactions, especially semantic zoom, synchronized hierarchy, proposed model edits and candidate review. Prototype options remain unselected design evidence.
-
-Non-code and external Things retain capability declarations and explicit limits; complete external-effect orchestration is deferred. The example World is a personal assistant with the accepted broad Purpose above; its initial workflow, capabilities and acceptance contract still need definition. Remote GRREAT synchronization is pending authenticated preview and receipts, not assumed complete.
+The focused questions below drive A–J. Non-code/external Things keep explicit capability limits; complete external-effect orchestration remains deferred.
 
 ## Verified foundation boundary
 
-The accepted first implementation contract is in [[execution]]. Rust owns the model, generated contracts and deterministic readiness; Vue consumes revision-pinned reads through a thin TypeScript Worker. Four fixtures qualify valid, missing, conflicting and incomplete models. The assistant/calendar workflow is modeled example data, with a disconnected calendar Thing. Thing Template and Rule Pack versions are validated against supported catalogs; evaluation hashes bind snapshot and Template contents, not just caller labels. Local compiled-Wasm/workerd checks establish runtime feasibility for this boundary, without establishing Artifacts APIs, external calendar writes, persistence or remote deployment.
+The accepted first implementation contract is retained under Foundation implementation contract in [[journals/2026-10-10]]; [[execution]] now selects upcoming draft adoption. Rust owns the model, generated contracts and deterministic readiness; Vue consumes revision-pinned reads through a thin TypeScript Worker. Four fixtures qualify valid, missing, conflicting and incomplete models. The assistant/calendar workflow is modeled example data, with a disconnected calendar Thing. Thing Template and Rule Pack versions are validated against supported catalogs; evaluation hashes bind snapshot and Template contents, not just caller labels. This foundation boundary was verified on October 8. Later candidate/hosted persistence and adapter evidence is recorded in [[analysis]]; it does not establish live calendar writes or remote application deployment.
 
 ## Candidate verification and funding clarification
 
-[Requirements sections 3.1–3.3 and 9.1](../world-platform-plan-and-requirements.md) now formalize the user's basic web-app example, protected execution hooks, immutable submissions, verification levels and optional funding. Current source at foundation `11e1c0d` implements `WorldSnapshot`, Things, `MoveSummary` and model-readiness queries; its Worker serves read-only fixtures. It has no persisted Realizations/implementation manifests, Assay execution contract, submission endpoint, trusted runner/evidence records, promotion mutation or funding adapter. Existing local workerd/browser tests prove the foundation runtime; they are not a candidate-testing service.
+[Requirements sections 3.1–3.3 and 9.1](../world-platform-plan-and-requirements.md) now formalize the user's basic web-app example, protected execution hooks, immutable submissions, verification levels and optional funding. The historical foundation at `11e1c0d` implemented `WorldSnapshot`, Things, `MoveSummary` and model-readiness queries; its Worker serves read-only fixtures. That baseline had no persisted candidates or executable verification. Subsequent local and hosted increments now implement candidate persistence, submission, trusted deterministic execution, evidence and single-candidate promotion; funding remains unimplemented. The evidence and remaining live/composition gaps are in [[analysis]].
 
-The smallest useful next implementation is one deterministic vertical slice: persist and submit an exact web-app version, run protected existence/build/start/health/surface checks in isolation, attribute and store results, and reject stale or incomplete required evidence. Select the runner/storage adapter during that design. Selective LLM/decision-model assessment and contributor funding follow this working path; no delivery duration is inferred.
+The deterministic submit→verify→evidence→promote slice is locally verified. Reuse it for E rather than rebuilding it; live provider acceptance and composition remain separate gates. Selective LLM/decision-model assessment and contributor funding follow that path; no delivery duration is inferred.
 
 Payment feasibility checked against primary documentation on 2026-10-08: [x402](https://developers.cloudflare.com/agents/tools/payments/x402/) documents HTTP 402 and payment headers; [MPP](https://developers.cloudflare.com/agents/tools/payments/mpp/) documents payment challenges/credentials/receipts through HTTP authentication headers. [Monetization Gateway](https://developers.cloudflare.com/monetization-gateway/) is a separate closed-beta service with US buyer/seller eligibility. No provider, currency, wallet, charging/refund contract or live transaction is selected or tested. This research supports an adapter boundary, not a claim of availability for this project.
+
+## Ontology usefulness evidence
+
+The [2026-10-09 benchmark](../../packages/ontology-lab/benchmark/README.md) tests eight app ideas, native/Wasm graph counterexamples, live Jev judgments and shadow question ranking. Extraction preserved the scripted intent; the fixed graph planner often hid a more useful question. Shadow ranking improved 13/16 selections under non-blind model-assisted review. System One remains an evaluated candidate for narrow semantic gates and ranking, not a production truth or permission authority. Prioritize stage-appropriate obligations and held-out multi-turn/user assessment; the small synthetic benchmark does not establish calibration or general intelligence.
+
+<!-- grreat:record id=research.authoring kind=question parent=goal.model -->
+## What is the smallest canonical draft-adoption contract?
+
+- Known: Existing typed snapshots, protected Template, local extraction/checkpoints and Rust readiness; requirements §§2, 5 and 10.
+- Unresolved: Generic create/correct/apply, accepted fact/proposal separation, base revision, idempotency, migration/version compatibility and required completeness.
+- Next investigation: Specify a bounded revision delta and rejection cases against the accepted assistant Template; validate corrected provenance, stale-base and protected-schema failures. Do not require hosted model execution.
+- Informs: A and G in [[roadmap]]. Responsible role: Domain/API integration.
+
+<!-- grreat:record id=research.agent-protocol kind=question parent=goal.agents -->
+## What context and authority does each local agent receive?
+
+- Known: Requirements §6 enumerates pinned role-specific context; source/query and candidate APIs exist.
+- Unresolved: Task Packet wire contract, mapping certainty, scoped credential issuance, context expansion, checkpoint/resume and event/claim expiry semantics.
+- Next investigation: Trace one Move to one bounded packet and then two local agents; distinguish source certainty from authored hypotheses and capabilities from CLI instructions.
+- Informs: C and D in [[roadmap]]. Responsible role: Agent-protocol integration.
+
+<!-- grreat:record id=research.composition kind=question parent=goal.assurance -->
+## How are Thing selections compared and safely composed?
+
+- Known: Single-candidate verification/CAS and advisory baseline/proposed witnesses are locally verified; requirements §§8–9 define conflicts and protected roles.
+- Unresolved: Composition manifest, compatibility oracle ownership, required rechecks, conflict findings, authorization and cross-Thing acceptance contract.
+- Next investigation: Freeze selected-version inputs and a compatible/incompatible/stale-base example; map every required check to a protected verifier input before allowing promotion.
+- Informs: E and F in [[roadmap]]. Responsible role: Core/verifier integration.
+
+<!-- grreat:record id=research.hosted kind=question parent=goal.hosted -->
+## Which provider prerequisites still prevent live acceptance?
+
+- Known: Hosted adapters/workflows are locally tested; repository Git transport/mirroring is live verified. No hosted platform or app release is claimed.
+- Unresolved: Account/resource provisioning, public hostname, Access identities/audience, registered OAuth scopes/grants, live fork/event/token behavior and deployment/rollback receipt.
+- Next investigation: Inventory the declared bindings and external registration requirements; verify only the selected account/resource scopes. Record missing inputs, then run the live source→verify→A→B→rollback path when authorized/configured.
+- Informs: D, E and H in [[roadmap]]. Responsible role: Cloudflare/identity release integration.
+
+<!-- grreat:record id=research.assistant-acceptance kind=question parent=goal.assistant -->
+## Which calendar operations, permissions and measurements define success?
+
+- Known: Accepted Purpose, goals/actions/review, calendar example and Automatic mode; draft scenarios above are proposals.
+- Unresolved: Provider/consent scope, routine operation coverage, overrides, capacity rules, retry/external-edit/partial-failure behavior, goal indicators and observation method.
+- Next investigation: Qualify the smallest user scenario and adapter capability contract, including forbidden actions and unknown outcomes; keep scheduling elapsed time separate from completion and benefit.
+- Informs: B, I and J in [[roadmap]]. Responsible role: Assistant domain/adapter integration.
+
+<!-- grreat:record id=research.authoring-quality kind=question parent=goal.model -->
+## What demonstrates helpful, faithful authoring across revisions?
+
+- Known: Frozen held-out benchmark: 19/33 top-rated first questions and zero human ratings; graph/semantic probes establish only their tested scope.
+- Unresolved: Cross-revision answered/deferred/superseded lifecycle, correction handling, held-out usefulness, semantic threshold calibration and latency bottlenecks.
+- Next investigation: Use the existing benchmark protocol and preserved failures; prioritize exact permissions/provenance and consequential unresolved decisions, then obtain bounded human/blind evidence before claiming usefulness uplift.
+- Informs: A and G in [[roadmap]]. Responsible role: Authoring/evaluation integration.

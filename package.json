@@ -5,7 +5,8 @@
   "type": "module",
   "workspaces": [
     "apps/*",
-    "packages/contracts"
+    "packages/contracts",
+    "packages/local-verifier"
   ],
   "engines": {
     "node": ">=22.12.0"
@@ -14,17 +15,24 @@
     "contracts:generate": "cargo run --locked -p bropilot-contract-gen",
     "contracts:check": "node scripts/check-contracts.mjs",
     "build:wasm": "node scripts/build-wasm.mjs",
+    "build:verifier": "node scripts/build-runner-manifest.mjs",
     "build:web": "npm run build --workspace @bropilot/web",
-    "build": "npm run build:wasm && npm run build:web && npm run build --workspace @bropilot/worker",
+    "build": "npm run build:wasm && npm run build:verifier && npm run build:web && npm run build --workspace @bropilot/worker",
     "typecheck": "npm run typecheck --workspace @bropilot/web && npm run typecheck --workspace @bropilot/worker",
     "test:core": "cargo test --workspace --locked",
     "test:web": "npm run test --workspace @bropilot/web",
-    "test:worker": "cargo build --locked -p bropilot-query && node --test tests/worker.test.mjs",
+    "test:worker": "npm run build:verifier && cargo build --locked -p bropilot-query && node --test --test-concurrency=1 tests/*.test.mjs",
+    "test:verifier": "node --test packages/local-verifier/test/*.test.mjs",
+    "test:ontology-lab": "node --test packages/ontology-lab/test/*.test.mjs packages/ontology-lab/benchmark/*.test.mjs",
     "test:e2e": "playwright test",
-    "test": "npm run test:core && npm run test:web && npm run test:worker",
+    "test": "npm run test:core && npm run test:web && npm run test:verifier && npm run test:ontology-lab && npm run test:worker",
     "dev": "npm run dev --workspace @bropilot/web",
-    "dev:worker": "npm run dev --workspace @bropilot/worker",
-    "check": "npm run contracts:check && cargo fmt --all -- --check && cargo clippy --workspace --all-targets --locked -- -D warnings && npm run typecheck && npm test && npm run test:e2e"
+    "dev:worker": "node scripts/dev-local.mjs",
+    "deploy:staging": "node scripts/deploy-staging.mjs",
+    "check": "npm run contracts:check && cargo fmt --all -- --check && cargo clippy --workspace --all-targets --locked -- -D warnings && npm run typecheck && npm test && npm run test:e2e",
+    "benchmark:ontology": "node packages/ontology-lab/benchmark/pipeline.mjs",
+    "benchmark:system-one": "node packages/ontology-lab/benchmark/system-one-benchmark.mjs",
+    "benchmark:graph": "node packages/ontology-lab/benchmark/graph-probes.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.64.0",

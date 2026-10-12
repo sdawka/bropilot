@@ -1,0 +1,2850 @@
+{
+  "assistant-impact-baseline": [
+    {
+      "evidenceId": "synthetic-evidence:assay-1",
+      "assayId": "assay-1",
+      "assayDefinitionHash": "e1e9172c287ec8498789fc60693e0da2b74c2bab537455596646f45ed4d82033",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "assay-1",
+          "digest": "e1e9172c287ec8498789fc60693e0da2b74c2bab537455596646f45ed4d82033"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "rel-assay",
+          "digest": "ae07426eda2c8de7731723c24eedfc52a3647b82feac7cffbf948c778f5e3b63"
+        },
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "calendar-coverage",
+          "digest": "0cbc8355981f590bbe814b3387c7beb4aa6cebf1ec50069c60cddedcf85dfad2"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    },
+    {
+      "evidenceId": "synthetic-evidence:assay-progress",
+      "assayId": "assay-progress",
+      "assayDefinitionHash": "9a154eb5b884b9bab0192c8b1da5134a2864582fb9847d79aaf992be84895399",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        },
+        {
+          "objectId": "availability-calendar",
+          "digest": "56709f46c205edeecc0633d83d8b72b521ecedb1ae7e5c627c4fd1f4dff088d4"
+        },
+        {
+          "objectId": "scheduling",
+          "digest": "5dc9f180b147ed2efe4ae7d080038107a72c9037413df568f93973c1d9a98692"
+        },
+        {
+          "objectId": "weekly-plan",
+          "digest": "ee0612fb5269494890d960fd792578f754fa5b602cff5f982675b5a79a192cf9"
+        },
+        {
+          "objectId": "definition-completed-planned-work",
+          "digest": "452dc936c246bfae865b4e65c9154f30294cdd56b52f9fffc73b368967ef8abb"
+        },
+        {
+          "objectId": "metric-completed-planned-work",
+          "digest": "d6bed542c51ded02dae944f08a555161da37fb9631c18d2855d61f8788f2a0f7"
+        },
+        {
+          "objectId": "assay-progress",
+          "digest": "9a154eb5b884b9bab0192c8b1da5134a2864582fb9847d79aaf992be84895399"
+        },
+        {
+          "objectId": "task-1",
+          "digest": "7dccd3847e64049652f3f322d2bec7d1c0e9da47bac43a75ba1bbb02e0a2af9c"
+        },
+        {
+          "objectId": "plan-task-1",
+          "digest": "4db2b2b8cf4b346df0b913adad371f2850b1a695bf112401d4ff6c4ef27eb063"
+        },
+        {
+          "objectId": "completion-task-1",
+          "digest": "c16abde3395dd3573bc218663c9b1d63deeb257ec90b1aff6a5563e5be93c4c9"
+        },
+        {
+          "objectId": "task-2",
+          "digest": "55803b056b12faf8d916bbaa092c3a8eaaedbffae84712a51d85489c4adc3e17"
+        },
+        {
+          "objectId": "plan-task-2",
+          "digest": "07dc1836f979c90828e9dc156b09c93ad173e36ff5773bb9a6600092961bc03c"
+        },
+        {
+          "objectId": "completion-task-2",
+          "digest": "793c4350ea99d23441c1973383c883107fe4bb4bf10358f0a3b3a7181d9f5c54"
+        },
+        {
+          "objectId": "task-3",
+          "digest": "2ed990308c0e759da06670ba797bee373079dbca13620d93bccef1c5c830d6f8"
+        },
+        {
+          "objectId": "plan-task-3",
+          "digest": "5caf4688441c16456cbfac499f55937bb318f2e1374258eb9decb8d94d540a76"
+        },
+        {
+          "objectId": "completion-task-3",
+          "digest": "a8d9f2ee406f69d6e8f17d60c340458fe331bc3eeee82539150e78e57c43d018"
+        },
+        {
+          "objectId": "task-4",
+          "digest": "c6328b2374bb1adf88c4e87a998b2dd881926a4942e0ed902226c2244e905c6a"
+        },
+        {
+          "objectId": "plan-task-4",
+          "digest": "00d8c46eb3011feb7a483eac2109f24b8b8b69a98ee2a5781c58cf4cfc2d0341"
+        },
+        {
+          "objectId": "task-5",
+          "digest": "2285ca54a461114c9053c75b22de7fef2e2984163b6f4e212c80346a2e6d2166"
+        },
+        {
+          "objectId": "plan-task-5",
+          "digest": "24ac0bd0cb4fedc2902ed562111051438b7b952b75b1e341b66035dc48f3d8d4"
+        },
+        {
+          "objectId": "task-6",
+          "digest": "a77f794627198857fcfdd4320a7bbc9532427122f1563cf2f75db45f392ab29c"
+        },
+        {
+          "objectId": "plan-task-6",
+          "digest": "e04d3463d07a7a075e90da25e72b3be9c2bc8267d1c9c711a312a2c05a0f001b"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "lineage-task-1",
+          "digest": "fa28e3c58df90376030aff9382a6b9f9720bd88408880cb832a7d49aff58d9d4"
+        },
+        {
+          "relationId": "lineage-plan-1",
+          "digest": "d57036a81daa7a88e75b00c90812bc69203b7e6d71adf5fe870d78e3c7fa8c73"
+        },
+        {
+          "relationId": "plan-week-1",
+          "digest": "7638a7ea8d87540c62c8a096d8cf8c6db9036518925148dfb69b11a8049ef6be"
+        },
+        {
+          "relationId": "task-plan-1",
+          "digest": "7c59f2600a19e409d266e7838057d725601d9c1f5d74d67f31f7fd9943e47e37"
+        },
+        {
+          "relationId": "lineage-completion-1",
+          "digest": "7b7fed6cf5035c7b9ed848ce788b66fe1eb2640d16ed11040e67f9c7cd561a16"
+        },
+        {
+          "relationId": "lineage-task-2",
+          "digest": "399c5ed403c8b765efcf510f573c44e7be78d058061907800d3bd151da337a98"
+        },
+        {
+          "relationId": "lineage-plan-2",
+          "digest": "f192b07d1fddbb4e6356ec470e39d5a6acbbfed7f23bf75abf6612ed8c308bd1"
+        },
+        {
+          "relationId": "plan-week-2",
+          "digest": "51d2464a3eb401cea953398010ef4e1a971c4a96fe009e0dea3a658413c0c74a"
+        },
+        {
+          "relationId": "task-plan-2",
+          "digest": "be79896819aa1854a6f961177feaeef89a5647cbc6630fc2be3d1e98dacf4e55"
+        },
+        {
+          "relationId": "lineage-completion-2",
+          "digest": "286f972350b151937b2a0e47da250d1e6afc51541cb29b08fd0eaac3caf57a46"
+        },
+        {
+          "relationId": "lineage-task-3",
+          "digest": "e07d0abda3c3f8e1810bd610666a9ee6bb22072fa99419c715209ac309e20cf7"
+        },
+        {
+          "relationId": "lineage-plan-3",
+          "digest": "5d0eac20cd5d26f20e48b992252304cd0f89af9f494279ed929f327f9e607cc9"
+        },
+        {
+          "relationId": "plan-week-3",
+          "digest": "a8f5c2f8153f76510463757ace203ea6ec162a44190382024339de5b6ed89be6"
+        },
+        {
+          "relationId": "task-plan-3",
+          "digest": "1798e6e10d5791d3524b8463e6692bee05798e49c1874f3fdba75109544aebfb"
+        },
+        {
+          "relationId": "lineage-completion-3",
+          "digest": "07ca5b128b8eeb079c73647fdb4107b130eb1d92d70f4814970ba542065b059c"
+        },
+        {
+          "relationId": "lineage-task-4",
+          "digest": "a3459a3281c7a6e7884bece8db6714d84dcf2803ce84d941e1728e7cea146f9a"
+        },
+        {
+          "relationId": "lineage-plan-4",
+          "digest": "c09fb5854bfa5d7b1963463c862c7b9bc6731469c66ed9e8cc8fe8aa1089b172"
+        },
+        {
+          "relationId": "plan-week-4",
+          "digest": "0187747b96a06f9825dcea3de85e0fafae8aad4aff41de2311d3d67885a24cf8"
+        },
+        {
+          "relationId": "task-plan-4",
+          "digest": "00c5ed335597557ff17fccefdb67695e15519131bf271fecd51db36af42bb19f"
+        },
+        {
+          "relationId": "lineage-task-5",
+          "digest": "851c3386aae7f7a7cac4662bf5a5cc297a1851873ffbc2f2b97dd375f4892ec8"
+        },
+        {
+          "relationId": "lineage-plan-5",
+          "digest": "e5185db5caa2e70f568920dfb11b33f24acaddbc6cfee29a46b4c317cf510004"
+        },
+        {
+          "relationId": "plan-week-5",
+          "digest": "3135d5c741653e4fcb19932bcb929b55ee6366315752c7ce6359d30d4a17d622"
+        },
+        {
+          "relationId": "task-plan-5",
+          "digest": "7371469101986b8bea00420f2c347d13d617b259cf8ec3ca028a0be4cb7fdd54"
+        },
+        {
+          "relationId": "lineage-task-6",
+          "digest": "9acda8395bd6db6258908e78114cb9aa3a443b8caa7a3ca2b2dd309600c82da0"
+        },
+        {
+          "relationId": "lineage-plan-6",
+          "digest": "bfc557d6fad3c81f16113b945238268161f4783050163eb7693ed57088de9753"
+        },
+        {
+          "relationId": "plan-week-6",
+          "digest": "820858858f4edaff3462ebcd7210ef27ecc58bc74b920bbc879685a06c1f7b6c"
+        },
+        {
+          "relationId": "task-plan-6",
+          "digest": "06e1d2ee859fd0a5d5cd02c63176443d1b0b6d98477b0765c0e6671e02fb769c"
+        },
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "availability-adapter",
+          "digest": "0c2af9dfb820d1499419a308b3e03e74415c05534454084f1ce137879c74e26f"
+        },
+        {
+          "relationId": "scheduling-availability",
+          "digest": "2e476169cda802fb279d33d7f3449fa40f45cb10f57a5729dd7d25ae86794fa2"
+        },
+        {
+          "relationId": "week-scheduling",
+          "digest": "921035b2a11cf4eca707d085b52f75f41fc5a0455b7ffc4f6131c418137ef804"
+        },
+        {
+          "relationId": "metric-definition",
+          "digest": "d141ffa8a21a53509ab0a1e5783579020cf50b79b0c31a412cdb83c727898ebc"
+        },
+        {
+          "relationId": "progress-coverage",
+          "digest": "9b8101308c50a5e0b6b79a1aa3af0b4013cfad5af6afe65dacb0447ae3fb8ec7"
+        },
+        {
+          "relationId": "progress-verification",
+          "digest": "a3bd9ce3179634ee768a89b25bbc26676eb5a192ba2d19198168a453020090c7"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-planning",
+          "revisionId": "planning@1"
+        },
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-progress",
+          "revisionId": "progress@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    },
+    {
+      "evidenceId": "synthetic-evidence:assay-planning",
+      "assayId": "assay-planning",
+      "assayDefinitionHash": "84831c0aa87599fed14ecf78deda2d39abdbc2d812be7bba8c7550015b395251",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        },
+        {
+          "objectId": "availability-calendar",
+          "digest": "56709f46c205edeecc0633d83d8b72b521ecedb1ae7e5c627c4fd1f4dff088d4"
+        },
+        {
+          "objectId": "scheduling",
+          "digest": "5dc9f180b147ed2efe4ae7d080038107a72c9037413df568f93973c1d9a98692"
+        },
+        {
+          "objectId": "weekly-plan",
+          "digest": "ee0612fb5269494890d960fd792578f754fa5b602cff5f982675b5a79a192cf9"
+        },
+        {
+          "objectId": "assay-planning",
+          "digest": "84831c0aa87599fed14ecf78deda2d39abdbc2d812be7bba8c7550015b395251"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "availability-adapter",
+          "digest": "0c2af9dfb820d1499419a308b3e03e74415c05534454084f1ce137879c74e26f"
+        },
+        {
+          "relationId": "scheduling-availability",
+          "digest": "2e476169cda802fb279d33d7f3449fa40f45cb10f57a5729dd7d25ae86794fa2"
+        },
+        {
+          "relationId": "week-scheduling",
+          "digest": "921035b2a11cf4eca707d085b52f75f41fc5a0455b7ffc4f6131c418137ef804"
+        },
+        {
+          "relationId": "planning-coverage",
+          "digest": "97cbf1eb6be4be7f9dc7476416a73c052f54330685fc438c8d49ece10e8327c9"
+        },
+        {
+          "relationId": "planning-verification",
+          "digest": "a5387e75abf84148dc0749182089b28ef5659efa95377b320aa8fe1c3635d594"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-planning",
+          "revisionId": "planning@1"
+        },
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    }
+  ],
+  "assistant-impact-calendar-adapter": [
+    {
+      "evidenceId": "synthetic-evidence:assay-1",
+      "assayId": "assay-1",
+      "assayDefinitionHash": "e1e9172c287ec8498789fc60693e0da2b74c2bab537455596646f45ed4d82033",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "assay-1",
+          "digest": "e1e9172c287ec8498789fc60693e0da2b74c2bab537455596646f45ed4d82033"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "rel-assay",
+          "digest": "ae07426eda2c8de7731723c24eedfc52a3647b82feac7cffbf948c778f5e3b63"
+        },
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "calendar-coverage",
+          "digest": "0cbc8355981f590bbe814b3387c7beb4aa6cebf1ec50069c60cddedcf85dfad2"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@2"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    },
+    {
+      "evidenceId": "synthetic-evidence:assay-progress",
+      "assayId": "assay-progress",
+      "assayDefinitionHash": "9a154eb5b884b9bab0192c8b1da5134a2864582fb9847d79aaf992be84895399",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        },
+        {
+          "objectId": "availability-calendar",
+          "digest": "56709f46c205edeecc0633d83d8b72b521ecedb1ae7e5c627c4fd1f4dff088d4"
+        },
+        {
+          "objectId": "scheduling",
+          "digest": "5dc9f180b147ed2efe4ae7d080038107a72c9037413df568f93973c1d9a98692"
+        },
+        {
+          "objectId": "weekly-plan",
+          "digest": "ee0612fb5269494890d960fd792578f754fa5b602cff5f982675b5a79a192cf9"
+        },
+        {
+          "objectId": "definition-completed-planned-work",
+          "digest": "452dc936c246bfae865b4e65c9154f30294cdd56b52f9fffc73b368967ef8abb"
+        },
+        {
+          "objectId": "metric-completed-planned-work",
+          "digest": "d6bed542c51ded02dae944f08a555161da37fb9631c18d2855d61f8788f2a0f7"
+        },
+        {
+          "objectId": "assay-progress",
+          "digest": "9a154eb5b884b9bab0192c8b1da5134a2864582fb9847d79aaf992be84895399"
+        },
+        {
+          "objectId": "task-1",
+          "digest": "7dccd3847e64049652f3f322d2bec7d1c0e9da47bac43a75ba1bbb02e0a2af9c"
+        },
+        {
+          "objectId": "plan-task-1",
+          "digest": "4db2b2b8cf4b346df0b913adad371f2850b1a695bf112401d4ff6c4ef27eb063"
+        },
+        {
+          "objectId": "completion-task-1",
+          "digest": "c16abde3395dd3573bc218663c9b1d63deeb257ec90b1aff6a5563e5be93c4c9"
+        },
+        {
+          "objectId": "task-2",
+          "digest": "55803b056b12faf8d916bbaa092c3a8eaaedbffae84712a51d85489c4adc3e17"
+        },
+        {
+          "objectId": "plan-task-2",
+          "digest": "07dc1836f979c90828e9dc156b09c93ad173e36ff5773bb9a6600092961bc03c"
+        },
+        {
+          "objectId": "completion-task-2",
+          "digest": "793c4350ea99d23441c1973383c883107fe4bb4bf10358f0a3b3a7181d9f5c54"
+        },
+        {
+          "objectId": "task-3",
+          "digest": "2ed990308c0e759da06670ba797bee373079dbca13620d93bccef1c5c830d6f8"
+        },
+        {
+          "objectId": "plan-task-3",
+          "digest": "5caf4688441c16456cbfac499f55937bb318f2e1374258eb9decb8d94d540a76"
+        },
+        {
+          "objectId": "completion-task-3",
+          "digest": "a8d9f2ee406f69d6e8f17d60c340458fe331bc3eeee82539150e78e57c43d018"
+        },
+        {
+          "objectId": "task-4",
+          "digest": "c6328b2374bb1adf88c4e87a998b2dd881926a4942e0ed902226c2244e905c6a"
+        },
+        {
+          "objectId": "plan-task-4",
+          "digest": "00d8c46eb3011feb7a483eac2109f24b8b8b69a98ee2a5781c58cf4cfc2d0341"
+        },
+        {
+          "objectId": "task-5",
+          "digest": "2285ca54a461114c9053c75b22de7fef2e2984163b6f4e212c80346a2e6d2166"
+        },
+        {
+          "objectId": "plan-task-5",
+          "digest": "24ac0bd0cb4fedc2902ed562111051438b7b952b75b1e341b66035dc48f3d8d4"
+        },
+        {
+          "objectId": "task-6",
+          "digest": "a77f794627198857fcfdd4320a7bbc9532427122f1563cf2f75db45f392ab29c"
+        },
+        {
+          "objectId": "plan-task-6",
+          "digest": "e04d3463d07a7a075e90da25e72b3be9c2bc8267d1c9c711a312a2c05a0f001b"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "lineage-task-1",
+          "digest": "fa28e3c58df90376030aff9382a6b9f9720bd88408880cb832a7d49aff58d9d4"
+        },
+        {
+          "relationId": "lineage-plan-1",
+          "digest": "d57036a81daa7a88e75b00c90812bc69203b7e6d71adf5fe870d78e3c7fa8c73"
+        },
+        {
+          "relationId": "plan-week-1",
+          "digest": "7638a7ea8d87540c62c8a096d8cf8c6db9036518925148dfb69b11a8049ef6be"
+        },
+        {
+          "relationId": "task-plan-1",
+          "digest": "7c59f2600a19e409d266e7838057d725601d9c1f5d74d67f31f7fd9943e47e37"
+        },
+        {
+          "relationId": "lineage-completion-1",
+          "digest": "7b7fed6cf5035c7b9ed848ce788b66fe1eb2640d16ed11040e67f9c7cd561a16"
+        },
+        {
+          "relationId": "lineage-task-2",
+          "digest": "399c5ed403c8b765efcf510f573c44e7be78d058061907800d3bd151da337a98"
+        },
+        {
+          "relationId": "lineage-plan-2",
+          "digest": "f192b07d1fddbb4e6356ec470e39d5a6acbbfed7f23bf75abf6612ed8c308bd1"
+        },
+        {
+          "relationId": "plan-week-2",
+          "digest": "51d2464a3eb401cea953398010ef4e1a971c4a96fe009e0dea3a658413c0c74a"
+        },
+        {
+          "relationId": "task-plan-2",
+          "digest": "be79896819aa1854a6f961177feaeef89a5647cbc6630fc2be3d1e98dacf4e55"
+        },
+        {
+          "relationId": "lineage-completion-2",
+          "digest": "286f972350b151937b2a0e47da250d1e6afc51541cb29b08fd0eaac3caf57a46"
+        },
+        {
+          "relationId": "lineage-task-3",
+          "digest": "e07d0abda3c3f8e1810bd610666a9ee6bb22072fa99419c715209ac309e20cf7"
+        },
+        {
+          "relationId": "lineage-plan-3",
+          "digest": "5d0eac20cd5d26f20e48b992252304cd0f89af9f494279ed929f327f9e607cc9"
+        },
+        {
+          "relationId": "plan-week-3",
+          "digest": "a8f5c2f8153f76510463757ace203ea6ec162a44190382024339de5b6ed89be6"
+        },
+        {
+          "relationId": "task-plan-3",
+          "digest": "1798e6e10d5791d3524b8463e6692bee05798e49c1874f3fdba75109544aebfb"
+        },
+        {
+          "relationId": "lineage-completion-3",
+          "digest": "07ca5b128b8eeb079c73647fdb4107b130eb1d92d70f4814970ba542065b059c"
+        },
+        {
+          "relationId": "lineage-task-4",
+          "digest": "a3459a3281c7a6e7884bece8db6714d84dcf2803ce84d941e1728e7cea146f9a"
+        },
+        {
+          "relationId": "lineage-plan-4",
+          "digest": "c09fb5854bfa5d7b1963463c862c7b9bc6731469c66ed9e8cc8fe8aa1089b172"
+        },
+        {
+          "relationId": "plan-week-4",
+          "digest": "0187747b96a06f9825dcea3de85e0fafae8aad4aff41de2311d3d67885a24cf8"
+        },
+        {
+          "relationId": "task-plan-4",
+          "digest": "00c5ed335597557ff17fccefdb67695e15519131bf271fecd51db36af42bb19f"
+        },
+        {
+          "relationId": "lineage-task-5",
+          "digest": "851c3386aae7f7a7cac4662bf5a5cc297a1851873ffbc2f2b97dd375f4892ec8"
+        },
+        {
+          "relationId": "lineage-plan-5",
+          "digest": "e5185db5caa2e70f568920dfb11b33f24acaddbc6cfee29a46b4c317cf510004"
+        },
+        {
+          "relationId": "plan-week-5",
+          "digest": "3135d5c741653e4fcb19932bcb929b55ee6366315752c7ce6359d30d4a17d622"
+        },
+        {
+          "relationId": "task-plan-5",
+          "digest": "7371469101986b8bea00420f2c347d13d617b259cf8ec3ca028a0be4cb7fdd54"
+        },
+        {
+          "relationId": "lineage-task-6",
+          "digest": "9acda8395bd6db6258908e78114cb9aa3a443b8caa7a3ca2b2dd309600c82da0"
+        },
+        {
+          "relationId": "lineage-plan-6",
+          "digest": "bfc557d6fad3c81f16113b945238268161f4783050163eb7693ed57088de9753"
+        },
+        {
+          "relationId": "plan-week-6",
+          "digest": "820858858f4edaff3462ebcd7210ef27ecc58bc74b920bbc879685a06c1f7b6c"
+        },
+        {
+          "relationId": "task-plan-6",
+          "digest": "06e1d2ee859fd0a5d5cd02c63176443d1b0b6d98477b0765c0e6671e02fb769c"
+        },
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "availability-adapter",
+          "digest": "0c2af9dfb820d1499419a308b3e03e74415c05534454084f1ce137879c74e26f"
+        },
+        {
+          "relationId": "scheduling-availability",
+          "digest": "2e476169cda802fb279d33d7f3449fa40f45cb10f57a5729dd7d25ae86794fa2"
+        },
+        {
+          "relationId": "week-scheduling",
+          "digest": "921035b2a11cf4eca707d085b52f75f41fc5a0455b7ffc4f6131c418137ef804"
+        },
+        {
+          "relationId": "metric-definition",
+          "digest": "d141ffa8a21a53509ab0a1e5783579020cf50b79b0c31a412cdb83c727898ebc"
+        },
+        {
+          "relationId": "progress-coverage",
+          "digest": "9b8101308c50a5e0b6b79a1aa3af0b4013cfad5af6afe65dacb0447ae3fb8ec7"
+        },
+        {
+          "relationId": "progress-verification",
+          "digest": "a3bd9ce3179634ee768a89b25bbc26676eb5a192ba2d19198168a453020090c7"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-planning",
+          "revisionId": "planning@1"
+        },
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-progress",
+          "revisionId": "progress@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@2"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    },
+    {
+      "evidenceId": "synthetic-evidence:assay-planning",
+      "assayId": "assay-planning",
+      "assayDefinitionHash": "84831c0aa87599fed14ecf78deda2d39abdbc2d812be7bba8c7550015b395251",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        },
+        {
+          "objectId": "availability-calendar",
+          "digest": "56709f46c205edeecc0633d83d8b72b521ecedb1ae7e5c627c4fd1f4dff088d4"
+        },
+        {
+          "objectId": "scheduling",
+          "digest": "5dc9f180b147ed2efe4ae7d080038107a72c9037413df568f93973c1d9a98692"
+        },
+        {
+          "objectId": "weekly-plan",
+          "digest": "ee0612fb5269494890d960fd792578f754fa5b602cff5f982675b5a79a192cf9"
+        },
+        {
+          "objectId": "assay-planning",
+          "digest": "84831c0aa87599fed14ecf78deda2d39abdbc2d812be7bba8c7550015b395251"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "availability-adapter",
+          "digest": "0c2af9dfb820d1499419a308b3e03e74415c05534454084f1ce137879c74e26f"
+        },
+        {
+          "relationId": "scheduling-availability",
+          "digest": "2e476169cda802fb279d33d7f3449fa40f45cb10f57a5729dd7d25ae86794fa2"
+        },
+        {
+          "relationId": "week-scheduling",
+          "digest": "921035b2a11cf4eca707d085b52f75f41fc5a0455b7ffc4f6131c418137ef804"
+        },
+        {
+          "relationId": "planning-coverage",
+          "digest": "97cbf1eb6be4be7f9dc7476416a73c052f54330685fc438c8d49ece10e8327c9"
+        },
+        {
+          "relationId": "planning-verification",
+          "digest": "a5387e75abf84148dc0749182089b28ef5659efa95377b320aa8fe1c3635d594"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-planning",
+          "revisionId": "planning@1"
+        },
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@2"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    }
+  ],
+  "assistant-impact-completion": [
+    {
+      "evidenceId": "synthetic-evidence:assay-1",
+      "assayId": "assay-1",
+      "assayDefinitionHash": "e1e9172c287ec8498789fc60693e0da2b74c2bab537455596646f45ed4d82033",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "assay-1",
+          "digest": "e1e9172c287ec8498789fc60693e0da2b74c2bab537455596646f45ed4d82033"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "rel-assay",
+          "digest": "ae07426eda2c8de7731723c24eedfc52a3647b82feac7cffbf948c778f5e3b63"
+        },
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "calendar-coverage",
+          "digest": "0cbc8355981f590bbe814b3387c7beb4aa6cebf1ec50069c60cddedcf85dfad2"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    },
+    {
+      "evidenceId": "synthetic-evidence:assay-progress",
+      "assayId": "assay-progress",
+      "assayDefinitionHash": "9a154eb5b884b9bab0192c8b1da5134a2864582fb9847d79aaf992be84895399",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        },
+        {
+          "objectId": "availability-calendar",
+          "digest": "56709f46c205edeecc0633d83d8b72b521ecedb1ae7e5c627c4fd1f4dff088d4"
+        },
+        {
+          "objectId": "scheduling",
+          "digest": "5dc9f180b147ed2efe4ae7d080038107a72c9037413df568f93973c1d9a98692"
+        },
+        {
+          "objectId": "weekly-plan",
+          "digest": "ee0612fb5269494890d960fd792578f754fa5b602cff5f982675b5a79a192cf9"
+        },
+        {
+          "objectId": "definition-completed-planned-work",
+          "digest": "452dc936c246bfae865b4e65c9154f30294cdd56b52f9fffc73b368967ef8abb"
+        },
+        {
+          "objectId": "metric-completed-planned-work",
+          "digest": "d6bed542c51ded02dae944f08a555161da37fb9631c18d2855d61f8788f2a0f7"
+        },
+        {
+          "objectId": "assay-progress",
+          "digest": "9a154eb5b884b9bab0192c8b1da5134a2864582fb9847d79aaf992be84895399"
+        },
+        {
+          "objectId": "task-1",
+          "digest": "7dccd3847e64049652f3f322d2bec7d1c0e9da47bac43a75ba1bbb02e0a2af9c"
+        },
+        {
+          "objectId": "plan-task-1",
+          "digest": "4db2b2b8cf4b346df0b913adad371f2850b1a695bf112401d4ff6c4ef27eb063"
+        },
+        {
+          "objectId": "completion-task-1",
+          "digest": "c16abde3395dd3573bc218663c9b1d63deeb257ec90b1aff6a5563e5be93c4c9"
+        },
+        {
+          "objectId": "task-2",
+          "digest": "55803b056b12faf8d916bbaa092c3a8eaaedbffae84712a51d85489c4adc3e17"
+        },
+        {
+          "objectId": "plan-task-2",
+          "digest": "07dc1836f979c90828e9dc156b09c93ad173e36ff5773bb9a6600092961bc03c"
+        },
+        {
+          "objectId": "completion-task-2",
+          "digest": "793c4350ea99d23441c1973383c883107fe4bb4bf10358f0a3b3a7181d9f5c54"
+        },
+        {
+          "objectId": "task-3",
+          "digest": "2ed990308c0e759da06670ba797bee373079dbca13620d93bccef1c5c830d6f8"
+        },
+        {
+          "objectId": "plan-task-3",
+          "digest": "5caf4688441c16456cbfac499f55937bb318f2e1374258eb9decb8d94d540a76"
+        },
+        {
+          "objectId": "completion-task-3",
+          "digest": "145fbf1aae7bc8afd19e4ce7c7d97c6ffb1f322c90a2fc2fb75ac6fb686fbe55"
+        },
+        {
+          "objectId": "task-4",
+          "digest": "c6328b2374bb1adf88c4e87a998b2dd881926a4942e0ed902226c2244e905c6a"
+        },
+        {
+          "objectId": "plan-task-4",
+          "digest": "00d8c46eb3011feb7a483eac2109f24b8b8b69a98ee2a5781c58cf4cfc2d0341"
+        },
+        {
+          "objectId": "task-5",
+          "digest": "2285ca54a461114c9053c75b22de7fef2e2984163b6f4e212c80346a2e6d2166"
+        },
+        {
+          "objectId": "plan-task-5",
+          "digest": "24ac0bd0cb4fedc2902ed562111051438b7b952b75b1e341b66035dc48f3d8d4"
+        },
+        {
+          "objectId": "task-6",
+          "digest": "a77f794627198857fcfdd4320a7bbc9532427122f1563cf2f75db45f392ab29c"
+        },
+        {
+          "objectId": "plan-task-6",
+          "digest": "e04d3463d07a7a075e90da25e72b3be9c2bc8267d1c9c711a312a2c05a0f001b"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "lineage-task-1",
+          "digest": "fa28e3c58df90376030aff9382a6b9f9720bd88408880cb832a7d49aff58d9d4"
+        },
+        {
+          "relationId": "lineage-plan-1",
+          "digest": "d57036a81daa7a88e75b00c90812bc69203b7e6d71adf5fe870d78e3c7fa8c73"
+        },
+        {
+          "relationId": "plan-week-1",
+          "digest": "7638a7ea8d87540c62c8a096d8cf8c6db9036518925148dfb69b11a8049ef6be"
+        },
+        {
+          "relationId": "task-plan-1",
+          "digest": "7c59f2600a19e409d266e7838057d725601d9c1f5d74d67f31f7fd9943e47e37"
+        },
+        {
+          "relationId": "lineage-completion-1",
+          "digest": "7b7fed6cf5035c7b9ed848ce788b66fe1eb2640d16ed11040e67f9c7cd561a16"
+        },
+        {
+          "relationId": "lineage-task-2",
+          "digest": "399c5ed403c8b765efcf510f573c44e7be78d058061907800d3bd151da337a98"
+        },
+        {
+          "relationId": "lineage-plan-2",
+          "digest": "f192b07d1fddbb4e6356ec470e39d5a6acbbfed7f23bf75abf6612ed8c308bd1"
+        },
+        {
+          "relationId": "plan-week-2",
+          "digest": "51d2464a3eb401cea953398010ef4e1a971c4a96fe009e0dea3a658413c0c74a"
+        },
+        {
+          "relationId": "task-plan-2",
+          "digest": "be79896819aa1854a6f961177feaeef89a5647cbc6630fc2be3d1e98dacf4e55"
+        },
+        {
+          "relationId": "lineage-completion-2",
+          "digest": "286f972350b151937b2a0e47da250d1e6afc51541cb29b08fd0eaac3caf57a46"
+        },
+        {
+          "relationId": "lineage-task-3",
+          "digest": "e07d0abda3c3f8e1810bd610666a9ee6bb22072fa99419c715209ac309e20cf7"
+        },
+        {
+          "relationId": "lineage-plan-3",
+          "digest": "5d0eac20cd5d26f20e48b992252304cd0f89af9f494279ed929f327f9e607cc9"
+        },
+        {
+          "relationId": "plan-week-3",
+          "digest": "a8f5c2f8153f76510463757ace203ea6ec162a44190382024339de5b6ed89be6"
+        },
+        {
+          "relationId": "task-plan-3",
+          "digest": "1798e6e10d5791d3524b8463e6692bee05798e49c1874f3fdba75109544aebfb"
+        },
+        {
+          "relationId": "lineage-completion-3",
+          "digest": "07ca5b128b8eeb079c73647fdb4107b130eb1d92d70f4814970ba542065b059c"
+        },
+        {
+          "relationId": "lineage-task-4",
+          "digest": "a3459a3281c7a6e7884bece8db6714d84dcf2803ce84d941e1728e7cea146f9a"
+        },
+        {
+          "relationId": "lineage-plan-4",
+          "digest": "c09fb5854bfa5d7b1963463c862c7b9bc6731469c66ed9e8cc8fe8aa1089b172"
+        },
+        {
+          "relationId": "plan-week-4",
+          "digest": "0187747b96a06f9825dcea3de85e0fafae8aad4aff41de2311d3d67885a24cf8"
+        },
+        {
+          "relationId": "task-plan-4",
+          "digest": "00c5ed335597557ff17fccefdb67695e15519131bf271fecd51db36af42bb19f"
+        },
+        {
+          "relationId": "lineage-task-5",
+          "digest": "851c3386aae7f7a7cac4662bf5a5cc297a1851873ffbc2f2b97dd375f4892ec8"
+        },
+        {
+          "relationId": "lineage-plan-5",
+          "digest": "e5185db5caa2e70f568920dfb11b33f24acaddbc6cfee29a46b4c317cf510004"
+        },
+        {
+          "relationId": "plan-week-5",
+          "digest": "3135d5c741653e4fcb19932bcb929b55ee6366315752c7ce6359d30d4a17d622"
+        },
+        {
+          "relationId": "task-plan-5",
+          "digest": "7371469101986b8bea00420f2c347d13d617b259cf8ec3ca028a0be4cb7fdd54"
+        },
+        {
+          "relationId": "lineage-task-6",
+          "digest": "9acda8395bd6db6258908e78114cb9aa3a443b8caa7a3ca2b2dd309600c82da0"
+        },
+        {
+          "relationId": "lineage-plan-6",
+          "digest": "bfc557d6fad3c81f16113b945238268161f4783050163eb7693ed57088de9753"
+        },
+        {
+          "relationId": "plan-week-6",
+          "digest": "820858858f4edaff3462ebcd7210ef27ecc58bc74b920bbc879685a06c1f7b6c"
+        },
+        {
+          "relationId": "task-plan-6",
+          "digest": "06e1d2ee859fd0a5d5cd02c63176443d1b0b6d98477b0765c0e6671e02fb769c"
+        },
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "availability-adapter",
+          "digest": "0c2af9dfb820d1499419a308b3e03e74415c05534454084f1ce137879c74e26f"
+        },
+        {
+          "relationId": "scheduling-availability",
+          "digest": "2e476169cda802fb279d33d7f3449fa40f45cb10f57a5729dd7d25ae86794fa2"
+        },
+        {
+          "relationId": "week-scheduling",
+          "digest": "921035b2a11cf4eca707d085b52f75f41fc5a0455b7ffc4f6131c418137ef804"
+        },
+        {
+          "relationId": "metric-definition",
+          "digest": "d141ffa8a21a53509ab0a1e5783579020cf50b79b0c31a412cdb83c727898ebc"
+        },
+        {
+          "relationId": "progress-coverage",
+          "digest": "9b8101308c50a5e0b6b79a1aa3af0b4013cfad5af6afe65dacb0447ae3fb8ec7"
+        },
+        {
+          "relationId": "progress-verification",
+          "digest": "a3bd9ce3179634ee768a89b25bbc26676eb5a192ba2d19198168a453020090c7"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-planning",
+          "revisionId": "planning@1"
+        },
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-progress",
+          "revisionId": "progress@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    },
+    {
+      "evidenceId": "synthetic-evidence:assay-planning",
+      "assayId": "assay-planning",
+      "assayDefinitionHash": "84831c0aa87599fed14ecf78deda2d39abdbc2d812be7bba8c7550015b395251",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        },
+        {
+          "objectId": "availability-calendar",
+          "digest": "56709f46c205edeecc0633d83d8b72b521ecedb1ae7e5c627c4fd1f4dff088d4"
+        },
+        {
+          "objectId": "scheduling",
+          "digest": "5dc9f180b147ed2efe4ae7d080038107a72c9037413df568f93973c1d9a98692"
+        },
+        {
+          "objectId": "weekly-plan",
+          "digest": "ee0612fb5269494890d960fd792578f754fa5b602cff5f982675b5a79a192cf9"
+        },
+        {
+          "objectId": "assay-planning",
+          "digest": "84831c0aa87599fed14ecf78deda2d39abdbc2d812be7bba8c7550015b395251"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "availability-adapter",
+          "digest": "0c2af9dfb820d1499419a308b3e03e74415c05534454084f1ce137879c74e26f"
+        },
+        {
+          "relationId": "scheduling-availability",
+          "digest": "2e476169cda802fb279d33d7f3449fa40f45cb10f57a5729dd7d25ae86794fa2"
+        },
+        {
+          "relationId": "week-scheduling",
+          "digest": "921035b2a11cf4eca707d085b52f75f41fc5a0455b7ffc4f6131c418137ef804"
+        },
+        {
+          "relationId": "planning-coverage",
+          "digest": "97cbf1eb6be4be7f9dc7476416a73c052f54330685fc438c8d49ece10e8327c9"
+        },
+        {
+          "relationId": "planning-verification",
+          "digest": "a5387e75abf84148dc0749182089b28ef5659efa95377b320aa8fe1c3635d594"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-planning",
+          "revisionId": "planning@1"
+        },
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    }
+  ],
+  "assistant-impact-incomplete": [
+    {
+      "evidenceId": "synthetic-evidence:assay-1",
+      "assayId": "assay-1",
+      "assayDefinitionHash": "e1e9172c287ec8498789fc60693e0da2b74c2bab537455596646f45ed4d82033",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "assay-1",
+          "digest": "e1e9172c287ec8498789fc60693e0da2b74c2bab537455596646f45ed4d82033"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "rel-assay",
+          "digest": "ae07426eda2c8de7731723c24eedfc52a3647b82feac7cffbf948c778f5e3b63"
+        },
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "calendar-coverage",
+          "digest": "0cbc8355981f590bbe814b3387c7beb4aa6cebf1ec50069c60cddedcf85dfad2"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    },
+    {
+      "evidenceId": "synthetic-evidence:assay-progress",
+      "assayId": "assay-progress",
+      "assayDefinitionHash": "9a154eb5b884b9bab0192c8b1da5134a2864582fb9847d79aaf992be84895399",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        },
+        {
+          "objectId": "availability-calendar",
+          "digest": "56709f46c205edeecc0633d83d8b72b521ecedb1ae7e5c627c4fd1f4dff088d4"
+        },
+        {
+          "objectId": "scheduling",
+          "digest": "5dc9f180b147ed2efe4ae7d080038107a72c9037413df568f93973c1d9a98692"
+        },
+        {
+          "objectId": "weekly-plan",
+          "digest": "ee0612fb5269494890d960fd792578f754fa5b602cff5f982675b5a79a192cf9"
+        },
+        {
+          "objectId": "definition-completed-planned-work",
+          "digest": "452dc936c246bfae865b4e65c9154f30294cdd56b52f9fffc73b368967ef8abb"
+        },
+        {
+          "objectId": "metric-completed-planned-work",
+          "digest": "d6bed542c51ded02dae944f08a555161da37fb9631c18d2855d61f8788f2a0f7"
+        },
+        {
+          "objectId": "assay-progress",
+          "digest": "9a154eb5b884b9bab0192c8b1da5134a2864582fb9847d79aaf992be84895399"
+        },
+        {
+          "objectId": "task-1",
+          "digest": "7dccd3847e64049652f3f322d2bec7d1c0e9da47bac43a75ba1bbb02e0a2af9c"
+        },
+        {
+          "objectId": "plan-task-1",
+          "digest": "4db2b2b8cf4b346df0b913adad371f2850b1a695bf112401d4ff6c4ef27eb063"
+        },
+        {
+          "objectId": "completion-task-1",
+          "digest": "c16abde3395dd3573bc218663c9b1d63deeb257ec90b1aff6a5563e5be93c4c9"
+        },
+        {
+          "objectId": "task-2",
+          "digest": "55803b056b12faf8d916bbaa092c3a8eaaedbffae84712a51d85489c4adc3e17"
+        },
+        {
+          "objectId": "plan-task-2",
+          "digest": "07dc1836f979c90828e9dc156b09c93ad173e36ff5773bb9a6600092961bc03c"
+        },
+        {
+          "objectId": "completion-task-2",
+          "digest": "793c4350ea99d23441c1973383c883107fe4bb4bf10358f0a3b3a7181d9f5c54"
+        },
+        {
+          "objectId": "task-3",
+          "digest": "2ed990308c0e759da06670ba797bee373079dbca13620d93bccef1c5c830d6f8"
+        },
+        {
+          "objectId": "plan-task-3",
+          "digest": "5caf4688441c16456cbfac499f55937bb318f2e1374258eb9decb8d94d540a76"
+        },
+        {
+          "objectId": "completion-task-3",
+          "digest": "a8d9f2ee406f69d6e8f17d60c340458fe331bc3eeee82539150e78e57c43d018"
+        },
+        {
+          "objectId": "task-4",
+          "digest": "c6328b2374bb1adf88c4e87a998b2dd881926a4942e0ed902226c2244e905c6a"
+        },
+        {
+          "objectId": "plan-task-4",
+          "digest": "00d8c46eb3011feb7a483eac2109f24b8b8b69a98ee2a5781c58cf4cfc2d0341"
+        },
+        {
+          "objectId": "task-5",
+          "digest": "2285ca54a461114c9053c75b22de7fef2e2984163b6f4e212c80346a2e6d2166"
+        },
+        {
+          "objectId": "plan-task-5",
+          "digest": "24ac0bd0cb4fedc2902ed562111051438b7b952b75b1e341b66035dc48f3d8d4"
+        },
+        {
+          "objectId": "task-6",
+          "digest": "a77f794627198857fcfdd4320a7bbc9532427122f1563cf2f75db45f392ab29c"
+        },
+        {
+          "objectId": "plan-task-6",
+          "digest": "e04d3463d07a7a075e90da25e72b3be9c2bc8267d1c9c711a312a2c05a0f001b"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "lineage-task-1",
+          "digest": "fa28e3c58df90376030aff9382a6b9f9720bd88408880cb832a7d49aff58d9d4"
+        },
+        {
+          "relationId": "lineage-plan-1",
+          "digest": "d57036a81daa7a88e75b00c90812bc69203b7e6d71adf5fe870d78e3c7fa8c73"
+        },
+        {
+          "relationId": "plan-week-1",
+          "digest": "7638a7ea8d87540c62c8a096d8cf8c6db9036518925148dfb69b11a8049ef6be"
+        },
+        {
+          "relationId": "task-plan-1",
+          "digest": "7c59f2600a19e409d266e7838057d725601d9c1f5d74d67f31f7fd9943e47e37"
+        },
+        {
+          "relationId": "lineage-completion-1",
+          "digest": "7b7fed6cf5035c7b9ed848ce788b66fe1eb2640d16ed11040e67f9c7cd561a16"
+        },
+        {
+          "relationId": "lineage-task-2",
+          "digest": "399c5ed403c8b765efcf510f573c44e7be78d058061907800d3bd151da337a98"
+        },
+        {
+          "relationId": "lineage-plan-2",
+          "digest": "f192b07d1fddbb4e6356ec470e39d5a6acbbfed7f23bf75abf6612ed8c308bd1"
+        },
+        {
+          "relationId": "plan-week-2",
+          "digest": "51d2464a3eb401cea953398010ef4e1a971c4a96fe009e0dea3a658413c0c74a"
+        },
+        {
+          "relationId": "task-plan-2",
+          "digest": "be79896819aa1854a6f961177feaeef89a5647cbc6630fc2be3d1e98dacf4e55"
+        },
+        {
+          "relationId": "lineage-completion-2",
+          "digest": "286f972350b151937b2a0e47da250d1e6afc51541cb29b08fd0eaac3caf57a46"
+        },
+        {
+          "relationId": "lineage-task-3",
+          "digest": "e07d0abda3c3f8e1810bd610666a9ee6bb22072fa99419c715209ac309e20cf7"
+        },
+        {
+          "relationId": "lineage-plan-3",
+          "digest": "5d0eac20cd5d26f20e48b992252304cd0f89af9f494279ed929f327f9e607cc9"
+        },
+        {
+          "relationId": "plan-week-3",
+          "digest": "a8f5c2f8153f76510463757ace203ea6ec162a44190382024339de5b6ed89be6"
+        },
+        {
+          "relationId": "task-plan-3",
+          "digest": "1798e6e10d5791d3524b8463e6692bee05798e49c1874f3fdba75109544aebfb"
+        },
+        {
+          "relationId": "lineage-completion-3",
+          "digest": "07ca5b128b8eeb079c73647fdb4107b130eb1d92d70f4814970ba542065b059c"
+        },
+        {
+          "relationId": "lineage-task-4",
+          "digest": "a3459a3281c7a6e7884bece8db6714d84dcf2803ce84d941e1728e7cea146f9a"
+        },
+        {
+          "relationId": "lineage-plan-4",
+          "digest": "c09fb5854bfa5d7b1963463c862c7b9bc6731469c66ed9e8cc8fe8aa1089b172"
+        },
+        {
+          "relationId": "plan-week-4",
+          "digest": "0187747b96a06f9825dcea3de85e0fafae8aad4aff41de2311d3d67885a24cf8"
+        },
+        {
+          "relationId": "task-plan-4",
+          "digest": "00c5ed335597557ff17fccefdb67695e15519131bf271fecd51db36af42bb19f"
+        },
+        {
+          "relationId": "lineage-task-5",
+          "digest": "851c3386aae7f7a7cac4662bf5a5cc297a1851873ffbc2f2b97dd375f4892ec8"
+        },
+        {
+          "relationId": "lineage-plan-5",
+          "digest": "e5185db5caa2e70f568920dfb11b33f24acaddbc6cfee29a46b4c317cf510004"
+        },
+        {
+          "relationId": "plan-week-5",
+          "digest": "3135d5c741653e4fcb19932bcb929b55ee6366315752c7ce6359d30d4a17d622"
+        },
+        {
+          "relationId": "task-plan-5",
+          "digest": "7371469101986b8bea00420f2c347d13d617b259cf8ec3ca028a0be4cb7fdd54"
+        },
+        {
+          "relationId": "lineage-task-6",
+          "digest": "9acda8395bd6db6258908e78114cb9aa3a443b8caa7a3ca2b2dd309600c82da0"
+        },
+        {
+          "relationId": "lineage-plan-6",
+          "digest": "bfc557d6fad3c81f16113b945238268161f4783050163eb7693ed57088de9753"
+        },
+        {
+          "relationId": "plan-week-6",
+          "digest": "820858858f4edaff3462ebcd7210ef27ecc58bc74b920bbc879685a06c1f7b6c"
+        },
+        {
+          "relationId": "task-plan-6",
+          "digest": "06e1d2ee859fd0a5d5cd02c63176443d1b0b6d98477b0765c0e6671e02fb769c"
+        },
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "availability-adapter",
+          "digest": "0c2af9dfb820d1499419a308b3e03e74415c05534454084f1ce137879c74e26f"
+        },
+        {
+          "relationId": "scheduling-availability",
+          "digest": "2e476169cda802fb279d33d7f3449fa40f45cb10f57a5729dd7d25ae86794fa2"
+        },
+        {
+          "relationId": "week-scheduling",
+          "digest": "921035b2a11cf4eca707d085b52f75f41fc5a0455b7ffc4f6131c418137ef804"
+        },
+        {
+          "relationId": "metric-definition",
+          "digest": "d141ffa8a21a53509ab0a1e5783579020cf50b79b0c31a412cdb83c727898ebc"
+        },
+        {
+          "relationId": "progress-coverage",
+          "digest": "9b8101308c50a5e0b6b79a1aa3af0b4013cfad5af6afe65dacb0447ae3fb8ec7"
+        },
+        {
+          "relationId": "progress-verification",
+          "digest": "a3bd9ce3179634ee768a89b25bbc26676eb5a192ba2d19198168a453020090c7"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-planning",
+          "revisionId": "planning@1"
+        },
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-progress",
+          "revisionId": "progress@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    },
+    {
+      "evidenceId": "synthetic-evidence:assay-planning",
+      "assayId": "assay-planning",
+      "assayDefinitionHash": "84831c0aa87599fed14ecf78deda2d39abdbc2d812be7bba8c7550015b395251",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        },
+        {
+          "objectId": "availability-calendar",
+          "digest": "56709f46c205edeecc0633d83d8b72b521ecedb1ae7e5c627c4fd1f4dff088d4"
+        },
+        {
+          "objectId": "scheduling",
+          "digest": "5dc9f180b147ed2efe4ae7d080038107a72c9037413df568f93973c1d9a98692"
+        },
+        {
+          "objectId": "weekly-plan",
+          "digest": "ee0612fb5269494890d960fd792578f754fa5b602cff5f982675b5a79a192cf9"
+        },
+        {
+          "objectId": "assay-planning",
+          "digest": "84831c0aa87599fed14ecf78deda2d39abdbc2d812be7bba8c7550015b395251"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "availability-adapter",
+          "digest": "0c2af9dfb820d1499419a308b3e03e74415c05534454084f1ce137879c74e26f"
+        },
+        {
+          "relationId": "scheduling-availability",
+          "digest": "2e476169cda802fb279d33d7f3449fa40f45cb10f57a5729dd7d25ae86794fa2"
+        },
+        {
+          "relationId": "week-scheduling",
+          "digest": "921035b2a11cf4eca707d085b52f75f41fc5a0455b7ffc4f6131c418137ef804"
+        },
+        {
+          "relationId": "planning-coverage",
+          "digest": "97cbf1eb6be4be7f9dc7476416a73c052f54330685fc438c8d49ece10e8327c9"
+        },
+        {
+          "relationId": "planning-verification",
+          "digest": "a5387e75abf84148dc0749182089b28ef5659efa95377b320aa8fe1c3635d594"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-planning",
+          "revisionId": "planning@1"
+        },
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    }
+  ],
+  "assistant-impact-interface": [
+    {
+      "evidenceId": "synthetic-evidence:assay-1",
+      "assayId": "assay-1",
+      "assayDefinitionHash": "e1e9172c287ec8498789fc60693e0da2b74c2bab537455596646f45ed4d82033",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "assay-1",
+          "digest": "e1e9172c287ec8498789fc60693e0da2b74c2bab537455596646f45ed4d82033"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "rel-assay",
+          "digest": "ae07426eda2c8de7731723c24eedfc52a3647b82feac7cffbf948c778f5e3b63"
+        },
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "calendar-coverage",
+          "digest": "0cbc8355981f590bbe814b3387c7beb4aa6cebf1ec50069c60cddedcf85dfad2"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    },
+    {
+      "evidenceId": "synthetic-evidence:assay-progress",
+      "assayId": "assay-progress",
+      "assayDefinitionHash": "9a154eb5b884b9bab0192c8b1da5134a2864582fb9847d79aaf992be84895399",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        },
+        {
+          "objectId": "availability-calendar",
+          "digest": "56709f46c205edeecc0633d83d8b72b521ecedb1ae7e5c627c4fd1f4dff088d4"
+        },
+        {
+          "objectId": "scheduling",
+          "digest": "5dc9f180b147ed2efe4ae7d080038107a72c9037413df568f93973c1d9a98692"
+        },
+        {
+          "objectId": "weekly-plan",
+          "digest": "ee0612fb5269494890d960fd792578f754fa5b602cff5f982675b5a79a192cf9"
+        },
+        {
+          "objectId": "definition-completed-planned-work",
+          "digest": "452dc936c246bfae865b4e65c9154f30294cdd56b52f9fffc73b368967ef8abb"
+        },
+        {
+          "objectId": "metric-completed-planned-work",
+          "digest": "d6bed542c51ded02dae944f08a555161da37fb9631c18d2855d61f8788f2a0f7"
+        },
+        {
+          "objectId": "assay-progress",
+          "digest": "9a154eb5b884b9bab0192c8b1da5134a2864582fb9847d79aaf992be84895399"
+        },
+        {
+          "objectId": "task-1",
+          "digest": "7dccd3847e64049652f3f322d2bec7d1c0e9da47bac43a75ba1bbb02e0a2af9c"
+        },
+        {
+          "objectId": "plan-task-1",
+          "digest": "4db2b2b8cf4b346df0b913adad371f2850b1a695bf112401d4ff6c4ef27eb063"
+        },
+        {
+          "objectId": "completion-task-1",
+          "digest": "c16abde3395dd3573bc218663c9b1d63deeb257ec90b1aff6a5563e5be93c4c9"
+        },
+        {
+          "objectId": "task-2",
+          "digest": "55803b056b12faf8d916bbaa092c3a8eaaedbffae84712a51d85489c4adc3e17"
+        },
+        {
+          "objectId": "plan-task-2",
+          "digest": "07dc1836f979c90828e9dc156b09c93ad173e36ff5773bb9a6600092961bc03c"
+        },
+        {
+          "objectId": "completion-task-2",
+          "digest": "793c4350ea99d23441c1973383c883107fe4bb4bf10358f0a3b3a7181d9f5c54"
+        },
+        {
+          "objectId": "task-3",
+          "digest": "2ed990308c0e759da06670ba797bee373079dbca13620d93bccef1c5c830d6f8"
+        },
+        {
+          "objectId": "plan-task-3",
+          "digest": "5caf4688441c16456cbfac499f55937bb318f2e1374258eb9decb8d94d540a76"
+        },
+        {
+          "objectId": "completion-task-3",
+          "digest": "a8d9f2ee406f69d6e8f17d60c340458fe331bc3eeee82539150e78e57c43d018"
+        },
+        {
+          "objectId": "task-4",
+          "digest": "c6328b2374bb1adf88c4e87a998b2dd881926a4942e0ed902226c2244e905c6a"
+        },
+        {
+          "objectId": "plan-task-4",
+          "digest": "00d8c46eb3011feb7a483eac2109f24b8b8b69a98ee2a5781c58cf4cfc2d0341"
+        },
+        {
+          "objectId": "task-5",
+          "digest": "2285ca54a461114c9053c75b22de7fef2e2984163b6f4e212c80346a2e6d2166"
+        },
+        {
+          "objectId": "plan-task-5",
+          "digest": "24ac0bd0cb4fedc2902ed562111051438b7b952b75b1e341b66035dc48f3d8d4"
+        },
+        {
+          "objectId": "task-6",
+          "digest": "a77f794627198857fcfdd4320a7bbc9532427122f1563cf2f75db45f392ab29c"
+        },
+        {
+          "objectId": "plan-task-6",
+          "digest": "e04d3463d07a7a075e90da25e72b3be9c2bc8267d1c9c711a312a2c05a0f001b"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "lineage-task-1",
+          "digest": "fa28e3c58df90376030aff9382a6b9f9720bd88408880cb832a7d49aff58d9d4"
+        },
+        {
+          "relationId": "lineage-plan-1",
+          "digest": "d57036a81daa7a88e75b00c90812bc69203b7e6d71adf5fe870d78e3c7fa8c73"
+        },
+        {
+          "relationId": "plan-week-1",
+          "digest": "7638a7ea8d87540c62c8a096d8cf8c6db9036518925148dfb69b11a8049ef6be"
+        },
+        {
+          "relationId": "task-plan-1",
+          "digest": "7c59f2600a19e409d266e7838057d725601d9c1f5d74d67f31f7fd9943e47e37"
+        },
+        {
+          "relationId": "lineage-completion-1",
+          "digest": "7b7fed6cf5035c7b9ed848ce788b66fe1eb2640d16ed11040e67f9c7cd561a16"
+        },
+        {
+          "relationId": "lineage-task-2",
+          "digest": "399c5ed403c8b765efcf510f573c44e7be78d058061907800d3bd151da337a98"
+        },
+        {
+          "relationId": "lineage-plan-2",
+          "digest": "f192b07d1fddbb4e6356ec470e39d5a6acbbfed7f23bf75abf6612ed8c308bd1"
+        },
+        {
+          "relationId": "plan-week-2",
+          "digest": "51d2464a3eb401cea953398010ef4e1a971c4a96fe009e0dea3a658413c0c74a"
+        },
+        {
+          "relationId": "task-plan-2",
+          "digest": "be79896819aa1854a6f961177feaeef89a5647cbc6630fc2be3d1e98dacf4e55"
+        },
+        {
+          "relationId": "lineage-completion-2",
+          "digest": "286f972350b151937b2a0e47da250d1e6afc51541cb29b08fd0eaac3caf57a46"
+        },
+        {
+          "relationId": "lineage-task-3",
+          "digest": "e07d0abda3c3f8e1810bd610666a9ee6bb22072fa99419c715209ac309e20cf7"
+        },
+        {
+          "relationId": "lineage-plan-3",
+          "digest": "5d0eac20cd5d26f20e48b992252304cd0f89af9f494279ed929f327f9e607cc9"
+        },
+        {
+          "relationId": "plan-week-3",
+          "digest": "a8f5c2f8153f76510463757ace203ea6ec162a44190382024339de5b6ed89be6"
+        },
+        {
+          "relationId": "task-plan-3",
+          "digest": "1798e6e10d5791d3524b8463e6692bee05798e49c1874f3fdba75109544aebfb"
+        },
+        {
+          "relationId": "lineage-completion-3",
+          "digest": "07ca5b128b8eeb079c73647fdb4107b130eb1d92d70f4814970ba542065b059c"
+        },
+        {
+          "relationId": "lineage-task-4",
+          "digest": "a3459a3281c7a6e7884bece8db6714d84dcf2803ce84d941e1728e7cea146f9a"
+        },
+        {
+          "relationId": "lineage-plan-4",
+          "digest": "c09fb5854bfa5d7b1963463c862c7b9bc6731469c66ed9e8cc8fe8aa1089b172"
+        },
+        {
+          "relationId": "plan-week-4",
+          "digest": "0187747b96a06f9825dcea3de85e0fafae8aad4aff41de2311d3d67885a24cf8"
+        },
+        {
+          "relationId": "task-plan-4",
+          "digest": "00c5ed335597557ff17fccefdb67695e15519131bf271fecd51db36af42bb19f"
+        },
+        {
+          "relationId": "lineage-task-5",
+          "digest": "851c3386aae7f7a7cac4662bf5a5cc297a1851873ffbc2f2b97dd375f4892ec8"
+        },
+        {
+          "relationId": "lineage-plan-5",
+          "digest": "e5185db5caa2e70f568920dfb11b33f24acaddbc6cfee29a46b4c317cf510004"
+        },
+        {
+          "relationId": "plan-week-5",
+          "digest": "3135d5c741653e4fcb19932bcb929b55ee6366315752c7ce6359d30d4a17d622"
+        },
+        {
+          "relationId": "task-plan-5",
+          "digest": "7371469101986b8bea00420f2c347d13d617b259cf8ec3ca028a0be4cb7fdd54"
+        },
+        {
+          "relationId": "lineage-task-6",
+          "digest": "9acda8395bd6db6258908e78114cb9aa3a443b8caa7a3ca2b2dd309600c82da0"
+        },
+        {
+          "relationId": "lineage-plan-6",
+          "digest": "bfc557d6fad3c81f16113b945238268161f4783050163eb7693ed57088de9753"
+        },
+        {
+          "relationId": "plan-week-6",
+          "digest": "820858858f4edaff3462ebcd7210ef27ecc58bc74b920bbc879685a06c1f7b6c"
+        },
+        {
+          "relationId": "task-plan-6",
+          "digest": "06e1d2ee859fd0a5d5cd02c63176443d1b0b6d98477b0765c0e6671e02fb769c"
+        },
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "availability-adapter",
+          "digest": "0c2af9dfb820d1499419a308b3e03e74415c05534454084f1ce137879c74e26f"
+        },
+        {
+          "relationId": "scheduling-availability",
+          "digest": "2e476169cda802fb279d33d7f3449fa40f45cb10f57a5729dd7d25ae86794fa2"
+        },
+        {
+          "relationId": "week-scheduling",
+          "digest": "921035b2a11cf4eca707d085b52f75f41fc5a0455b7ffc4f6131c418137ef804"
+        },
+        {
+          "relationId": "metric-definition",
+          "digest": "d141ffa8a21a53509ab0a1e5783579020cf50b79b0c31a412cdb83c727898ebc"
+        },
+        {
+          "relationId": "progress-coverage",
+          "digest": "9b8101308c50a5e0b6b79a1aa3af0b4013cfad5af6afe65dacb0447ae3fb8ec7"
+        },
+        {
+          "relationId": "progress-verification",
+          "digest": "a3bd9ce3179634ee768a89b25bbc26676eb5a192ba2d19198168a453020090c7"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-planning",
+          "revisionId": "planning@1"
+        },
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-progress",
+          "revisionId": "progress@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    },
+    {
+      "evidenceId": "synthetic-evidence:assay-planning",
+      "assayId": "assay-planning",
+      "assayDefinitionHash": "84831c0aa87599fed14ecf78deda2d39abdbc2d812be7bba8c7550015b395251",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        },
+        {
+          "objectId": "availability-calendar",
+          "digest": "56709f46c205edeecc0633d83d8b72b521ecedb1ae7e5c627c4fd1f4dff088d4"
+        },
+        {
+          "objectId": "scheduling",
+          "digest": "5dc9f180b147ed2efe4ae7d080038107a72c9037413df568f93973c1d9a98692"
+        },
+        {
+          "objectId": "weekly-plan",
+          "digest": "ee0612fb5269494890d960fd792578f754fa5b602cff5f982675b5a79a192cf9"
+        },
+        {
+          "objectId": "assay-planning",
+          "digest": "84831c0aa87599fed14ecf78deda2d39abdbc2d812be7bba8c7550015b395251"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "availability-adapter",
+          "digest": "0c2af9dfb820d1499419a308b3e03e74415c05534454084f1ce137879c74e26f"
+        },
+        {
+          "relationId": "scheduling-availability",
+          "digest": "2e476169cda802fb279d33d7f3449fa40f45cb10f57a5729dd7d25ae86794fa2"
+        },
+        {
+          "relationId": "week-scheduling",
+          "digest": "921035b2a11cf4eca707d085b52f75f41fc5a0455b7ffc4f6131c418137ef804"
+        },
+        {
+          "relationId": "planning-coverage",
+          "digest": "97cbf1eb6be4be7f9dc7476416a73c052f54330685fc438c8d49ece10e8327c9"
+        },
+        {
+          "relationId": "planning-verification",
+          "digest": "a5387e75abf84148dc0749182089b28ef5659efa95377b320aa8fe1c3635d594"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-planning",
+          "revisionId": "planning@1"
+        },
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    }
+  ],
+  "assistant-impact-metric-definition": [
+    {
+      "evidenceId": "synthetic-evidence:assay-1",
+      "assayId": "assay-1",
+      "assayDefinitionHash": "e1e9172c287ec8498789fc60693e0da2b74c2bab537455596646f45ed4d82033",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "assay-1",
+          "digest": "e1e9172c287ec8498789fc60693e0da2b74c2bab537455596646f45ed4d82033"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "rel-assay",
+          "digest": "ae07426eda2c8de7731723c24eedfc52a3647b82feac7cffbf948c778f5e3b63"
+        },
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "calendar-coverage",
+          "digest": "0cbc8355981f590bbe814b3387c7beb4aa6cebf1ec50069c60cddedcf85dfad2"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    },
+    {
+      "evidenceId": "synthetic-evidence:assay-progress",
+      "assayId": "assay-progress",
+      "assayDefinitionHash": "9a154eb5b884b9bab0192c8b1da5134a2864582fb9847d79aaf992be84895399",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        },
+        {
+          "objectId": "availability-calendar",
+          "digest": "56709f46c205edeecc0633d83d8b72b521ecedb1ae7e5c627c4fd1f4dff088d4"
+        },
+        {
+          "objectId": "scheduling",
+          "digest": "5dc9f180b147ed2efe4ae7d080038107a72c9037413df568f93973c1d9a98692"
+        },
+        {
+          "objectId": "weekly-plan",
+          "digest": "ee0612fb5269494890d960fd792578f754fa5b602cff5f982675b5a79a192cf9"
+        },
+        {
+          "objectId": "definition-completed-planned-work",
+          "digest": "952131b4e83be7e117c9c89f1e6bb558490a86b3b06704571b85f652a4e61a28"
+        },
+        {
+          "objectId": "metric-completed-planned-work",
+          "digest": "e952e081fe8cb5da884f7747cfa4eb60d3c921189bdcd77dae1321a64723ffa0"
+        },
+        {
+          "objectId": "assay-progress",
+          "digest": "9a154eb5b884b9bab0192c8b1da5134a2864582fb9847d79aaf992be84895399"
+        },
+        {
+          "objectId": "task-1",
+          "digest": "7dccd3847e64049652f3f322d2bec7d1c0e9da47bac43a75ba1bbb02e0a2af9c"
+        },
+        {
+          "objectId": "plan-task-1",
+          "digest": "4db2b2b8cf4b346df0b913adad371f2850b1a695bf112401d4ff6c4ef27eb063"
+        },
+        {
+          "objectId": "completion-task-1",
+          "digest": "c16abde3395dd3573bc218663c9b1d63deeb257ec90b1aff6a5563e5be93c4c9"
+        },
+        {
+          "objectId": "task-2",
+          "digest": "55803b056b12faf8d916bbaa092c3a8eaaedbffae84712a51d85489c4adc3e17"
+        },
+        {
+          "objectId": "plan-task-2",
+          "digest": "07dc1836f979c90828e9dc156b09c93ad173e36ff5773bb9a6600092961bc03c"
+        },
+        {
+          "objectId": "completion-task-2",
+          "digest": "793c4350ea99d23441c1973383c883107fe4bb4bf10358f0a3b3a7181d9f5c54"
+        },
+        {
+          "objectId": "task-3",
+          "digest": "2ed990308c0e759da06670ba797bee373079dbca13620d93bccef1c5c830d6f8"
+        },
+        {
+          "objectId": "plan-task-3",
+          "digest": "5caf4688441c16456cbfac499f55937bb318f2e1374258eb9decb8d94d540a76"
+        },
+        {
+          "objectId": "completion-task-3",
+          "digest": "a8d9f2ee406f69d6e8f17d60c340458fe331bc3eeee82539150e78e57c43d018"
+        },
+        {
+          "objectId": "task-4",
+          "digest": "c6328b2374bb1adf88c4e87a998b2dd881926a4942e0ed902226c2244e905c6a"
+        },
+        {
+          "objectId": "plan-task-4",
+          "digest": "00d8c46eb3011feb7a483eac2109f24b8b8b69a98ee2a5781c58cf4cfc2d0341"
+        },
+        {
+          "objectId": "task-5",
+          "digest": "2285ca54a461114c9053c75b22de7fef2e2984163b6f4e212c80346a2e6d2166"
+        },
+        {
+          "objectId": "plan-task-5",
+          "digest": "24ac0bd0cb4fedc2902ed562111051438b7b952b75b1e341b66035dc48f3d8d4"
+        },
+        {
+          "objectId": "task-6",
+          "digest": "a77f794627198857fcfdd4320a7bbc9532427122f1563cf2f75db45f392ab29c"
+        },
+        {
+          "objectId": "plan-task-6",
+          "digest": "e04d3463d07a7a075e90da25e72b3be9c2bc8267d1c9c711a312a2c05a0f001b"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "lineage-task-1",
+          "digest": "fa28e3c58df90376030aff9382a6b9f9720bd88408880cb832a7d49aff58d9d4"
+        },
+        {
+          "relationId": "lineage-plan-1",
+          "digest": "d57036a81daa7a88e75b00c90812bc69203b7e6d71adf5fe870d78e3c7fa8c73"
+        },
+        {
+          "relationId": "plan-week-1",
+          "digest": "7638a7ea8d87540c62c8a096d8cf8c6db9036518925148dfb69b11a8049ef6be"
+        },
+        {
+          "relationId": "task-plan-1",
+          "digest": "7c59f2600a19e409d266e7838057d725601d9c1f5d74d67f31f7fd9943e47e37"
+        },
+        {
+          "relationId": "lineage-completion-1",
+          "digest": "7b7fed6cf5035c7b9ed848ce788b66fe1eb2640d16ed11040e67f9c7cd561a16"
+        },
+        {
+          "relationId": "lineage-task-2",
+          "digest": "399c5ed403c8b765efcf510f573c44e7be78d058061907800d3bd151da337a98"
+        },
+        {
+          "relationId": "lineage-plan-2",
+          "digest": "f192b07d1fddbb4e6356ec470e39d5a6acbbfed7f23bf75abf6612ed8c308bd1"
+        },
+        {
+          "relationId": "plan-week-2",
+          "digest": "51d2464a3eb401cea953398010ef4e1a971c4a96fe009e0dea3a658413c0c74a"
+        },
+        {
+          "relationId": "task-plan-2",
+          "digest": "be79896819aa1854a6f961177feaeef89a5647cbc6630fc2be3d1e98dacf4e55"
+        },
+        {
+          "relationId": "lineage-completion-2",
+          "digest": "286f972350b151937b2a0e47da250d1e6afc51541cb29b08fd0eaac3caf57a46"
+        },
+        {
+          "relationId": "lineage-task-3",
+          "digest": "e07d0abda3c3f8e1810bd610666a9ee6bb22072fa99419c715209ac309e20cf7"
+        },
+        {
+          "relationId": "lineage-plan-3",
+          "digest": "5d0eac20cd5d26f20e48b992252304cd0f89af9f494279ed929f327f9e607cc9"
+        },
+        {
+          "relationId": "plan-week-3",
+          "digest": "a8f5c2f8153f76510463757ace203ea6ec162a44190382024339de5b6ed89be6"
+        },
+        {
+          "relationId": "task-plan-3",
+          "digest": "1798e6e10d5791d3524b8463e6692bee05798e49c1874f3fdba75109544aebfb"
+        },
+        {
+          "relationId": "lineage-completion-3",
+          "digest": "07ca5b128b8eeb079c73647fdb4107b130eb1d92d70f4814970ba542065b059c"
+        },
+        {
+          "relationId": "lineage-task-4",
+          "digest": "a3459a3281c7a6e7884bece8db6714d84dcf2803ce84d941e1728e7cea146f9a"
+        },
+        {
+          "relationId": "lineage-plan-4",
+          "digest": "c09fb5854bfa5d7b1963463c862c7b9bc6731469c66ed9e8cc8fe8aa1089b172"
+        },
+        {
+          "relationId": "plan-week-4",
+          "digest": "0187747b96a06f9825dcea3de85e0fafae8aad4aff41de2311d3d67885a24cf8"
+        },
+        {
+          "relationId": "task-plan-4",
+          "digest": "00c5ed335597557ff17fccefdb67695e15519131bf271fecd51db36af42bb19f"
+        },
+        {
+          "relationId": "lineage-task-5",
+          "digest": "851c3386aae7f7a7cac4662bf5a5cc297a1851873ffbc2f2b97dd375f4892ec8"
+        },
+        {
+          "relationId": "lineage-plan-5",
+          "digest": "e5185db5caa2e70f568920dfb11b33f24acaddbc6cfee29a46b4c317cf510004"
+        },
+        {
+          "relationId": "plan-week-5",
+          "digest": "3135d5c741653e4fcb19932bcb929b55ee6366315752c7ce6359d30d4a17d622"
+        },
+        {
+          "relationId": "task-plan-5",
+          "digest": "7371469101986b8bea00420f2c347d13d617b259cf8ec3ca028a0be4cb7fdd54"
+        },
+        {
+          "relationId": "lineage-task-6",
+          "digest": "9acda8395bd6db6258908e78114cb9aa3a443b8caa7a3ca2b2dd309600c82da0"
+        },
+        {
+          "relationId": "lineage-plan-6",
+          "digest": "bfc557d6fad3c81f16113b945238268161f4783050163eb7693ed57088de9753"
+        },
+        {
+          "relationId": "plan-week-6",
+          "digest": "820858858f4edaff3462ebcd7210ef27ecc58bc74b920bbc879685a06c1f7b6c"
+        },
+        {
+          "relationId": "task-plan-6",
+          "digest": "06e1d2ee859fd0a5d5cd02c63176443d1b0b6d98477b0765c0e6671e02fb769c"
+        },
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "availability-adapter",
+          "digest": "0c2af9dfb820d1499419a308b3e03e74415c05534454084f1ce137879c74e26f"
+        },
+        {
+          "relationId": "scheduling-availability",
+          "digest": "2e476169cda802fb279d33d7f3449fa40f45cb10f57a5729dd7d25ae86794fa2"
+        },
+        {
+          "relationId": "week-scheduling",
+          "digest": "921035b2a11cf4eca707d085b52f75f41fc5a0455b7ffc4f6131c418137ef804"
+        },
+        {
+          "relationId": "metric-definition",
+          "digest": "d141ffa8a21a53509ab0a1e5783579020cf50b79b0c31a412cdb83c727898ebc"
+        },
+        {
+          "relationId": "progress-coverage",
+          "digest": "9b8101308c50a5e0b6b79a1aa3af0b4013cfad5af6afe65dacb0447ae3fb8ec7"
+        },
+        {
+          "relationId": "progress-verification",
+          "digest": "a3bd9ce3179634ee768a89b25bbc26676eb5a192ba2d19198168a453020090c7"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-planning",
+          "revisionId": "planning@1"
+        },
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-progress",
+          "revisionId": "progress@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    },
+    {
+      "evidenceId": "synthetic-evidence:assay-planning",
+      "assayId": "assay-planning",
+      "assayDefinitionHash": "84831c0aa87599fed14ecf78deda2d39abdbc2d812be7bba8c7550015b395251",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        },
+        {
+          "objectId": "availability-calendar",
+          "digest": "56709f46c205edeecc0633d83d8b72b521ecedb1ae7e5c627c4fd1f4dff088d4"
+        },
+        {
+          "objectId": "scheduling",
+          "digest": "5dc9f180b147ed2efe4ae7d080038107a72c9037413df568f93973c1d9a98692"
+        },
+        {
+          "objectId": "weekly-plan",
+          "digest": "ee0612fb5269494890d960fd792578f754fa5b602cff5f982675b5a79a192cf9"
+        },
+        {
+          "objectId": "assay-planning",
+          "digest": "84831c0aa87599fed14ecf78deda2d39abdbc2d812be7bba8c7550015b395251"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "availability-adapter",
+          "digest": "0c2af9dfb820d1499419a308b3e03e74415c05534454084f1ce137879c74e26f"
+        },
+        {
+          "relationId": "scheduling-availability",
+          "digest": "2e476169cda802fb279d33d7f3449fa40f45cb10f57a5729dd7d25ae86794fa2"
+        },
+        {
+          "relationId": "week-scheduling",
+          "digest": "921035b2a11cf4eca707d085b52f75f41fc5a0455b7ffc4f6131c418137ef804"
+        },
+        {
+          "relationId": "planning-coverage",
+          "digest": "97cbf1eb6be4be7f9dc7476416a73c052f54330685fc438c8d49ece10e8327c9"
+        },
+        {
+          "relationId": "planning-verification",
+          "digest": "a5387e75abf84148dc0749182089b28ef5659efa95377b320aa8fe1c3635d594"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-planning",
+          "revisionId": "planning@1"
+        },
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    }
+  ],
+  "assistant-impact-removed-dependency": [
+    {
+      "evidenceId": "synthetic-evidence:assay-1",
+      "assayId": "assay-1",
+      "assayDefinitionHash": "e1e9172c287ec8498789fc60693e0da2b74c2bab537455596646f45ed4d82033",
+      "objectInputs": [
+        {
+          "objectId": "calendar-1",
+          "digest": "df33da46507cb8f2c1a0be57048055054b03a0b6b66c648e4400af81e1ee17f6"
+        },
+        {
+          "objectId": "assay-1",
+          "digest": "e1e9172c287ec8498789fc60693e0da2b74c2bab537455596646f45ed4d82033"
+        },
+        {
+          "objectId": "external-calendar",
+          "digest": "4bae84f1ae3d6d40440b83a322104392384cb74af79fd5bd92c1775ecb0c6b74"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "rel-assay",
+          "digest": "ae07426eda2c8de7731723c24eedfc52a3647b82feac7cffbf948c778f5e3b63"
+        },
+        {
+          "relationId": "adapter-external",
+          "digest": "239937b529f8fa7f8fddd4fe4d4ebcf5a9e31f05aa62ae13aa36c30f56e96d8c"
+        },
+        {
+          "relationId": "calendar-coverage",
+          "digest": "0cbc8355981f590bbe814b3387c7beb4aa6cebf1ec50069c60cddedcf85dfad2"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-calendar",
+          "revisionId": "calendar-model@1"
+        },
+        {
+          "thingId": "thing-calendar-adapter",
+          "revisionId": "calendar-adapter@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    },
+    {
+      "evidenceId": "synthetic-evidence:assay-progress",
+      "assayId": "assay-progress",
+      "assayDefinitionHash": "9a154eb5b884b9bab0192c8b1da5134a2864582fb9847d79aaf992be84895399",
+      "objectInputs": [
+        {
+          "objectId": "scheduling",
+          "digest": "5dc9f180b147ed2efe4ae7d080038107a72c9037413df568f93973c1d9a98692"
+        },
+        {
+          "objectId": "weekly-plan",
+          "digest": "ee0612fb5269494890d960fd792578f754fa5b602cff5f982675b5a79a192cf9"
+        },
+        {
+          "objectId": "definition-completed-planned-work",
+          "digest": "452dc936c246bfae865b4e65c9154f30294cdd56b52f9fffc73b368967ef8abb"
+        },
+        {
+          "objectId": "metric-completed-planned-work",
+          "digest": "d6bed542c51ded02dae944f08a555161da37fb9631c18d2855d61f8788f2a0f7"
+        },
+        {
+          "objectId": "assay-progress",
+          "digest": "9a154eb5b884b9bab0192c8b1da5134a2864582fb9847d79aaf992be84895399"
+        },
+        {
+          "objectId": "task-1",
+          "digest": "7dccd3847e64049652f3f322d2bec7d1c0e9da47bac43a75ba1bbb02e0a2af9c"
+        },
+        {
+          "objectId": "plan-task-1",
+          "digest": "4db2b2b8cf4b346df0b913adad371f2850b1a695bf112401d4ff6c4ef27eb063"
+        },
+        {
+          "objectId": "completion-task-1",
+          "digest": "c16abde3395dd3573bc218663c9b1d63deeb257ec90b1aff6a5563e5be93c4c9"
+        },
+        {
+          "objectId": "task-2",
+          "digest": "55803b056b12faf8d916bbaa092c3a8eaaedbffae84712a51d85489c4adc3e17"
+        },
+        {
+          "objectId": "plan-task-2",
+          "digest": "07dc1836f979c90828e9dc156b09c93ad173e36ff5773bb9a6600092961bc03c"
+        },
+        {
+          "objectId": "completion-task-2",
+          "digest": "793c4350ea99d23441c1973383c883107fe4bb4bf10358f0a3b3a7181d9f5c54"
+        },
+        {
+          "objectId": "task-3",
+          "digest": "2ed990308c0e759da06670ba797bee373079dbca13620d93bccef1c5c830d6f8"
+        },
+        {
+          "objectId": "plan-task-3",
+          "digest": "5caf4688441c16456cbfac499f55937bb318f2e1374258eb9decb8d94d540a76"
+        },
+        {
+          "objectId": "completion-task-3",
+          "digest": "a8d9f2ee406f69d6e8f17d60c340458fe331bc3eeee82539150e78e57c43d018"
+        },
+        {
+          "objectId": "task-4",
+          "digest": "c6328b2374bb1adf88c4e87a998b2dd881926a4942e0ed902226c2244e905c6a"
+        },
+        {
+          "objectId": "plan-task-4",
+          "digest": "00d8c46eb3011feb7a483eac2109f24b8b8b69a98ee2a5781c58cf4cfc2d0341"
+        },
+        {
+          "objectId": "task-5",
+          "digest": "2285ca54a461114c9053c75b22de7fef2e2984163b6f4e212c80346a2e6d2166"
+        },
+        {
+          "objectId": "plan-task-5",
+          "digest": "24ac0bd0cb4fedc2902ed562111051438b7b952b75b1e341b66035dc48f3d8d4"
+        },
+        {
+          "objectId": "task-6",
+          "digest": "a77f794627198857fcfdd4320a7bbc9532427122f1563cf2f75db45f392ab29c"
+        },
+        {
+          "objectId": "plan-task-6",
+          "digest": "e04d3463d07a7a075e90da25e72b3be9c2bc8267d1c9c711a312a2c05a0f001b"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "lineage-task-1",
+          "digest": "fa28e3c58df90376030aff9382a6b9f9720bd88408880cb832a7d49aff58d9d4"
+        },
+        {
+          "relationId": "lineage-plan-1",
+          "digest": "d57036a81daa7a88e75b00c90812bc69203b7e6d71adf5fe870d78e3c7fa8c73"
+        },
+        {
+          "relationId": "plan-week-1",
+          "digest": "7638a7ea8d87540c62c8a096d8cf8c6db9036518925148dfb69b11a8049ef6be"
+        },
+        {
+          "relationId": "task-plan-1",
+          "digest": "7c59f2600a19e409d266e7838057d725601d9c1f5d74d67f31f7fd9943e47e37"
+        },
+        {
+          "relationId": "lineage-completion-1",
+          "digest": "7b7fed6cf5035c7b9ed848ce788b66fe1eb2640d16ed11040e67f9c7cd561a16"
+        },
+        {
+          "relationId": "lineage-task-2",
+          "digest": "399c5ed403c8b765efcf510f573c44e7be78d058061907800d3bd151da337a98"
+        },
+        {
+          "relationId": "lineage-plan-2",
+          "digest": "f192b07d1fddbb4e6356ec470e39d5a6acbbfed7f23bf75abf6612ed8c308bd1"
+        },
+        {
+          "relationId": "plan-week-2",
+          "digest": "51d2464a3eb401cea953398010ef4e1a971c4a96fe009e0dea3a658413c0c74a"
+        },
+        {
+          "relationId": "task-plan-2",
+          "digest": "be79896819aa1854a6f961177feaeef89a5647cbc6630fc2be3d1e98dacf4e55"
+        },
+        {
+          "relationId": "lineage-completion-2",
+          "digest": "286f972350b151937b2a0e47da250d1e6afc51541cb29b08fd0eaac3caf57a46"
+        },
+        {
+          "relationId": "lineage-task-3",
+          "digest": "e07d0abda3c3f8e1810bd610666a9ee6bb22072fa99419c715209ac309e20cf7"
+        },
+        {
+          "relationId": "lineage-plan-3",
+          "digest": "5d0eac20cd5d26f20e48b992252304cd0f89af9f494279ed929f327f9e607cc9"
+        },
+        {
+          "relationId": "plan-week-3",
+          "digest": "a8f5c2f8153f76510463757ace203ea6ec162a44190382024339de5b6ed89be6"
+        },
+        {
+          "relationId": "task-plan-3",
+          "digest": "1798e6e10d5791d3524b8463e6692bee05798e49c1874f3fdba75109544aebfb"
+        },
+        {
+          "relationId": "lineage-completion-3",
+          "digest": "07ca5b128b8eeb079c73647fdb4107b130eb1d92d70f4814970ba542065b059c"
+        },
+        {
+          "relationId": "lineage-task-4",
+          "digest": "a3459a3281c7a6e7884bece8db6714d84dcf2803ce84d941e1728e7cea146f9a"
+        },
+        {
+          "relationId": "lineage-plan-4",
+          "digest": "c09fb5854bfa5d7b1963463c862c7b9bc6731469c66ed9e8cc8fe8aa1089b172"
+        },
+        {
+          "relationId": "plan-week-4",
+          "digest": "0187747b96a06f9825dcea3de85e0fafae8aad4aff41de2311d3d67885a24cf8"
+        },
+        {
+          "relationId": "task-plan-4",
+          "digest": "00c5ed335597557ff17fccefdb67695e15519131bf271fecd51db36af42bb19f"
+        },
+        {
+          "relationId": "lineage-task-5",
+          "digest": "851c3386aae7f7a7cac4662bf5a5cc297a1851873ffbc2f2b97dd375f4892ec8"
+        },
+        {
+          "relationId": "lineage-plan-5",
+          "digest": "e5185db5caa2e70f568920dfb11b33f24acaddbc6cfee29a46b4c317cf510004"
+        },
+        {
+          "relationId": "plan-week-5",
+          "digest": "3135d5c741653e4fcb19932bcb929b55ee6366315752c7ce6359d30d4a17d622"
+        },
+        {
+          "relationId": "task-plan-5",
+          "digest": "7371469101986b8bea00420f2c347d13d617b259cf8ec3ca028a0be4cb7fdd54"
+        },
+        {
+          "relationId": "lineage-task-6",
+          "digest": "9acda8395bd6db6258908e78114cb9aa3a443b8caa7a3ca2b2dd309600c82da0"
+        },
+        {
+          "relationId": "lineage-plan-6",
+          "digest": "bfc557d6fad3c81f16113b945238268161f4783050163eb7693ed57088de9753"
+        },
+        {
+          "relationId": "plan-week-6",
+          "digest": "820858858f4edaff3462ebcd7210ef27ecc58bc74b920bbc879685a06c1f7b6c"
+        },
+        {
+          "relationId": "task-plan-6",
+          "digest": "06e1d2ee859fd0a5d5cd02c63176443d1b0b6d98477b0765c0e6671e02fb769c"
+        },
+        {
+          "relationId": "week-scheduling",
+          "digest": "921035b2a11cf4eca707d085b52f75f41fc5a0455b7ffc4f6131c418137ef804"
+        },
+        {
+          "relationId": "metric-definition",
+          "digest": "d141ffa8a21a53509ab0a1e5783579020cf50b79b0c31a412cdb83c727898ebc"
+        },
+        {
+          "relationId": "progress-coverage",
+          "digest": "9b8101308c50a5e0b6b79a1aa3af0b4013cfad5af6afe65dacb0447ae3fb8ec7"
+        },
+        {
+          "relationId": "progress-verification",
+          "digest": "a3bd9ce3179634ee768a89b25bbc26676eb5a192ba2d19198168a453020090c7"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-planning",
+          "revisionId": "planning@1"
+        },
+        {
+          "thingId": "thing-progress",
+          "revisionId": "progress@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    },
+    {
+      "evidenceId": "synthetic-evidence:assay-planning",
+      "assayId": "assay-planning",
+      "assayDefinitionHash": "84831c0aa87599fed14ecf78deda2d39abdbc2d812be7bba8c7550015b395251",
+      "objectInputs": [
+        {
+          "objectId": "scheduling",
+          "digest": "5dc9f180b147ed2efe4ae7d080038107a72c9037413df568f93973c1d9a98692"
+        },
+        {
+          "objectId": "weekly-plan",
+          "digest": "ee0612fb5269494890d960fd792578f754fa5b602cff5f982675b5a79a192cf9"
+        },
+        {
+          "objectId": "assay-planning",
+          "digest": "84831c0aa87599fed14ecf78deda2d39abdbc2d812be7bba8c7550015b395251"
+        }
+      ],
+      "relationInputs": [
+        {
+          "relationId": "week-scheduling",
+          "digest": "921035b2a11cf4eca707d085b52f75f41fc5a0455b7ffc4f6131c418137ef804"
+        },
+        {
+          "relationId": "planning-coverage",
+          "digest": "97cbf1eb6be4be7f9dc7476416a73c052f54330685fc438c8d49ece10e8327c9"
+        },
+        {
+          "relationId": "planning-verification",
+          "digest": "a5387e75abf84148dc0749182089b28ef5659efa95377b320aa8fe1c3635d594"
+        }
+      ],
+      "thingRevisions": [
+        {
+          "thingId": "thing-planning",
+          "revisionId": "planning@1"
+        }
+      ],
+      "rulePacks": [
+        {
+          "id": "core-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-foundation",
+          "version": "1"
+        },
+        {
+          "id": "assistant-impact",
+          "version": "1"
+        }
+      ],
+      "provenance": "synthetic"
+    }
+  ]
+}

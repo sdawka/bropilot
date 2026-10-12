@@ -1,0 +1,14 @@
+{
+  "name": "@bropilot/local-verifier",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.mjs",
+  "bin": {
+    "bropilot-local-verifier": "./src/cli.mjs"
+  },
+  "dependencies": {
+    "esbuild": "0.28.2",
+    "miniflare": "5.20261006.0-alpha"
+  }
+}

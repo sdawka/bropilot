@@ -1,0 +1,387 @@
+{
+  "schemaVersion": 1,
+  "measuredAt": "2026-10-10T18:30:08.182Z",
+  "sourceHashes": {
+    "impact": "02d41df276c8d336336a8ef1e5e57cb865c41f489c8964ca39340ae459104785",
+    "metrics": "2fd4bb1a85e498d5ae60dae2ea27b904915f4364adf65db3eb493e8589cebfe9",
+    "wasm": "be170b9c1f9f0403dcc8c751ae836af0fe776ce09cc08b2d537506cea35c570e",
+    "nativeHarness": "a2fec24e03aabb0d67ecb81e72a05e3ba5cc98c0ebb05015b8942ae4bda724c9",
+    "workerdHarness": "1d9e19192309d114572fd6422a5b036c5081d20d20407fd09a8d2881e4c6ad9b",
+    "workerBoundary": "78d6ffe924b69ab43135543d64ce23291c3c65f6297eb10867c387cdab0c27e3"
+  },
+  "method": "Five serial end-to-end native CLI and actual workerd HTTP queries per single-seed chain. Direct-edge baseline is count-only, not a separately timed engine. Timings include transport/startup and are not engine speedup evidence.",
+  "native": {
+    "runtime": "native",
+    "profile": "release",
+    "arch": "aarch64",
+    "os": "macos",
+    "iterations": 7,
+    "timingInterpretation": "direct neighbor lookup and full validated recursive reports are different workloads; no speedup claim",
+    "cases": {
+      "128-hop-chain": {
+        "nodes": 129,
+        "baselineEdges": 128,
+        "targetEdges": 128,
+        "directObjectCount": 2,
+        "recursiveObjectCount": 129,
+        "additionalObjectCount": 127,
+        "changes": 1,
+        "complete": true,
+        "reportBytes": 273205,
+        "witnessCount": 258,
+        "witnessReferences": 33282,
+        "medianDirectNeighborNs": "8625",
+        "medianFullReportNs": "4255042",
+        "metrics": [],
+        "evidence": []
+      },
+      "assistant-impact-baseline": {
+        "nodes": 49,
+        "baselineEdges": 48,
+        "targetEdges": 48,
+        "directObjectCount": 0,
+        "recursiveObjectCount": 0,
+        "additionalObjectCount": 0,
+        "changes": 0,
+        "complete": true,
+        "reportBytes": 6228,
+        "witnessCount": 0,
+        "witnessReferences": 0,
+        "medianDirectNeighborNs": "5250",
+        "medianFullReportNs": "2750083",
+        "metrics": [
+          {
+            "comparability": "comparable",
+            "delta": 0,
+            "id": "metric-completed-planned-work"
+          }
+        ],
+        "evidence": [
+          {
+            "applicability": "inputsMatch",
+            "id": "synthetic-evidence:assay-1",
+            "provenance": "synthetic"
+          },
+          {
+            "applicability": "inputsMatch",
+            "id": "synthetic-evidence:assay-planning",
+            "provenance": "synthetic"
+          },
+          {
+            "applicability": "inputsMatch",
+            "id": "synthetic-evidence:assay-progress",
+            "provenance": "synthetic"
+          }
+        ]
+      },
+      "assistant-impact-calendar-adapter": {
+        "nodes": 49,
+        "baselineEdges": 48,
+        "targetEdges": 48,
+        "directObjectCount": 0,
+        "recursiveObjectCount": 28,
+        "additionalObjectCount": 28,
+        "changes": 1,
+        "complete": true,
+        "reportBytes": 29215,
+        "witnessCount": 56,
+        "witnessReferences": 372,
+        "medianDirectNeighborNs": "4500",
+        "medianFullReportNs": "2824750",
+        "metrics": [
+          {
+            "comparability": "comparable",
+            "delta": 0,
+            "id": "metric-completed-planned-work"
+          }
+        ],
+        "evidence": [
+          {
+            "applicability": "needsRecheck",
+            "id": "synthetic-evidence:assay-1",
+            "provenance": "synthetic"
+          },
+          {
+            "applicability": "needsRecheck",
+            "id": "synthetic-evidence:assay-planning",
+            "provenance": "synthetic"
+          },
+          {
+            "applicability": "needsRecheck",
+            "id": "synthetic-evidence:assay-progress",
+            "provenance": "synthetic"
+          }
+        ]
+      },
+      "assistant-impact-completion": {
+        "nodes": 49,
+        "baselineEdges": 48,
+        "targetEdges": 48,
+        "directObjectCount": 2,
+        "recursiveObjectCount": 6,
+        "additionalObjectCount": 4,
+        "changes": 1,
+        "complete": true,
+        "reportBytes": 11567,
+        "witnessCount": 12,
+        "witnessReferences": 56,
+        "medianDirectNeighborNs": "4791",
+        "medianFullReportNs": "2678667",
+        "metrics": [
+          {
+            "comparability": "comparable",
+            "delta": -0.19999999999999996,
+            "id": "metric-completed-planned-work"
+          }
+        ],
+        "evidence": [
+          {
+            "applicability": "inputsMatch",
+            "id": "synthetic-evidence:assay-1",
+            "provenance": "synthetic"
+          },
+          {
+            "applicability": "inputsMatch",
+            "id": "synthetic-evidence:assay-planning",
+            "provenance": "synthetic"
+          },
+          {
+            "applicability": "needsRecheck",
+            "id": "synthetic-evidence:assay-progress",
+            "provenance": "synthetic"
+          }
+        ]
+      },
+      "assistant-impact-incomplete": {
+        "nodes": 49,
+        "baselineEdges": 48,
+        "targetEdges": 48,
+        "directObjectCount": 0,
+        "recursiveObjectCount": 0,
+        "additionalObjectCount": 0,
+        "changes": 1,
+        "complete": false,
+        "reportBytes": 6946,
+        "witnessCount": 0,
+        "witnessReferences": 0,
+        "medianDirectNeighborNs": "3959",
+        "medianFullReportNs": "2609125",
+        "metrics": [
+          {
+            "comparability": "unknown",
+            "delta": null,
+            "id": "metric-completed-planned-work"
+          }
+        ],
+        "evidence": [
+          {
+            "applicability": "unknown",
+            "id": "synthetic-evidence:assay-1",
+            "provenance": "synthetic"
+          },
+          {
+            "applicability": "unknown",
+            "id": "synthetic-evidence:assay-planning",
+            "provenance": "synthetic"
+          },
+          {
+            "applicability": "unknown",
+            "id": "synthetic-evidence:assay-progress",
+            "provenance": "synthetic"
+          }
+        ]
+      },
+      "assistant-impact-interface": {
+        "nodes": 49,
+        "baselineEdges": 48,
+        "targetEdges": 48,
+        "directObjectCount": 1,
+        "recursiveObjectCount": 1,
+        "additionalObjectCount": 0,
+        "changes": 1,
+        "complete": true,
+        "reportBytes": 6833,
+        "witnessCount": 2,
+        "witnessReferences": 2,
+        "medianDirectNeighborNs": "13208",
+        "medianFullReportNs": "3445667",
+        "metrics": [
+          {
+            "comparability": "comparable",
+            "delta": 0,
+            "id": "metric-completed-planned-work"
+          }
+        ],
+        "evidence": [
+          {
+            "applicability": "inputsMatch",
+            "id": "synthetic-evidence:assay-1",
+            "provenance": "synthetic"
+          },
+          {
+            "applicability": "inputsMatch",
+            "id": "synthetic-evidence:assay-planning",
+            "provenance": "synthetic"
+          },
+          {
+            "applicability": "inputsMatch",
+            "id": "synthetic-evidence:assay-progress",
+            "provenance": "synthetic"
+          }
+        ]
+      },
+      "assistant-impact-metric-definition": {
+        "nodes": 49,
+        "baselineEdges": 48,
+        "targetEdges": 48,
+        "directObjectCount": 3,
+        "recursiveObjectCount": 6,
+        "additionalObjectCount": 3,
+        "changes": 2,
+        "complete": true,
+        "reportBytes": 15430,
+        "witnessCount": 22,
+        "witnessReferences": 90,
+        "medianDirectNeighborNs": "4833",
+        "medianFullReportNs": "2650791",
+        "metrics": [
+          {
+            "comparability": "definitionChanged",
+            "delta": null,
+            "id": "metric-completed-planned-work"
+          }
+        ],
+        "evidence": [
+          {
+            "applicability": "inputsMatch",
+            "id": "synthetic-evidence:assay-1",
+            "provenance": "synthetic"
+          },
+          {
+            "applicability": "inputsMatch",
+            "id": "synthetic-evidence:assay-planning",
+            "provenance": "synthetic"
+          },
+          {
+            "applicability": "needsRecheck",
+            "id": "synthetic-evidence:assay-progress",
+            "provenance": "synthetic"
+          }
+        ]
+      },
+      "assistant-impact-removed-dependency": {
+        "nodes": 49,
+        "baselineEdges": 48,
+        "targetEdges": 47,
+        "directObjectCount": 0,
+        "recursiveObjectCount": 22,
+        "additionalObjectCount": 22,
+        "changes": 1,
+        "complete": true,
+        "reportBytes": 18552,
+        "witnessCount": 22,
+        "witnessReferences": 184,
+        "medianDirectNeighborNs": "4583",
+        "medianFullReportNs": "2670875",
+        "metrics": [
+          {
+            "comparability": "comparable",
+            "delta": 0,
+            "id": "metric-completed-planned-work"
+          }
+        ],
+        "evidence": [
+          {
+            "applicability": "inputsMatch",
+            "id": "synthetic-evidence:assay-1",
+            "provenance": "synthetic"
+          },
+          {
+            "applicability": "needsRecheck",
+            "id": "synthetic-evidence:assay-planning",
+            "provenance": "synthetic"
+          },
+          {
+            "applicability": "needsRecheck",
+            "id": "synthetic-evidence:assay-progress",
+            "provenance": "synthetic"
+          }
+        ]
+      }
+    }
+  },
+  "crossRuntimeChains": [
+    {
+      "nodes": 8,
+      "edges": 7,
+      "seeds": 1,
+      "directAffected": 2,
+      "recursiveAffected": 8,
+      "additionalAffected": 6,
+      "nativeProcessAndSerialization": {
+        "samples": 5,
+        "p50Ms": 25.429415999999947,
+        "p95Ms": 25.451625000000604
+      },
+      "workerdHttpAndSerialization": {
+        "samples": 5,
+        "p50Ms": 6.593416000000616,
+        "p95Ms": 7.561584000000039
+      }
+    },
+    {
+      "nodes": 32,
+      "edges": 31,
+      "seeds": 1,
+      "directAffected": 2,
+      "recursiveAffected": 32,
+      "additionalAffected": 30,
+      "nativeProcessAndSerialization": {
+        "samples": 5,
+        "p50Ms": 28.24754099999973,
+        "p95Ms": 30.604874999999993
+      },
+      "workerdHttpAndSerialization": {
+        "samples": 5,
+        "p50Ms": 9.044332999999824,
+        "p95Ms": 10.268165999999837
+      }
+    },
+    {
+      "nodes": 64,
+      "edges": 63,
+      "seeds": 1,
+      "directAffected": 2,
+      "recursiveAffected": 64,
+      "additionalAffected": 62,
+      "nativeProcessAndSerialization": {
+        "samples": 5,
+        "p50Ms": 37.75266699999975,
+        "p95Ms": 38.20841699999983
+      },
+      "workerdHttpAndSerialization": {
+        "samples": 5,
+        "p50Ms": 13.153250000000298,
+        "p95Ms": 13.292499999999563
+      }
+    },
+    {
+      "nodes": 129,
+      "edges": 128,
+      "seeds": 1,
+      "directAffected": 2,
+      "recursiveAffected": 129,
+      "additionalAffected": 127,
+      "nativeProcessAndSerialization": {
+        "samples": 5,
+        "p50Ms": 69.41087500000049,
+        "p95Ms": 73.09516600000006
+      },
+      "workerdHttpAndSerialization": {
+        "samples": 5,
+        "p50Ms": 20.622333999999682,
+        "p95Ms": 23.02283399999942
+      }
+    }
+  ]
+}

@@ -24,6 +24,48 @@
       "title": "Unknown assistant",
       "description": "A mandatory relation scope is incomplete, so readiness remains unknown.",
       "snapshotPath": "./assistant-unknown.json"
+    },
+    {
+      "id": "assistant-impact-baseline",
+      "title": "Assistant impact baseline",
+      "description": "Synthetic plans, completion observations and pinned advisory evidence.",
+      "snapshotPath": "./assistant-impact-baseline.json"
+    },
+    {
+      "id": "assistant-impact-calendar-adapter",
+      "title": "Calendar adapter change",
+      "description": "Synthetic adapter revision propagates through explicit functional dependencies.",
+      "snapshotPath": "./assistant-impact-calendar-adapter.json"
+    },
+    {
+      "id": "assistant-impact-completion",
+      "title": "Completion observation change",
+      "description": "Synthetic completion inputs change the completed versus planned work metric.",
+      "snapshotPath": "./assistant-impact-completion.json"
+    },
+    {
+      "id": "assistant-impact-interface",
+      "title": "Interface-only change",
+      "description": "An interface edit does not invent upstream consequences.",
+      "snapshotPath": "./assistant-impact-interface.json"
+    },
+    {
+      "id": "assistant-impact-removed-dependency",
+      "title": "Removed dependency",
+      "description": "Baseline-only dependencies retain exact explanation paths.",
+      "snapshotPath": "./assistant-impact-removed-dependency.json"
+    },
+    {
+      "id": "assistant-impact-metric-definition",
+      "title": "Metric definition change",
+      "description": "The fixed variant includes cancelled planned tasks.",
+      "snapshotPath": "./assistant-impact-metric-definition.json"
+    },
+    {
+      "id": "assistant-impact-incomplete",
+      "title": "Incomplete impact coverage",
+      "description": "Known impacts remain visible while incomplete coverage stays unknown.",
+      "snapshotPath": "./assistant-impact-incomplete.json"
     }
   ]
 }

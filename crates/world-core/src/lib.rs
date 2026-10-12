@@ -289,6 +289,16 @@ wire_type!(
 pub enum Query {
     Workspace,
     Readiness,
+    ChangeImpact {
+        baseline: Box<WorldSnapshot>,
+        context: ImpactAnalysisContext,
+    },
+    ApplyImpactPatch {
+        patch: ImpactPatch,
+        #[serde(rename = "draftRevisionId")]
+        #[ts(rename = "draftRevisionId")]
+        draft_revision_id: String,
+    },
     Children {
         #[serde(rename = "parentId")]
         #[ts(rename = "parentId")]
@@ -371,6 +381,12 @@ wire_type!(
 #[serde(tag = "kind", rename_all = "camelCase")]
 #[ts(tag = "kind", rename_all = "camelCase")]
 pub enum CoreResult {
+    ImpactPatched {
+        snapshot: Box<WorldSnapshot>,
+    },
+    ChangeImpact {
+        report: ChangeImpactReport,
+    },
     Workspace {
         snapshot: Box<WorldSnapshot>,
         readiness: ReadinessEvaluation,
@@ -406,6 +422,7 @@ pub enum CoreResponse {
 pub enum CoreError {
     ResourceLimit(String),
     Evaluation(String),
+    NotConfigured(String),
 }
 
 impl CoreError {
@@ -414,12 +431,15 @@ impl CoreError {
         match self {
             Self::ResourceLimit(_) => "resource_limit",
             Self::Evaluation(_) => "evaluation_error",
+            Self::NotConfigured(_) => "not_configured",
         }
     }
 
     fn message(&self) -> &str {
         match self {
-            Self::ResourceLimit(message) | Self::Evaluation(message) => message,
+            Self::ResourceLimit(message)
+            | Self::Evaluation(message)
+            | Self::NotConfigured(message) => message,
         }
     }
 }
@@ -432,6 +452,12 @@ pub fn compiled_rule_pack_catalog() -> Vec<CompiledRulePack> {
             version: "1".into(),
             title: "Core model integrity".into(),
             required_for_world_template_ids: vec!["*".into()],
+        },
+        CompiledRulePack {
+            id: ASSISTANT_IMPACT_PACK_ID.into(),
+            version: ASSISTANT_IMPACT_PACK_VERSION.into(),
+            title: "Advisory personal assistant change impact".into(),
+            required_for_world_template_ids: vec![],
         },
         CompiledRulePack {
             id: "assistant-foundation".into(),
@@ -462,7 +488,10 @@ fn canonicalize_json(value: serde_json::Value) -> serde_json::Value {
     }
 }
 
-fn content_hash<T: Serialize>(value: &T) -> Result<String, CoreError> {
+/// Canonical content digest shared by snapshot and advisory evidence projections.
+/// # Errors
+/// Returns an evaluation error when the value cannot be serialized.
+pub fn content_hash<T: Serialize>(value: &T) -> Result<String, CoreError> {
     const HEX: &[u8; 16] = b"0123456789abcdef";
     let value = serde_json::to_value(value)
         .map(canonicalize_json)
@@ -1370,6 +1399,38 @@ pub fn query(request: CoreRequest) -> CoreResponse {
             message: format!("unsupported apiVersion {}; expected 1", request.api_version),
         };
     }
+    if let Query::ChangeImpact { baseline, context } = &request.query {
+        return match impact::evaluate_change_impact(baseline, &request.snapshot, context) {
+            Ok(report) => CoreResponse::Ok {
+                api_version: 1,
+                result: Box::new(CoreResult::ChangeImpact { report }),
+            },
+            Err(error) => CoreResponse::Error {
+                api_version: 1,
+                code: error.code().into(),
+                message: error.message().into(),
+            },
+        };
+    }
+    if let Query::ApplyImpactPatch {
+        patch,
+        draft_revision_id,
+    } = &request.query
+    {
+        return match impact::apply_impact_patch(&request.snapshot, patch, draft_revision_id) {
+            Ok(snapshot) => CoreResponse::Ok {
+                api_version: 1,
+                result: Box::new(CoreResult::ImpactPatched {
+                    snapshot: Box::new(snapshot),
+                }),
+            },
+            Err(error) => CoreResponse::Error {
+                api_version: 1,
+                code: error.code().into(),
+                message: error.message().into(),
+            },
+        };
+    }
     let evaluation = match evaluate_readiness(&request.snapshot) {
         Ok(evaluation) => evaluation,
         Err(error) => {
@@ -1381,6 +1442,9 @@ pub fn query(request: CoreRequest) -> CoreResponse {
         }
     };
     let result = match request.query {
+        Query::ChangeImpact { .. } | Query::ApplyImpactPatch { .. } => {
+            unreachable!("impact queries dispatched above")
+        }
         Query::Workspace => CoreResult::Workspace {
             snapshot: Box::new(request.snapshot),
             readiness: evaluation,
@@ -1443,7 +1507,13 @@ pub fn handle_request(input: &str) -> String {
     serialize_response(&response)
 }
 
+pub mod assistant_impact;
+pub mod impact;
+pub mod impact_types;
+pub use impact_types::*;
 pub mod fixtures;
+pub mod realization;
+pub use realization::handle_world_command;
 
 /// Returns the complete public TypeScript wire contract from Rust definitions.
 #[must_use]
@@ -1459,7 +1529,7 @@ pub fn typescript_contract() -> String {
             output
         }};
     }
-    declarations!(
+    let mut output = declarations!(
         Source,
         SourceKind,
         VersionRef,
@@ -1496,5 +1566,8 @@ pub fn typescript_contract() -> String {
         WorkspaceResult,
         CoreResult,
         CoreResponse,
-    )
+    );
+    output.push_str(&impact_types::typescript_contract());
+    output.push_str(&realization::typescript_contract());
+    output
 }

@@ -1,0 +1,16 @@
+{
+  "cases": [
+    { "name": "basic", "files": { "worker.ts": "export default {}", "public/index.html": "ok" }, "valid": true },
+    { "name": "relative spaces", "files": { "shared/my file.ts": "ok" }, "valid": true },
+    { "name": "empty bundle", "files": {}, "valid": false },
+    { "name": "unicode path", "files": { "shared/é.ts": "ok" }, "valid": false },
+    { "name": "control path", "files": { "shared/tab\t.ts": "ok" }, "valid": false },
+    { "name": "absolute path", "files": { "/worker.ts": "ok" }, "valid": false },
+    { "name": "drive path", "files": { "C:/worker.ts": "ok" }, "valid": false },
+    { "name": "dot segment", "files": { "shared/./worker.ts": "ok" }, "valid": false },
+    { "name": "parent segment", "files": { "shared/../worker.ts": "ok" }, "valid": false },
+    { "name": "empty segment", "files": { "shared//worker.ts": "ok" }, "valid": false },
+    { "name": "trailing slash", "files": { "public/": "ok" }, "valid": false },
+    { "name": "backslash", "files": { "shared\\worker.ts": "ok" }, "valid": false }
+  ]
+}

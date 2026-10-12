@@ -1,5 +1,6 @@
 use bropilot_core::{
-    CompiledRulePack, EVALUATOR_VERSION, compiled_rule_pack_catalog, fixtures, typescript_contract,
+    CompiledRulePack, EVALUATOR_VERSION, assistant_impact, compiled_rule_pack_catalog, fixtures,
+    typescript_contract,
 };
 use serde::Serialize;
 use std::{env, fs, path::PathBuf};
@@ -74,6 +75,41 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "Unknown assistant",
             "A mandatory relation scope is incomplete, so readiness remains unknown.",
         ),
+        (
+            "assistant-impact-baseline",
+            "Assistant impact baseline",
+            "Synthetic plans, completion observations and pinned advisory evidence.",
+        ),
+        (
+            "assistant-impact-calendar-adapter",
+            "Calendar adapter change",
+            "Synthetic adapter revision propagates through explicit functional dependencies.",
+        ),
+        (
+            "assistant-impact-completion",
+            "Completion observation change",
+            "Synthetic completion inputs change the completed versus planned work metric.",
+        ),
+        (
+            "assistant-impact-interface",
+            "Interface-only change",
+            "An interface edit does not invent upstream consequences.",
+        ),
+        (
+            "assistant-impact-removed-dependency",
+            "Removed dependency",
+            "Baseline-only dependencies retain exact explanation paths.",
+        ),
+        (
+            "assistant-impact-metric-definition",
+            "Metric definition change",
+            "The fixed variant includes cancelled planned tasks.",
+        ),
+        (
+            "assistant-impact-incomplete",
+            "Incomplete impact coverage",
+            "Known impacts remain visible while incomplete coverage stays unknown.",
+        ),
     ];
     let catalog = FixtureCatalog {
         api_version: 1,
@@ -108,5 +144,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             format!("{}\n", serde_json::to_string_pretty(&snapshot)?),
         )?;
     }
+    let mut evidence = std::collections::BTreeMap::new();
+    for id in assistant_impact::ids() {
+        let snapshot = assistant_impact::snapshot(id).expect("impact catalog fixture exists");
+        evidence.insert(
+            snapshot.revision_id.clone(),
+            assistant_impact::sample_evidence(&snapshot)
+                .map_err(|error| format!("impact evidence: {error:?}"))?,
+        );
+        fs::write(
+            fixture_dir.join(format!("{id}.json")),
+            format!("{}\n", serde_json::to_string_pretty(&snapshot)?),
+        )?;
+    }
+    fs::write(
+        fixture_dir.join("assistant-impact-evidence.json"),
+        format!("{}\n", serde_json::to_string_pretty(&evidence)?),
+    )?;
     Ok(())
 }

@@ -1,5 +1,11 @@
 name: Foundation CI
 on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: Full reviewed commit SHA to verify and release to staging
+        required: true
+        type: string
   pull_request:
   push:
     branches: [main, v4, 'feat/**']
@@ -14,6 +20,15 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit || github.sha }}
+      - name: Verify selected commit
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          RELEASE_COMMIT: ${{ inputs.commit }}
+        run: |
+          [[ "$RELEASE_COMMIT" =~ ^[a-f0-9]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$RELEASE_COMMIT"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -37,3 +52,37 @@ jobs:
             .test-artifacts/
             test-results/
             playwright-report/
+  staging:
+    if: github.event_name == 'workflow_dispatch'
+    needs: foundation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: staging
+    concurrency: bropilot-staging-release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@1.97.0
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo install wasm-pack --version 0.15.0 --locked
+      - run: npm ci
+      - run: npm run build
+      - run: npm run deploy:staging
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCESS_TEAM_DOMAIN: ${{ secrets.ACCESS_TEAM_DOMAIN }}
+          ACCESS_AUD: ${{ secrets.ACCESS_AUD }}
+          CF_OAUTH_CLIENT_ID: ${{ secrets.CF_OAUTH_CLIENT_ID }}
+          CF_OAUTH_CLIENT_SECRET: ${{ secrets.CF_OAUTH_CLIENT_SECRET }}
+          CF_OAUTH_REDIRECT_URI: ${{ secrets.CF_OAUTH_REDIRECT_URI }}
+          CF_OAUTH_SCOPES: ${{ secrets.CF_OAUTH_SCOPES }}
+          CONNECTION_ENCRYPTION_KEY: ${{ secrets.CONNECTION_ENCRYPTION_KEY }}
+          TRUSTED_VERIFIER_SUBS: ${{ secrets.TRUSTED_VERIFIER_SUBS }}
