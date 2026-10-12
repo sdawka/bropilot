@@ -3,11 +3,11 @@ import type { Answer, AskOptions, S1Questions, S1Reply, SystemOne } from "./type
 
 /** OpenRouter Decisions API ("System One" decision models). */
 export const OPENROUTER_DECISIONS_URL = "https://openrouter.ai/api/alpha/decisions";
-export const DEFAULT_OPENROUTER_MODEL = "perplexity/pplx-decider-v1-27b";
+export const DEFAULT_OPENROUTER_MODEL = "perplexity/pplx-decider-v1.1-27b";
 
 export interface OpenRouterOptions {
   apiKey: string;
-  /** A model that outputs decisions; default `perplexity/pplx-decider-v1-27b`. */
+  /** A model that outputs decisions; default `perplexity/pplx-decider-v1.1-27b`. */
   model?: string;
   url?: string;
   fetch?: typeof fetch;
@@ -127,7 +127,7 @@ export function openRouterProvider(o: OpenRouterOptions): SystemOne {
     const cacheKey = opts.cacheKey ?? cacheKeyFor(state, questions, model);
     const hit = cache.get(cacheKey);
     if (hit) { cache.delete(cacheKey); cache.set(cacheKey, hit); return hit; }
-    const { timeoutMs = 2500, retries = 1, backoffMs = 200 } = opts;
+    const { timeoutMs = 2500, retries = 3, backoffMs = 250 } = opts;
     return run(async () => {
       const t0 = Date.now();
       for (let n = 0; ; n++) {
@@ -138,7 +138,8 @@ export function openRouterProvider(o: OpenRouterOptions): SystemOne {
           return reply;
         } catch (e) {
           if (!(e instanceof S1Error) || !retryable(e) || n >= retries) throw e;
-          await sleep(backoffMs);
+          const rateLimited = e.code === "http" && e.status === 429;
+          await sleep((rateLimited ? Math.max(backoffMs, 1000) : backoffMs) * 2 ** n);
         }
       }
     });

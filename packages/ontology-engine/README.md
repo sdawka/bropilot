@@ -194,7 +194,7 @@ A pair rule's id starts with `pair.`. The dialect cannot build strings, so the p
 
 ### Providers
 
-`openRouterProvider({ apiKey, model?, fetch?, concurrency? })` calls the OpenRouter Decisions API, `POST https://openrouter.ai/api/alpha/decisions` with `{ model, state, questions }`. The default model is `perplexity/pplx-decider-v1-27b`. Yes-no questions go as `noul`, choice as `choice` and score as `score`. A score comes back as an expected value, so the provider reports the most probable level, which is what policy keys match. Timeouts, 429 and 5xx are retried; an error body, a non-JSON body or an answer that does not fit its primitive is an `S1Error`, which `judge` records as an unknown judgment with provider `error`. Requests in flight are capped at `concurrency` (default 4) because `judge` asks every candidate at once. The key is used only in the `Authorization` header. It is never part of a reply, provenance or the provider object, and it is redacted from error messages.
+`openRouterProvider({ apiKey, model?, fetch?, concurrency? })` calls the OpenRouter Decisions API, `POST https://openrouter.ai/api/alpha/decisions` with `{ model, state, questions }`. The default model is `perplexity/pplx-decider-v1.1-27b`. Yes-no questions go as `noul`, choice as `choice` and score as `score`. A score comes back as an expected value, so the provider reports the most probable level, which is what policy keys match. Timeouts, 429 and 5xx are retried; an error body, a non-JSON body or an answer that does not fit its primitive is an `S1Error`, which `judge` records as an unknown judgment with provider `error`. Requests in flight are capped at `concurrency` (default 4) because `judge` asks every candidate at once. The key is used only in the `Authorization` header. It is never part of a reply, provenance or the provider object, and it is redacted from error messages.
 
 `providerFromEnv(env)` follows artyfact's precedence: `FAKE_S1=1` gives the fake provider, then `OPENROUTER_API_KEY` gives OpenRouter with `OPENROUTER_MODEL` or the default, else the provider is off.
 
@@ -209,7 +209,7 @@ OPENROUTER_API_KEY=… npm run test:live -w @bropilot/ontology-engine
 OPENROUTER_API_KEY=… OPENROUTER_MODEL=cloudflare/clef npm run test:live -w @bropilot/ontology-engine
 ```
 
-One run makes 261 calls before retries: 233 for Keep in Touch, 18 for tidepool and 10 for the world snapshot. `probe.test.ts` pins these counts. The requests total about 430,000 characters, roughly 110,000 input tokens. Decision models bill input tokens only, so a run costs about half a cent on `perplexity/pplx-decider-v1-27b` at $0.04 per million and about three cents on `cloudflare/clef` at $0.24 per million.
+One run makes 261 calls before retries: 233 for Keep in Touch, 18 for tidepool and 10 for the world snapshot. `probe.test.ts` pins these counts. The requests total about 430,000 characters, roughly 110,000 input tokens. Decision models bill input tokens only, so a run costs about half a cent on `perplexity/pplx-decider-v1.1-27b` at $0.04 per million and about three cents on `cloudflare/clef` at $0.24 per million.
 
 ## Readiness
 

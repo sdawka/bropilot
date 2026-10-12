@@ -27,7 +27,7 @@ const QUESTIONS: S1Questions = {
   rate: { type: "score", instructions: "How clear?", criteria: ["low", "mid", "high"], benign: 2 },
 };
 const GOOD = {
-  id: "gen-dec-1", model: "perplexity/pplx-decider-v1-27b-20261001", provider: "Perplexity",
+  id: "gen-dec-1", model: "perplexity/pplx-decider-v1.1-27b-20261001", provider: "Perplexity",
   answers: {
     yn: { type: "noul", noul: 0.93 },
     pick: { type: "choice", choice: "b", probabilities: { a: 0.08, b: 0.92 }, confidence: 0.92 },
@@ -48,7 +48,7 @@ describe("openRouterProvider wire format", () => {
     expect(c.init.method).toBe("POST");
     expect(c.init.headers).toMatchObject({ Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" });
     expect(c.body).toEqual({
-      model: "perplexity/pplx-decider-v1-27b",
+      model: "perplexity/pplx-decider-v1.1-27b",
       state: { subject: "x" },
       questions: {
         yn: { type: "noul", instructions: "Is it vague?", criteria: { true: "Vague", false: "Concrete" } },
