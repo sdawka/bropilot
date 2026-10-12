@@ -1,0 +1,60 @@
+import { parse } from "../rules";
+
+export const GRAPH_DECLS = `
+.decl graphTemplate(Ref: sym)
+.decl node(Id: sym, Kind: sym, Parent: sym)
+.decl field(Node: sym, Field: sym, Value: sym)
+.decl fieldType(Node: sym, Field: sym, Type: sym)
+.decl parent(Child: sym, Parent: sym)
+.decl link(From: sym, Rel: sym, To: sym, Certainty: sym)
+.decl known(Id: sym)
+.decl ref(From: sym, Via: sym, To: sym)
+.decl declared(Scope: sym, Status: sym)
+.decl provisional(Id: sym)
+.decl evidence(Id: sym, Subject: sym, Kind: sym)
+`;
+
+export const TEMPLATE_DECLS = `
+.decl templateRef(Ref: sym)
+.decl kind(Kind: sym)
+.decl kindField(Kind: sym, Field: sym, Type: sym, Required: bool)
+.decl kindFieldEnum(Kind: sym, Field: sym, Value: sym)
+.decl kindParent(Kind: sym, Parent: sym)
+.decl requiredField(Kind: sym, Field: sym)
+.decl requiredChild(Kind: sym, Child: sym, Min: num, Max: num)
+.decl requiredRel(Kind: sym, Rel: sym, Min: num, Max: num)
+.decl relation(Rel: sym)
+.decl relEndpoint(Rel: sym, Side: sym, Kind: sym)
+.decl relCard(Rel: sym, Dir: sym, Min: num, Max: num)
+.decl relAcyclic(Rel: sym)
+.decl relInverse(Rel: sym, Inverse: sym)
+.decl relCertainty(Rel: sym, Certainty: sym)
+.decl forbiddenCycle(Id: sym, Rel: sym)
+.decl incompatible(Id: sym, Kind: sym, Field: sym, Value: sym)
+.decl incompatibleSize(Id: sym, Size: num)
+.decl exclusive(Id: sym, Rel: sym)
+.decl exactlyOne(Id: sym, Kind: sym, MemberType: sym, Member: sym)
+.decl completeScope(Id: sym, Kind: sym)
+.decl criterion(Id: sym, Owner: sym, Subject: sym, Severity: sym)
+.decl criterionGate(Id: sym, Gate: sym)
+.decl criterionHook(Id: sym, Hook: sym)
+.decl question(Id: sym, Answer: sym)
+.decl typeAccepts(Type: sym, Observed: sym)
+`;
+
+export const FORM_DECLS = `
+.decl extends(From: sym, To: sym)
+.decl templateKnown(Ref: sym)
+.decl templateNode(Id: sym, Kind: sym)
+.decl packError(Pack: sym, Kind: sym, Detail: sym)
+.decl packRead(Key: sym, Pack: sym, Rel: sym)
+.decl packDerives(Rel: sym)
+.decl edbRelation(Rel: sym)
+.decl questionPolicy(Question: sym, Answer: sym, Level: sym)
+.decl findingLevel(Level: sym)
+`;
+
+/** Every EDB relation an instance evaluation emits; template packs may read these and nothing else they do not derive. */
+export const EDB_DECLS = GRAPH_DECLS + TEMPLATE_DECLS;
+export const edbProgram = () => parse(EDB_DECLS, "edb");
+export const EDB_RELATIONS: readonly string[] = [...edbProgram().decls.keys()].sort();

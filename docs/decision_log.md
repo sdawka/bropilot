@@ -79,3 +79,9 @@
 - **2026-10-10T14:10:58-04:00** — Use Sol agents for all implementation, with the primary agent limited to orchestration.
 
 - **2026-10-10T15:02:52-04:00** — Lead change analysis with a concise consequence summary; distinguish actual edits, potential effects, recomputed metrics and evidence rechecks. Start explanations at the actual Thing revision change and prioritize useful consequences while retaining full detail on demand.
+
+- **2026-10-12T15:48:20-04:00** — Build the template-agnostic ontology engine as a library in the bropilot repository (`packages/ontology-engine`), consumed by `artyfact-cf`.
+
+- **2026-10-12T15:48:20-04:00** — Keep the `@artyfact/rules` Datalog dialect as the engine's rule language.
+
+- **2026-10-12T15:48:20-04:00** — Keep YAML in `artyfact-cf` behind a loader adapter; the engine's canonical instance format is the JSON graph.

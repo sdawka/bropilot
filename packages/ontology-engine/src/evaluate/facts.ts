@@ -1,0 +1,114 @@
+import { canon } from "../canon";
+import type { Graph } from "../graph/graph";
+import { maxOf, parseCardinality } from "../meta/cardinality";
+import type { Template } from "../meta/template";
+import { factSet, type FactSet, type Tuple } from "../rules";
+
+export type Facts = Record<string, Tuple[]>;
+
+const ACCEPTS: Tuple[] = [
+  ["string", "string"], ["number", "number"], ["boolean", "boolean"], ["ref", "string"],
+  ["refs", "list"], ["list", "list"], ["object", "object"],
+];
+
+const encode = (v: unknown): string | undefined =>
+  v === null || v === undefined || v === "" ? undefined
+    : typeof v === "string" ? v
+    : typeof v === "number" || typeof v === "boolean" ? String(v)
+    : canon(v);
+
+const observed = (v: unknown): string =>
+  Array.isArray(v) ? "list" : v !== null && typeof v === "object" ? "object" : typeof v;
+
+class Emitter {
+  out: Facts = {};
+  push(rel: string, ...t: Tuple): void { (this.out[rel] ??= []).push(t); }
+}
+
+export function templateFacts(t: Template): Facts {
+  const f = new Emitter();
+  f.push("templateRef", t.ref);
+  for (const [a, b] of ACCEPTS) f.push("typeAccepts", a, b);
+  for (const [k, kind] of Object.entries(t.kinds)) {
+    f.push("kind", k);
+    for (const fd of kind.fields) {
+      f.push("kindField", k, fd.name, fd.type, fd.required ?? false);
+      if (fd.required) f.push("requiredField", k, fd.name);
+      for (const v of fd.enum ?? []) f.push("kindFieldEnum", k, fd.name, String(v));
+    }
+    for (const p of kind.parents ?? []) f.push("kindParent", k, p);
+    for (const fd of kind.completeness.fields) f.push("requiredField", k, fd);
+    for (const c of kind.completeness.children) {
+      const card = parseCardinality(c.cardinality);
+      f.push("requiredChild", k, c.kind, card.min, maxOf(card));
+    }
+    for (const r of kind.completeness.relations) {
+      const card = parseCardinality(r.cardinality);
+      f.push("requiredRel", k, r.rel, card.min, maxOf(card));
+    }
+  }
+  for (const [r, rel] of Object.entries(t.relations)) {
+    f.push("relation", r);
+    for (const k of rel.from) f.push("relEndpoint", r, "from", k);
+    for (const k of rel.to) f.push("relEndpoint", r, "to", k);
+    for (const dir of ["out", "in"] as const) {
+      const card = parseCardinality(rel.cardinality[dir]);
+      f.push("relCard", r, dir, card.min, maxOf(card));
+    }
+    if (rel.acyclic) f.push("relAcyclic", r);
+    if (rel.inverse) f.push("relInverse", r, rel.inverse);
+    if (rel.certainty) f.push("relCertainty", r, rel.certainty);
+  }
+  const c = t.constraints;
+  for (const x of c.forbiddenCycles) for (const r of x.relations) f.push("forbiddenCycle", x.id, r);
+  for (const x of c.incompatible) {
+    for (const w of x.when) f.push("incompatible", x.id, x.kind, w.field, String(w.value));
+    f.push("incompatibleSize", x.id, new Set(x.when.map((w) => w.field)).size);
+  }
+  for (const x of c.exclusive) for (const r of x.relations) f.push("exclusive", x.id, r);
+  for (const x of c.exactlyOne) for (const m of x.of) f.push("exactlyOne", x.id, x.kind, "field" in m ? "field" : "rel", "field" in m ? m.field : m.rel);
+  for (const x of c.complete) f.push("completeScope", x.id, x.kind);
+  for (const cr of t.criteria) {
+    f.push("criterion", cr.id, cr.owner, cr.subject, cr.severity);
+    for (const g of cr.gates) f.push("criterionGate", cr.id, g);
+    for (const h of cr.hooks) f.push("criterionHook", cr.id, h);
+  }
+  for (const q of t.questions) f.push("question", q.id, q.answer);
+  return f.out;
+}
+
+export function graphFacts(t: Template, g: Graph): Facts {
+  const f = new Emitter();
+  f.push("graphTemplate", g.template);
+  for (const n of g.nodes) {
+    f.push("node", n.id, n.kind, n.parent ?? "");
+    f.push("known", n.id);
+    if (n.parent !== undefined) f.push("parent", n.id, n.parent);
+    if (n.provisional) f.push("provisional", n.id);
+    const declared = new Map((t.kinds[n.kind]?.fields ?? []).map((d) => [d.name, d.type]));
+    for (const [name, v] of Object.entries(n.fields)) {
+      const values = (Array.isArray(v) ? v : [v]).map(encode).filter((x): x is string => x !== undefined);
+      if (!values.length) continue;
+      f.push("fieldType", n.id, name, observed(v));
+      const isRef = declared.get(name) === "ref" || declared.get(name) === "refs";
+      for (const x of values) {
+        f.push("field", n.id, name, x);
+        if (isRef) f.push("ref", n.id, name, x);
+      }
+    }
+  }
+  for (const l of g.links) {
+    const certainty = l.certainty ?? t.relations[l.rel]?.certainty ?? "declared";
+    f.push("link", l.from, l.rel, l.to, certainty);
+    f.push("ref", l.from, l.rel, l.to);
+  }
+  for (const d of g.declarations) f.push("declared", d.scope, d.status);
+  for (const e of g.evidence) {
+    f.push("evidence", e.id, e.subject, e.kind);
+    f.push("ref", e.id, "evidence", e.subject);
+  }
+  return f.out;
+}
+
+/** EDB for an instance evaluation: the graph set plus the template set. */
+export const toFacts = (t: Template, g: Graph): FactSet => factSet({ ...templateFacts(t), ...graphFacts(t, g) });
