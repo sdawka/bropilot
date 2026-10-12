@@ -10,8 +10,8 @@
 - Latest implementation evidence: `f9d700d` passed complete build/check (422 tests including 80 browser cases), independent review and both hosted foundation checks. Advisory impact/clarity is complete locally; canonical adoption, complete packets and composition remain open.
 - External/mirror evidence: GitHub/Artifacts repository heads are verified. GRREAT authentication and the initial six-record mirror have verified receipts; enrichment uses independent review and versioned sync, with the current receipt in [[journals/2026-10-10]]. These facts do not establish a deployed platform, OAuth-connected app or live calendar.
 - Blockers: live provider acceptance needs external setup/authority; detailed assistant/calendar contract needs decisions. Neither blocks local authoring/packet research. Markdown stays authoritative; preserve `.sync.json` and expose conflicts.
-- Parallel strand: ontology engine library milestones 1 and 2 are local-green in `packages/ontology-engine` (PR #11); next is switching artyfact-cf to it. See [[journals/2026-10-12]].
-- Last updated: 2026-10-12T16:35:00-04:00. Evidence/history: [[analysis]], [[journals/2026-10-10]] and [[journals/2026-10-12]].
+- Parallel strand: ontology engine library milestones 1 to 3 are local-green in `packages/ontology-engine` (PR #11): artyfact, Rust world snapshot and product-spec vocabularies all evaluate; next is the `provisional` decision and switching artyfact-cf over. See [[journals/2026-10-12]].
+- Last updated: 2026-10-12T17:00:00-04:00. Evidence/history: [[analysis]], [[journals/2026-10-10]] and [[journals/2026-10-12]].
 
 - Responsible role: domain/API integration, with UI and verifier review at the acceptance boundary.
 - Done when: an implementable contract names exact inputs/outputs and positive, correction, retry, stale-base, unauthorized-field and incomplete-model cases, with an owned follow-on model/Template/Kit/Rule Pack compatibility/migration contract. Subsequent implementation and tests remain separate work.

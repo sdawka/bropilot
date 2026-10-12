@@ -16,3 +16,5 @@ export { diff, diffFindings, type GraphDelta } from "./evaluate/diff";
 export { completeness, consistency, meta, metamodel } from "./evaluate/packs";
 export * from "./judge";
 export * from "./adapters/artyfact";
+export * from "./adapters/product";
+export * from "./adapters/world";
