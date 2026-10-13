@@ -460,7 +460,8 @@ export function kindGlossary(base: KindsInput = {}, override?: ProbeOptions["kin
  * `byKind` JSON wording and `passFrom` boundaries. `base` is the template's kinds: their `criteria` are the source of
  * truth, and `kinds` (the legacy glossary) overrides them key by key. Every kind with a glossary entry or any wording
  * criterion gets a `byKind` entry. A parent kind's `pairs` is worded onto its child kinds (declared through `parents`
- * or required `completeness.children`), because `pair.relation` is worded by its first subject's kind.
+ * or required `completeness.children`), which words an entry pair by its first subject's kind. The parent keeps its
+ * own `pairs` as `childPairs`, which words the pairs the funnel draws under it (see `toWire`'s `parentKind`).
  */
 export function compileKinds(kinds?: ProbeOptions["kinds"], base: KindsInput = {}): { byKind?: Record<string, string>; passFrom?: Record<string, number> } {
   const glossary = kindGlossary(base, kinds);
@@ -473,11 +474,16 @@ export function compileKinds(kinds?: ProbeOptions["kinds"], base: KindsInput = {
     for (const c of new Set(kids)) { const l = pairs.get(c) ?? []; if (!l.includes(text)) l.push(text); pairs.set(c, l); }
   }
   const worded = Object.keys(base).filter((k) => WORDING_KEYS.some((x) => x !== "pairs" && wording(k)[x] !== undefined));
-  const keys = [...new Set([...Object.keys(glossary), ...worded, ...pairs.keys()])];
+  const parentsWithPairs = Object.keys(base).filter((k) => wording(k).pairs);
+  const keys = [...new Set([...Object.keys(glossary), ...worded, ...pairs.keys(), ...parentsWithPairs])];
   if (!keys.length) return {};
   const word = (k: string) => {
     const w = { ...wording(k), ...(pairs.has(k) ? { pairs: pairs.get(k)!.join(" ") } : { pairs: undefined }) };
-    return JSON.stringify({ noun: w.noun ?? k, ...Object.fromEntries(WORDING_KEYS.filter((x) => w[x] !== undefined && w[x] !== "").map((x) => [x, w[x]])) });
+    const own = wording(k).pairs;
+    return JSON.stringify({
+      noun: w.noun ?? k, ...Object.fromEntries(WORDING_KEYS.filter((x) => w[x] !== undefined && w[x] !== "").map((x) => [x, w[x]])),
+      ...(own && { childPairs: own }),
+    });
   };
   const passFrom = Object.fromEntries(Object.entries(glossary).filter(([, s]) => s.minScore !== undefined).map(([k, s]) => [k, s.minScore!]));
   return { byKind: Object.fromEntries(keys.map((k) => [k, word(k)])), ...(Object.keys(passFrom).length && { passFrom }) };

@@ -37,6 +37,7 @@ describe("routeView", () => {
 });
 
 const IF = { ...tp.options, order: "intent-first" as const };
+const IL = { ...tp.options, order: "intent-last" as const };
 
 describe("route chain, intent-first", () => {
   it("walks intent, space, kind and node, each question offering only its level's options", async () => {
@@ -85,7 +86,7 @@ describe("route chain, intent-first", () => {
   });
 });
 
-describe("route chain, intent-last (default)", () => {
+describe("route chain, intent-last", () => {
   it("navigates first, then asks the intent with the picked items' titles and descriptions in view", async () => {
     const states: Record<string, any> = {};
     let criteria: Record<string, string> = {};
@@ -93,7 +94,7 @@ describe("route chain, intent-last (default)", () => {
       "route.space": "solution", "route.kind": "term", "route.node": "term-percent-cover", "route.more": "no",
       "route.intent": (state, q) => { states.intent = state; criteria = (q as { criteria: Record<string, string> }).criteria; return "update"; },
     });
-    const r = await route(tp.graph, tp.template, "Percent cover should be estimated in 10% steps, 5% is too fine for volunteers.", s1, tp.options);
+    const r = await route(tp.graph, tp.template, "Percent cover should be estimated in 10% steps, 5% is too fine for volunteers.", s1, IL);
     expect(r).toMatchObject({ order: "intent-last", intent: "update", status: "confident", calls: 5, target: { space: "solution", kind: "term", nodes: ["term-percent-cover"] } });
     expect(r.path.map((s) => s.level)).toEqual(["space", "kind", "node", "more", "intent"]);
     expect(states.intent.so_far.picked).toEqual([expect.objectContaining({ kind: "term", title: expect.stringMatching(/percent cover/i), description: expect.stringMatching(/quadrat/) })]);
@@ -108,7 +109,7 @@ describe("route chain, intent-last (default)", () => {
       "route.space": "solution", "route.kind": "test", "route.node": "new", "route.intent": "add",
       "route.anchor": (_s, q) => { anchors = keys(q); return "rule-surveys-start-no-earlier-than-90-minutes"; },
     });
-    const r = await route(tp.graph, tp.template, "Add a test that a survey started two hours before low tide is rejected.", s1, tp.options);
+    const r = await route(tp.graph, tp.template, "Add a test that a survey started two hours before low tide is rejected.", s1, IL);
     expect(r).toMatchObject({ intent: "add", status: "confident", target: { kind: "test", new: true, nodes: ["rule-surveys-start-no-earlier-than-90-minutes"] } });
     expect(r.path.map((s) => s.level)).toEqual(["space", "kind", "node", "intent", "anchor"]);
     expect(anchors).toContain("rule-surveys-start-no-earlier-than-90-minutes");
@@ -117,30 +118,30 @@ describe("route chain, intent-last (default)", () => {
 
   it("a declared kind with no nodes skips the node question and marks the target new", async () => {
     const s1 = scriptedSystemOne({ "route.space": "solution", "route.kind": "design-system", "route.intent": "add", "route.anchor": "none" });
-    const r = await route(tp.graph, tp.template, "Add a design system.", s1, tp.options);
+    const r = await route(tp.graph, tp.template, "Add a design system.", s1, IL);
     expect(r).toMatchObject({ intent: "add", status: "confident", calls: 4, target: { kind: "design-system", new: true, nodes: [] } });
     expect(r.path.map((s) => s.level)).toEqual(["space", "kind", "intent", "anchor"]);
   });
 
   it("still asks the intent after `none` or an unknown answer stops the navigation", async () => {
-    const q = await route(tp.graph, tp.template, "Can we make it faster?", scriptedSystemOne({ "route.space": "none", "route.intent": "question" }), tp.options);
+    const q = await route(tp.graph, tp.template, "Can we make it faster?", scriptedSystemOne({ "route.space": "none", "route.intent": "question" }), IL);
     expect(q).toMatchObject({ intent: "question", status: "confident", calls: 2, target: { nodes: [] } });
-    const u = await route(tp.graph, tp.template, "x #s1low:route.space #s1:route.intent=question", fakeSystemOne(), tp.options);
+    const u = await route(tp.graph, tp.template, "x #s1low:route.space #s1:route.intent=question", fakeSystemOne(), IL);
     expect(u.path.map((s) => [s.level, s.status])).toEqual([["space", "unknown"], ["intent", "confident"]]);
     expect(u.status).toBe("unknown");
-    expect(await route(tp.graph, tp.template, "hmm", scriptedSystemOne({ "route.space": "none", "route.intent": "unclear" }), tp.options)).toMatchObject({ status: "unknown" });
+    expect(await route(tp.graph, tp.template, "hmm", scriptedSystemOne({ "route.space": "none", "route.intent": "unclear" }), IL)).toMatchObject({ status: "unknown" });
   });
 
   it("world: routes into a section by its id and down to a nested node", async () => {
     const s1 = scriptedSystemOne({ "route.intent": "update", "route.space": "node-thing-planning", "route.kind": "authorizationRule", "route.node": "auth-routine", "route.more": "no" });
-    const r = await route(ws.graph, ws.template, "The assistant may also move blocks the user created.", s1);
+    const r = await route(ws.graph, ws.template, "The assistant may also move blocks the user created.", s1, { order: "intent-last" });
     expect(r).toMatchObject({ root: "assistant-world", status: "confident", target: { space: "node-thing-planning", kind: "authorizationRule", nodes: ["auth-routine"] } });
   });
 });
 
 describe("route chain, both orders", () => {
   for (const order of ["intent-first", "intent-last"] as const) {
-    const O = { ...tp.options, order };
+    const O = { ...tp.options, order }; // shortlist-first has its own block: its first question differs
     it(`${order}: goes on past review answers and takes the lowest status; continueOnReview: false stops there`, async () => {
       const msg = "Rename the species picker #s1low:route.kind #s1:route.intent=update #s1:route.space=solution #s1:route.kind=screen #s1:route.node=screen-species-picker";
       const loose = await route(tp.graph, tp.template, msg, fakeSystemOne(), { ...O, thresholds: { review: 0.2 } });
@@ -205,6 +206,86 @@ describe("route chain, both orders", () => {
   }
 });
 
+describe("route chain, shortlist-first (default)", () => {
+  it("one question over the nodes nearest the message fixes space and kind, then the intent", async () => {
+    let shortlisted: string[] = [];
+    const s1 = scriptedSystemOne({ "route.shortlist": (_s, q) => { shortlisted = keys(q); return "screen-species-picker"; }, "route.more": "no", "route.intent": "update" });
+    const r = await route(tp.graph, tp.template, "Rename the species picker to 'Species chooser'.", s1, tp.options);
+    expect(r).toMatchObject({ order: "shortlist-first", intent: "update", status: "confident", target: { space: "solution", kind: "screen", nodes: ["screen-species-picker"] } });
+    expect(r.path.map((s) => s.level)).toEqual(["shortlist", "more", "intent"]);
+    expect(shortlisted[0]).toBe("screen-species-picker");
+    expect(shortlisted.length).toBeLessThanOrEqual(ROUTE_DEFAULTS.maxChoices + 1);
+    expect(shortlisted.at(-1)).toBe("none");
+  });
+
+  it("scores the kind name too, so 'the GPS rule' shortlists rules", async () => {
+    let shortlisted: string[] = [];
+    await route(tp.graph, tp.template, "The GPS rule should be 10 metres, not 20.",
+      scriptedSystemOne({ "route.shortlist": (_s, q) => { shortlisted = keys(q); return "none"; }, "route.space": "none", "route.intent": "question" }), tp.options);
+    expect(shortlisted[0]).toBe("rule-every-observation-carries-a-gps-fix");
+  });
+
+  it("an add after a shortlisted anchor asks the new item's kind (named kinds, then the anchor's space) and takes that kind's space", async () => {
+    let kinds: string[] = [];
+    const s1 = scriptedSystemOne({
+      "route.shortlist": "usage-event-survey-abandoned-mid-transect", "route.more": "no", "route.intent": "add",
+      "route.kind": (_s, q) => { kinds = keys(q); return "event"; },
+    });
+    const r = await route(tp.graph, tp.template, "Add an event when a survey is abandoned mid-transect so we can count it.", s1, tp.options);
+    expect(r).toMatchObject({ intent: "add", status: "confident", target: { space: "solution", kind: "event", nodes: ["usage-event-survey-abandoned-mid-transect"] } });
+    expect(kinds.slice(0, 2).sort()).toEqual(["event", "usage-event"]); // both named by "event"; the anchor's space breaks the tie
+    expect(kinds).toEqual(expect.arrayContaining(["metric-reading", "feedback", "evidence", "none"]));
+  });
+
+  it("`none` on the shortlist falls back to the space, kind and node chain", async () => {
+    const s1 = scriptedSystemOne({ "route.shortlist": "none", "route.space": "problem", "route.kind": "audience", "route.node": "new", "route.intent": "add", "route.anchor": "none" });
+    const r = await route(tp.graph, tp.template, "We also need to support school groups doing shore surveys with a teacher.", s1, tp.options);
+    expect(r.path.map((s) => s.level)).toEqual(["shortlist", "space", "kind", "node", "intent", "anchor"]);
+    expect(r).toMatchObject({ intent: "add", status: "confident", target: { space: "problem", kind: "audience", new: true, nodes: [] } });
+  });
+
+  it("an unknown space falls back to a kind question over every kind with nodes and a node across the graph", async () => {
+    let kinds: string[] = [];
+    const msg = "Percent cover should be in 10% steps #s1low:route.space #s1:route.shortlist=none #s1:route.node=term-percent-cover #s1:route.more=no #s1:route.intent=update";
+    const s1 = scriptedSystemOne({ "route.kind": (_s, q) => { kinds = keys(q); return "term"; } });
+    const r = await route(tp.graph, tp.template, msg, s1, tp.options);
+    expect(r.path.map((s) => [s.level, s.status])).toEqual([["shortlist", "confident"], ["space", "unknown"], ["kind", "confident"], ["node", "confident"], ["more", "confident"], ["intent", "confident"]]);
+    expect(r).toMatchObject({ status: "review", intent: "update", target: { space: "solution", kind: "term", nodes: ["term-percent-cover"] } });
+    expect(kinds[0]).toBe("term");
+    expect(kinds.length).toBeLessThanOrEqual(ROUTE_DEFAULTS.maxChoices + 1);
+  });
+
+  it("a `new` below confident is settled by the anchor: a picked anchor clears it, `none` keeps it", async () => {
+    const base = { "route.shortlist": "none", "route.space": "solution", "route.kind": "term", "route.intent": "update" };
+    const lowNew = "Percent cover steps #s1low:route.node #s1:route.node=new";
+    const picked = await route(tp.graph, tp.template, lowNew, scriptedSystemOne({ ...base, "route.anchor": "term-percent-cover" }), { ...tp.options, thresholds: { review: 0.2 } });
+    expect(picked.path.map((s) => s.level)).toEqual(["shortlist", "space", "kind", "node", "intent", "anchor"]);
+    expect(picked.target).toMatchObject({ nodes: ["term-percent-cover"] });
+    expect(picked.target.new).toBeUndefined();
+    expect(picked.status).toBe("review");
+    const none = await route(tp.graph, tp.template, lowNew, scriptedSystemOne({ ...base, "route.anchor": "none" }), { ...tp.options, thresholds: { review: 0.2 } });
+    expect(none.target).toMatchObject({ new: true, nodes: [] });
+    const sure = await route(tp.graph, tp.template, "Percent cover steps", scriptedSystemOne({ ...base, "route.node": "new" }), tp.options);
+    expect(sure.path.map((s) => s.level)).toEqual(["shortlist", "space", "kind", "node", "intent"]);
+    expect(sure.target.new).toBe(true);
+  });
+
+  it("an empty shortlist goes straight to the chain; calls stay within budget", async () => {
+    const r = await route(tp.graph, tp.template, "zzz qqq", scriptedSystemOne({ "route.space": "none", "route.intent": "question" }), tp.options);
+    expect(r.path.map((s) => s.level)).toEqual(["space", "intent"]);
+    const busy = scriptedSystemOne({ "route.shortlist": "none", "route.space": "solution", "route.kind": "module", "route.node": (_s, q) => keys(q)[0]!, "route.more": "yes", "route.nodes": (_s, q) => keys(q)[0]!, "route.intent": "link" });
+    const b = await route(tp.graph, tp.template, "Move the site map into the verification service module", busy, tp.options);
+    expect(b.calls).toBeLessThanOrEqual(8);
+    expect(b.intent).toBe("link");
+  });
+
+  it("world: a shortlisted nested node gives its section as the space", async () => {
+    const s1 = scriptedSystemOne({ "route.shortlist": "auth-routine", "route.more": "no", "route.intent": "update" });
+    const r = await route(ws.graph, ws.template, "The assistant may also move blocks the user created, as long as it asks first.", s1);
+    expect(r).toMatchObject({ status: "confident", target: { space: "node-thing-planning", kind: "authorizationRule", nodes: ["auth-routine"] } });
+  });
+});
+
 describe("node ordering under maxChoices", () => {
   /** Gold nodes the node level would not offer: for an add, the space's nodes; otherwise the kind's nodes in the space. */
   function cut(setting: ReturnType<typeof tidepool>) {
@@ -246,7 +327,7 @@ describe("routeSlice and routeVocabulary", () => {
   });
   it("uses related nodes when the route picked none", async () => {
     const r = await route(tp.graph, tp.template, "Add a metric for how many photos each survey has.",
-      scriptedSystemOne({ "route.intent": "add", "route.space": "hypothesis", "route.kind": "metric", "route.node": "new", "route.anchor": "none" }), tp.options);
+      scriptedSystemOne({ "route.intent": "add", "route.space": "hypothesis", "route.kind": "metric", "route.node": "new", "route.anchor": "none" }), IL);
     expect(r.target.nodes).toEqual([]);
     expect(r.target.related.length).toBeGreaterThan(0);
     expect(routeSlice(tp.graph, r).targets).toEqual(r.target.related);

@@ -1,6 +1,6 @@
 export * from "./types";
 export {
-  overlapScore, rankNodes, route, ROUTE_DEFAULTS, routeTokens, routeView, titleOf,
+  kindTokens, overlapScore, rankNodes, route, ROUTE_DEFAULTS, routeTokens, routeView, titleOf,
   type RouteSpace, type RouteView, type RouteVocabularySource,
 } from "./route";
 export { routeSlice, routeVocabulary, type RouteSliceOptions } from "./context";

@@ -121,12 +121,19 @@ export function loadTemplate(raw: unknown, store: TemplateStore = emptyStore): T
 }
 
 /**
- * The form a template is hashed in: a `next` entry without `minStatus` hashes as `confident`, the value meta@1 used to
- * fill in, so templates that do not set it keep their hash. A declared `confident` hashes the same.
+ * The form a template is hashed in: a `next` entry without `minStatus` hashes as its effective value, `review` on a
+ * navigation question (`choicesFrom`) and `confident` otherwise (the rule of `minStatusOf` in the funnel). Templates
+ * that do not set it on ordinary questions keep the hash they had when meta@1 filled in `confident`, and two templates
+ * that behave differently never share a hash.
  */
 const hashed = <T extends { questions?: Template["questions"] }>(t: T): T =>
   !t.questions?.some((q) => q.next?.some((n) => n.minStatus === undefined)) ? t
-    : { ...t, questions: t.questions.map((q) => (q.next ? { ...q, next: q.next.map((n) => ({ ...n, minStatus: n.minStatus ?? "confident" })) } : q)) };
+    : {
+      ...t,
+      questions: t.questions.map((q) => (q.next
+        ? { ...q, next: q.next.map((n) => ({ ...n, minStatus: n.minStatus ?? (q.choicesFrom ? "review" : "confident") })) }
+        : q)),
+    };
 
 export const templateHash = (t: Omit<Template, "hash"> & { hash?: string }): string => hashOf(hashed({ ...t, hash: undefined }));
 

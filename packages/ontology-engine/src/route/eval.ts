@@ -168,7 +168,7 @@ export function scoreTranslation(gold: RouteGold, out: Translation, template: Ro
 /**
  * A scripted System One that walks the chain to the gold target: intent, space and kind from gold (`none` when
  * null); at the node level the first gold node offered, else `new` when offered and the gold adds or names nodes,
- * else `none`; the anchor level likewise picks a gold node or `none`; further gold nodes through the follow-ups
+ * else `none`; the shortlist and anchor levels likewise pick a gold node or `none`; further gold nodes through the follow-ups
  * while any remain among the offered candidates. One instance per routed message; works for both orders.
  */
 export function oracleSystemOne(gold: RouteGold): SystemOne {
@@ -189,6 +189,7 @@ export function oracleSystemOne(gold: RouteGold): SystemOne {
       offered.push(...keys);
       return hit ?? ((gold.intent === "add" || gold.nodes.length) && keys.includes(ROUTE_NEW) ? ROUTE_NEW : ROUTE_NONE);
     },
+    "route.shortlist": (_s, q) => { const { keys, hit } = pick(q); offered.push(...keys); return hit ?? ROUTE_NONE; },
     "route.anchor": (_s, q) => pick(q).hit ?? ROUTE_NONE,
     "route.more": () => (gold.nodes.some((n) => offered.includes(n) && !picked.has(n)) ? "yes" : "no"),
     "route.nodes": (_s, q) => pick(q).hit ?? ROUTE_NONE,
@@ -253,7 +254,7 @@ export async function evalRoute(file: RouteCaseFile, ctx: RouteEvalContext): Pro
 
   return {
     fixture: file.fixture,
-    order: ctx.options?.order ?? "intent-last",
+    order: ctx.options?.order ?? "shortlist-first",
     model,
     ...(ctx.translator && ctx.translator.mode !== "off" && { translateModel: ctx.translator.model }),
     cases,

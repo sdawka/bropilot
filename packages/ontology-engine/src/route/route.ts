@@ -26,6 +26,10 @@ const stem = (w: string) => (w.length > 3 && w.endsWith("s") && !w.endsWith("ss"
 /** Content words of a text with a light plural strip, so "reminders" meets "reminder". */
 export const routeTokens = (s: string): Set<string> => new Set([...contentWords(s)].map(stem));
 
+/** Words of a kind's name (camelCase and dashes split) and of its label's head before any colon. */
+export const kindTokens = (kind: string, label = ""): Set<string> =>
+  routeTokens(`${kind.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/[-_.]/g, " ")} ${label.split(":")[0] ?? ""}`);
+
 /** Term overlap of a node with the message: two per shared title word, one per word only its description shares. */
 export function overlapScore(message: Set<string>, n: GraphNode): number {
   const t = routeTokens(titleOf(n)), d = routeTokens(descOf(n));
@@ -143,11 +147,17 @@ const intentInView = (picked: boolean, kind?: string): Record<string, string> =>
 
 /**
  * Routes a user message to the part of the graph it concerns with a chain of small System One questions, each
- * offering only its level's options with a few example titles: space, kind and node, then up to `maxNodes - 1`
- * "does it also concern another?" follow-ups, and the intent. `intent-last` (default) asks the intent last, with the
- * picked nodes' titles and descriptions in view; when the intent is `add` and nothing was picked (`new`/`none`), one
- * more question picks the anchor in the space. `intent-first` asks the intent first; a `question` or `unclear`
- * intent then ends the route, and for `add` the node level picks the anchor directly.
+ * offering only its level's options with a short description or a few example titles.
+ *
+ * - `shortlist-first` (default): one question over the (at most `maxChoices`) nodes sharing the most words with the
+ *   message. A picked node fixes space and kind; follow-ups may add shortlisted nodes or same-kind siblings; then the
+ *   intent, and for `add` the new item's kind. With no shortlist, or `none`, the intent-last chain runs, where an
+ *   unknown space falls back to a kind question over every kind with nodes, and a `new` below confident is settled by
+ *   the anchor question (`target.new` only when the anchor is `none`).
+ * - `intent-last`: space, kind, node, up to `maxNodes - 1` "does it also concern another?" follow-ups, then the intent
+ *   with the picked nodes in view; for an `add` with nothing picked, one more question picks the anchor in the space.
+ * - `intent-first`: the intent first; a `question` or `unclear` intent ends the route, and for `add` the node level
+ *   picks the anchor directly.
  *
  * Navigation goes on past `review` answers (unless `continueOnReview: false`) and stops on `unknown`, on `none` or
  * when `maxCalls` runs out (one call stays reserved for an intent asked last); the partial path is kept. The route's
@@ -157,8 +167,8 @@ const intentInView = (picked: boolean, kind?: string): Record<string, string> =>
 export async function route(g: Graph, template: RouteVocabularySource, message: string, s1: SystemOne, opts: RouteOptions = {}): Promise<Route> {
   const view = routeView(g, opts);
   const t = thresholdsOf(opts.thresholds);
-  const order = opts.order ?? "intent-last";
-  const intentLast = order === "intent-last";
+  const order = opts.order ?? "shortlist-first";
+  const intentLast = order !== "intent-first";
   const continueOnReview = opts.continueOnReview ?? true;
   const maxChoices = opts.maxChoices ?? ROUTE_DEFAULTS.maxChoices;
   const maxNodes = opts.maxNodes ?? ROUTE_DEFAULTS.maxNodes;
@@ -232,8 +242,29 @@ export async function route(g: Graph, template: RouteVocabularySource, message: 
   };
 
   const sectionOf = () => view.spaces.find((s) => s.key === space);
-  const ofKind = (k: string) => sectionOf()!.nodes.filter((id) => node(id).kind === k);
+  /** A node's own space: its section (not the root's top-level space) in tree mode, its kind's space in map mode. */
+  const spaceOfNode = (id: string) => (view.spaces.find((s) => s.key !== view.root && s.nodes.includes(id)) ?? view.spaces.find((s) => s.nodes.includes(id)))?.key;
+  const spaceOfKind = (k: string) => (view.mode === "map" ? view.spaces.find((s) => s.kinds.includes(k))?.key : undefined);
+  const ofKind = (k: string, pool: string[] = sectionOf()?.nodes ?? view.nodes) => pool.filter((id) => node(id).kind === k);
   const offered = (pool: string[], withKind: boolean) => pool.slice(0, maxChoices).map((id): [string, string] => [id, nodeCriterion(node(id), withKind)]);
+  const shortlistFirst = order === "shortlist-first";
+  /** shortlist-first: a `new` answer below confident; the anchor question then decides whether the target is new. */
+  let lowNew = false;
+  /** shortlist-first: kind and space came from a shortlisted node, so an `add` must still ask the new item's kind. */
+  let fromShortlist = false;
+
+  /** Kinds ranked by overlap of their label and member titles with the message, then `prefer` order, then size. */
+  function rankKinds(pool: string[], prefer: string[] = []): string[] {
+    const members = (k: string) => view.nodes.filter((id) => node(id).kind === k);
+    const score = new Map(pool.map((k) => {
+      const label = kindTokens(k, kindLabel(k));
+      let sc = 0;
+      for (const w of words) if (label.has(w)) sc += 2;
+      return [k, sc + Math.max(0, ...members(k).map((id) => overlapScore(words, node(id))))];
+    }));
+    const pref = (k: string) => { const i = prefer.indexOf(k); return i < 0 ? prefer.length : i; };
+    return [...pool].sort((x, y) => score.get(y)! - score.get(x)! || pref(x) - pref(y) || members(y).length - members(x).length || (x < y ? -1 : 1));
+  }
 
   async function askIntent(): Promise<boolean> {
     const text = intentLast
@@ -245,28 +276,84 @@ export async function route(g: Graph, template: RouteVocabularySource, message: 
     return true;
   }
 
-  /** Space, kind, node and follow-ups. `adding` is known only when the intent came first. */
-  async function navigate(adding: boolean | undefined): Promise<void> {
+  /** "Does it also concern another?" follow-ups over `pool`; they only add nodes and never lower the route's status. */
+  async function followUps(pool: string[], withKind: boolean): Promise<void> {
+    while (picked.length < maxNodes) {
+      const rest = pool.filter((id) => !picked.includes(id));
+      if (!rest.length) break;
+      if (calls + 2 > maxCalls - reserve()) { truncated = true; break; }
+      const listed = rest.slice(0, maxChoices).map((id) => titleOf(node(id))).join("; ");
+      const more = await ask("more", "route.more",
+        `Besides ${picked.map((p) => `"${titleOf(node(p))}"`).join(", ")}, does state.message also concern another of these items?`,
+        [], [["yes", `Yes: it also concerns one of: ${listed}`], ["no", "No: those already picked are all it concerns"]], "no");
+      if (!usable(more) || more.answer !== "yes") break;
+      const next = await ask("nodes", "route.nodes", "Which other item does state.message also concern?", offered(rest, withKind), [[ROUTE_NONE, "None of these"]], ROUTE_NONE);
+      if (!usable(next) || next.answer === ROUTE_NONE) break;
+      picked.push(next.answer);
+    }
+  }
+
+  /**
+   * shortlist-first: one node question over the nodes sharing the most words with the message (title, description and
+   * kind name). A picked node fixes space and kind. False when nothing was shortlisted or the pick was `none` or not usable.
+   */
+  async function shortlist(): Promise<boolean> {
+    const scored = view.nodes.map((id) => {
+      const n = node(id);
+      let sc = overlapScore(words, n);
+      const k = kindTokens(n.kind, kindLabel(n.kind));
+      for (const w of words) if (k.has(w)) sc += 1;
+      return [id, sc] as const;
+    }).filter(([, sc]) => sc > 0);
+    const pool = scored.sort((x, y) => y[1] - x[1] || view.order.get(x[0])! - view.order.get(y[0])!).map(([id]) => id).slice(0, maxChoices);
+    if (!pool.length) return false;
+    const st = await ask("shortlist", "route.shortlist",
+      "Which of these items does state.message concern most directly? Pick none when it is about none of them.",
+      offered(pool, true), [[ROUTE_NONE, "None of these items"]], pool[0]!);
+    if (!usable(st) || st.answer === ROUTE_NONE) return false;
+    status = worse(status, st.status);
+    picked.push(st.answer);
+    space = spaceOfNode(st.answer);
+    kind = node(st.answer).kind;
+    fromShortlist = true;
+    await followUps([...pool, ...rankNodes(view, words, ofKind(kind, view.nodes)).filter((id) => !pool.includes(id))], true);
+    return true;
+  }
+
+  /**
+   * Space, kind, node and follow-ups. `adding` is known only when the intent came first. With `spaceFallback`, an
+   * unknown space answer does not stop the chain: the kind is asked over every kind with nodes and the node across the graph.
+   */
+  async function navigate(adding: boolean | undefined, spaceFallback = false): Promise<void> {
     const mayAdd = adding !== false;
     const spaces = view.spaces.filter((s) => s.nodes.length || (mayAdd && s.kinds.length));
     const sStep = await ask("space", "route.space",
       adding ? "Which area of the specification does state.message add to?" : adding === false ? "Which area of the specification does state.message concern?"
         : "Which area of the specification does state.message concern or add to?",
       spaces.map((s) => [s.key, withExamples(s.label, s.nodes)]), [[ROUTE_NONE, "None of these areas"]], spaces[0]?.key ?? ROUTE_NONE);
-    if (!proceed(sStep) || sStep.answer === ROUTE_NONE) return;
-    space = sStep.answer;
-    const sp = sectionOf()!;
+    let sp: RouteSpace | undefined;
+    if (spaceFallback && sStep?.status === "unknown") {
+      status = worse(status, "review"); // the space was skipped, not decided
+    } else {
+      if (!proceed(sStep) || sStep.answer === ROUTE_NONE) return;
+      space = sStep.answer;
+      sp = sectionOf()!;
+    }
+    const scope = sp?.nodes ?? view.nodes;
 
-    const present = [...new Set(sp.nodes.map((id) => node(id).kind))];
-    const kinds = mayAdd ? [...present, ...sp.kinds.filter((k) => !present.includes(k) && k in template.kinds)] : present;
+    const present = [...new Set(scope.map((id) => node(id).kind))];
+    const kinds = !sp ? rankKinds(present).slice(0, maxChoices)
+      : mayAdd ? [...present, ...sp.kinds.filter((k) => !present.includes(k) && k in template.kinds)] : present;
+    const where = sp ? ` in ${sp.label}` : "";
     const kStep = await ask("kind", "route.kind",
-      adding ? `What kind of item does state.message want to add to ${sp.label}?` : adding === false ? `Which kind of item in ${sp.label} does state.message concern?`
-        : `Which kind of item in ${sp.label} does state.message concern or want to add?`,
-      kinds.map((k) => [k, withExamples(kindLabel(k), ofKind(k))]), [[ROUTE_NONE, "None of these kinds"]], kinds[0] ?? ROUTE_NONE);
+      adding ? `What kind of item does state.message want to add${sp ? ` to ${sp.label}` : ""}?` : adding === false ? `Which kind of item${where} does state.message concern?`
+        : `Which kind of item${where} does state.message concern or want to add?`,
+      kinds.map((k) => [k, withExamples(kindLabel(k), ofKind(k, scope))]), [[ROUTE_NONE, "None of these kinds"]], kinds[0] ?? ROUTE_NONE);
     if (!proceed(kStep) || kStep.answer === ROUTE_NONE) return;
     kind = kStep.answer;
+    if (!sp) space = spaceOfKind(kind);
 
-    const candidates = rankNodes(view, words, adding ? sp.nodes : ofKind(kind));
+    const candidates = rankNodes(view, words, adding ? scope : ofKind(kind, scope));
     if (!candidates.length && !adding) { isNew = true; return; } // a declared kind with no nodes yet: nothing to ask
     const nStep = await ask("node", "route.node",
       adding ? `state.message adds a new ${kind}. Which existing item should the new ${kind} connect to?`
@@ -276,35 +363,53 @@ export async function route(g: Graph, template: RouteVocabularySource, message: 
         : [[ROUTE_NONE, "None of these; it is about something else"], [ROUTE_NEW, `None yet: the message is about a new ${kind}`]],
       candidates[0] ?? ROUTE_NONE);
     if (!proceed(nStep) || nStep.answer === ROUTE_NONE) return;
-    if (nStep.answer === ROUTE_NEW) { isNew = true; return; }
-    picked.push(nStep.answer);
-
-    // Follow-ups only add nodes; their answers never lower the route's status.
-    while (picked.length < maxNodes) {
-      const rest = candidates.filter((id) => !picked.includes(id));
-      if (!rest.length) break;
-      if (calls + 2 > maxCalls - reserve()) { truncated = true; break; }
-      const listed = rest.slice(0, maxChoices).map((id) => titleOf(node(id))).join("; ");
-      const more = await ask("more", "route.more",
-        `Besides ${picked.map((p) => `"${titleOf(node(p))}"`).join(", ")}, does state.message also concern another of these items?`,
-        [], [["yes", `Yes: it also concerns one of: ${listed}`], ["no", "No: those already picked are all it concerns"]], "no");
-      if (!usable(more) || more.answer !== "yes") break;
-      const next = await ask("nodes", "route.nodes", "Which other item does state.message also concern?", offered(rest, !!adding), [[ROUTE_NONE, "None of these"]], ROUTE_NONE);
-      if (!usable(next) || next.answer === ROUTE_NONE) break;
-      picked.push(next.answer);
+    if (nStep.answer === ROUTE_NEW) {
+      if (shortlistFirst && nStep.status !== "confident") lowNew = true; else isNew = true;
+      return;
     }
+    picked.push(nStep.answer);
+    if (!sp) space = spaceOfNode(nStep.answer);
+    await followUps(candidates, !!adding);
   }
 
-  if (intentLast) {
-    await navigate(undefined);
-    if (await askIntent() && intent === "add" && !picked.length && space !== undefined) {
-      // The new item's anchor: anywhere in the space, since it is rarely of the new item's own kind.
-      const pool = rankNodes(view, words, sectionOf()!.nodes);
-      const aStep = await ask("anchor", "route.anchor",
-        `state.message adds a new ${kind ?? "item"}. Which existing item should it connect to?`,
-        offered(pool, true), [[ROUTE_NONE, "No existing item; the new one stands alone"]], pool[0] ?? ROUTE_NONE);
-      if (proceed(aStep) && aStep.answer !== ROUTE_NONE) picked.push(aStep.answer);
+  /** The anchor: anywhere in the space (or graph), since a new item is rarely anchored on its own kind. */
+  async function askAnchor(adding: boolean): Promise<void> {
+    const pool = rankNodes(view, words, sectionOf()?.nodes ?? view.nodes);
+    const aStep = await ask("anchor", "route.anchor",
+      adding ? `state.message adds a new ${kind ?? "item"}. Which existing item should it connect to?`
+        : "Which existing item does state.message concern or connect to?",
+      offered(pool, true), [[ROUTE_NONE, adding ? "No existing item; the new one stands alone" : "None of these; it is about something new"]], pool[0] ?? ROUTE_NONE);
+    if (proceed(aStep) && aStep.answer !== ROUTE_NONE) picked.push(aStep.answer);
+  }
+
+  /** The intent, then whatever the intent still needs: the new item's kind after a shortlisted anchor, or an anchor. */
+  async function intentAndAfter(): Promise<void> {
+    if (!(await askIntent())) { if (lowNew) isNew = true; return; }
+    if (intent === "add" && fromShortlist) {
+      // Kinds the message names (by kind name or label head), then every kind of the anchor's space.
+      const anchorSpace = view.spaces.find((s) => s.key === space);
+      const local = anchorSpace ? [...new Set([...anchorSpace.nodes.map((id) => node(id).kind), ...anchorSpace.kinds.filter((k) => k in template.kinds)])] : [];
+      const pool = view.mode === "map" ? Object.keys(template.kinds).filter((k) => spaceOfKind(k) !== undefined) : [...new Set(view.nodes.map((id) => node(id).kind))];
+      const named = pool.map((k) => { const t = kindTokens(k, kindLabel(k)); return [k, [...words].filter((w) => t.has(w)).length] as const; })
+        .filter(([, n]) => n > 0).sort((x, y) => y[1] - x[1] || (local.indexOf(x[0]) + 1 || 999) - (local.indexOf(y[0]) + 1 || 999)).map(([k]) => k);
+      const ks = [...named, ...local.filter((k) => !named.includes(k))];
+      const kStep = await ask("kind", "route.kind",
+        `state.message adds a new item near "${titleOf(node(picked[0]!))}". What kind of item is the new one?`,
+        ks.map((k) => [k, withExamples(kindLabel(k), ofKind(k, view.nodes))]), [[ROUTE_NONE, "None of these kinds"]], ks[0] ?? ROUTE_NONE);
+      kind = proceed(kStep) && kStep.answer !== ROUTE_NONE ? kStep.answer : undefined;
+      if (kind !== undefined) space = spaceOfKind(kind) ?? space;
+    } else if (!picked.length && space !== undefined && (intent === "add" || lowNew)) {
+      await askAnchor(intent === "add");
     }
+    if (lowNew && !picked.length) isNew = true;
+  }
+
+  if (shortlistFirst) {
+    if (!(await shortlist())) await navigate(undefined, true);
+    await intentAndAfter();
+  } else if (intentLast) {
+    await navigate(undefined);
+    await intentAndAfter();
   } else if (await askIntent() && intent !== "question" && intent !== ROUTE_UNCLEAR) {
     await navigate(intent === "add");
   }

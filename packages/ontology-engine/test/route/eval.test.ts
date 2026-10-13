@@ -8,7 +8,7 @@ import { assistant, GOLD_SPACE_MISMATCHES, tidepool } from "./setup";
 const settings = [tidepool(), assistant()];
 
 describe("oracle mode: the chain reaches every gold target", () => {
-  for (const order of ["intent-first", "intent-last"] as const) {
+  for (const order of ["shortlist-first", "intent-first", "intent-last"] as const) {
     for (const s of settings) {
       it(`${s.name}, ${order}: routes every case; question cases score their intent only`, async () => {
         const report = await evalRoute(s.cases, { graph: s.graph, template: s.template, s1: (c) => oracleSystemOne(c.gold), options: { ...s.options, order } });
@@ -44,7 +44,7 @@ describe("oracle mode: the chain reaches every gold target", () => {
     expect(stop.cases[0]!.routed).toBe(true);
     const viaRoot = await evalRoute({ ...s.cases, cases: [c] }, {
       graph: s.graph, template: s.template, options: s.options,
-      s1: () => scriptedSystemOne({ "route.space": "assistant-world", "route.kind": "goal", "route.node": "new", "route.intent": "add", "route.anchor": "none" }),
+      s1: () => scriptedSystemOne({ "route.shortlist": "none", "route.space": "assistant-world", "route.kind": "goal", "route.node": "new", "route.intent": "add", "route.anchor": "none" }),
     });
     expect(viaRoot.cases[0]!.levels).toMatchObject({ space: { got: "assistant-world", hit: true }, kind: { hit: true }, nodes: { hit: true } });
     expect(viaRoot.cases[0]!.routed).toBe(true);

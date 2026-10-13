@@ -7,8 +7,8 @@ import { assistant, ROUTE_FIXTURES, tidepool } from "./setup";
 /**
  * Real-provider routing eval. Skipped unless OPENROUTER_API_KEY is set. The decider comes from `providerFromEnv`
  * (`OPENROUTER_MODEL`), the translator from `translatorFromEnv` (`OPENROUTER_TRANSLATE_MODEL`, `TRANSLATE=0` skips
- * the translated run), the orders from `ROUTE_ORDER` (`intent-first`, `intent-last` or both, comma-separated; default
- * both). Each run writes `test/fixtures/route/results.<model>[.<translate-model>].<order>.json` with the report:
+ * the translated run), the orders from `ROUTE_ORDER` (comma-separated `shortlist-first`, `intent-first`,
+ * `intent-last`; default all three). Each run writes `test/fixtures/route/results.<model>[.<translate-model>].<order>.json` with the report:
  * every question, answer and distribution on each route path and the translator's raw reply. `expect.soft` keeps
  * low numbers recorded rather than aborting.
  *
@@ -24,7 +24,7 @@ describe.skipIf(!KEY)("live routing eval", () => {
   const s1 = providerFromEnv(process.env);
   const translator = translatorFromEnv(process.env);
   const translators: [string, Translator | undefined][] = [["route only", undefined], ...(translator.mode === "http" ? [["route + translate", translator] as [string, Translator]] : [])];
-  const orders = (process.env.ROUTE_ORDER?.split(",").map((o) => o.trim()).filter(Boolean) ?? ["intent-first", "intent-last"]) as RouteOrder[];
+  const orders = (process.env.ROUTE_ORDER?.split(",").map((o) => o.trim()).filter(Boolean) ?? ["shortlist-first", "intent-first", "intent-last"]) as RouteOrder[];
   const runs = orders.flatMap((order) => translators.map(([label, t]) => [`${label}, ${order}`, t, order] as const));
 
   for (const [label, t, order] of runs) {

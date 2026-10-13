@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_LIMITS, evaluate, evaluateAndJudge, fakeExplainer, fakeSystemOne, judge, loadTemplate, probeTextsOf, reconcileParents, S1Error, sortTotal,
+  compileKinds, DEFAULT_LIMITS, evaluate, evaluateAndJudge, fakeExplainer, fakeSystemOne, judge, loadTemplate, probeTextsOf, reconcileParents, S1Error, sortTotal,
   type Track,
-  type Explainer, type Finding, type Graph, type Readiness, type S1Questions, type SystemOne,
+  toWire, type Explainer, type Finding, type Graph, type Readiness, type S1Questions, type SystemOne,
 } from "../../src";
 
 /** A tiny pack that raises stage-1 candidates only for the questions the template declares. */
@@ -669,6 +669,56 @@ describe("funnel", () => {
       expect(pairs).toHaveLength(2);
       expect(pairs[0]).toBe("r1|r4");
       expect(r.judgments.gated).toBe(2);
+    });
+  });
+
+  describe("pair wording by the parent kind", () => {
+    const SET_PAIRS = "Two rules of one section must not grant and forbid the same action.";
+    const ROOT_PAIRS = "Two statements from different sections must agree on who approves what.";
+    const text = [{ name: "title", type: "string" }, { name: "description", type: "string" }] as const;
+    const kinds = {
+      purpose: { fields: [...text], criteria: { pairs: ROOT_PAIRS } },
+      section: { parents: ["purpose"], fields: [...text], criteria: { pairs: SET_PAIRS } },
+      rule: { parents: ["section"], fields: [...text] },
+    };
+    const worded = (questions: Q[]) => {
+      const { byKind } = compileKinds(undefined, kinds);
+      const pair = { ...PAIR_RELATION, text: "How do state.subject and state.counterpart relate? {pairs}", byKind };
+      return loadTemplate({
+        id: "template.test.funnel", version: 1, meta: 1, kinds,
+        rules: [{ id: "funnel", version: "1", source: PACK }],
+        questions: questions.map((q) => (q.id === "pair.relation" ? pair : q)),
+      });
+    };
+    const pairTexts = (wires: S1Questions[]) => wires.flatMap((w) => (w["pair.relation"] ? [w["pair.relation"].instructions] : []));
+
+    it("words member pairs with the set's kind", async () => {
+      const { s1, wires } = recording();
+      await evaluateAndJudge(worded(SET_QUESTIONS()), graph({ s1: { description: `${FLAGGED} #s1:set.member=r1`, rules: RULES } }), s1);
+      const texts = pairTexts(wires);
+      expect(texts).toHaveLength(2);
+      for (const t of texts) expect(t).toBe(`How do state.subject and state.counterpart relate? ${SET_PAIRS}`);
+    });
+
+    it("words cross-section pairs with the root's kind, not the members' inherited wording", async () => {
+      const g = graph({
+        s1: { description: "Approval.", rules: { r1: "Admins must always approve exports.", r2: "Exports are logged." } },
+        s2: { description: "Retention.", rules: { r4: "Admins must never approve exports.", r5: "Backups run nightly." } },
+      });
+      g.nodes[0]!.fields.description = "Export data. #s1:sections.allHold=no #s1:sections.inconsistent=yes #s1:sections.section=none";
+      const { s1, wires } = recording();
+      await evaluateAndJudge(worded([...WHOLE.filter((q) => q.id !== "term.usage"), PAIR_RELATION, WHICH]), g, s1, { limits: { maxCrossPairs: 2 } });
+      const texts = pairTexts(wires);
+      expect(texts).toHaveLength(2);
+      for (const t of texts) { expect(t).toContain(ROOT_PAIRS); expect(t).not.toContain(SET_PAIRS); }
+    });
+
+    it("words an entry pair by its first subject's kind, which inherits its parent's pairs", () => {
+      const q = worded([PAIR_RELATION]).questions.find((x) => x.id === "pair.relation")!;
+      expect(toWire(q, "rule").instructions).toContain(SET_PAIRS);
+      expect(toWire(q, "rule", undefined, "purpose").instructions).toContain(ROOT_PAIRS);
+      // A parent kind without its own pairs criterion leaves the subject's wording.
+      expect(toWire(q, "rule", undefined, "rule").instructions).toContain(SET_PAIRS);
     });
   });
 

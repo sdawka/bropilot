@@ -31,6 +31,6 @@ export function assistant(): RouteSetting {
 
 /**
  * Gold cases whose `space` disagrees with the lfp kernel's kind -> space map; the kernel map wins and the gold needs
- * fixing. t05: goal sits in `problem` in lfp `src/kernel.ts`, the gold says `hypothesis`.
+ * fixing. Empty since t05 was corrected to `problem`.
  */
 export const GOLD_SPACE_MISMATCHES: Record<string, string[]> = { tidepool: [], assistant: [] };

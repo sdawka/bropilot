@@ -11,6 +11,8 @@ const cap = (s: string, n = 255) => (s.length > n ? `${s.slice(0, n - 1)}…` : 
  */
 export interface KindWording {
   noun: string; instanceOf?: string; grounded?: string; testable?: string; children?: string; pairs?: string; summary?: string;
+  /** The kind's own `pairs` criterion: what a compatible pair of its children looks like. Not a token; see `toWire`. */
+  childPairs?: string;
 }
 const OPTIONAL = ["instanceOf", "grounded", "testable", "children", "pairs", "summary"] as const;
 
@@ -22,7 +24,10 @@ export function kindWording(q: Question, kind?: string): KindWording {
     const v = JSON.parse(raw) as unknown;
     if (v && typeof v === "object" && !Array.isArray(v) && typeof (v as KindWording).noun === "string") {
       const w = v as Record<string, unknown>;
-      return { noun: w.noun as string, ...Object.fromEntries(OPTIONAL.filter((k) => typeof w[k] === "string").map((k) => [k, w[k]])) };
+      return {
+        noun: w.noun as string, ...Object.fromEntries(OPTIONAL.filter((k) => typeof w[k] === "string").map((k) => [k, w[k]])),
+        ...(typeof w.childPairs === "string" && { childPairs: w.childPairs }),
+      };
     }
   } catch { /* a plain noun */ }
   return { noun: raw };
@@ -50,9 +55,14 @@ export type ResolvedChoices = readonly string[] | Readonly<Record<string, string
  * each option's `criteria` entry (else the option key) as its criterion. The `WIRE_TOKENS` in the text, choices and
  * criteria take the subject kind's wording (see `kindWording`), so the same question hashes differently per kind. A `choicesFrom` question takes its options from `resolved` (the funnel passes the subject's
  * members or the sections), followed by its declared `choices`.
+ *
+ * `parentKind` is the kind of the node a pair was drawn under (the set, or the root for section pairs). Its own
+ * `childPairs` criterion, when it has one, fills `{pairs}` in place of the subject kind's inherited wording.
  */
-export function toWire(q: Question, kind?: string, resolved?: ResolvedChoices): S1Question {
-  const w = kindWording(q, kind);
+export function toWire(q: Question, kind?: string, resolved?: ResolvedChoices, parentKind?: string): S1Question {
+  const own = kindWording(q, kind);
+  const fromParent = parentKind === undefined ? undefined : kindWording(q, parentKind).childPairs;
+  const w = fromParent ? { ...own, pairs: fromParent } : own;
   const instructions = fill(q.text ?? `Judge ${q.id} for state.subject, given state.candidate.`, w);
   const choices = q.choices?.map((c) => fill(c, w));
   if (q.answer === "yes-no") {

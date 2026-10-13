@@ -76,6 +76,8 @@ export interface Item {
   question: Question;
   subject: string;
   kind?: string;
+  /** For a pair drawn under a set or root: that node's kind, whose own `pairs` criterion words the question. */
+  parentKind?: string;
   state: SliceState;
   /** Resolved options of a `choicesFrom` question. */
   choices?: string[];
@@ -86,7 +88,7 @@ export interface Item {
   via?: Track;
 }
 
-export interface Batch { subject: string; state: SliceState; items: Item[]; companions: Question[] }
+export interface Batch { subject: string; state: SliceState; items: Item[]; companions: Question[]; parentKind?: string }
 
 export interface FunnelContext {
   g: Graph;
@@ -198,12 +200,16 @@ function resolveChoices(ctx: FunnelContext, q: Question, state: SliceState, subj
 }
 
 function makeItem(ctx: FunnelContext, track: Track, q: Question, subject: string, text: string,
-  from: { question: string; answer: string } | undefined, stage: Stage, round: number, slice: Slice = q.slice): Item {
+  from: { question: string; answer: string } | undefined, stage: Stage, round: number, slice: Slice = q.slice, parentKind?: string): Item {
   const state = buildSlice(ctx.g, subject, slice, { rule: q.id, text, ...(from && { from }) });
   const choices = resolveChoices(ctx, q, state, subject, track);
-  const key = hashOf([q.id, hashOf(state), choices ?? null]);
+  // The wording kind is part of the key: the same pair worded under another parent kind is a different question.
+  const key = hashOf([q.id, hashOf(state), choices ?? null, ...(parentKind !== undefined ? [parentKind] : [])]);
   const kind = kindOf(ctx, subject);
-  return { track, question: q, subject, ...(kind !== undefined && { kind }), state, ...(choices && { choices }), key, stage, round };
+  return {
+    track, question: q, subject, ...(kind !== undefined && { kind }), ...(parentKind !== undefined && { parentKind }),
+    state, ...(choices && { choices }), key, stage, round,
+  };
 }
 
 function newTrack(ctx: FunnelContext, base: Finding, subject: string, prefix: JudgmentStep[], parent?: Track): Track {
@@ -317,9 +323,9 @@ export function group(items: Item[], ctx: FunnelContext): Batch[] {
   const batches = new Map<string, Batch>();
   for (const it of items) {
     const { rule: _rule, ...cand } = it.state.candidate;
-    const key = hashOf([it.subject, { ...it.state, candidate: cand }]);
+    const key = hashOf([it.subject, { ...it.state, candidate: cand }, it.parentKind ?? null]);
     let b = batches.get(key);
-    if (!b) batches.set(key, b = { subject: it.subject, state: it.state, items: [], companions: [] });
+    if (!b) batches.set(key, b = { subject: it.subject, state: it.state, items: [], companions: [], ...(it.parentKind !== undefined && { parentKind: it.parentKind }) });
     const twin = b.items.find((x) => x.question.id === it.question.id);
     if (!twin) b.items.push(it);
     // A duplicate candidate (same question, subject and state) is asked once; its finding mirrors the first one's.
@@ -422,7 +428,7 @@ export async function askBatch(batch: Batch, ctx: FunnelContext, round: number):
     ...batch.items.map((i) => [i.question, i.choices] as [Question, string[] | undefined]),
     ...batch.companions.map((q) => [q, resolveChoices(ctx, q, batch.state, batch.subject, batch.items[0]!.track)] as [Question, string[] | undefined]),
   ];
-  const wire = (q: Question, c?: string[]): S1Question => toWire(q, kind, c);
+  const wire = (q: Question, c?: string[]): S1Question => toWire(q, kind, c, batch.parentKind);
   const asked = new Map<string, Asked>();
   const unasked = new Set<string>();
   const sent = hashOf(batch.state);
@@ -578,7 +584,7 @@ export function expand(item: Item, step: Step, ctx: FunnelContext, round: number
     fired.add(`${ask.id}|${over}`);
     const from = { question: q.id, answer: d.answer ?? "unknown" };
     if (over === "self") {
-      const it = makeItem(ctx, item.track, ask, item.subject, item.state.candidate.text, from, "self", round);
+      const it = makeItem(ctx, item.track, ask, item.subject, item.state.candidate.text, from, "self", round, ask.slice, item.parentKind);
       if (ctx.seen.has(it.key)) return;
       ctx.seen.set(it.key, item.track);
       out.push(it);
@@ -591,7 +597,8 @@ export function expand(item: Item, step: Step, ctx: FunnelContext, round: number
       };
       delete base.judgment; delete base.provenance;
       const track = newTrack(ctx, base, subject, pathOf(item.track), item.track);
-      const it = makeItem(ctx, track, ask, subject, text, from, over, round, slice);
+      // Pairs are worded by the node they were drawn under: the set for member pairs, the root for section pairs.
+      const it = makeItem(ctx, track, ask, subject, text, from, over, round, slice, over === "members" ? undefined : item.kind);
       track.entry = it;
       const existing = ctx.seen.get(it.key);
       if (existing) {

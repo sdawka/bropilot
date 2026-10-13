@@ -10,8 +10,8 @@ export const ROUTE_NONE = "none";
 export const ROUTE_NEW = "new";
 export const ROUTE_UNCLEAR = "unclear";
 
-export type RouteLevel = "intent" | "space" | "kind" | "node" | "more" | "nodes" | "anchor";
-export type RouteOrder = "intent-first" | "intent-last";
+export type RouteLevel = "shortlist" | "intent" | "space" | "kind" | "node" | "more" | "nodes" | "anchor";
+export type RouteOrder = "shortlist-first" | "intent-first" | "intent-last";
 
 export interface RouteStep {
   level: RouteLevel;
@@ -84,7 +84,10 @@ export interface RouteOptions {
   thresholds?: Partial<Thresholds>;
   /** Keep walking after a `review` step, using its answer; the route's status stays `review`. Default true. */
   continueOnReview?: boolean;
-  /** Ask the intent before navigating, or after with the picked nodes in view. Default `intent-last`. */
+  /**
+   * `shortlist-first` (default): one question over the nodes nearest the message, the intent-last chain as fallback.
+   * `intent-last`: space, kind, node, then the intent with the picked nodes in view. `intent-first`: the intent first.
+   */
   order?: RouteOrder;
   ask?: AskOptions;
 }

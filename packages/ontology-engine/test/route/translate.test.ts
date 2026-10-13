@@ -9,7 +9,7 @@ const tp = tidepool();
 const ws = assistant();
 
 async function input(answers: Record<string, string>, message = "Rename the species picker to 'Species chooser'."): Promise<TranslateInput> {
-  const r = await route(tp.graph, tp.template, message, scriptedSystemOne(answers), tp.options);
+  const r = await route(tp.graph, tp.template, message, scriptedSystemOne(answers), { ...tp.options, order: "intent-last" });
   return { message, route: r, slice: routeSlice(tp.graph, r) };
 }
 const SCREEN = { "route.intent": "update", "route.space": "solution", "route.kind": "screen", "route.node": "screen-species-picker", "route.more": "no" };

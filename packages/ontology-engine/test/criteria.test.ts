@@ -107,7 +107,7 @@ describe("compileKinds precedence", () => {
   it("takes the template criteria as the base", () => {
     const r = compileKinds(undefined, base);
     expect(word(r, "a")).toEqual({ noun: "alpha", instanceOf: "An alpha.", grounded: "Grounded alpha." });
-    expect(word(r, "b")).toEqual({ noun: "b", children: "B children." });
+    expect(word(r, "b")).toEqual({ noun: "b", children: "B children.", childPairs: "B pairs." });
     expect(word(r, "c")).toEqual({ noun: "c", pairs: "B pairs." });
     expect(r.passFrom).toEqual({ a: 2 });
     expect(Object.keys(kindGlossary(base))).toEqual(["a"]);
@@ -116,7 +116,7 @@ describe("compileKinds precedence", () => {
   it("lets the legacy glossary override key by key and choose the probed kinds", () => {
     const r = compileKinds({ a: { noun: "Alpha", minScore: 3 }, b: { noun: "beta" } }, base);
     expect(word(r, "a")).toEqual({ noun: "Alpha", instanceOf: "An alpha.", grounded: "Grounded alpha." });
-    expect(word(r, "b")).toEqual({ noun: "beta", children: "B children." });
+    expect(word(r, "b")).toEqual({ noun: "beta", children: "B children.", childPairs: "B pairs." });
     expect(r.passFrom).toEqual({ a: 3 });
     expect(Object.keys(kindGlossary(base, ["b"]))).toEqual(["b"]);
     expect(kindGlossary(base, ["a"]).a!.noun).toBe("alpha");
@@ -183,16 +183,22 @@ describe("next minStatus", () => {
 });
 
 describe("next minStatus and the template hash", () => {
-  it("an absent minStatus hashes as the confident default it used to be filled with", () => {
-    const tpl = (n: Record<string, unknown>) => ({
-      id: "t", version: 1, meta: 1, questions: [
-        { id: "a", answer: "yes-no", benign: "no", policy: [{ answer: "no", level: "pass" }], next: [{ answer: "yes", ask: "a2", ...n }] },
-        { id: "a2", answer: "yes-no", benign: "no", policy: [{ answer: "no", level: "pass" }] },
-      ],
-    });
-    const absent = loadTemplate(tpl({}));
+  const yesNo = { answer: "yes-no", benign: "no", policy: [{ answer: "no", level: "pass" }] };
+  const pick = { answer: "choice", choicesFrom: "members", choices: ["none"], benign: "none", policy: [{ answer: "*", level: "info" }] };
+  const tpl = (from: object, n: Record<string, unknown>) => ({
+    id: "t", version: 1, meta: 1, questions: [{ id: "a", ...from, next: [{ ask: "b", ...n }] }, { id: "b", ...yesNo }],
+  });
+
+  it("an absent minStatus hashes as its effective value: confident on an ordinary question", () => {
+    const absent = loadTemplate(tpl(yesNo, { answer: "yes" }));
     expect(absent.questions[0]!.next![0]).not.toHaveProperty("minStatus");
-    expect(absent.hash).toBe(loadTemplate(tpl({ minStatus: "confident" })).hash);
-    expect(absent.hash).not.toBe(loadTemplate(tpl({ minStatus: "review" })).hash);
+    expect(absent.hash).toBe(loadTemplate(tpl(yesNo, { answer: "yes", minStatus: "confident" })).hash);
+    expect(absent.hash).not.toBe(loadTemplate(tpl(yesNo, { answer: "yes", minStatus: "review" })).hash);
+  });
+
+  it("and review on a navigation question, so a declared confident there hashes differently", () => {
+    const absent = loadTemplate(tpl(pick, {}));
+    expect(absent.hash).toBe(loadTemplate(tpl(pick, { minStatus: "review" })).hash);
+    expect(absent.hash).not.toBe(loadTemplate(tpl(pick, { minStatus: "confident" })).hash);
   });
 });
