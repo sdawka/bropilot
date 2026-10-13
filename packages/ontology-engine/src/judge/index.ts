@@ -26,7 +26,7 @@ export {
   openRouterExplainer, type Explainer, type ExplainerEnv, type Explanation, type ExplainRequest, type OpenRouterExplainerOptions,
 } from "./explain";
 export {
-  compileKinds, generatedQuestions, kindGlossary, NONE, SEMANTIC_CATALOGUE_V1, SEMANTIC_RULES_V1, WHICH_PREFIX, whichOf,
+  checkQuestions, compileKinds, generatedQuestions, kindGlossary, NONE, NOT_APPLICABLE, SEMANTIC_CATALOGUE_V1, SEMANTIC_RULES_V1, WHICH_PREFIX, whichOf,
   type GeneratedOptions, type SemanticRuleV1, type SemanticRuleV2,
 } from "./catalogue";
 export { kindSettings, PROBE_RULES_V2, PROBE_SOURCE_V2, semanticProbeV1, type KindSetting } from "./probe";
@@ -38,5 +38,5 @@ export {
 } from "./funnel";
 export { contentWords, modalClash, pairScore, sameThing, sharedTerms, termsAcross, termsOf, type SectionTexts, type TermSpread, type Texted } from "./prefilter";
 export { DEFAULT_TEXTS, probeTextsOf, sectionsOf } from "./funnel";
-export { resolveMirrors, settle } from "./funnel";
+export { checkIdOf, resolveMirrors, settle } from "./funnel";
 export { sortTotal } from "./judge";

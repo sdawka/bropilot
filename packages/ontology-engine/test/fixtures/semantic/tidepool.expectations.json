@@ -1,7 +1,7 @@
 {
   "fixture": "tidepool-degraded.graph.json",
   "vocabulary": "product-spec",
-  "calls": 40,
+  "calls": 42,
   "planted": [
     {
       "id": "specificity.volunteers-will-love-it",
@@ -83,6 +83,46 @@
       "level": "warning",
       "defect": "coherence.termDrift",
       "note": "Planted: expert verification now calls a record \"verified\" once its GPS fix is on site, while the term Verified record means a biologist accepted it."
+    },
+    {
+      "id": "check.givenWhenThen.verify-week",
+      "rule": "check:usecase.givenWhenThen",
+      "subjects": [
+        "usecase-verify-a-week-of-volunteer-records-in"
+      ],
+      "level": "warning",
+      "defect": "testability",
+      "check": {
+        "id": "givenWhenThen",
+        "deterministic": true
+      },
+      "note": "Planted: the verification use case is prose, not Given / When / Then; the pattern check reports it without a provider call."
+    },
+    {
+      "id": "check.signifiers.verification-queue",
+      "rule": "check:screen.signifiers",
+      "subjects": [
+        "screen-verification-queue"
+      ],
+      "level": "warning",
+      "defect": "specificity.underspecified",
+      "check": {
+        "id": "signifiers"
+      },
+      "note": "Planted: the queue is a clean, modern screen to get through records quickly, with no control, signifier or feedback named."
+    },
+    {
+      "id": "check.userAndTrigger.photo-id",
+      "rule": "check:feature.userAndTrigger",
+      "subjects": [
+        "feature-photo-id-suggestions"
+      ],
+      "level": "warning",
+      "defect": "specificity.underspecified",
+      "check": {
+        "id": "userAndTrigger"
+      },
+      "note": "Planted with the tangibility plant on the same node: volunteers are going to love it names no trigger. Only the check's own finding counts for this item."
     }
   ],
   "controls": [
@@ -95,6 +135,21 @@
       "id": "control.single-verdict",
       "subject": "rule-a-record-has-exactly-one-final-verdict",
       "note": "At most one final verdict; a second is rejected."
+    },
+    {
+      "id": "control.check.givenWhenThen-log-survey",
+      "subject": "usecase-log-a-transect-survey-during-one-low",
+      "note": "Given a volunteer at the first quadrat with no signal, when they log each quadrat, then it is saved and synced later."
+    },
+    {
+      "id": "control.check.signifiers-transect-logger",
+      "subject": "screen-transect-logger",
+      "note": "Names the Add species button, steppers, haptic and Saved feedback, and when Next quadrat turns green."
+    },
+    {
+      "id": "control.check.userAndTrigger-reminders",
+      "subject": "feature-low-tide-reminders",
+      "note": "Each volunteer gets a push notification the evening before a low tide below 0.5 m at their saved site."
     }
   ]
 }

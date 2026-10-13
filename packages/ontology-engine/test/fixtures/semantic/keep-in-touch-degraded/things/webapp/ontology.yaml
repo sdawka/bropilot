@@ -178,6 +178,9 @@ nodes:
         kind: component
         name: ContactCollection
         cardinality: exactly one
+        description: >-
+          Lists the owner's contacts that match the search, one ContactRow per contact, fetched from the server;
+          while the results load it shows three grey placeholder rows
         links:
           - { rel: reads, to: entity.ContactRecord }
         children:
@@ -262,6 +265,9 @@ nodes:
         kind: component
         name: PersonSummary
         cardinality: exactly one
+        description: >-
+          Shows the person's name, preferred channel and next due date, fetched from the server; while they load it
+          shows a grey placeholder block, and when no channel is saved it shows "No channel yet" with an Add channel link
         links:
           - { rel: reads, to: entity.ContactRecord }
       - id: component.GoalPanel
@@ -275,6 +281,9 @@ nodes:
         kind: component
         name: ContactHistory
         cardinality: exactly one
+        description: >-
+          Lists every contact event logged for the person, newest first, fetched from the server; when none is
+          logged yet it shows "No contact logged yet" with a Log contact button
         links:
           - { rel: reads, to: entity.ContactEvent }
         children:
@@ -450,7 +459,10 @@ nodes:
     states: [loaded, loading, error, validation-error, no-goal]
     description: >-
       Exactly PersonSummary and ContactEventForm. Form contains date and time, channel, depth, Met this goal checkbox,
-      optional note, Save and Cancel. Met this goal defaults unchecked and is disabled when no current goal exists
+      optional note, Save and Cancel. Met this goal defaults unchecked and is disabled when no current goal exists.
+      Every control has a visible label; Save is the one filled button and stays disabled until a date and time are
+      set; while saving it shows a spinner, on success the person page opens with a "Contact logged" message, and a
+      validation error appears under the field it concerns
     source: { doc: keep-in-touch-world-specification, section: "6" }
     links:
       - { rel: serves, to: ext.owner }
@@ -575,8 +587,8 @@ nodes:
     roles: [owner]
     states: [loaded, loading, error]
     description: >-
-      Exactly ProfilePreferences, NotificationPreferences, ExportControls and DeletionControls. Export and deletion
-      act only on the authenticated owner's data
+      Exactly ProfilePreferences, NotificationPreferences, ExportControls and DeletionControls in a clean, modern
+      layout. Export and deletion act only on the authenticated owner's data
     source: { doc: keep-in-touch-world-specification, section: "6" }
     links:
       - { rel: serves, to: ext.owner }

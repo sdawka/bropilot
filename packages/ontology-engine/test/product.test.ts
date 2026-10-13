@@ -52,6 +52,8 @@ describe("real product graphs", () => {
     "missing need.hypothesisMetric": 8, "missing need.moduleInterface": 7, "missing need.protocolPractice": 2,
     "missing relation.minIn": 4, "missing relation.required": 5,
     "warning feature.stagesWithoutFlow": 10, "warning result.untargeted": 3,
+    // The product template's screen checklist: every described screen is asked whether it states its signifiers.
+    "info semantic:check:screen.signifiers": 9,
   };
   const cases: [string, Record<string, number>, { required: number; satisfied: number }][] = [
     ["bropilot.graph.json", BROPILOT, { required: 299, satisfied: 273 }],

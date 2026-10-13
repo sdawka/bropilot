@@ -3,6 +3,7 @@ import { cachedForm, packName, TemplateFormError, type TemplateForm } from "../m
 import type { Template } from "../meta/template";
 import { sha256Hex } from "../rules/sha256";
 import { parse, run, type Result } from "../rules";
+import { checksPack } from "./checks";
 import { edbProgram } from "./edb";
 import { toFacts } from "./facts";
 import { compareFindings, fold, verdicts, type Finding } from "./findings";
@@ -47,7 +48,9 @@ export function evaluate(template: Template, input: Graph | unknown, opts: Evalu
   if (!form.valid) throw new TemplateFormError(template.hash, form.findings);
   const graph = parseGraph(input);
   const facts = toFacts(template, graph);
-  const runs = [runPacks(facts, CORE_PACKS, opts.maxIterations)];
+  const checks = checksPack(template);
+  const core = checks ? [...CORE_PACKS, checks] : CORE_PACKS;
+  const runs = [runPacks(facts, core, opts.maxIterations)];
   if (template.rules.length) runs.push(runPacks(facts, template.rules, opts.maxIterations));
 
   const findings = runs.flatMap((r) => r.findings).sort(compareFindings);
@@ -59,7 +62,7 @@ export function evaluate(template: Template, input: Graph | unknown, opts: Evalu
   return {
     snapshotHash: graphHash(graph),
     template: { ref: template.ref, hash: template.hash, form },
-    packs: [...CORE_PACKS, ...template.rules].map((p) => ({ id: p.id, version: p.version, hash: sha256Hex(p.source) })),
+    packs: [...core, ...template.rules].map((p) => ({ id: p.id, version: p.version, hash: sha256Hex(p.source) })),
     findings,
     completeness: {
       required: required.size,

@@ -83,6 +83,8 @@ export interface Judgment {
   defect?: string;
   /** Score questions: probability mass on the chosen side of the pass boundary, beside the top-level `confidence`. */
   bandedConfidence?: number;
+  /** The checklist item (`kinds.<k>.checks[].id` or `rootChecks[].id`) when the entry question is a `check:` question. */
+  check?: string;
   /** The questions asked to reach this judgment, entry question first. */
   path?: JudgmentStep[];
   /** Findings (rule ids or defect ids) that narrowed this one to a more specific defect. */

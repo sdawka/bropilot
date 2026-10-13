@@ -1,9 +1,11 @@
 import { hashOf } from "../canon";
-import { TemplateSourceSchema, type DefectsConfig, type Kind, type RootCriteria, type TemplateNode, type TemplateSource } from "./schema";
+import { TemplateSourceSchema, type Check, type DefectsConfig, type Kind, type RootCriteria, type TemplateNode, type TemplateSource } from "./schema";
 
 export interface TemplateStore { get(ref: string): unknown }
 
-export interface Template extends Omit<TemplateSource, "extends" | "defects" | "rootCriteria"> {
+export interface Template extends Omit<TemplateSource, "extends" | "defects" | "rootCriteria" | "rootChecks"> {
+  /** Merged root checks; absent when no template in the chain declares any, so hashes are unchanged. */
+  rootChecks?: Check[];
   /** Merged root criteria; absent when no template in the chain declares any, so hashes are unchanged. */
   rootCriteria?: RootCriteria;
   /** Merged `defects` overrides; absent when no template in the chain declares any, so hashes are unchanged. */
@@ -74,8 +76,29 @@ const kindsOf = (top: TemplateSource[]): Record<string, Kind> => {
   const kinds: Record<string, Kind> = Object.assign({}, ...top.map((s) => s.kinds));
   return Object.fromEntries(Object.entries(kinds).map(([k, kind]) => {
     const all = top.map((s) => s.kinds[k]?.criteria).filter((c) => c !== undefined);
-    return [k, all.length ? { ...kind, criteria: Object.assign({}, ...all) } : kind];
+    const checks = top.map((s) => s.kinds[k]?.checks).filter((c) => c !== undefined);
+    const { checks: _own, ...rest } = kind;
+    return [k, {
+      ...rest,
+      ...(all.length && { criteria: Object.assign({}, ...all) }),
+      ...(checks.length && { checks: mergeChecks(checks) }),
+    }];
   }));
+};
+
+/**
+ * Checks merge by id over the chain, the nearer template winning; duplicates within one template are kept so
+ * meta@1 can report them (`check.idDuplicate`).
+ */
+export const mergeChecks = (lists: Check[][]): Check[] => {
+  let out: Check[] = [];
+  for (const l of lists) { const ids = new Set(l.map((c) => c.id)); out = [...out.filter((c) => !ids.has(c.id)), ...l]; }
+  return out;
+};
+
+const rootChecksOf = (top: TemplateSource[]): { rootChecks?: Check[] } => {
+  const all = top.map((s) => s.rootChecks).filter((c) => c !== undefined);
+  return all.length ? { rootChecks: mergeChecks(all) } : {};
 };
 
 /** Root criteria merge key by key, the nearest template winning; absent everywhere, the key is left out. */
@@ -84,7 +107,7 @@ const rootCriteriaOf = (top: TemplateSource[]): { rootCriteria?: RootCriteria } 
   return all.length ? { rootCriteria: Object.assign({}, ...all) } : {};
 };
 
-function merge(chain: TemplateSource[]): Omit<TemplateSource, "id" | "version" | "meta" | "extends" | "defects" | "rootCriteria"> & { defects?: DefectsConfig; rootCriteria?: RootCriteria } {
+function merge(chain: TemplateSource[]): Omit<TemplateSource, "id" | "version" | "meta" | "extends" | "defects" | "rootCriteria" | "rootChecks"> & { defects?: DefectsConfig; rootCriteria?: RootCriteria; rootChecks?: Check[] } {
   const top = [...chain].reverse();
   const c = top.map((s) => s.constraints);
   return {
@@ -104,6 +127,7 @@ function merge(chain: TemplateSource[]): Omit<TemplateSource, "id" | "version" |
     ...textDefaultsOf(chain),
     ...defectsOf(chain),
     ...rootCriteriaOf(top),
+    ...rootChecksOf(top),
   };
 }
 

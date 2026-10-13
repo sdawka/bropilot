@@ -1,4 +1,4 @@
-import type { KindCriteria, RootCriteria, TemplateInput } from "../../meta/schema";
+import type { Check, KindCriteria, RootCriteria, TemplateInput } from "../../meta/schema";
 import { productChecks, productNeeds } from "./packs";
 
 /** The synthetic root every loaded product node is contained in; it carries the spec-level cardinalities. */
@@ -157,6 +157,23 @@ export const PRODUCT_CRITERIA: Record<string, KindCriteria> = {
   },
 };
 
+/** Given, When and Then in that order, as whole words, capitalised or not: a scenario in the Given/When/Then format. Patterns compile without flags. */
+export const GIVEN_WHEN_THEN = "\\b[Gg]iven\\b[\\s\\S]*\\b[Ww]hen\\b[\\s\\S]*\\b[Tt]hen\\b";
+
+/**
+ * The author's checklist per kind. A use case's format is fixed, so its check is a pattern and needs no model; a
+ * screen's signifiers and a feature's user and trigger are judged, one question each.
+ */
+export const PRODUCT_KIND_CHECKS: Record<string, Check[]> = {
+  usecase: [{ id: "givenWhenThen", text: "Is written as a Given / When / Then scenario.", pattern: GIVEN_WHEN_THEN, defect: "testability" }],
+  screen: [{
+    id: "signifiers",
+    text: "States explicit signifiers, affordances and feedback for each control: what can be acted on, how it looks actionable, and what the person sees after acting.",
+    defect: "specificity.underspecified",
+  }],
+  feature: [{ id: "userAndTrigger", text: "Names the user it serves and the trigger that starts it.", defect: "specificity.underspecified" }],
+};
+
 /** The criteria for the spec as a whole: how its sections fit together and how its terms are used. */
 export const PRODUCT_ROOT_CRITERIA: RootCriteria = {
   sections: "The purpose motivates the outcomes, the features and capabilities serve those outcomes, and the rules constrain the features without contradicting the summary.",
@@ -192,6 +209,7 @@ export const productSpec: TemplateInput = {
       fields: [...COMMON, ...PRODUCT_KIND_PROPS[k].map(prop)],
       completeness: { fields: COMPLETENESS[k]?.fields ?? [], children: [], relations: COMPLETENESS[k]?.relations ?? [] },
       ...(PRODUCT_CRITERIA[k] && { criteria: PRODUCT_CRITERIA[k] }),
+      ...(PRODUCT_KIND_CHECKS[k] && { checks: PRODUCT_KIND_CHECKS[k] }),
     }])),
   },
   rootCriteria: PRODUCT_ROOT_CRITERIA,

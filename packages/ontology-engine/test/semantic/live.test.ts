@@ -167,9 +167,15 @@ type Detection = { via: "finding" | "entry"; status: "confident" | "review"; fou
  * harmful answer on the planted rule or on any step of its path, or carries a defect on the planted defect's branch
  * (an ancestor such as the question's family, the defect itself, or one under it).
  */
-function detect(p: Planted, semantic: Finding[], fixture: string, reader: ReturnType<typeof policyReader>): Detection {
+function detect(p: Planted, semantic: Finding[], fixture: string, reader: ReturnType<typeof policyReader>, all: Finding[] = semantic): Detection {
   const subjects = subjectsOfPlanted(p);
-  const onSubject = semantic.filter((f) => subjects.includes(f.subject ?? ""));
+  // A pattern check needs no judgment: its own finding at the planted level is the detection.
+  if (p.check?.deterministic) {
+    const hit = all.find((f) => f.rule === p.rule && subjects.includes(f.subject ?? "") && f.level === p.level);
+    return hit ? { via: "finding", status: "confident", found: brief(hit) } : null;
+  }
+  // A judged check counts only through its own question, so another plant on the same node cannot stand in for it.
+  const onSubject = semantic.filter((f) => subjects.includes(f.subject ?? "") && (!p.check || f.rule === `semantic:${p.rule}`));
   const hit = onSubject.find((f) => f.judgment?.status === "confident" && f.level === p.level && defectMatches(f.judgment.defect, p.defect));
   if (hit) return { via: "finding", status: "confident", found: brief(hit) };
 
@@ -216,7 +222,7 @@ describe.skipIf(!KEY)("live semantic suite (v2 funnel)", () => {
       annotate(v.name, semantic, reader);
 
       const planted = v.expectations.planted.map((p) => {
-        const d = detect(p, semantic, v.name, reader);
+        const d = detect(p, semantic, v.name, reader, r.findings);
         return { id: p.id, rule: p.rule, subjects: subjectsOfPlanted(p), defect: p.defect, expected: p.level, detected: d?.status ?? "missed", via: d?.via, found: d?.found ?? null };
       });
       const controls = v.expectations.controls.map((c) => {

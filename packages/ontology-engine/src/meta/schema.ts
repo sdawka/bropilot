@@ -73,6 +73,35 @@ export const KindCriteriaSchema = z.strictObject({
 export const ROOT_CRITERIA_TEXT = ["sections", "terms"] as const;
 export const RootCriteriaSchema = z.strictObject({ sections: z.string().optional(), terms: z.string().optional() });
 
+export const CHECK_SCOPES = ["node", "children", "pair"] as const;
+export const CHECK_LEVELS = ["error", "warning", "info"] as const;
+
+/**
+ * One item of the author's checklist for a kind: a requirement every good node of the kind (`node`), the children of
+ * every node of the kind together (`children`), or every pair of those children (`pair`) must meet. With `pattern`
+ * it is deterministic: the node passes when `field` matches, and no model is asked. Otherwise the catalogue asks it
+ * as its own question. `when` limits where it applies; `na` adds a benign "not applicable" answer.
+ */
+export const CheckSchema = z.strictObject({
+  id: name,
+  text: z.string().min(1),
+  scope: z.enum(CHECK_SCOPES).optional(),
+  answer: z.enum(ANSWER_TYPES).optional(),
+  choices: z.array(z.string()).optional(),
+  benign: scalar.optional(),
+  /** Applies only where this holds: `kind` equals the node's kind (children and pair scope: filters the children); `pattern` matches `field` (default the check's field); `field` alone: that field is filled. */
+  when: z.strictObject({ field: name.optional(), pattern: z.string().optional(), kind: name.optional() }).optional(),
+  /** error, warning (default) or info; anything else is a meta@1 error, `check.levelUnknown`. */
+  level: z.string().optional(),
+  /** defects@1 id a failing answer stands for; default `instance` (node) or `consistency` (children, pair). */
+  defect: name.optional(),
+  /** A JavaScript regular expression, compiled without flags: the check is deterministic and passes when `field` matches. */
+  pattern: z.string().optional(),
+  /** The field the check reads; default `description`. */
+  field: name.optional(),
+  na: z.boolean().optional(),
+});
+
 export const KindSchema = z.strictObject({
   description: z.string().optional(),
   fields: z.array(FieldSchema).default([]),
@@ -83,6 +112,8 @@ export const KindSchema = z.strictObject({
     relations: z.array(z.strictObject({ rel: name, cardinality: card })).default([]),
   }).default({ fields: [], children: [], relations: [] }),
   criteria: KindCriteriaSchema.optional(),
+  /** The author's checklist for nodes of this kind and for their children. */
+  checks: z.array(CheckSchema).optional(),
 });
 
 export const RelationSchema = z.strictObject({
@@ -222,6 +253,8 @@ export const TemplateSourceSchema = z.strictObject({
   defects: DefectsConfigSchema.default({ disable: [], levels: {} }),
   /** Criteria for the root's sections and shared terms (template-level; per-kind criteria live on each kind). */
   rootCriteria: RootCriteriaSchema.optional(),
+  /** Checks applied to the root nodes (nodes without a parent) and their children; rule `check:root.<id>`. */
+  rootChecks: z.array(CheckSchema).optional(),
 });
 
 export type Field = z.infer<typeof FieldSchema>;
@@ -235,6 +268,7 @@ export type Slice = z.infer<typeof SliceSchema>;
 export type Next = z.infer<typeof NextSchema>;
 export type DefectsConfig = z.infer<typeof DefectsConfigSchema>;
 export type TextConstraints = z.infer<typeof TextConstraintsSchema>;
+export type Check = z.infer<typeof CheckSchema>;
 export type KindCriteria = z.infer<typeof KindCriteriaSchema>;
 export type RootCriteria = z.infer<typeof RootCriteriaSchema>;
 export type TemplateNode = z.infer<typeof TemplateNodeSchema>;

@@ -70,7 +70,8 @@
       "source": {
         "kind": "inferred",
         "note": "uip seed"
-      }
+      },
+      "description": "Given a volunteer standing at the first quadrat of a transect at low tide with no signal, when they log the species counts for each quadrat, then every quadrat is saved on the phone and the survey syncs once the phone is back in signal."
     },
     {
       "id": "usecase-verify-a-week-of-volunteer-records-in",
@@ -80,7 +81,8 @@
       "source": {
         "kind": "inferred",
         "note": "uip seed"
-      }
+      },
+      "description": "A coordinator works through a week of volunteer records at one desk session and marks each one verified or rejected with a reason."
     },
     {
       "id": "problem-field-data-is-lost-when-phones-have-no",
@@ -265,7 +267,8 @@
       "source": {
         "kind": "inferred",
         "note": "uip seed"
-      }
+      },
+      "description": "Sends each volunteer a push notification the evening before a low tide below 0.5 m at their saved survey site."
     },
     {
       "id": "feature-branded-merchandise-shop",
@@ -326,7 +329,8 @@
       "source": {
         "kind": "inferred",
         "note": "uip seed"
-      }
+      },
+      "description": "Shows the current quadrat number with a large Add species button and one plus and minus stepper per species; each tap vibrates and updates the count at once, a Saved tick appears when the quadrat is stored on the phone, and a Next quadrat button turns green when every species row has a count."
     },
     {
       "id": "screen-species-picker",
@@ -346,7 +350,8 @@
       "source": {
         "kind": "inferred",
         "note": "uip seed"
-      }
+      },
+      "description": "A clean, modern screen where coordinators get through the week's records quickly and easily."
     },
     {
       "id": "screen-site-map",

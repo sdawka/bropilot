@@ -105,3 +105,7 @@
 ## 2026-10-13T02:05:00-04:00 — Criteria come from the ontology itself
 
 Decision (user): preserve guidance on how to write a good ontology, with the criteria for each section and the parent criteria that ensure consistency among child nodes. The engine's mechanism is to apply the ontology's own criteria at every level: the exact criteria passed to System One calls come from the ontology (template), not only from the engine's built-in defect taxonomy. This is in addition to the general checks for what constitutes a sensible, usable ontology.
+
+## 2026-10-13T04:10:00-04:00 — Ontology criteria are per-kind authoring checklists
+
+Decision (user, clarifying the 02:05 entry): the criteria an ontology carries are the concrete requirements a good node of each kind must meet, written by the ontology author. Examples given: each use case is described in Given/When/Then form; a screen (under the UI or design node) has explicit signifiers, affordances and feedback; a component has an empty state; non-static data has a loading state. The engine applies each criterion at its level as its own check, with parent criteria covering consistency among children. The generic instance, tangibility and testability wording is a separate, general layer.

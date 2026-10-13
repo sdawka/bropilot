@@ -17,6 +17,8 @@ export const GRAPH_DECLS = `
 .decl fieldPlaceholder(Node: sym, Field: sym, Token: sym)
 .decl fieldSameAs(Node: sym, Field: sym, Other: sym)
 .decl fieldPatternMiss(Node: sym, Field: sym)
+.decl checkCandidate(Rule: sym, Subject: sym, Text: sym)
+.decl checkMiss(Rule: sym, Subject: sym, Severity: sym)
 `;
 
 export const TEMPLATE_DECLS = `
@@ -86,6 +88,11 @@ export const FORM_DECLS = `
 .decl textDefaultDistinct(Scope: sym, Other: sym)
 .decl criterionMinScore(Kind: sym, N: num)
 .decl criterionTooLong(Scope: sym, Key: sym)
+.decl checkIdDuplicate(Rule: sym)
+.decl checkDefect(Rule: sym, Defect: sym)
+.decl checkWhenField(Rule: sym, Kind: sym, Field: sym)
+.decl checkPatternInvalid(Rule: sym)
+.decl checkLevelUnknown(Rule: sym, Level: sym)
 `;
 
 /** Every EDB relation an instance evaluation emits; template packs may read these and nothing else they do not derive. */

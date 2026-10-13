@@ -1,4 +1,4 @@
-import type { KindCriteria, TemplateInput } from "../../meta/schema";
+import type { Check, KindCriteria, TemplateInput } from "../../meta/schema";
 import { authorization, facts, journeys, metamodel, readiness, theory, topologyPrivatePairs } from "./packs";
 import * as schema from "./schema";
 
@@ -117,6 +117,28 @@ export const ARTYFACT_CRITERIA: Record<string, KindCriteria> = {
   },
 };
 
+/** Components that show data: the ones that need an empty and a loading state. */
+const SHOWS_DATA = "\\b([Ss]hows?|[Ll]ists?|[Dd]isplays?)\\b";
+
+/**
+ * The author's checklist per kind: what every good screen and component of a web app must state. Each is its own
+ * question, asked of every node of the kind where it applies.
+ */
+export const ARTYFACT_CHECKS: Record<string, Check[]> = {
+  screen: [{
+    id: "signifiers",
+    text: "States explicit signifiers, affordances and feedback for each control: what can be acted on, how it looks actionable, and what the person sees after acting.",
+    defect: "specificity.underspecified",
+  }],
+  component: [
+    { id: "emptyState", text: "Declares an empty state: what it shows when there is nothing to show.", when: { pattern: SHOWS_DATA }, defect: "specificity.underspecified" },
+    {
+      id: "loadingState", text: "Declares a loading state when it shows non-static data.", when: { pattern: SHOWS_DATA }, na: true,
+      defect: "specificity.underspecified",
+    },
+  ],
+};
+
 const ALL = ARTYFACT_KINDS;
 const rel = (from: string[], to: string[], extra: object = {}) => ({ from, to, ...extra });
 
@@ -130,6 +152,7 @@ export const artyfactGenome: TemplateInput = {
     ...(k === "step" && { parents: ["journey"] }),
     ...(k === "criterion" && { completeness: { relations: [{ rel: "owner", cardinality: "1" }, { rel: "subject", cardinality: "1" }] } }),
     ...(ARTYFACT_CRITERIA[k] && { criteria: ARTYFACT_CRITERIA[k] }),
+    ...(ARTYFACT_CHECKS[k] && { checks: ARTYFACT_CHECKS[k] }),
   }])),
   relations: {
     ...Object.fromEntries(schema.Relation.options.map((r) => [r, rel(ALL, ALL, { description: "artyfact cross-link; `refines` and `affects` also carry the node fields of the same name." })])),

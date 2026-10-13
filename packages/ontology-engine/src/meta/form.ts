@@ -2,12 +2,13 @@ import { hashOf } from "../canon";
 import { EDB_RELATIONS, edbProgram, FORM_DECLS, TEMPLATE_DECLS } from "../evaluate/edb";
 import { templateFacts, type Facts } from "../evaluate/facts";
 import { compilePattern } from "../evaluate/text";
-import type { TextConstraints } from "./schema";
+import { CHECK_LEVELS, type TextConstraints } from "./schema";
 import { fold, FINDING_LEVELS, type Finding } from "../evaluate/findings";
 import { meta } from "../evaluate/packs/meta";
 import { factSet, parse, run, stratify, RuleParseError, StratificationError, type Program, type Tuple } from "../rules";
 import { resolveLineage, type Template, type TemplateStore } from "./template";
 import { DEFECTS, otherKindDefects } from "../judge/defects";
+import { checkScope, checksOf, ROOT_OWNER } from "../evaluate/checks";
 
 export interface TemplateForm { valid: boolean; findings: Finding[]; hash: string }
 
@@ -80,6 +81,25 @@ function criteriaDeclFacts(t: Template): Facts {
     long(k, kind.criteria);
   }
   if (t.rootCriteria) long(t.ref, t.rootCriteria);
+  return out;
+}
+
+/**
+ * The checklist as written, by rule id (`check:<owner>.<id>`): ids repeated within one owner, the defect each stands
+ * for, `when.field` with the kind that must declare it (`*`: any kind, for root, children and pair checks), patterns
+ * that do not compile, and levels other than error, warning and info.
+ */
+function checkDeclFacts(t: Template): Facts {
+  const out: Facts = { checkIdDuplicate: [], checkDefect: [], checkWhenField: [], checkPatternInvalid: [], checkLevelUnknown: [] };
+  const seen = new Set<string>();
+  for (const { owner, rule, check } of checksOf(t)) {
+    if (seen.has(rule)) out.checkIdDuplicate.push([rule]);
+    seen.add(rule);
+    out.checkDefect.push([rule, check.defect ?? (checkScope(check) === "node" ? "instance" : "consistency")]);
+    if (check.when?.field !== undefined) out.checkWhenField.push([rule, owner !== ROOT_OWNER && checkScope(check) === "node" ? owner : "*", check.when.field]);
+    if ([check.pattern, check.when?.pattern].some((p) => p !== undefined && !compilePattern(p))) out.checkPatternInvalid.push([rule]);
+    if (check.level !== undefined && !(CHECK_LEVELS as readonly string[]).includes(check.level)) out.checkLevelUnknown.push([rule, check.level]);
+  }
   return out;
 }
 
@@ -173,6 +193,7 @@ export function formFacts(t: Template, store?: TemplateStore): Facts {
     edbRelation: EDB_RELATIONS.map((r) => [r]),
     ...textDeclFacts(t),
     ...criteriaDeclFacts(t),
+    ...checkDeclFacts(t),
     ...defectDeclFacts(t),
     ...packFacts(t),
   };

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  buildSlice, canon, checkTemplateForm, evaluate, evaluateAndJudge, fakeSystemOne, loadTemplate, PAIR_PREFIX, pairOf, PROBE_RULES_V2, PROBE_SOURCE,
+  buildSlice, canon, CHECK_PREFIX, checkTemplateForm, evaluate, evaluateAndJudge, fakeSystemOne, loadTemplate, PAIR_PREFIX, pairOf, PROBE_RULES_V2, PROBE_SOURCE,
   PROBE_SOURCE_V2, productSpec, type SemanticProbeOptions,
   SEMANTIC_RULES_V1, semanticCatalogue, semanticProbe, SliceSchema, toWire, withSemanticProbes, type Graph, type ProbeOptions,
 } from "../../src";
@@ -13,7 +13,7 @@ import {
  * Provider calls a v1 run makes per fixture (one per candidate, before retries). The committed v1 live results were
  * recorded at 233, 18 and 10, before the v2 plants were added to the degraded fixtures.
  */
-const LIVE_CALLS: Record<string, number> = { artyfact: 236, product: 21, world: 11 };
+const LIVE_CALLS: Record<string, number> = { artyfact: 274, product: 32, world: 11 };
 const SETTING_OF: Record<string, ProbeOptions> = { artyfact: SETTINGS.artyfact, product: SETTINGS.product, world: SETTINGS.world };
 
 /** An independent reading of `semantic.probe@1` over the graph: `rule subject text` for every candidate it should emit. */
@@ -168,9 +168,11 @@ describe("probe plumbing", () => {
 const V2_COUNTS: Record<string, Record<string, number>> = {
   artyfact: {
     "node.kind": 57, "node.tangibility": 49, "text.unmeasurable": 27, "criterion.unfalsifiable": 22, "set.allHold": 10, "pair.relation": 34,
+    "check:screen.signifiers": 8, "check:component.emptyState": 8, "check:component.loadingState": 8,
   },
   product: {
-    "node.kind": 10, "node.tangibility": 9, "text.unmeasurable": 1, "criterion.unfalsifiable": 2, "node.purpose": 6, "sections.allHold": 1,
+    "node.kind": 11, "node.tangibility": 10, "text.unmeasurable": 1, "criterion.unfalsifiable": 2, "node.purpose": 7, "sections.allHold": 1,
+    "check:feature.userAndTrigger": 4, "check:screen.signifiers": 2,
   },
   world: { "node.kind": 5, "node.tangibility": 5, "text.unmeasurable": 2, "criterion.unfalsifiable": 1, "pair.relation": 1 },
 };
@@ -195,7 +197,8 @@ describe.each(V2_VOCABULARIES.map((make) => [make().name, make] as const))("sema
 
   it("emits only stage-1 candidates, in the pinned numbers", () => {
     const c = counts(v);
-    expect(Object.keys(c).every((r) => (PROBE_RULES_V2 as readonly string[]).includes(r))).toBe(true);
+    // Stage-1 probe candidates, plus the template's own checklist (checks@1), which is not a follow-up either.
+    expect(Object.keys(c).every((r) => (PROBE_RULES_V2 as readonly string[]).includes(r) || r.startsWith(CHECK_PREFIX))).toBe(true);
     expect(c).toEqual(V2_COUNTS[name]);
   });
 
@@ -209,7 +212,13 @@ describe.each(V2_VOCABULARIES.map((make) => [make().name, make] as const))("sema
     const emitted = new Set(evaluate(v.template, v.graph).findings.filter((f) => f.rule.startsWith("semantic:"))
       .map((f) => `${f.rule.slice(9)} ${f.rule.startsWith(`semantic:${PAIR_PREFIX}`) ? `${f.subject}|${f.derivation.tuple[2]}` : f.subject}`));
     const asked = new Set(v.template.questions.map((q) => q.id));
+    const all = evaluate(v.template, v.graph).findings;
     for (const p of v.expectations.planted) {
+      if (p.check?.deterministic) {
+        expect(asked.has(p.rule), `${p.id}: a pattern check is not asked`).toBe(false);
+        expect(all.some((f) => f.rule === p.rule && f.subject === subjectOf(p) && f.level === p.level), `${p.id}: ${p.rule} ${subjectOf(p)}`).toBe(true);
+        continue;
+      }
       expect(asked.has(p.rule), `${p.id}: ${p.rule} is in the catalogue`).toBe(true);
       const route = p.entry ? `${p.entry.rule} ${p.entry.subject}`
         : p.rule === "term.usage" ? `sections.allHold ${p.subjects[0]}`
@@ -224,7 +233,7 @@ describe.each(V2_VOCABULARIES.map((make) => [make().name, make] as const))("sema
 
   it("v1 is unchanged with version 1", () => {
     const v1 = counts(VOCABULARIES[V2_VOCABULARIES.indexOf(make)]!());
-    expect(Object.keys(v1).sort()).toEqual([...PROBE_RULES].filter((r) => v1[r]).sort());
+    expect(Object.keys(v1).filter((r) => !r.startsWith(CHECK_PREFIX)).sort()).toEqual([...PROBE_RULES].filter((r) => v1[r]).sort());
   });
 });
 

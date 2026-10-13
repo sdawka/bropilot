@@ -5,6 +5,7 @@ import type { Question, Slice } from "../meta/schema";
 import { S1Error } from "./provider";
 import { answerKey, combine, decide, harmOf, passFromOf, policyEntry, readAnswer, scoreConfidence, type Decision } from "./policy";
 import { pairScore, termsAcross } from "./prefilter";
+import { CHECK_PREFIX } from "../evaluate/checks";
 import { PAIR_PREFIX, PAIR_SEPARATOR } from "./probe";
 import { buildSlice, pairOf, type SliceState } from "./slice";
 import type { Answer, AskOptions, JudgmentStep, Provenance, S1Question, SystemOne, Thresholds } from "./types";
@@ -241,7 +242,7 @@ export function seed(findings: Finding[], ctx: FunnelContext): Seeded {
     if (!q) {
       const state = buildSlice(ctx.g, subject, defaultSlice, { rule, text });
       out.fixed.push({
-        ...f, level: "info", judgment: { question: rule, status: "unknown" },
+        ...f, level: "info", judgment: { question: rule, status: "unknown", ...checkOf(rule) },
         provenance: { provider: "off", model: "off", stateHash: hashOf(state), questionHash: hashOf(null), thresholds: ctx.t },
       });
       continue;
@@ -702,12 +703,17 @@ const pickStep = (t: Track): Step | undefined =>
   [...t.steps].reverse().find((s) => s.decision.status === "confident" && !s.nav && s.decision.level !== "pass") ?? t.steps[0];
 
 /** A track's finding before parents are reconciled. */
+/** The check id of a `check:<owner>.<id>` rule. */
+export const checkIdOf = (rule: string): string | undefined =>
+  rule.startsWith(CHECK_PREFIX) && rule.includes(".") ? rule.slice(rule.indexOf(".") + 1) : undefined;
+const checkOf = (rule: string) => { const c = checkIdOf(rule); return c === undefined ? {} : { check: c }; };
+
 export function settle(t: Track, ctx: FunnelContext): Finding {
   const s = pickStep(t);
   if (!s) {
     const q = t.entry.question;
     return {
-      ...t.base, level: "info", judgment: { question: q.id, status: "unknown" },
+      ...t.base, level: "info", judgment: { question: q.id, status: "unknown", ...checkOf(q.id) },
       provenance: {
         provider: "budget", model: ctx.s1.model, stateHash: hashOf(t.entry.state), questionHash: hashOf(q), thresholds: ctx.t,
         error: { name: "Budget", code: "budget", message: "the judge's call or round budget ran out before this was asked" },
@@ -724,6 +730,7 @@ export function settle(t: Track, ctx: FunnelContext): Finding {
       ...(d.probabilities && { probabilities: d.probabilities }),
       ...(d.defect !== undefined && { defect: d.defect }),
       ...(s.banded !== undefined && { bandedConfidence: s.banded }),
+      ...checkOf(t.entry.question.id),
       path: pathOf(t),
     },
     provenance: { ...s.provenance, ...(t.truncated && { truncated: true }) },

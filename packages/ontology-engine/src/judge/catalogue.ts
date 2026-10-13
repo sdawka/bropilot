@@ -1,4 +1,5 @@
-import type { DefectsConfig, KindCriteria, RootCriteria, TemplateInput } from "../meta/schema";
+import { checkField, checkRule, checkScope, isDeterministic, ROOT_OWNER } from "../evaluate/checks";
+import { CHECK_LEVELS, type Check, type DefectsConfig, type KindCriteria, type RootCriteria, type TemplateInput } from "../meta/schema";
 import { DEFECTS, defectChildren, defectIndex, mergeDefects, OTHER_KIND, otherKindDefects, type Defect, type DefectScope } from "./defects";
 import { ANY_ANSWER } from "./policy";
 import { kindSettings, semanticProbe, type KindSetting, type ProbeOptions } from "./probe";
@@ -489,6 +490,75 @@ export function compileKinds(kinds?: ProbeOptions["kinds"], base: KindsInput = {
   return { byKind: Object.fromEntries(keys.map((k) => [k, word(k)])), ...(Object.keys(passFrom).length && { passFrom }) };
 }
 
+/** Not-applicable option a check with `na` adds; it passes. */
+export const NOT_APPLICABLE = "notApplicable";
+
+const asked = (text: string) => text.trim().replace(/[.?!;:]+$/u, "");
+
+/**
+ * One question per non-deterministic check of the template (`kinds.<k>.checks` and `rootChecks`), id
+ * `check:<owner>.<id>`, asked of the candidates checks@1 emits. The stem names the kind's noun and states the check;
+ * the benign answer passes, a `notApplicable` option (with `na`) passes, and every other answer maps to the check's
+ * level and defect. Node checks share the node questions' slice and children checks the set questions' slice, so the
+ * funnel batches them per subject with the stage-1 questions. Deterministic checks (`pattern`) are not asked.
+ */
+export function checkQuestions(t: Pick<TemplateInput, "kinds" | "rootChecks">, o: { fields?: string[] } = {}): QuestionInput[] {
+  const fields = o.fields ?? DEFAULT_SLICE_FIELDS;
+  const owned: [string, Check][] = [
+    ...Object.entries(t.kinds ?? {}).flatMap(([k, kind]) => (kind.checks ?? []).map((c): [string, Check] => [k, c])),
+    ...(t.rootChecks ?? []).map((c): [string, Check] => [ROOT_OWNER, c]),
+  ];
+  return owned.filter(([, c]) => !isDeterministic(c)).map(([owner, c]) => {
+    const noun = owner === ROOT_OWNER ? "top-level item" : t.kinds?.[owner]?.criteria?.noun ?? owner;
+    const scope = checkScope(c);
+    const level = (CHECK_LEVELS as readonly string[]).includes(c.level ?? "warning") ? c.level ?? "warning" : "warning";
+    const defect = c.defect ?? (scope === "node" ? "instance" : "consistency");
+    const sliceFields = [...new Set([...fields, checkField(c)])];
+    const ctx: Ctx = { fields: sliceFields, defects: new Map(), anchors: [] };
+    const slice = scope === "node" ? nodeSlice(ctx) : scope === "children" ? setSlice(ctx) : pairSlice(ctx);
+    const criterion = asked(c.text);
+    const stem = scope === "node"
+      ? `Does state.subject, a ${noun}, satisfy this criterion: ${criterion}? Its statement is state.candidate.text; state.parents give its context.`
+      : scope === "children"
+        ? `Do the members state.members of state.subject, a ${noun}, together satisfy: ${criterion}? state.parents give context.`
+        : `Do state.subject and state.counterpart, two parts of a ${noun}, together satisfy: ${criterion}? state.parents and state.nodes give context.`;
+    const na = c.na ? ` Answer ${NOT_APPLICABLE} when the criterion does not apply to ${scope === "node" ? "it" : "them"}.` : "";
+    const harmful = (answer: string) => ({ answer, level, defect });
+    const naPolicy = c.na ? [{ answer: NOT_APPLICABLE, level: "pass" }] : [];
+    const naCriterion: Record<string, string> = c.na ? { [NOT_APPLICABLE]: "The criterion does not apply here." } : {};
+    const id = checkRule(owner, c.id);
+    const answer = c.answer ?? "yes-no";
+    if (answer === "score") {
+      const choices = c.choices?.length ? c.choices : ["Not at all.", "Partly.", "Fully."];
+      const benign = Number(c.benign ?? choices.length - 1);
+      return {
+        id, answer, text: `${stem} Score how fully it does.${na}`, choices, slice, benign, defect,
+        policy: choices.map((_, i) => (i >= benign ? { answer: String(i), level: "pass" } : harmful(String(i)))),
+      };
+    }
+    if (answer === "choice" || c.na) {
+      const choices = answer === "choice" && c.choices?.length ? c.choices : ["yes", "no"];
+      const benign = String(c.benign ?? choices[0]);
+      return {
+        id, answer: "choice", text: `${stem}${na}`, choices: [...choices, ...(c.na ? [NOT_APPLICABLE] : [])],
+        criteria: <Record<string, string>>{
+          ...(answer === "choice" ? {} : { yes: `It satisfies the criterion: ${cap(criterion, 200)}.`, no: `It does not satisfy the criterion: ${cap(criterion, 200)}.` }),
+          ...naCriterion,
+        },
+        slice, benign, defect,
+        policy: [...choices.map((x) => (x === benign ? { answer: x, level: "pass" } : harmful(x))), ...naPolicy],
+      };
+    }
+    const benign = c.benign ?? "yes";
+    return {
+      id, answer, text: stem,
+      choices: [cap(`Satisfies: ${criterion}.`), cap(`Does not satisfy: ${criterion}.`)],
+      slice, benign, defect,
+      policy: [{ answer: String(benign), level: "pass" }, harmful(benign === "yes" || benign === true ? "no" : "yes")],
+    };
+  });
+}
+
 const ROOT_TOKEN = /\{(sections|terms)\}/g;
 /** Fills the root tokens from the template's root criteria; an absent criterion leaves the generic stem unchanged. */
 const fillRoot = (q: QuestionInput, r?: RootCriteria): QuestionInput =>
@@ -535,7 +605,10 @@ export function withSemanticProbes(t: TemplateInput, given: SemanticProbeOptions
     : { ...given, ...(Object.keys(glossary).length || given.kinds !== undefined ? { kinds: glossary } : {}), base: t.kinds ?? {}, ...(t.rootCriteria && { root: t.rootCriteria }) };
   const pack = semanticProbe(o);
   const rules = (t.rules ?? []).some((r) => r.id === pack.id) ? t.rules : [...(t.rules ?? []), pack];
-  if (o.version === "1") return { ...t, questions: [...(t.questions ?? []), ...semanticCatalogue({ ...o, version: "1" }).filter((q) => !own.has(q.id))], rules };
+  if (o.version === "1") {
+    const v1 = [...semanticCatalogue({ ...o, version: "1" }), ...checkQuestions(t, { ...(o.fields && { fields: o.fields }) })];
+    return { ...t, questions: [...(t.questions ?? []), ...v1.filter((q) => !own.has(q.id))], rules };
+  }
 
   const cfg: DefectsConfig = {
     disable: [...new Set([...(t.defects?.disable ?? []), ...(o.defects?.disable ?? [])])],
@@ -551,7 +624,7 @@ export function withSemanticProbes(t: TemplateInput, given: SemanticProbeOptions
   const rulesWanted = (o.rules ?? SEMANTIC_RULES).filter((r) => r !== "node.purpose" || (o.purposeKinds ?? []).length > 0);
   const hand = semanticCatalogue({ ...o, rules: rulesWanted, tree: defects, version: "2" });
   const gen = generatedQuestions(defects, { fields, ...(o.probePairs && { probePairs: o.probePairs }) });
-  const added = [...hand, ...gen].filter((q) => !own.has(q.id) && !off(q.defect));
+  const added = [...hand, ...gen, ...checkQuestions(t, { fields })].filter((q) => !own.has(q.id) && !off(q.defect));
   const ids = new Set([...own, ...added.map((q) => q.id)]);
   const pruned = added.map((q) => {
     const next = q.next?.filter((n) => ids.has(n.ask));

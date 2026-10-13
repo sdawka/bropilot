@@ -4,6 +4,7 @@ import { maxOf, parseCardinality } from "../meta/cardinality";
 import type { Template } from "../meta/template";
 import { DEFECTS, mergeDefects } from "../judge/defects";
 import { factSet, type FactSet, type Tuple } from "../rules";
+import { checkFacts } from "./checks";
 import { compilePattern, isPlaceholder, kindTextConstraints, normaliseText, textLength, textWords } from "./text";
 
 export type Facts = Record<string, Tuple[]>;
@@ -162,7 +163,7 @@ export function graphFacts(t: Template, g: Graph): Facts {
     f.push("evidence", e.id, e.subject, e.kind);
     f.push("ref", e.id, "evidence", e.subject);
   }
-  return f.out;
+  return { ...f.out, ...checkFacts(t, g) };
 }
 
 /** EDB for an instance evaluation: the graph set plus the template set. */

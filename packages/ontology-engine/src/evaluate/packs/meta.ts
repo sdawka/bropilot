@@ -51,6 +51,11 @@ export const meta = { id: "meta", version: "1", source: `
 .decl textDefaultDistinct(Scope: sym, Other: sym)
 .decl criterionMinScore(Kind: sym, N: num)
 .decl criterionTooLong(Scope: sym, Key: sym)
+.decl checkIdDuplicate(Rule: sym)
+.decl checkDefect(Rule: sym, Defect: sym)
+.decl checkWhenField(Rule: sym, Kind: sym, Field: sym)
+.decl checkPatternInvalid(Rule: sym)
+.decl checkLevelUnknown(Rule: sym, Level: sym)
 .decl fieldDeclared(Kind: sym, Field: sym)
 .decl fieldDeclaredAnywhere(Field: sym)
 .decl parentConstrained(Kind: sym)
@@ -99,6 +104,11 @@ export const meta = { id: "meta", version: "1", source: `
 .message "template.textPatternInvalid" "Template {1} declares a textDefaults pattern that is not a valid regular expression."
 .message "criteria.minScoreRange" "Kind {1} sets a minimum tangibility score outside 0 to 4."
 .message "criteria.tooLong" "{1} states a criterion longer than 255 characters; questions cut it."
+.message "check.idDuplicate" "Check {1} is declared twice for the same kind."
+.message "check.defectUnknown" "Check {1} stands for a defect that defects@1 does not define."
+.message "check.whenFieldUnknown" "Check {1} applies when a field is set that its kind does not declare."
+.message "check.patternInvalid" "Check {1} declares a pattern that is not a valid regular expression."
+.message "check.levelUnknown" "Check {1} declares a level other than error, warning or info."
 .message "template.textDistinctUnknown" "Template {1} declares textDefaults distinct from a field no kind declares."
 
 fieldDeclared(K,F) :- kindField(K,F,_,_).
@@ -163,4 +173,11 @@ violation("template.textDistinctUnknown",T,"hard") :- textDefaultDistinct(T,O), 
 violation("criteria.minScoreRange",K,"hard") :- criterionMinScore(K,N), N < 0.
 violation("criteria.minScoreRange",K,"hard") :- criterionMinScore(K,N), N > 4.
 violation("criteria.tooLong",S,"soft") :- criterionTooLong(S,_).
+
+violation("check.idDuplicate",R,"hard") :- checkIdDuplicate(R).
+violation("check.defectUnknown",R,"hard") :- checkDefect(R,D), not defectKnown(D).
+violation("check.whenFieldUnknown",R,"hard") :- checkWhenField(R,K,F), K != "*", not fieldDeclared(K,F).
+violation("check.whenFieldUnknown",R,"hard") :- checkWhenField(R,"*",F), not fieldDeclaredAnywhere(F).
+violation("check.patternInvalid",R,"hard") :- checkPatternInvalid(R).
+violation("check.levelUnknown",R,"hard") :- checkLevelUnknown(R,_).
 ` };

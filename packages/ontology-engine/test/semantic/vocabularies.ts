@@ -26,9 +26,14 @@ export interface Planted {
   note: string;
   entry?: { rule: string; subject: string };
   alternatives?: string[][];
+  /**
+   * Set when `rule` is one of the template's checks (`check:<kind>.<id>`): only that rule's findings count for the
+   * item. A deterministic check is a pattern, so its finding is not semantic and needs no provider call.
+   */
+  check?: { id: string; deterministic?: boolean };
 }
 export interface Control { id: string; subject: string; note: string }
-/** `calls`: the provider-call envelope one live run of the fixture should stay within. */
+/** `calls`: the provider-call envelope one live run of the fixture should stay within; the check questions take one call per subject they ask about. */
 export interface Expectations { fixture: string; vocabulary: string; calls: number; planted: Planted[]; controls: Control[] }
 
 export interface Vocabulary { name: string; template: Template; graph: Graph; expectations: Expectations }

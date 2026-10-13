@@ -1,7 +1,7 @@
 {
   "fixture": "keep-in-touch-degraded",
   "vocabulary": "artyfact",
-  "calls": 220,
+  "calls": 236,
   "planted": [
     {
       "id": "specificity.error-handling",
@@ -110,6 +110,45 @@
       "level": "warning",
       "defect": "instance.otherKind",
       "note": "Planted: the delete operation's description is now a claim about trust (owners trust the app more because they can leave), not an action on data."
+    },
+    {
+      "id": "check.signifiers.settings",
+      "rule": "check:screen.signifiers",
+      "subjects": [
+        "screen.settings"
+      ],
+      "level": "warning",
+      "defect": "specificity.underspecified",
+      "check": {
+        "id": "signifiers"
+      },
+      "note": "Planted: the settings screen lists its panels in a clean, modern layout but states no signifier, affordance or feedback for any control."
+    },
+    {
+      "id": "check.emptyState.contact-collection",
+      "rule": "check:component.emptyState",
+      "subjects": [
+        "component.ContactCollection"
+      ],
+      "level": "warning",
+      "defect": "specificity.underspecified",
+      "check": {
+        "id": "emptyState"
+      },
+      "note": "Planted: the contact list states its rows and its loading placeholders but not what it shows when no contact matches."
+    },
+    {
+      "id": "check.loadingState.contact-history",
+      "rule": "check:component.loadingState",
+      "subjects": [
+        "component.ContactHistory"
+      ],
+      "level": "warning",
+      "defect": "specificity.underspecified",
+      "check": {
+        "id": "loadingState"
+      },
+      "note": "Planted: the history lists server data and states its empty state but not what it shows while the events load."
     }
   ],
   "controls": [
@@ -132,6 +171,16 @@
       "id": "control.claim-remembering",
       "subject": "T1",
       "note": "Theory claim T1: private context and a chosen cadence reduce forgetting; outcome wanted contact happens more reliably, with an indicator. Claims pass from tangibility score 2."
+    },
+    {
+      "id": "control.check.signifiers-log-contact",
+      "subject": "screen.logContact",
+      "note": "States labels, the one filled Save button, its disabled, saving and success feedback, and where validation errors appear."
+    },
+    {
+      "id": "control.check.states-person-summary",
+      "subject": "component.PersonSummary",
+      "note": "Shows server data and states both its loading placeholder and its empty channel state."
     }
   ]
 }
