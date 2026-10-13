@@ -6,7 +6,8 @@
   "workspaces": [
     "apps/*",
     "packages/contracts",
-    "packages/local-verifier"
+    "packages/local-verifier",
+    "packages/ontology-engine"
   ],
   "engines": {
     "node": ">=22.12.0"
@@ -24,6 +25,7 @@
     "test:worker": "npm run build:verifier && cargo build --locked -p bropilot-query && node --test --test-concurrency=1 tests/*.test.mjs",
     "test:verifier": "node --test packages/local-verifier/test/*.test.mjs",
     "test:ontology-lab": "node --test packages/ontology-lab/test/*.test.mjs packages/ontology-lab/benchmark/*.test.mjs",
+    "test:engine": "npm run test --workspace @bropilot/ontology-engine",
     "test:e2e": "playwright test",
     "test": "npm run test:core && npm run test:web && npm run test:verifier && npm run test:ontology-lab && npm run test:worker",
     "dev": "npm run dev --workspace @bropilot/web",

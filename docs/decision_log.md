@@ -79,3 +79,33 @@
 - **2026-10-10T14:10:58-04:00** — Use Sol agents for all implementation, with the primary agent limited to orchestration.
 
 - **2026-10-10T15:02:52-04:00** — Lead change analysis with a concise consequence summary; distinguish actual edits, potential effects, recomputed metrics and evidence rechecks. Start explanations at the actual Thing revision change and prioritize useful consequences while retaining full detail on demand.
+
+- **2026-10-12T15:48:20-04:00** — Build the template-agnostic ontology engine as a library in the bropilot repository (`packages/ontology-engine`), consumed by `artyfact-cf`.
+
+- **2026-10-12T15:48:20-04:00** — Keep the `@artyfact/rules` Datalog dialect as the engine's rule language.
+
+- **2026-10-12T15:48:20-04:00** — Keep YAML in `artyfact-cf` behind a loader adapter; the engine's canonical instance format is the JSON graph.
+
+- **2026-10-12T17:20:00-04:00** — Add deterministic, template-declarable text-quality checks (minimum length, placeholder words, title distinct from id) to the ontology engine.
+
+- **2026-10-12T17:20:00-04:00** — Add a real-provider semantic suite for vague and contradictory content, run through the OpenRouter decisions API with the Perplexity decision model, behind a provider abstraction so the model is swappable.
+
+- **2026-10-13T00:48:00-04:00** — Replace the single "is this vague?" semantic question with a defect-ontology-driven funnel: per labelled node ask whether it is an instance of its declared kind plus a tangibility score; ask consistency at sibling, cross-section and direct scopes; the engine ships a versioned internal defect ontology that the questioning walks to narrow the diagnosis.
+
+- **2026-10-13T00:48:00-04:00** — Pair checks go through the funnel; the walk must be more efficient than asking every sibling pair (the defect tree drives chained choice questions).
+
+- **2026-10-13T00:48:00-04:00** — Follow-up questions spawn only on confident answers by default, with a per-question knob to lower the bar to review. Review counts as detection in the live assertion.
+
+- **2026-10-13T00:48:00-04:00** — The defect ontology is a full taxonomy three levels deep with four to five categories per level, all families live.
+
+- **2026-10-13T00:48:00-04:00** — Confirmed inconsistencies are explained by gpt-6-luna through OpenRouter chat completions behind a separate explainer seam; the explanation is advisory and never changes a level.
+
+- **2026-10-13T01:25:00-04:00** — Extend the funnel beyond defects to change routing: a System One decision tree first identifies which part of the system a user message affects, at increasing depth, and only then a model translates the message into concrete changes or a clarifying question, so smaller models with a slice can replace a large model given the whole graph. Build a dataset and evaluations for it so the engine's breakdown can be measured across models; Claude acts as the reference for the translation role for now.
+
+## 2026-10-13T02:05:00-04:00 — Criteria come from the ontology itself
+
+Decision (user): preserve guidance on how to write a good ontology, with the criteria for each section and the parent criteria that ensure consistency among child nodes. The engine's mechanism is to apply the ontology's own criteria at every level: the exact criteria passed to System One calls come from the ontology (template), not only from the engine's built-in defect taxonomy. This is in addition to the general checks for what constitutes a sensible, usable ontology.
+
+## 2026-10-13T04:10:00-04:00 — Ontology criteria are per-kind authoring checklists
+
+Decision (user, clarifying the 02:05 entry): the criteria an ontology carries are the concrete requirements a good node of each kind must meet, written by the ontology author. Examples given: each use case is described in Given/When/Then form; a screen (under the UI or design node) has explicit signifiers, affordances and feedback; a component has an empty state; non-static data has a loading state. The engine applies each criterion at its level as its own check, with parent criteria covering consistency among children. The generic instance, tangibility and testability wording is a separate, general layer.

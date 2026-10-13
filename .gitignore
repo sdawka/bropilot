@@ -16,3 +16,6 @@
 /apps/worker/worker-configuration.d.ts
 /.local-session/
 /apps/worker/src/runner-manifest.ts
+
+# local credentials
+.env.local
