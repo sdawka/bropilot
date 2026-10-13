@@ -12,7 +12,7 @@ TypeScript ESM. The runtime dependencies are `zod` and `yaml`. Hashing is synchr
 | `src/meta/` | `meta@1` zod schemas, cardinality grammar (`1`, `0..1`, `1..*`, `0..5`), `loadTemplate` with `extends` resolved through a `TemplateStore`, `templateHash`, `instantiateNodes` for `$self`, and `checkTemplateForm`. |
 | `src/graph/` | The canonical JSON graph (`template`, `nodes`, `links`, `declarations`, `evidence`), `parseGraph` and `graphHash`. |
 | `src/evaluate/` | `toFacts`, the engine-owned packs `metamodel@1`, `completeness@1`, `consistency@1`, `text@1` and `meta@1`, `evaluate` returning `Readiness`, `diff` and `diffFindings`. |
-| `src/judge/` | The System One provider interface, `httpSystemOne`, `openRouterProvider` and `providerFromEnv`, `fakeSystemOne` with `#s1low`, `#s1no`, `#s1pick:` and `#s1harm` directives, `offSystemOne`, `S1Error`, the confidence policy, `buildSlice`, `judge` and `evaluateAndJudge`, the reusable semantic question catalogue and the `semantic.probe@1` pack. |
+| `src/judge/` | The System One provider interface, `httpSystemOne`, `openRouterProvider` and `providerFromEnv`, `fakeSystemOne` with `#s1low`, `#s1no`, `#s1pick:`, `#s1harm`, `#s1:<qid>=<key>` and `#s1low:<qid>` directives, `offSystemOne`, `S1Error`, the confidence policy, `buildSlice`, the funnel and pre-filters, `judge` and `evaluateAndJudge`, the reusable semantic question catalogue with the generated `which:` questions, and the `semantic.probe@2` pack (`@1` on request). |
 | `src/adapters/artyfact/` | The `template.meta.artyfact-genome@1` base template, `loadArtyfactSystem` for an artyfact system directory, `loadArtyfactTemplate` and `artyfactMetaStore` for artyfact templates, and the ported artyfact rule packs. |
 | `src/adapters/product/` | `template.meta.product-spec@1` for the uip/lfp product graphs with `productGraphToGraph`, and `template.meta.bropilot-spaces@3` for the older spaces graphs with `spacesGraphToGraph`. |
 | `src/adapters/world/` | `template.meta.world@1` with `world.readiness@1`, `worldTemplateToMeta` and `worldSnapshotToGraph` for world-core `WorldSnapshot`s, and `toWorldFindings` and `worldStatus` to read a readiness in world-core's terms. |
@@ -29,9 +29,68 @@ TypeScript ESM. The runtime dependencies are `zod` and `yaml`. Hashing is synchr
 | No question for the rule | `unknown`, provider `off` | `info` |
 | Provider throws | `unknown`, provider `error` | `info` |
 
-Provenance records the provider, model, `stateHash`, `questionHash` and thresholds. It carries no timing, so the judged `Readiness` JSON is reproducible with the fake provider.
+Provenance records the provider, model, `stateHash`, `questionHash` and thresholds. `readiness.judgments` counts findings by status, plus `calls`, `rounds`, `gated`, `budget` (`ok` or `exhausted`) and `explained`; `evaluate` returns them all at zero. It carries no timing, so the judged `Readiness` JSON is reproducible with the fake provider.
 
 A yes-no question with exactly two `choices` sends them on the wire as the `true` and `false` criteria; otherwise both criteria repeat the question text.
+
+Slices also take `children` (default `false`): the direct children of the subject and counterpart, filtered by `kinds`, shown as `state.members`. `textCap` (default 600) cuts every string field value to that many characters. A question may also declare:
+
+- `defect`: the defects@1 id a harmful answer stands for; a policy entry's own `defect` wins.
+- `byKind`: per subject kind, a plain noun or a JSON object `{"noun", "instanceOf", "grounded"}` substituted for `{noun}`, `{instanceOf}` and `{grounded}` in the text and choices. The question hash therefore differs per kind.
+- `batchWith`: companion questions asked in the same call over the same slice.
+- `next`: follow-ups `{answer?, maxScore?, minStatus: "confident" | "review", ask, over: "self" | "members" | "pairs" | "sections" | "crossPairs"}`.
+
+### The funnel
+
+`judge` runs a bounded round loop (`src/judge/funnel.ts`). Each semantic candidate with a question becomes a stage-1 item. In every round, items about the same subject whose slices are equal share one provider call, together with their `batchWith` companions. A yes-no question whose companion is a yes-no question of the opposite `benign` is decided by `combine` over both answers, each read against its own `benign`, so `set.allHold` with `set.inconsistent` passes only when both agree. The combined side is mapped back to each question's own answer, and both questions' `next` entries follow it. Any other companion, such as `parent.summary` or `sections.which`, raises no candidate. When its answer is harmful or in review, it becomes a finding of its own with stage `companion` and follows its own `next`. That finding clones the subject, derivation, facts and pack of the item that brought it, takes rule `semantic:<companion id>`, and shares that call's round and `batch` provenance. A companion answer that passes or is unknown emits no finding, so a clean subject adds nothing to the counts or verdicts, and an unreadable companion never blocks `buildable` by itself. A follow-up that an item, its partner or its companions would each fire is walked once. A batch the provider answers with `bad-response` is asked again one question at a time, and those answers carry `provenance.batch.split`.
+
+A judged step fires each `next` entry whose answer matches and whose status reaches `minStatus` (default `confident`). A navigation step, the pick of a `choicesFrom` question, fires at `review` as well; the catalogue's `set.member`, `sections.section` and `sections.other` entries say so explicitly. An entry matches its `answer`, or any score at most `maxScore`, or any non-benign answer when it names neither. An entry without `answer` never fires on a step whose level is `pass`, so a score that passes under the kind's `passFrom` is not narrowed. Members without statement text are never paired. `over` decides what is asked next:
+
+| `over` | Follow-up items |
+|---|---|
+| `self` | The same subject with the follow-up's own slice; it refines the same finding |
+| `members` | One new finding per member of the step's slice |
+| `pairs` | Member pairs: the picked member with every other one when the answer was a member id, else all pairs; ordered by the pre-filters and capped at `maxPairsPerSet` |
+| `sections` | One pair of the two sections picked on the path, sliced with `children: true` so both sections' members are shown |
+| `crossPairs` | Pairs of texted descendants of the two picked sections, ordered by the pre-filters and capped at `maxCrossPairs`; a section without texted descendants stands for itself |
+
+A node is a member or section only when one of its statement fields is non-empty; a title alone does not count. The statement fields are `opts.texts`, else the `probeText` fields of the template's `semantic.probe` pack, else `description`, so the funnel and the pack agree. A root's sections are ordered by pre-filter relevance (the sum of `pairScore` against the other sections, then id) and capped at `maxSections`. The rest are counted in `gated` once per root. A `choicesFrom` (`members` or `sections`) question offers the slice members, or the sections not yet picked in that order, before its declared choices. Its pick is a navigation step: it is on the path but never describes the finding. When the pick is unknown, below `review`, unreadable or `none`, so none of its entries fire, the walk does not stop. The pair question it leads to (found through `self` steps) is asked over pairs from the pre-filters alone. A member pick falls back to all member pairs, capped at `maxPairsPerSet`. A section pick falls back to statement pairs across the root's sections, anchored on a section already picked on the track when there is one, capped at `maxCrossPairs`. A follow-up is asked once per question, state and options, so a pair reached twice is asked once. When the catalogue has `term.usage`, every root whose questions walk sections also gets one item per term the pre-filters find in at least two sections, capped at `maxTerms`. The pre-filters in `src/judge/prefilter.ts` (`modalClash`, `sameThing`, `sharedTerms`, `termsAcross`) only order, cap and pick; they never raise or drop a finding.
+
+`judgment.path` lists every step from the entry question to the deepest one. The finding's top-level `question`, `answer`, `confidence`, `status` and `defect` come from the deepest confident step that does not pass, else from the entry step. A passing answer records no `defect`, even when its question declares one. A step in `review` without a defect of its own, such as a benign answer at middling confidence, records its question's family defect: the question's `defect`, else the root of its policy defects (`consistency` for `pair.relation`). The review finding is thus counted under its family. Score questions also record `bandedConfidence`, the mass on the chosen side of the pass boundary. Once the loop ends:
+
+- A parent whose follow-ups confirmed a defect drops to `info`, with `judgment.narrowedBy` naming each confirmed `<defect>@<subject>`.
+- A flagged parent whose follow-ups all passed confidently goes to `review`.
+- A parent whose follow-ups are unknown, in review or cut keeps its level.
+- An item the budget cut before it was asked becomes `unknown` with provider `budget` and error code `budget`, so the readiness is not buildable. A finding whose queued follow-up was cut keeps its earlier step and carries `provenance.truncated: true`.
+- A duplicate candidate (same question, subject and slice) is asked once, and its finding mirrors the first one.
+
+`opts.limits` bounds the loop. Gated items are those the pair, section and term caps drop.
+
+| Limit | Default |
+|---|---|
+| `maxRounds` | 6 |
+| `maxCalls` | 500 provider calls, split retries included |
+| `maxPairsPerSet` | 6 |
+| `maxSections` | 12 |
+| `maxCrossPairs` | 10 |
+| `maxTerms` | 5 |
+| `maxExplanations` | 10 |
+
+With `opts.explainer`, confident `error` and `warning` findings whose defect lies under `consistency` or `coherence` are explained, errors first, up to `maxExplanations`. The text goes to `judgment.explanation` and the call's provider, model and usage to `provenance.explained`. A failed or throwing explainer leaves the finding unchanged apart from those two fields. Provenance also records the `round` and `stage` (`entry`, `self`, `members`, `pairs`, `sections`, `crossPairs` or `terms`) of the ask that settled the finding, and the `batch` size.
+
+The fake provider takes per-question directives, which funnel tests put in node text so each slice carries its own: `#s1:<qid>=<key>` answers question `<qid>` with a choice key, `yes` or `no`, or a score level, and `#s1low:<qid>` makes that answer low-confidence. They win over the global `#s1low`, `#s1no`, `#s1pick:` and `#s1harm`. `test/judge/funnel.test.ts` walks a flagged set to a member, a contradicting pair and the `modal` leaf this way.
+
+### Defects
+
+`src/judge/defects.ts` holds `defects@1`, a three-level taxonomy of the ways a filled template can be wrong. Its five families are `instance`, `specificity`, `testability`, `consistency` and `coherence`. Each defect has an `id` (`family.category.leaf`), a `scope` (`node`, `set`, `pair`, `whole`), a `label`, a one-sentence `criterion` that serves as a choice option, and a `level`. The level defaults to `warning`, and children inherit their parent's scope and level. A template adjusts it with a `defects` block, merged across `extends`: `disable` is the union and `levels` are won by the nearest template.
+
+```yaml
+defects:
+  disable: [coherence.termDrift]        # drops the defect and its subtree
+  levels: { specificity.abstract: error }
+```
+
+`meta@1` rejects an unknown id in `defect`, a policy `defect`, `defects.disable` or `defects.levels`. It also rejects a `next.ask` or `batchWith` that names no declared question, a `next` cycle, and a `byKind` kind the template does not declare. `instance.otherKind.<kind>` counts as known for every declared kind.
 
 ## artyfact adapter
 
@@ -131,7 +190,7 @@ for (const f of readiness.findings) console.log(f.level, f.rule, f.subject, f.me
 
 Graph set: `graphTemplate/1`, `node(Id, Kind, Parent)` with `""` for roots, `field(Node, Field, Value)`, `fieldType(Node, Field, Type)`, `parent/2`, `link(From, Rel, To, Certainty)`, `known/1`, `ref(From, Via, To)`, `declared(Scope, Status)`, `provisional/1`, `evidence(Id, Subject, Kind)`, and the text measurements `fieldLen(Node, Field, Chars)`, `fieldWords(Node, Field, Words)`, `fieldPlaceholder(Node, Field, Token)`, `fieldSameAs(Node, Field, OtherField)` (`OtherField` may be `"id"`) and `fieldPatternMiss(Node, Field)`.
 
-Template set: `templateRef/1`, `kind/1`, `kindField(Kind, Field, Type, Required)`, `kindFieldEnum/3`, `kindParent/2`, `requiredField/2`, `requiredChild(Kind, Child, Min, Max)`, `requiredRel(Kind, Rel, Min, Max)`, `relation/1`, `relEndpoint(Rel, Side, Kind)`, `relCard(Rel, Dir, Min, Max)`, `relAcyclic/1`, `relInverse/2`, `relCertainty/2`, `forbiddenCycle/2`, `incompatible/4`, `incompatibleSize/2`, `exclusive/2`, `exactlyOne/4`, `completeScope/2`, `criterion/4`, `criterionGate/2`, `criterionHook/2`, `question/2`, `typeAccepts/2`, `textMinLen(Kind, Field, N)`, `textMinWords(Kind, Field, N)`, `textDistinct(Kind, Field, Other)`, `textPattern(Kind, Field)`.
+Template set: `templateRef/1`, `kind/1`, `kindField(Kind, Field, Type, Required)`, `kindFieldEnum/3`, `kindParent/2`, `requiredField/2`, `requiredChild(Kind, Child, Min, Max)`, `requiredRel(Kind, Rel, Min, Max)`, `relation/1`, `relEndpoint(Rel, Side, Kind)`, `relCard(Rel, Dir, Min, Max)`, `relAcyclic/1`, `relInverse/2`, `relCertainty/2`, `forbiddenCycle/2`, `incompatible/4`, `incompatibleSize/2`, `exclusive/2`, `exactlyOne/4`, `completeScope/2`, `criterion/4`, `criterionGate/2`, `criterionHook/2`, `question/2`, `defect(Id, Parent, Scope, Level)` (the merged taxonomy, `""` for roots), `questionDefect/2`, `questionNext/2`, `typeAccepts/2`, `textMinLen(Kind, Field, N)`, `textMinWords(Kind, Field, N)`, `textDistinct(Kind, Field, Other)`, `textPattern(Kind, Field)`.
 
 Form set, used only by `meta@1`: includes `questionSliceKind/2`, `questionSliceRel/2` and `templateNodeLink/2`, so a slice or a prefilled node that names an unknown kind or relation is a form error, and `textBound/4`, `textPatternInvalid/2`, `textDistinctDecl/3` and `textDefaultDistinct/2`, the text constraints as written.
 
@@ -164,33 +223,76 @@ Form errors in `meta@1`: `kind.textBoundNegative`, `kind.textPatternInvalid`, `k
 
 ## Semantic probes and providers
 
-Some problems need judgment rather than structure: a statement too vague to build, an outcome nobody can measure, two nodes that cannot both hold. `src/judge/catalogue.ts` holds four reusable `meta@1` questions, modelled on sys1's `ambiguity_detection`, `criteria_fulfillment` and `consistency_check` categories, and `src/judge/probe.ts` holds the `semantic.probe@1` pack that emits their candidates.
+Some problems need judgment rather than structure: an item that is not what its kind says, a statement too abstract to build, an outcome nobody can measure, parts that cannot all hold. `src/judge/catalogue.ts` holds the reusable `meta@1` questions and `src/judge/probe.ts` the `semantic.probe@2` pack that emits their stage-1 candidates. The judgment funnel walks from a stage-1 answer down the defects@1 tree through `next`.
 
-| Rule | Asked of | Question | Benign | Policy |
-|---|---|---|---|---|
-| `text.vague` | Every node with a statement field | Is this statement too vague to act on or verify? | no | yes is `warning`, no is `pass` |
-| `text.unmeasurable` | Statements of the `measurable` kinds | Can this be measured or tested as stated? | yes | no is `warning`, yes is `pass` |
-| `criterion.unfalsifiable` | Statements of the `criteria` kinds | Is this acceptance criterion unfalsifiable? | no | yes is `warning`, no is `pass` |
-| `pair.contradiction` | Two nodes with statements under one non-root parent, or linked by a `probePairs` relation | Do these two statements contradict each other? | no | yes is `error`, no is `pass` |
-
-A template includes them with `withSemanticProbes(source, options)`, which appends the catalogue questions and the configured pack to a template source; questions or a pack the template already declares under the same id win. The pack fires a rule only when the template declares its question, so `rules: ["text.vague"]` enables one rule. A candidate with no catalogue entry stays unknown, as for any question.
+A template includes them with `withSemanticProbes(source, options)`, which appends the hand-written questions, one generated `which:` question per non-leaf defect, and the configured pack; questions or a pack the template already declares under the same id win. The pack fires a rule only when the template declares its question, so `rules` narrows the hand-written set.
 
 ```ts
 import { loadTemplate, productSpec, withSemanticProbes } from "@bropilot/ontology-engine";
 
 const template = loadTemplate(withSemanticProbes(productSpec, {
-  texts: ["description"],                       // fields holding statements; each list element is one statement
+  texts: ["description"],                        // fields holding statements; each list element is one statement
+  fields: ["title", "description"],              // what every slice node shows the provider
+  kinds: {                                       // the glossary: asked node.kind, and node.tangibility unless tangible: false
+    outcome: {
+      noun: "outcome",                           // {noun} in the question text
+      instanceOf: "An outcome is a change in the world the product aims for, not something the team delivers.", // {instanceOf}
+      grounded: "It names who changes, how, and how the change would be observed.", // {grounded}, in score level 4
+    },
+    claim: { noun: "claim", minScore: 2 },       // node.tangibility passes from 2 for this kind (default 3)
+    summary: { noun: "summary", tangible: false }, // section-like: no tangibility score
+  },
   measurable: ["outcome", "goal", "hypothesis"], // kinds asked text.unmeasurable
   criteria: ["rule", "test"],                    // kinds asked criterion.unfalsifiable
-  probePairs: [],                                // relations whose two ends are compared
-  siblings: ["purpose", "summary", "rule"],      // kinds whose same-parent siblings are compared; ["*"] is every kind
-  fields: ["title", "description"],              // what every slice node shows the provider
+  purposeKinds: ["feature", "capability", "outcome"], // kinds asked node.purpose, shown the "purpose" nodes (purposeAnchors)
+  sets: ["*"],                                   // kinds whose nodes with >= 2 texted children are asked set.allHold
+  sections: true,                                // a root with >= 2 children is asked sections.allHold (and is not a set)
+  probePairs: [],                                // relations whose two ends are asked pair.relation; also its slice rels
+  defects: { disable: ["coherence.termDrift"], levels: { "consistency.tension": "error" } },
 }));
 ```
 
-The defaults are `texts: ["description"]`, `measurable: ["outcome", "claim", "criterion"]`, `criteria: ["criterion"]`, no `probePairs` and `siblings: ["*"]`. Sibling pairing grows with the square of a parent's children, so a vocabulary whose nodes share one root parent should name its sibling kinds. Single-node slices show the subject and its parent chain. The statement is the candidate text.
+Defaults: `texts: ["description"]`, `measurable: ["outcome", "claim", "criterion"]`, `criteria: ["criterion"]`, the glossary the template's kind `criteria` declare (see below), and no sets, sections, purpose kinds or pairs. The glossary compiles into `byKind` (a JSON `{noun, instanceOf?, grounded?, testable?, children?, pairs?, summary?}` per kind) and `minScore` into `passFrom` on `node.tangibility`; `passFromOf(question, kind)` and `decide(question, answer, thresholds, kind)` read it. The glossary also adds one `instance.otherKind.<kind>` leaf per kind. `defects` merges into the template's own block; a question whose own defect is disabled is dropped, a policy entry for a disabled defect passes, and `next` or `batchWith` references to dropped questions are removed.
+
+Stage-1 questions (the probe raises candidates for these only):
+
+| Rule | Asked of | Answer | Benign | Harmful answers | Next |
+|---|---|---|---|---|---|
+| `node.kind` | Statements of glossary kinds | yes-no: a genuine `{noun}`? | yes | no: `instance` | `which:instance` |
+| `node.tangibility` | Statements of tangible glossary kinds | score 0-4, level 4 takes `{grounded}` | 4 | 0-2: `specificity` (below `passFrom`) | score <= 2: `which:specificity` |
+| `text.unmeasurable` | Statements of `measurable` kinds | yes-no: measurable as stated? | yes | no: `testability.unmeasurable` | `which:testability.unmeasurable` |
+| `criterion.unfalsifiable` | Statements of `criteria` kinds | yes-no: unfalsifiable? | no | yes: `testability.unfalsifiable` | `which:testability.unfalsifiable` |
+| `node.purpose` | Statements of `purposeKinds`; slice anchors the purpose | on-purpose / implied / off-purpose | on-purpose | off-purpose: `coherence.purposeDrift` | `which:coherence.purposeDrift` |
+| `set.allHold` | Parents of `sets` kinds with >= 2 texted children; batched with `set.inconsistent` and `parent.summary` | yes-no | yes | no: `consistency` | `set.member` |
+| `sections.allHold` | The root with >= 2 children when `sections`; batched with `sections.inconsistent` and `sections.which` | yes-no | yes | no: `consistency` | `sections.section` |
+| `pair.relation` | Ends of a `probePairs` link, smaller id first | compatible / contradiction / tension / duplicate / circular / scopeClash / unclear | compatible | each: `consistency.<answer>`; unclear is `review` | `which:consistency.<answer>` |
+
+Follow-up and companion questions raise no candidate of their own: `set.inconsistent`, `parent.summary` (matches / omits / contradicts / overclaims / stale), `set.member` (options are the subject's members, `choicesFrom: "members"`, then pairs `pair.relation`), `sections.inconsistent`, `sections.which` (level 2 of consistency and coherence, or none), `sections.section` and `sections.other` (`choicesFrom: "sections"`, then `pair.relation` over the two sections), and `term.usage` (consistent / drift / unclear, candidates from the funnel's pre-filter, drift goes to `which:coherence.termDrift`, unclear is `review`). A `next` without `answer` or `maxScore` fires on any answer other than the benign one. A picker's policy maps `"*"` (any answer no other entry names) to `info`. A policy may map an answer to `review` (a person decides). `meta@1` warns with `question.choiceUnmapped` when a declared choice has no policy entry and no `"*"` entry, and errors with `question.benignInvalid` when `benign` is not yes or no (yes-no), not an integer level index within `choices` (score), or not a declared choice (choice without `choicesFrom`).
+
+`generatedQuestions(defects)` builds `which:<id>` for every non-leaf defect without a deterministic rule (so not `instance.placeholder`): a choice over the children's labels plus `none`, each option sent with the child's criterion (`criteria`, at most 255 characters), `none` passes, each child maps to its level with `defect: child.id`, and `next` descends into non-leaf children. The slice follows the defect's scope: node `{parents, hops: 0}`, set `{parents, children}`, pair `{parents, hops: 1, rels: probePairs}`, whole `{children}` without parents. `toWire(question, kind?, resolved?)` sends per-option `criteria` and, for a `choicesFrom` question, the resolved options (ids, or ids mapped to criteria) followed by its declared `choices`.
+
+`text.vague` and `pair.contradiction` remain as v1 entries. `withSemanticProbes(source, { version: "1", siblings, ... })` gives the v1 catalogue (`SEMANTIC_RULES_V1`) and `semantic.probe@1`, which asks `text.vague` of every statement, `text.unmeasurable` and `criterion.unfalsifiable` as above, and `pair.contradiction` of same-parent siblings of the `siblings` kinds and of `probePairs` ends.
 
 A pair rule's id starts with `pair.`. The dialect cannot build strings, so the pack emits `semanticCandidate(Rule, A, B)` with `A < B` and the second node in the text column; `evaluate` reports the candidate on `A`. `judge` joins the two into the subject `A|B`, and `buildSlice` resolves a subject that is not itself a node but splits at `|` into two nodes: `subject` is `A`, `counterpart` is `B`, and parents and hops start from both.
+
+### Criteria from the ontology
+
+The wording a question carries comes from the template. Each kind may declare `criteria`, and the template may declare `rootCriteria`; each value is one sentence (`meta@1` warns with `criteria.tooLong` past 255 characters and errors with `criteria.minScoreRange` when `minScore` is outside 0 to 4).
+
+| Key | Token | Worded into |
+|---|---|---|
+| `noun` | `{noun}` | `node.kind`, `node.tangibility` (default: the kind name) |
+| `instanceOf` | `{instanceOf}` | `node.kind` |
+| `grounded` | `{grounded}` | `node.tangibility` level 4 |
+| `tangible`, `minScore` | | whether `node.tangibility` is asked, and its pass boundary |
+| `testable` | `{testable}` | `text.unmeasurable`, `criterion.unfalsifiable` |
+| `children` | `{children}` | `set.allHold`, `set.inconsistent` asked of a node of this kind |
+| `summary` | `{summary}` | `parent.summary` asked of a node of this kind |
+| `pairs` | `{pairs}` | `pair.relation` asked of two children of this kind (kinds declared through `parents` or `completeness.children`) |
+| `rootCriteria.sections` | `{sections}` | `sections.allHold`, `sections.inconsistent` |
+| `rootCriteria.terms` | `{terms}` | `term.usage` |
+
+An absent criterion substitutes as nothing and the generic stem is sent unchanged. The defect criteria of `defects@1` stay the answer options; the ontology's criteria shape the question. Kind criteria merge key by key through `extends`. Without a `kinds` option, the glossary is every kind whose criteria declare `noun` or `instanceOf`; a `kinds` option chooses the glossary kinds and overrides their wording key by key (`kindGlossary`, `compileKinds(kinds, templateKinds)`). `productSpec` (`PRODUCT_CRITERIA`, `PRODUCT_ROOT_CRITERIA`), `artyfactGenome` (`ARTYFACT_CRITERIA`) and `worldTemplateSource` (`WORLD_KIND_CRITERIA`) carry their criteria. How to write them: `docs/writing-an-ontology.md` at the repository root.
 
 ### Providers
 
@@ -198,18 +300,45 @@ A pair rule's id starts with `pair.`. The dialect cannot build strings, so the p
 
 `providerFromEnv(env)` follows artyfact's precedence: `FAKE_S1=1` gives the fake provider, then `OPENROUTER_API_KEY` gives OpenRouter with `OPENROUTER_MODEL` or the default, else the provider is off.
 
+### Explanations
+
+An explainer turns one confirmed finding into at most three sentences that name the inconsistent statements by node id. It is advisory only: an explanation is never read for a finding's level or status, and an explainer never throws, so a failed call comes back as a result with provider `error`. `judge` calls it through `opts.explainer` (see the funnel above).
+
+`openRouterExplainer({ apiKey, model?, fetch?, concurrency?, maxTokens?, timeoutMs? })` posts to OpenRouter chat completions with temperature 0, 200 output tokens, a 10 second timeout and two requests in flight by default. It shares timeouts, retries, key redaction and caching with `openRouterProvider`. The default model `openai/gpt-6-luna` must be checked against the OpenRouter model list before the first live run. `fakeExplainer()` and `offExplainer()` need no network.
+
+`explainerFromEnv(env)` reads these variables:
+
+- `EXPLAIN=0` turns explanations off, whatever else is set.
+- `FAKE_S1=1` gives the fake explainer.
+- `OPENROUTER_API_KEY` gives OpenRouter, with the model from `OPENROUTER_EXPLAIN_MODEL` or the default.
+- With none of these, explanations are off.
+
 ### Live suite
 
-`test/fixtures/semantic/` holds degraded copies of the three vocabularies with planted problems and clean controls: the Keep in Touch YAML directory, tidepool's product graph and the `assistant-valid` world snapshot. Each has an `*.expectations.json` naming every planted problem's rule, subjects and expected level, and the controls. `test/semantic/vocabularies.ts` sets the probe options per vocabulary. Without a key, `test/semantic/probe.test.ts` checks with the fake provider that the pack emits exactly the candidates its options select, including every planted problem and control.
+`test/fixtures/semantic/` holds degraded copies of the three vocabularies with planted problems and clean controls: the Keep in Touch YAML directory, tidepool's product graph and the `assistant-valid` world snapshot. Each `*.expectations.json` names every planted problem's rule, subjects, expected level and expected defect (an id or a list of alternatives), the controls, and `calls`, the provider-call envelope for one run. A plant reached through a set or the sections root names that stage-1 `entry`; so does a plant on a companion question such as `parent.summary`, which settles as its own finding when its answer does not pass. `test/semantic/vocabularies.ts` sets the probe options per vocabulary: `SETTINGS` (v2, with each vocabulary's glossary) and `SETTINGS_V1`. Without a key, `test/semantic/probe.test.ts` pins the v2 stage-1 candidate counts per fixture and rule and checks that every plant has a stage-1 route. It also checks that the v1 pack emits exactly the candidates its options select. `test/judge/catalogue.test.ts` checks the generated questions and that each vocabulary's v2 template passes `meta@1` with no findings.
 
-`test/semantic/live.test.ts` is skipped unless `OPENROUTER_API_KEY` is set. It judges each degraded fixture through OpenRouter and requires every planted problem at its expected level with confidence at least 0.9, and no control at `warning` or `error`. Misses are reported one by one. Every answer is written to `test/fixtures/semantic/live-results.<model>.json` with the question, subjects, statement, probabilities, confidence, latency, model and input tokens, plus a verdict per planted problem and control.
+`test/semantic/live.test.ts` is skipped unless `OPENROUTER_API_KEY` is set. It judges each degraded fixture through the v2 funnel with default `limits`, taking the provider from `providerFromEnv` and the explainer from `explainerFromEnv`. Detection works per plant:
+
+- **Confident** means a finding on the planted subject or subjects carries the planted defect at the planted level. A prefix match counts, so a plant of `specificity` matches `specificity.abstract.intentOnly`.
+- **Review** means a finding on the planted subjects, or on its `entry`, is in review. It must also have a harmful answer on the planted rule or on any step of its `judgment.path`, or carry a defect on the planted defect's branch. The branch includes ancestors, because a review finding stops at its question's family defect: `instance` on a `node.kind` plant of `instance.otherKind`, or `consistency` on a `pair.relation` plant of `consistency.contradiction`. Confident detection keeps the strict rule.
+
+The suite asserts that no plant is missed and that no control is at `warning` or `error`. Controls that land in review are recorded, not failed. The call envelope is a soft assertion.
+
+Results go to `test/fixtures/semantic/live-results.v2.<model>.json` with `model`, `explainModel`, `startedAt`, `finishedAt`, `thresholds`, `limits`, `ask`, `calls`, `verdicts`, `detected`, `answers` and `explanations`. `detected` holds `confident`, `review` and `missed` per vocabulary. Each answer records its call, question, subject, statement, batch size, probabilities, confidence, round, stage, defect, banded confidence, path length, latency, model and input tokens. Each verdict holds the funnel's calls, rounds, gated count, budget and explanations, plus every plant's detection and every control's flagged and review findings. The `live-results.<model>.json` files without `v2` are the v1 audit records and stay as committed.
+
+| Variable | Effect |
+|---|---|
+| `OPENROUTER_API_KEY` | Runs the suite; without it the suite is skipped |
+| `OPENROUTER_MODEL` | Decision model, default `perplexity/pplx-decider-v1.1-27b` |
+| `OPENROUTER_EXPLAIN_MODEL` | Explainer model, default `openai/gpt-6-luna` |
+| `EXPLAIN=0` | Turns explanations off |
 
 ```sh
 OPENROUTER_API_KEY=… npm run test:live -w @bropilot/ontology-engine
 OPENROUTER_API_KEY=… OPENROUTER_MODEL=cloudflare/clef npm run test:live -w @bropilot/ontology-engine
 ```
 
-One run makes 261 calls before retries: 233 for Keep in Touch, 18 for tidepool and 10 for the world snapshot. `probe.test.ts` pins these counts. The requests total about 430,000 characters, roughly 110,000 input tokens. Decision models bill input tokens only, so a run costs about half a cent on `perplexity/pplx-decider-v1.1-27b` at $0.04 per million and about three cents on `cloudflare/clef` at $0.24 per million.
+The committed v1 run made 261 calls before retries: 233 for Keep in Touch, 18 for tidepool and 10 for the world snapshot. The v2 plants added since raise the v1 counts to 236, 21 and 11, which `probe.test.ts` pins. Those requests totalled about 430,000 characters, roughly 110,000 input tokens. Decision models bill input tokens only, so a v1 run cost about half a cent on `perplexity/pplx-decider-v1.1-27b` at $0.04 per million and about three cents on `cloudflare/clef` at $0.24 per million.
 
 ## Readiness
 

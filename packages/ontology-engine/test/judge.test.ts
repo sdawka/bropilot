@@ -16,7 +16,7 @@ describe("judge", () => {
   it("leaves evaluate synchronous and unjudged", () => {
     const r = evaluate(tpl(), graph());
     expect(semantic(r)).toMatchObject([{ level: "info", subject: "c1" }]);
-    expect(r.judgments).toEqual({ confident: 0, review: 0, unknown: 0 });
+    expect(r.judgments).toEqual({ confident: 0, review: 0, unknown: 0, calls: 0, rounds: 0, gated: 0, budget: "ok", explained: 0 });
     expect(r.buildable).toBe(false);
   });
 
@@ -25,7 +25,7 @@ describe("judge", () => {
     const [f] = semantic(r);
     expect(f).toMatchObject({ level: "pass", judgment: { question: "card.vague", status: "confident", answer: "no", confidence: 0.95 } });
     expect(f.provenance).toMatchObject({ provider: "fake", model: "fake", thresholds: { confident: 0.9, review: 0.5 } });
-    expect(r.judgments).toEqual({ confident: 1, review: 0, unknown: 0 });
+    expect(r.judgments).toEqual({ confident: 1, review: 0, unknown: 0, calls: 1, rounds: 1, gated: 0, budget: "ok", explained: 0 });
     expect(r).toMatchObject({ buildable: true, actionable: true });
   });
 
@@ -38,7 +38,7 @@ describe("judge", () => {
   it("#s1low lands in review", async () => {
     const r = await evaluateAndJudge(tpl(), graph("Do stuff #s1low"), fake);
     expect(semantic(r)).toMatchObject([{ level: "review", judgment: { status: "review", answer: "yes", confidence: 0.55 } }]);
-    expect(r.judgments).toEqual({ confident: 0, review: 1, unknown: 0 });
+    expect(r.judgments).toEqual({ confident: 0, review: 1, unknown: 0, calls: 1, rounds: 1, gated: 0, budget: "ok", explained: 0 });
     expect(r.buildable).toBe(false);
   });
 
@@ -51,7 +51,7 @@ describe("judge", () => {
     const concrete = { ...vague, benign: "yes", policy: [{ answer: "yes", level: "pass" }] };
     const r = await evaluateAndJudge(tpl([concrete]), graph("Do stuff #s1no"), fake);
     expect(semantic(r)).toMatchObject([{ level: "info", judgment: { status: "unknown", answer: "no" } }]);
-    expect(r.judgments).toEqual({ confident: 0, review: 0, unknown: 1 });
+    expect(r.judgments).toEqual({ confident: 0, review: 0, unknown: 1, calls: 1, rounds: 1, gated: 0, budget: "ok", explained: 0 });
     expect(r.buildable).toBe(false);
   });
 

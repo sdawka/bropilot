@@ -1,5 +1,5 @@
 import type { WorldSnapshot } from "@bropilot/contracts";
-import type { Field, Kind, Relation, TemplateInput, TemplateNode } from "../../meta/schema";
+import type { Field, Kind, KindCriteria, Relation, TemplateInput, TemplateNode } from "../../meta/schema";
 import { loadTemplate, memoryStore, type Template } from "../../meta/template";
 import { worldReadiness } from "./pack";
 
@@ -123,8 +123,51 @@ const worldTemplateId = (s: WorldSnapshot) => `template.world.${s.template.id}`;
 /** meta@1 versions are integers; a non-numeric World Template version maps to 0 and stays in `ws.snapshot.templateVersion`. */
 const worldTemplateVersion = (s: WorldSnapshot) => (/^\d+$/.test(s.template.version) ? Number(s.template.version) : 0);
 
-/** The snapshot's World Template and Thing Templates as a meta@1 template source extending `template.meta.world@1`. */
-export function worldTemplateSource(snapshot: WorldSnapshot): TemplateInput {
+/**
+ * The ontology's criteria for the World object kinds, attached to every object shape of that kind. A World Template
+ * does not carry them yet, so the adapter supplies them; kinds with `noun` or `instanceOf` are the probe's glossary.
+ */
+export const WORLD_KIND_CRITERIA: Record<string, KindCriteria> = {
+  outcome: {
+    noun: "outcome",
+    instanceOf: "An outcome is a change for the beneficiary that the world aims for, not a task or a deliverable.",
+    grounded: "It names who benefits, the change, and how it would be observed.",
+    testable: "A testable outcome names an indicator, its baseline, its target, the horizon and the source of the measurement.",
+    children: "Parts of one outcome must describe the same change for the same beneficiary and be reachable together within one horizon.",
+    summary: "The outcome's description must name the change and beneficiary its parts measure or bring about.",
+  },
+  indicator: { testable: "A testable indicator names what is counted or observed, where it is recorded and the value that counts as success." },
+  goal: {
+    children: "Parts of one goal must be achievable by the same people at the same time; none may consume what another needs.",
+    summary: "The goal's description must state the result its parts work toward and claim no result none of them pursues.",
+  },
+  thing: {
+    children: "Parts of one thing must agree on what it holds, who may act on it and what each action changes.",
+    summary: "The thing's description must name what its parts make up and the authority they share.",
+  },
+  task: {
+    noun: "task",
+    instanceOf: "A task is a unit of work the assistant or its user carries out.",
+    grounded: "It names who does it, what is done and when it is finished.",
+  },
+  operation: {
+    noun: "operation",
+    instanceOf: "An operation is one action the system performs, with what it needs and what it changes.",
+    grounded: "It names its inputs, its effect and its authorization.",
+  },
+  acceptanceCriterion: {
+    noun: "acceptance criterion",
+    instanceOf: "An acceptance criterion states a check whose condition passes or fails.",
+    grounded: "It names the situation and the expected observable result.",
+    testable: "A falsifiable criterion names the situation, the expected observable result and what counts as failing.",
+  },
+};
+
+/**
+ * The snapshot's World Template and Thing Templates as a meta@1 template source extending `template.meta.world@1`;
+ * `criteria` (default `WORLD_KIND_CRITERIA`) are attached to the object shapes of those kinds.
+ */
+export function worldTemplateSource(snapshot: WorldSnapshot, criteria: Record<string, KindCriteria> = WORLD_KIND_CRITERIA): TemplateInput {
   const t = snapshot.template;
   for (const s of t.objectShapes) reserved("kind", s.kind);
   for (const e of t.allowedRelationEndpoints) reserved("relation", e.relationKind);
@@ -137,6 +180,7 @@ export function worldTemplateSource(snapshot: WorldSnapshot): TemplateInput {
     kinds[shape.kind] = {
       fields: [...OBJECT_META_FIELDS.map((n) => str(n)), ...shape.requiredProperties.map((p) => str(p, true))],
       completeness: { relations: rels.map((rel) => ({ rel, cardinality: "1..*" })) },
+      ...(criteria[shape.kind] && { criteria: criteria[shape.kind] }),
     };
   }
   const named = [...new Set(t.incompatibleConstraints.flatMap((c) => [c.left, c.right]))].sort();

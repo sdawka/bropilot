@@ -13,7 +13,7 @@ nodes:
     route: /signin
     roles: [anonymous]
     states: [loaded, loading, error]
-    description: One SignInForm with one Continue control and one privacy link; no private content
+    description: One SignInForm with one Continue control and no links or other controls; no private content
     source: { doc: keep-in-touch-world-specification, section: "6" }
     links:
       - { rel: serves, to: ext.owner }
@@ -538,6 +538,7 @@ nodes:
         kind: component
         name: ConsentPanel
         cardinality: exactly one after validation
+        description: Shows the recipient the name of the person who sent them the invitation
         children:
           - id: affordance.ConsentPanel.accept
             kind: affordance
@@ -982,7 +983,7 @@ nodes:
     kind: operation
     name: Delete
     parent: section.domain
-    description: Owner reauthentication. Deletion revokes access immediately, cancels jobs and purges owned live data within seven days. Backup expiry follows a pinned retention policy disclosed separately
+    description: Owners trust the app with their contacts more, because they know they can leave whenever they want
     preconditions: [Owner reauthentication]
     effects: [Revoke access immediately, Cancel jobs, Purge owned live data within seven days, Backup expiry follows a pinned retention policy disclosed separately]
     failure: [Reauthentication failure denies the deletion]

@@ -3,8 +3,8 @@ import { explain, render, type DerivationTree, type Result, type Tuple } from ".
 
 /** `review` and `pass` are reachable only through judgment. */
 export type Level = "error" | "missing" | "warning" | "review" | "info" | "pass";
-/** Levels a question policy may map an answer to; `pass` is reachable only through judgment. */
-export const FINDING_LEVELS = ["error", "missing", "warning", "info", "pass"] as const;
+/** Levels a question policy may map an answer to; `review` (a person decides) and `pass` are reachable only through judgment. */
+export const FINDING_LEVELS = ["error", "missing", "warning", "review", "info", "pass"] as const;
 
 export interface Finding {
   level: Level;

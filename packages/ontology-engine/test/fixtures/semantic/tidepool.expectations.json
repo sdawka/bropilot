@@ -1,23 +1,26 @@
 {
   "fixture": "tidepool-degraded.graph.json",
   "vocabulary": "product-spec",
+  "calls": 40,
   "planted": [
     {
-      "id": "vague.volunteers-will-love-it",
-      "rule": "text.vague",
+      "id": "specificity.volunteers-will-love-it",
+      "rule": "node.tangibility",
       "subjects": [
         "feature-photo-id-suggestions"
       ],
       "level": "warning",
+      "defect": "specificity",
       "note": "Feature description: volunteers are going to love it."
     },
     {
-      "id": "vague.make-it-better",
-      "rule": "text.vague",
+      "id": "specificity.make-it-better",
+      "rule": "node.tangibility",
       "subjects": [
         "capability-volunteer-engagement"
       ],
       "level": "warning",
+      "defect": "specificity",
       "note": "Capability description: make the whole volunteering experience better."
     },
     {
@@ -27,27 +30,59 @@
         "outcome-volunteers-come-back-for-the-next-good"
       ],
       "level": "warning",
+      "defect": "testability.unmeasurable",
       "note": "Outcome description: a deeper sense of belonging to the shoreline."
     },
     {
-      "id": "contradiction.offline-purpose-vs-online-rule",
-      "rule": "pair.contradiction",
+      "id": "cross-section.offline-vs-online-rule",
+      "rule": "pair.relation",
       "subjects": [
         "purpose-turn-volunteer-shore-walks-into-survey",
         "rule-every-observation-carries-a-gps-fix"
       ],
-      "level": "error",
-      "note": "Purpose requires logging with no signal; the rule refuses to save without a live connection."
-    },
-    {
-      "id": "contradiction.offline-summary-vs-online-rule",
-      "rule": "pair.contradiction",
-      "subjects": [
-        "rule-every-observation-carries-a-gps-fix",
-        "summary-an-offline-first-field-app-for-timed"
+      "alternatives": [
+        [
+          "rule-every-observation-carries-a-gps-fix",
+          "summary-an-offline-first-field-app-for-timed"
+        ]
       ],
       "level": "error",
-      "note": "The existing offline-first summary against the same always-online rule."
+      "defect": "consistency.contradiction",
+      "entry": {
+        "rule": "sections.allHold",
+        "subject": "$spec"
+      },
+      "note": "The rule refuses to save without a live connection; the purpose and the offline-first summary both require logging with no signal. Reached through sections.allHold, sections.section, sections.other and pair.relation, which examine one pair per root, so either pairing counts."
+    },
+    {
+      "id": "kind.logger-as-outcome",
+      "rule": "node.kind",
+      "subjects": [
+        "feature-offline-transect-logger"
+      ],
+      "level": "warning",
+      "defect": "instance.otherKind",
+      "note": "Planted: the offline logger feature's description is an outcome (fewer surveys abandoned when signal drops), not functionality."
+    },
+    {
+      "id": "purpose.merchandise-shop",
+      "rule": "node.purpose",
+      "subjects": [
+        "feature-branded-merchandise-shop"
+      ],
+      "level": "warning",
+      "defect": "coherence.purposeDrift",
+      "note": "Planted node: an in-app shop for branded T-shirts and mugs, unrelated to turning shore walks into publishable survey data."
+    },
+    {
+      "id": "term-drift.verified",
+      "rule": "term.usage",
+      "subjects": [
+        "$spec"
+      ],
+      "level": "warning",
+      "defect": "coherence.termDrift",
+      "note": "Planted: expert verification now calls a record \"verified\" once its GPS fix is on site, while the term Verified record means a biologist accepted it."
     }
   ],
   "controls": [
@@ -59,7 +94,7 @@
     {
       "id": "control.single-verdict",
       "subject": "rule-a-record-has-exactly-one-final-verdict",
-      "note": "At most one final verdict; a second is rejected. Paired with the purpose, summary and the other rules."
+      "note": "At most one final verdict; a second is rejected."
     }
   ]
 }

@@ -1,4 +1,4 @@
-import type { TemplateInput } from "../../meta/schema";
+import type { KindCriteria, RootCriteria, TemplateInput } from "../../meta/schema";
 import { productChecks, productNeeds } from "./packs";
 
 /** The synthetic root every loaded product node is contained in; it carries the spec-level cardinalities. */
@@ -102,6 +102,68 @@ const COMPLETENESS: Record<string, Completeness> = {
 };
 
 /**
+ * The ontology's own criteria per kind: the wording the semantic questions carry. Kinds with `noun` or `instanceOf`
+ * are the glossary the probe asks `node.kind` (and, unless `tangible: false`, `node.tangibility`) of; `testable`
+ * words the measurability and falsifiability questions; `children`, `summary` and `pairs` word the set questions.
+ */
+export const PRODUCT_CRITERIA: Record<string, KindCriteria> = {
+  purpose: {
+    noun: "product purpose",
+    instanceOf: "A purpose states the change the product exists to make, and for whom.",
+    grounded: "It names who benefits and the change they would notice.",
+    children: "Parts of one purpose must serve the same beneficiaries and the same change; none may widen or narrow what another assumes.",
+    summary: "The purpose's description must name the beneficiaries and the change its parts elaborate, and nothing they contradict.",
+  },
+  summary: {
+    noun: "summary",
+    instanceOf: "A summary describes the product as a whole in a few sentences.",
+    tangible: false,
+    children: "Parts of one summary must describe one product: the same audience, scope and promise.",
+    summary: "The summary's description must cover the purpose, audience and main features as its parts state them.",
+  },
+  outcome: {
+    noun: "outcome",
+    instanceOf: "An outcome is a change in the world or in users' behaviour that the product aims for, not something the team delivers.",
+    grounded: "It names who changes, how, and how the change would be observed.",
+    testable: "A testable outcome names an indicator, its baseline, its target, the horizon and the source of the measurement.",
+  },
+  goal: { testable: "A testable goal names the metric it combines and the level that counts as reaching it." },
+  hypothesis: { testable: "A testable hypothesis names the evidence that would support it and the evidence that would refute it." },
+  capability: {
+    noun: "capability",
+    instanceOf: "A capability is something the product enables users or the system to do, independent of a particular screen.",
+    grounded: "It names the actor and the action it makes possible.",
+    children: "Parts of one capability must enable the same actor to take the same action, without conflicting preconditions.",
+    summary: "The capability's description must name the actor and the action its parts make possible.",
+  },
+  feature: {
+    noun: "feature",
+    instanceOf: "A feature is a user-facing piece of functionality the product provides.",
+    grounded: "It names who uses it, the trigger and what the product does.",
+    children: "Rules and flows of one feature apply to the same users and trigger; none may forbid or cap what another requires or permits.",
+    summary: "The feature's description must state what its parts deliver together and claim no behaviour none of them provides.",
+  },
+  rule: {
+    noun: "business rule",
+    instanceOf: "A rule is a constraint or policy the product must always enforce.",
+    grounded: "It names when it applies and what is allowed or forbidden.",
+    testable: "A testable rule names when it applies and what a test would observe if it were broken.",
+    children: "Sub-rules of one rule must be enforceable together: no case may be allowed by one and forbidden by another.",
+    summary: "The rule's description must state the constraint its sub-rules refine, with no exception they do not state.",
+  },
+  test: { testable: "A test names its input or situation, the expected observable result and what counts as failure." },
+  spec: {
+    pairs: "Two sections of one spec are compatible when they describe the same product, audience and scope and use each term with one meaning.",
+  },
+};
+
+/** The criteria for the spec as a whole: how its sections fit together and how its terms are used. */
+export const PRODUCT_ROOT_CRITERIA: RootCriteria = {
+  sections: "The purpose motivates the outcomes, the features and capabilities serve those outcomes, and the rules constrain the features without contradicting the summary.",
+  terms: "A term keeps one meaning in every section, and no section names the same thing with another word.",
+};
+
+/**
  * The uip/lfp product-spec vocabulary as a meta@1 template. Nodes hang off a synthetic `spec` root so the
  * singular kinds become child cardinalities. Status other than `committed` is a warning (`node.proposed`), not
  * the engine's `provisional` flag, so an uncommitted node keeps a spec actionable but not buildable.
@@ -124,12 +186,15 @@ export const productSpec: TemplateInput = {
         ],
         relations: [],
       },
+      criteria: PRODUCT_CRITERIA.spec,
     },
     ...Object.fromEntries(PRODUCT_KINDS.map((k) => [k, {
       fields: [...COMMON, ...PRODUCT_KIND_PROPS[k].map(prop)],
       completeness: { fields: COMPLETENESS[k]?.fields ?? [], children: [], relations: COMPLETENESS[k]?.relations ?? [] },
+      ...(PRODUCT_CRITERIA[k] && { criteria: PRODUCT_CRITERIA[k] }),
     }])),
   },
+  rootCriteria: PRODUCT_ROOT_CRITERIA,
   relations: Object.fromEntries(Object.entries(PRODUCT_EDGE_TYPES).map(([r, e]) => [r, {
     description: e.description, from: e.from, to: e.to,
     // rule needs >= 1 incoming verifies (rule is the only target kind of verifies); contains is composition.

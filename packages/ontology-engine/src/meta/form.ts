@@ -7,6 +7,7 @@ import { fold, FINDING_LEVELS, type Finding } from "../evaluate/findings";
 import { meta } from "../evaluate/packs/meta";
 import { factSet, parse, run, stratify, RuleParseError, StratificationError, type Program, type Tuple } from "../rules";
 import { resolveLineage, type Template, type TemplateStore } from "./template";
+import { DEFECTS, otherKindDefects } from "../judge/defects";
 
 export interface TemplateForm { valid: boolean; findings: Finding[]; hash: string }
 
@@ -64,6 +65,97 @@ function textDeclFacts(t: Template): Facts {
   return out;
 }
 
+/** Longest criterion sentence before meta@1 warns; it is sent in a question stem whose criteria are capped alike. */
+export const CRITERION_MAX = 255;
+
+/** Kind and root criteria as written: tangibility boundaries, and sentences longer than `CRITERION_MAX`. */
+function criteriaDeclFacts(t: Template): Facts {
+  const out: Facts = { criterionMinScore: [], criterionTooLong: [] };
+  const long = (scope: string, c: Record<string, unknown>) => {
+    for (const [key, v] of Object.entries(c)) if (typeof v === "string" && v.length > CRITERION_MAX) out.criterionTooLong.push([scope, key]);
+  };
+  for (const [k, kind] of Object.entries(t.kinds)) {
+    if (!kind.criteria) continue;
+    if (kind.criteria.minScore !== undefined) out.criterionMinScore.push([k, kind.criteria.minScore]);
+    long(k, kind.criteria);
+  }
+  if (t.rootCriteria) long(t.ref, t.rootCriteria);
+  return out;
+}
+
+/** Questions on a `next` cycle (a self-loop included); asks naming no declared question are ignored here. */
+export function nextCycles(questions: Template["questions"]): string[] {
+  const out = new Map(questions.map((q) => [q.id, [...new Set((q.next ?? []).map((n) => n.ask))]]));
+  const index = new Map<string, number>();
+  const low = new Map<string, number>();
+  const stack: string[] = [];
+  const onStack = new Set<string>();
+  const cyclic = new Set<string>();
+  let counter = 0;
+  // Tarjan's strongly connected components, iterative so deep chains cannot overflow the call stack.
+  for (const root of out.keys()) {
+    if (index.has(root)) continue;
+    const work: [string, number][] = [[root, 0]];
+    index.set(root, counter); low.set(root, counter++); stack.push(root); onStack.add(root);
+    while (work.length) {
+      const top = work[work.length - 1]!;
+      const [v, i] = top;
+      const succ = (out.get(v) ?? []).filter((w) => out.has(w));
+      if (i < succ.length) {
+        top[1]++;
+        const w = succ[i]!;
+        if (!index.has(w)) {
+          index.set(w, counter); low.set(w, counter++); stack.push(w); onStack.add(w);
+          work.push([w, 0]);
+        } else if (onStack.has(w)) low.set(v, Math.min(low.get(v)!, index.get(w)!));
+        continue;
+      }
+      work.pop();
+      if (work.length) { const u = work[work.length - 1]![0]; low.set(u, Math.min(low.get(u)!, low.get(v)!)); }
+      if (low.get(v) === index.get(v)) {
+        const scc: string[] = [];
+        for (let w = stack.pop()!; ; w = stack.pop()!) { onStack.delete(w); scc.push(w); if (w === v) break; }
+        if (scc.length > 1 || succ.includes(v)) for (const w of scc) cyclic.add(w);
+      }
+    }
+  }
+  return [...cyclic].sort();
+}
+
+/**
+ * Whether a question's benign answer is one it can give: yes or no for yes-no, an integer level index (within
+ * `choices` when declared) for score, a declared choice for choice (any value when options are resolved per subject).
+ */
+export function benignValid(q: Template["questions"][number]): boolean {
+  const b = q.benign;
+  if (q.answer === "yes-no") return b === true || b === false || b === "yes" || b === "no";
+  if (q.answer === "score") {
+    const n = typeof b === "number" ? b : typeof b === "string" && b.trim() !== "" ? Number(b) : NaN;
+    return Number.isInteger(n) && n >= 0 && (!q.choices?.length || n < q.choices.length);
+  }
+  return q.choicesFrom !== undefined || (q.choices ?? []).includes(String(b));
+}
+
+/** Defect references as written: own and policy defects, overrides, and the ids they may name. */
+function defectDeclFacts(t: Template): Facts {
+  const known = [...DEFECTS, ...otherKindDefects(Object.keys(t.kinds))].map((d) => [d.id]);
+  return {
+    defectKnown: known,
+    defectDisable: (t.defects?.disable ?? []).map((d) => [d]),
+    defectLevelDecl: Object.entries(t.defects?.levels ?? {}).map(([d, l]) => [d, l]),
+    questionOwnDefect: t.questions.flatMap((q) => (q.defect ? [[q.id, q.defect]] : [])),
+    questionPolicyDefect: t.questions.flatMap((q) => q.policy.flatMap((p) => (p.defect ? [[q.id, String(p.answer), p.defect]] : []))),
+    questionNextCycle: nextCycles(t.questions).map((q) => [q]),
+    questionBatch: t.questions.flatMap((q) => (q.batchWith ?? []).map((b) => [q.id, b])),
+    questionByKind: t.questions.flatMap((q) => Object.keys(q.byKind ?? {}).map((k) => [q.id, k])),
+    questionPassFrom: t.questions.flatMap((q) => Object.keys(q.passFrom ?? {}).map((k) => [q.id, k])),
+    questionChoice: t.questions.flatMap((q) => (q.choices ?? []).map((c) => [q.id, c])),
+    questionCriterionKey: t.questions.flatMap((q) => Object.keys(q.criteria ?? {}).map((c) => [q.id, c])),
+    questionOption: t.questions.flatMap((q) => (q.answer === "choice" ? (q.choices ?? []).map((c) => [q.id, c]) : [])),
+    questionBenignInvalid: t.questions.filter((q) => !benignValid(q)).map((q) => [q.id]),
+  };
+}
+
 /** Template set plus the meta-level facts meta@1 reads. */
 export function formFacts(t: Template, store?: TemplateStore): Facts {
   const edges = store ? resolveLineage(t.ref, t.extends, store) : { edges: t.edges, ancestors: [] };
@@ -75,11 +167,13 @@ export function formFacts(t: Template, store?: TemplateStore): Facts {
     templateNode: t.nodes.map((n) => [n.id, n.kind]),
     templateNodeLink: t.nodes.flatMap((n) => (n.links ?? []).map((l) => [n.id, l.rel])),
     questionPolicy: t.questions.flatMap((q) => q.policy.map((p) => [q.id, String(p.answer), p.level])),
-    questionSliceKind: t.questions.flatMap((q) => (q.slice.kinds ?? []).map((k) => [q.id, k])),
+    questionSliceKind: t.questions.flatMap((q) => [...new Set([...(q.slice.kinds ?? []), ...(q.slice.anchors ?? [])])].map((k) => [q.id, k])),
     questionSliceRel: t.questions.flatMap((q) => (q.slice.rels ?? []).map((r) => [q.id, r])),
     findingLevel: FINDING_LEVELS.map((l) => [l]),
     edbRelation: EDB_RELATIONS.map((r) => [r]),
     ...textDeclFacts(t),
+    ...criteriaDeclFacts(t),
+    ...defectDeclFacts(t),
     ...packFacts(t),
   };
 }

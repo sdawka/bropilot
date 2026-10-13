@@ -2,6 +2,7 @@ import { canon } from "../canon";
 import type { Graph } from "../graph/graph";
 import { maxOf, parseCardinality } from "../meta/cardinality";
 import type { Template } from "../meta/template";
+import { DEFECTS, mergeDefects } from "../judge/defects";
 import { factSet, type FactSet, type Tuple } from "../rules";
 import { compilePattern, isPlaceholder, kindTextConstraints, normaliseText, textLength, textWords } from "./text";
 
@@ -80,7 +81,13 @@ export function templateFacts(t: Template): Facts {
     for (const g of cr.gates) f.push("criterionGate", cr.id, g);
     for (const h of cr.hooks) f.push("criterionHook", cr.id, h);
   }
-  for (const q of t.questions) f.push("question", q.id, q.answer);
+  for (const d of mergeDefects(DEFECTS, t.defects).defects) f.push("defect", d.id, d.parent ?? "", d.scope, d.level);
+  for (const q of t.questions) {
+    f.push("question", q.id, q.answer);
+    const defects = new Set([...(q.defect ? [q.defect] : []), ...q.policy.flatMap((p) => (p.defect ? [p.defect] : []))]);
+    for (const d of [...defects].sort()) f.push("questionDefect", q.id, d);
+    for (const a of new Set((q.next ?? []).map((n) => n.ask))) f.push("questionNext", q.id, a);
+  }
   return f.out;
 }
 

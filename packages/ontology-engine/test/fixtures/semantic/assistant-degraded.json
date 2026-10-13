@@ -678,9 +678,22 @@
       }
     },
     {
+      "id": "task-french-conversation",
+      "kind": "task",
+      "title": "Hold a French conversation",
+      "parentId": "goal-french",
+      "properties": {
+        "description": "By the end of the year the user feels at ease chatting in French for ten minutes with a native speaker."
+      },
+      "source": {
+        "kind": "declared",
+        "reference": "fixture:task-french-conversation"
+      }
+    },
+    {
       "id": "block-french-tuesday",
       "kind": "calendarBlock",
-      "title": "French listening session \u2014 Tuesday",
+      "title": "French listening session — Tuesday",
       "thingId": "thing-calendar",
       "parentId": "task-french-listening",
       "properties": {

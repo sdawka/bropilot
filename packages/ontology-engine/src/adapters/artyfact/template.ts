@@ -1,4 +1,4 @@
-import type { TemplateInput } from "../../meta/schema";
+import type { KindCriteria, TemplateInput } from "../../meta/schema";
 import { authorization, facts, journeys, metamodel, readiness, theory, topologyPrivatePairs } from "./packs";
 import * as schema from "./schema";
 
@@ -64,6 +64,59 @@ const fieldsOf = (k: string): F[] => {
   return [...byName.values()];
 };
 
+/**
+ * The ontology's own criteria per kind, the wording the semantic questions carry. Kinds with `noun` or `instanceOf`
+ * are the probe's glossary; `section` is structural; claims pass tangibility from 2 because they are hypotheses.
+ */
+export const ARTYFACT_CRITERIA: Record<string, KindCriteria> = {
+  section: { noun: "section", instanceOf: "A section groups the items of one area of the system.", tangible: false },
+  screen: {
+    children: "Components of one screen are shown to the same person at the same time; their limits, states and actions must agree.",
+    summary: "The screen's description must state what its components show and let the person do, and promise nothing they do not.",
+  },
+  component: {
+    children: "Parts of one component must agree on the data they show, its limits and who may act on it.",
+    summary: "The component's description must state what its parts show or do together.",
+  },
+  operation: {
+    noun: "operation",
+    instanceOf: "An operation is one action the system performs on its data, with preconditions and effects.",
+    grounded: "It names what it reads, what it changes and when it fails.",
+  },
+  policy: {
+    children: "Parts of one policy must grant and deny access to the same subjects consistently; no action may be both allowed and forbidden.",
+    summary: "The policy's description must name who may do what that its parts enforce, with no exception they do not state.",
+  },
+  purpose: {
+    noun: "purpose",
+    instanceOf: "A purpose states the change the system exists to make in the world, and for whom.",
+    grounded: "It names who benefits and the change they would notice.",
+  },
+  claim: {
+    noun: "claim",
+    instanceOf: "A claim states a mechanism by which the system produces an outcome, and what would show it works.",
+    grounded: "It names the mechanism, the outcome and an indicator.",
+    minScore: 2,
+    testable: "A testable claim names the indicator that would move and how it is evaluated.",
+  },
+  requirement: {
+    noun: "requirement",
+    instanceOf: "A requirement states one behaviour or constraint the system must satisfy.",
+    grounded: "It names the actor, the trigger and the expected behaviour.",
+  },
+  commitment: {
+    noun: "commitment",
+    instanceOf: "A commitment is a promise the product makes to its users about what it will or will not do.",
+    grounded: "It names who is promised what, and when the promise applies.",
+  },
+  criterion: {
+    noun: "acceptance criterion",
+    instanceOf: "An acceptance criterion states a check whose condition passes or fails.",
+    grounded: "It names the input or situation and the expected observable result.",
+    testable: "A falsifiable criterion names the input or situation and the observable result that would fail it.",
+  },
+};
+
 const ALL = ARTYFACT_KINDS;
 const rel = (from: string[], to: string[], extra: object = {}) => ({ from, to, ...extra });
 
@@ -76,6 +129,7 @@ export const artyfactGenome: TemplateInput = {
     fields: fieldsOf(k),
     ...(k === "step" && { parents: ["journey"] }),
     ...(k === "criterion" && { completeness: { relations: [{ rel: "owner", cardinality: "1" }, { rel: "subject", cardinality: "1" }] } }),
+    ...(ARTYFACT_CRITERIA[k] && { criteria: ARTYFACT_CRITERIA[k] }),
   }])),
   relations: {
     ...Object.fromEntries(schema.Relation.options.map((r) => [r, rel(ALL, ALL, { description: "artyfact cross-link; `refines` and `affects` also carry the node fields of the same name." })])),

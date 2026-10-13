@@ -89,3 +89,19 @@
 - **2026-10-12T17:20:00-04:00** — Add deterministic, template-declarable text-quality checks (minimum length, placeholder words, title distinct from id) to the ontology engine.
 
 - **2026-10-12T17:20:00-04:00** — Add a real-provider semantic suite for vague and contradictory content, run through the OpenRouter decisions API with the Perplexity decision model, behind a provider abstraction so the model is swappable.
+
+- **2026-10-13T00:48:00-04:00** — Replace the single "is this vague?" semantic question with a defect-ontology-driven funnel: per labelled node ask whether it is an instance of its declared kind plus a tangibility score; ask consistency at sibling, cross-section and direct scopes; the engine ships a versioned internal defect ontology that the questioning walks to narrow the diagnosis.
+
+- **2026-10-13T00:48:00-04:00** — Pair checks go through the funnel; the walk must be more efficient than asking every sibling pair (the defect tree drives chained choice questions).
+
+- **2026-10-13T00:48:00-04:00** — Follow-up questions spawn only on confident answers by default, with a per-question knob to lower the bar to review. Review counts as detection in the live assertion.
+
+- **2026-10-13T00:48:00-04:00** — The defect ontology is a full taxonomy three levels deep with four to five categories per level, all families live.
+
+- **2026-10-13T00:48:00-04:00** — Confirmed inconsistencies are explained by gpt-6-luna through OpenRouter chat completions behind a separate explainer seam; the explanation is advisory and never changes a level.
+
+- **2026-10-13T01:25:00-04:00** — Extend the funnel beyond defects to change routing: a System One decision tree first identifies which part of the system a user message affects, at increasing depth, and only then a model translates the message into concrete changes or a clarifying question, so smaller models with a slice can replace a large model given the whole graph. Build a dataset and evaluations for it so the engine's breakdown can be measured across models; Claude acts as the reference for the translation role for now.
+
+## 2026-10-13T02:05:00-04:00 — Criteria come from the ontology itself
+
+Decision (user): preserve guidance on how to write a good ontology, with the criteria for each section and the parent criteria that ensure consistency among child nodes. The engine's mechanism is to apply the ontology's own criteria at every level: the exact criteria passed to System One calls come from the ontology (template), not only from the engine's built-in defect taxonomy. This is in addition to the general checks for what constitutes a sensible, usable ontology.

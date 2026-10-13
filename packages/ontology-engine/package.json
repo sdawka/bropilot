@@ -11,6 +11,7 @@
   "scripts": {
     "test": "vitest run",
     "test:live": "vitest run test/semantic/live.test.ts",
+    "test:route:live": "vitest run test/route/live.test.ts",
     "typecheck": "tsc -p . --noEmit"
   },
   "dependencies": {

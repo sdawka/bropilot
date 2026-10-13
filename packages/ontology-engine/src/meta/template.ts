@@ -1,9 +1,13 @@
 import { hashOf } from "../canon";
-import { TemplateSourceSchema, type TemplateNode, type TemplateSource } from "./schema";
+import { TemplateSourceSchema, type DefectsConfig, type Kind, type RootCriteria, type TemplateNode, type TemplateSource } from "./schema";
 
 export interface TemplateStore { get(ref: string): unknown }
 
-export interface Template extends Omit<TemplateSource, "extends"> {
+export interface Template extends Omit<TemplateSource, "extends" | "defects" | "rootCriteria"> {
+  /** Merged root criteria; absent when no template in the chain declares any, so hashes are unchanged. */
+  rootCriteria?: RootCriteria;
+  /** Merged `defects` overrides; absent when no template in the chain declares any, so hashes are unchanged. */
+  defects?: DefectsConfig;
   ref: string;
   extends?: string;
   /** Refs that resolved, self first. */
@@ -54,11 +58,37 @@ const textDefaultsOf = (chain: TemplateSource[]) => {
   return t === undefined ? {} : { textDefaults: t };
 };
 
-function merge(chain: TemplateSource[]): Omit<TemplateSource, "id" | "version" | "meta" | "extends"> {
+/** `disable` is the union over the chain; for `levels` the nearest template wins per defect id. */
+const defectsOf = (chain: TemplateSource[]): { defects?: DefectsConfig } => {
+  const top = [...chain].reverse();
+  const disable = [...new Set(top.flatMap((s) => s.defects?.disable ?? []))].sort();
+  const levels: DefectsConfig["levels"] = Object.assign({}, ...top.map((s) => s.defects?.levels ?? {}));
+  return disable.length || Object.keys(levels).length ? { defects: { disable, levels } } : {};
+};
+
+/**
+ * The nearest declaration of a kind wins, except `criteria`, which merge key by key over every template in the chain
+ * that declares the kind (the nearer one wins per key). A kind no template gives criteria keeps no `criteria` key.
+ */
+const kindsOf = (top: TemplateSource[]): Record<string, Kind> => {
+  const kinds: Record<string, Kind> = Object.assign({}, ...top.map((s) => s.kinds));
+  return Object.fromEntries(Object.entries(kinds).map(([k, kind]) => {
+    const all = top.map((s) => s.kinds[k]?.criteria).filter((c) => c !== undefined);
+    return [k, all.length ? { ...kind, criteria: Object.assign({}, ...all) } : kind];
+  }));
+};
+
+/** Root criteria merge key by key, the nearest template winning; absent everywhere, the key is left out. */
+const rootCriteriaOf = (top: TemplateSource[]): { rootCriteria?: RootCriteria } => {
+  const all = top.map((s) => s.rootCriteria).filter((c) => c !== undefined);
+  return all.length ? { rootCriteria: Object.assign({}, ...all) } : {};
+};
+
+function merge(chain: TemplateSource[]): Omit<TemplateSource, "id" | "version" | "meta" | "extends" | "defects" | "rootCriteria"> & { defects?: DefectsConfig; rootCriteria?: RootCriteria } {
   const top = [...chain].reverse();
   const c = top.map((s) => s.constraints);
   return {
-    kinds: Object.assign({}, ...top.map((s) => s.kinds)),
+    kinds: kindsOf(top),
     relations: Object.assign({}, ...top.map((s) => s.relations)),
     constraints: {
       forbiddenCycles: mergeById(c.map((x) => x.forbiddenCycles)),
@@ -72,6 +102,8 @@ function merge(chain: TemplateSource[]): Omit<TemplateSource, "id" | "version" |
     questions: mergeById(top.map((s) => s.questions)),
     nodes: mergeById(top.map((s) => s.nodes)),
     ...textDefaultsOf(chain),
+    ...defectsOf(chain),
+    ...rootCriteriaOf(top),
   };
 }
 
@@ -85,10 +117,18 @@ export function loadTemplate(raw: unknown, store: TemplateStore = emptyStore): T
     ...(self.extends !== undefined && { extends: self.extends }),
     lineage: chain.map(refOf), edges, ...merge(chain),
   };
-  return { ...body, hash: hashOf(body) };
+  return { ...body, hash: hashOf(hashed(body)) };
 }
 
-export const templateHash = (t: Omit<Template, "hash"> & { hash?: string }): string => hashOf({ ...t, hash: undefined });
+/**
+ * The form a template is hashed in: a `next` entry without `minStatus` hashes as `confident`, the value meta@1 used to
+ * fill in, so templates that do not set it keep their hash. A declared `confident` hashes the same.
+ */
+const hashed = <T extends { questions?: Template["questions"] }>(t: T): T =>
+  !t.questions?.some((q) => q.next?.some((n) => n.minStatus === undefined)) ? t
+    : { ...t, questions: t.questions.map((q) => (q.next ? { ...q, next: q.next.map((n) => ({ ...n, minStatus: n.minStatus ?? "confident" })) } : q)) };
+
+export const templateHash = (t: Omit<Template, "hash"> & { hash?: string }): string => hashOf(hashed({ ...t, hash: undefined }));
 
 const SELF = /\$self/g;
 const subst = (v: unknown, self: string): unknown =>

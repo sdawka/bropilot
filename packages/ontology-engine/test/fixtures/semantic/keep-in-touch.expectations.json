@@ -1,23 +1,26 @@
 {
   "fixture": "keep-in-touch-degraded",
   "vocabulary": "artyfact",
+  "calls": 220,
   "planted": [
     {
-      "id": "vague.error-handling",
-      "rule": "text.vague",
+      "id": "specificity.error-handling",
+      "rule": "node.tangibility",
       "subjects": [
         "operation.contact.log"
       ],
       "level": "warning",
+      "defect": "specificity",
       "note": "Description says it handles any errors properly, with no failure behaviour named."
     },
     {
-      "id": "vague.fast-enough",
-      "rule": "text.vague",
+      "id": "specificity.fast-enough",
+      "rule": "node.tangibility",
       "subjects": [
         "operation.data.export"
       ],
       "level": "warning",
+      "defect": "specificity",
       "note": "Export must be fast enough that nobody minds waiting: no threshold."
     },
     {
@@ -27,6 +30,7 @@
         "T2"
       ],
       "level": "warning",
+      "defect": "testability.unmeasurable",
       "note": "Claim outcome: relationships become richer in ways that matter to each person."
     },
     {
@@ -36,27 +40,76 @@
         "C.webapp.contact.storage"
       ],
       "level": "warning",
+      "defect": "testability.unfalsifiable",
       "note": "Criterion: storage behaves the way a reasonable person would expect."
     },
     {
       "id": "contradiction.owner-only-vs-shared-goal",
-      "rule": "pair.contradiction",
+      "rule": "pair.relation",
       "subjects": [
         "operation.goal.save",
         "policy.ownerOnly"
       ],
       "level": "error",
-      "note": "Owner-only policy governs goal save, whose description shares the goal with all of the owner's contacts."
+      "defect": [
+        "consistency.scopeClash",
+        "consistency.contradiction"
+      ],
+      "note": "Owner-only policy governs goal save, whose description shares the goal with all of the owner's contacts. Asked directly through the governs relation; an owner-only scope against a shared effect reads as a scope clash or a contradiction."
     },
     {
       "id": "contradiction.five-vs-all",
-      "rule": "pair.contradiction",
+      "rule": "pair.relation",
       "subjects": [
         "component.SuggestionCollection",
         "component.TodayControls"
       ],
       "level": "error",
-      "note": "At most five suggestions vs a toggle listing every due suggestion with no cap; siblings under screen.today."
+      "defect": "consistency.contradiction",
+      "entry": {
+        "rule": "set.allHold",
+        "subject": "screen.today"
+      },
+      "note": "At most five suggestions vs a toggle listing every due suggestion with no cap; siblings under screen.today, reached through set.allHold, set.member and pair.relation."
+    },
+    {
+      "id": "duplicate.consent-vs-preview",
+      "rule": "pair.relation",
+      "subjects": [
+        "component.ConsentPanel",
+        "component.InvitePreview"
+      ],
+      "level": "warning",
+      "defect": "consistency.duplicate",
+      "entry": {
+        "rule": "set.allHold",
+        "subject": "screen.invitation"
+      },
+      "note": "Planted: ConsentPanel's new description paraphrases InvitePreview's (the recipient sees who invited them); siblings under screen.invitation."
+    },
+    {
+      "id": "summary.signin-no-links",
+      "rule": "parent.summary",
+      "subjects": [
+        "screen.signin"
+      ],
+      "level": "error",
+      "defect": "coherence.summaryMismatch.contradicts",
+      "note": "Planted: the screen description now says no links or other controls, while its child PrivacyLink is one privacy link. parent.summary rides with set.allHold on screen.signin and settles as its own finding when it does not pass.",
+      "entry": {
+        "rule": "set.allHold",
+        "subject": "screen.signin"
+      }
+    },
+    {
+      "id": "kind.delete-as-claim",
+      "rule": "node.kind",
+      "subjects": [
+        "operation.data.delete"
+      ],
+      "level": "warning",
+      "defect": "instance.otherKind",
+      "note": "Planted: the delete operation's description is now a claim about trust (owners trust the app more because they can leave), not an action on data."
     }
   ],
   "controls": [
@@ -64,6 +117,21 @@
       "id": "control.bounded-prompts",
       "subject": "C.webapp.prompts.bounded",
       "note": "Six due goals yield exactly five ordered cards: concrete, measurable, falsifiable."
+    },
+    {
+      "id": "control.section-domain",
+      "subject": "section.domain",
+      "note": "Structural one-liner section description: entities, operations and invariants."
+    },
+    {
+      "id": "control.section-runtime",
+      "subject": "section.runtime",
+      "note": "Structural one-liner section description: bindings and deployment surface."
+    },
+    {
+      "id": "control.claim-remembering",
+      "subject": "T1",
+      "note": "Theory claim T1: private context and a chosen cadence reduce forgetting; outcome wanted contact happens more reliably, with an indicator. Claims pass from tangibility score 2."
     }
   ]
 }

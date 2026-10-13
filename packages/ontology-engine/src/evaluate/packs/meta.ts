@@ -28,11 +28,29 @@ export const meta = { id: "meta", version: "1", source: `
 .decl questionPolicy(Question: sym, Answer: sym, Level: sym)
 .decl questionSliceKind(Question: sym, Kind: sym)
 .decl questionSliceRel(Question: sym, Rel: sym)
+.decl question(Id: sym, Answer: sym)
+.decl questionNext(Question: sym, Ask: sym)
+.decl questionOwnDefect(Question: sym, Defect: sym)
+.decl questionPolicyDefect(Question: sym, Answer: sym, Defect: sym)
+.decl questionNextCycle(Question: sym)
+.decl questionBatch(Question: sym, With: sym)
+.decl questionByKind(Question: sym, Kind: sym)
+.decl questionPassFrom(Question: sym, Kind: sym)
+.decl questionChoice(Question: sym, Choice: sym)
+.decl questionCriterionKey(Question: sym, Choice: sym)
+.decl questionOption(Question: sym, Choice: sym)
+.decl questionBenignInvalid(Question: sym)
+.decl questionPolicyAnswer(Question: sym, Answer: sym)
+.decl defectKnown(Id: sym)
+.decl defectDisable(Id: sym)
+.decl defectLevelDecl(Id: sym, Level: sym)
 .decl findingLevel(Level: sym)
 .decl textBound(Scope: sym, Field: sym, Key: sym, N: num)
 .decl textPatternInvalid(Scope: sym, Field: sym)
 .decl textDistinctDecl(Scope: sym, Field: sym, Other: sym)
 .decl textDefaultDistinct(Scope: sym, Other: sym)
+.decl criterionMinScore(Kind: sym, N: num)
+.decl criterionTooLong(Scope: sym, Key: sym)
 .decl fieldDeclared(Kind: sym, Field: sym)
 .decl fieldDeclaredAnywhere(Field: sym)
 .decl parentConstrained(Kind: sym)
@@ -59,6 +77,18 @@ export const meta = { id: "meta", version: "1", source: `
 .message "question.levelUnknown" "Question {1} maps an answer to an unknown finding level."
 .message "question.sliceKindUnknown" "Question {1} slices a kind the template does not declare."
 .message "question.sliceRelationUnknown" "Question {1} slices along a relation the template does not declare."
+.message "question.defectUnknown" "Question {1} names a defect that defects@1 does not define."
+.message "policy.defectUnknown" "Question {1} maps an answer to a defect that defects@1 does not define."
+.message "question.nextUnknown" "Question {1} follows up with a question the template does not declare."
+.message "question.nextCycle" "Question {1} is part of a follow-up cycle."
+.message "question.batchUnknown" "Question {1} batches with a question the template does not declare."
+.message "question.byKindUnknown" "Question {1} words a kind the template does not declare."
+.message "question.passFromUnknown" "Question {1} sets a pass boundary for a kind the template does not declare."
+.message "question.criterionUnknown" "Question {1} gives a criterion for an option it does not declare."
+.message "question.choiceUnmapped" "Question {1} declares an option its policy does not map, so that answer stays unknown."
+.message "question.benignInvalid" "Question {1} has a benign answer it cannot give."
+.message "defect.disableUnknown" "Defect {1} is disabled but defects@1 does not define it."
+.message "defect.levelUnknown" "Defect {1} has a level override but defects@1 does not define it."
 .message "node.kindUnknown" "Prefilled node {1} has a kind the template does not declare."
 .message "node.relationUnknown" "Prefilled node {1} has a link whose relation the template does not declare."
 .message "kind.textBoundNegative" "Kind {1} declares a negative minimum length or word count on a field."
@@ -67,6 +97,8 @@ export const meta = { id: "meta", version: "1", source: `
 .message "kind.textDistinctSelf" "Kind {1} declares a field distinct from itself."
 .message "template.textBoundNegative" "Template {1} declares a negative minimum length or word count in textDefaults."
 .message "template.textPatternInvalid" "Template {1} declares a textDefaults pattern that is not a valid regular expression."
+.message "criteria.minScoreRange" "Kind {1} sets a minimum tangibility score outside 0 to 4."
+.message "criteria.tooLong" "{1} states a criterion longer than 255 characters; questions cut it."
 .message "template.textDistinctUnknown" "Template {1} declares textDefaults distinct from a field no kind declares."
 
 fieldDeclared(K,F) :- kindField(K,F,_,_).
@@ -104,6 +136,19 @@ violation("criterion.subjectKindUnknown",C,"hard") :- criterion(C,_,K,_), not ki
 violation("question.levelUnknown",Q,"hard") :- questionPolicy(Q,_,L), not findingLevel(L).
 violation("question.sliceKindUnknown",Q,"hard") :- questionSliceKind(Q,K), not kind(K).
 violation("question.sliceRelationUnknown",Q,"hard") :- questionSliceRel(Q,R), not relation(R).
+violation("question.defectUnknown",Q,"hard") :- questionOwnDefect(Q,D), not defectKnown(D).
+violation("policy.defectUnknown",Q,"hard") :- questionPolicyDefect(Q,_,D), not defectKnown(D).
+violation("question.nextUnknown",Q,"hard") :- questionNext(Q,A), not question(A,_).
+violation("question.nextCycle",Q,"hard") :- questionNextCycle(Q).
+violation("question.batchUnknown",Q,"hard") :- questionBatch(Q,B), not question(B,_).
+violation("question.byKindUnknown",Q,"hard") :- questionByKind(Q,K), not kind(K).
+violation("question.passFromUnknown",Q,"hard") :- questionPassFrom(Q,K), not kind(K).
+violation("question.criterionUnknown",Q,"hard") :- questionCriterionKey(Q,C), not questionChoice(Q,C).
+questionPolicyAnswer(Q,A) :- questionPolicy(Q,A,_).
+violation("question.choiceUnmapped",Q,"soft") :- questionOption(Q,C), not questionPolicyAnswer(Q,C), not questionPolicyAnswer(Q,"*").
+violation("question.benignInvalid",Q,"hard") :- questionBenignInvalid(Q).
+violation("defect.disableUnknown",D,"hard") :- defectDisable(D), not defectKnown(D).
+violation("defect.levelUnknown",D,"hard") :- defectLevelDecl(D,_), not defectKnown(D).
 violation("node.kindUnknown",N,"hard") :- templateNode(N,K), not kind(K).
 violation("node.relationUnknown",N,"hard") :- templateNodeLink(N,R), not relation(R).
 
@@ -114,4 +159,8 @@ violation("kind.textDistinctSelf",K,"hard") :- textDistinctDecl(K,F,F).
 violation("template.textBoundNegative",T,"hard") :- textBound(T,"*",_,N), N < 0.
 violation("template.textPatternInvalid",T,"hard") :- textPatternInvalid(T,"*").
 violation("template.textDistinctUnknown",T,"hard") :- textDefaultDistinct(T,O), O != "id", not fieldDeclaredAnywhere(O).
+
+violation("criteria.minScoreRange",K,"hard") :- criterionMinScore(K,N), N < 0.
+violation("criteria.minScoreRange",K,"hard") :- criterionMinScore(K,N), N > 4.
+violation("criteria.tooLong",S,"soft") :- criterionTooLong(S,_).
 ` };

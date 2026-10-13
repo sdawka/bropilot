@@ -19,7 +19,14 @@ export interface Readiness {
   findings: Finding[];
   completeness: { required: number; satisfied: number; missing: string[] };
   consistency: { violations: number };
-  judgments: { confident: number; review: number; unknown: number };
+  /**
+   * Judgment counts: findings by status, provider `calls`, funnel `rounds`, follow-up items `gated` by the pair, section
+   * and term caps, whether the call or round `budget` ran out, and how many findings were `explained`.
+   */
+  judgments: {
+    confident: number; review: number; unknown: number;
+    calls: number; rounds: number; gated: number; budget: "ok" | "exhausted"; explained: number;
+  };
   /** True when a run hit `maxIterations`; its findings are a lower bound. */
   incomplete: boolean;
   buildable: boolean;
@@ -60,7 +67,7 @@ export function evaluate(template: Template, input: Graph | unknown, opts: Evalu
       missing: [...new Set(rows("missing").map((t) => String(t[1])))].sort(),
     },
     consistency: { violations: rows("violation").length },
-    judgments: { confident: 0, review: 0, unknown: 0 },
+    judgments: { confident: 0, review: 0, unknown: 0, calls: 0, rounds: 0, gated: 0, budget: "ok", explained: 0 },
     incomplete,
     ...verdicts(findings, incomplete),
   };

@@ -1,3 +1,4 @@
+import { failWith, limiter, lruCache, openRouterHeaders, postJson, redactor, withRetries } from "./http";
 import { cacheKeyFor, fakeSystemOne, offSystemOne, S1Error, wireQuestions } from "./provider";
 import type { Answer, AskOptions, S1Questions, S1Reply, SystemOne } from "./types";
 
@@ -27,7 +28,6 @@ interface DecisionsBody {
   error?: { code?: number | string; message?: string };
 }
 
-const ZERO = { input_tokens: 0, output_tokens: 0 };
 const num = (x: unknown): x is number => typeof x === "number" && Number.isFinite(x);
 const probs = (x: unknown): x is Record<string, number> =>
   !!x && typeof x === "object" && !Array.isArray(x) && Object.values(x).every(num);
@@ -55,17 +55,6 @@ export function readDecision(type: S1Questions[string]["type"], raw: unknown): A
   return { type: "score", score, probabilities: p, confidence, ...(a.legend !== undefined && { legend: a.legend }) };
 }
 
-/** A minimal FIFO semaphore. */
-function limiter(n: number) {
-  let active = 0;
-  const queue: (() => void)[] = [];
-  return async <T>(f: () => Promise<T>): Promise<T> => {
-    if (active >= n) await new Promise<void>((r) => queue.push(r));
-    active++;
-    try { return await f(); } finally { active--; queue.shift()?.(); }
-  };
-}
-
 /**
  * The OpenRouter Decisions API as a `SystemOne`. Engine question types map to the API primitives one to one:
  * yes-no is `noul`, choice is `choice`, score is `score`. Timeouts, 429 and 5xx are retried; every failure is an
@@ -77,27 +66,17 @@ export function openRouterProvider(o: OpenRouterOptions): SystemOne {
   const key = o.apiKey;
   const model = o.model || DEFAULT_OPENROUTER_MODEL;
   const url = o.url ?? OPENROUTER_DECISIONS_URL;
-  const cache = new Map<string, S1Reply>();
-  const cacheSize = o.cacheSize ?? 200;
-  const run = limiter(Math.max(1, o.concurrency ?? 4));
-  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-  const redact = (s: string) => s.split(key).join("[redacted]");
-  const fail = (message: string, code: S1Error["code"], status?: number) => new S1Error(redact(message).slice(0, 300), code, status);
+  const cache = lruCache<S1Reply>(o.cacheSize ?? 200);
+  const run = limiter(o.concurrency ?? 4);
+  const redact = redactor(key);
+  const fail = failWith(redact);
 
-  async function attempt(state: unknown, questions: S1Questions, timeoutMs: number): Promise<Omit<S1Reply, "ms">> {
-    const doFetch = o.fetch ?? globalThis.fetch.bind(globalThis);
-    const ctl = new AbortController();
-    const timer = setTimeout(() => ctl.abort(), timeoutMs);
-    try {
-      const res = await doFetch(url, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", "X-Title": o.title ?? "bropilot ontology-engine" },
-        body: JSON.stringify({ model, state, questions: wireQuestions(questions) }),
-        signal: ctl.signal,
-      });
-      const text = await res.text();
-      let body: DecisionsBody | undefined;
-      try { body = JSON.parse(text) as DecisionsBody; } catch { body = undefined; }
+  const attempt = (state: unknown, questions: S1Questions, timeoutMs: number): Promise<Omit<S1Reply, "ms">> =>
+    postJson<DecisionsBody, Omit<S1Reply, "ms">>({
+      url, fetch: o.fetch, timeoutMs, label: "OpenRouter", redact,
+      headers: openRouterHeaders(key, o.title),
+      body: { model, state, questions: wireQuestions(questions) },
+    }, ({ res, body }) => {
       if (!res.ok || body?.error) {
         const status = res.ok ? Number(body?.error?.code) || 502 : res.status;
         throw fail(`OpenRouter HTTP ${status}${body?.error?.message ? `: ${body.error.message}` : ""}`, "http", status);
@@ -112,36 +91,18 @@ export function openRouterProvider(o: OpenRouterOptions): SystemOne {
       }
       const usage = { input_tokens: num(body.usage?.input_tokens) ? body.usage.input_tokens : 0, output_tokens: num(body.usage?.output_tokens) ? body.usage.output_tokens : 0 };
       return { answers, model: typeof body.model === "string" ? body.model : model, usage, provider: "openrouter" };
-    } catch (e) {
-      if (e instanceof S1Error) throw e;
-      if (ctl.signal.aborted) throw fail(`OpenRouter timed out after ${timeoutMs} ms`, "timeout");
-      throw fail(`OpenRouter network error: ${(e as Error)?.message ?? e}`, "network");
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-
-  const retryable = (e: S1Error) => e.code === "timeout" || (e.code === "http" && (e.status === 429 || (e.status ?? 0) >= 500));
+    });
 
   async function ask(state: unknown, questions: S1Questions, opts: AskOptions = {}): Promise<S1Reply> {
     const cacheKey = opts.cacheKey ?? cacheKeyFor(state, questions, model);
     const hit = cache.get(cacheKey);
-    if (hit) { cache.delete(cacheKey); cache.set(cacheKey, hit); return hit; }
+    if (hit) return hit;
     const { timeoutMs = 2500, retries = 3, backoffMs = 250 } = opts;
     return run(async () => {
       const t0 = Date.now();
-      for (let n = 0; ; n++) {
-        try {
-          const reply: S1Reply = { ...(await attempt(state, questions, timeoutMs)), ms: Date.now() - t0 };
-          cache.set(cacheKey, reply);
-          if (cache.size > cacheSize) cache.delete(cache.keys().next().value!);
-          return reply;
-        } catch (e) {
-          if (!(e instanceof S1Error) || !retryable(e) || n >= retries) throw e;
-          const rateLimited = e.code === "http" && e.status === 429;
-          await sleep((rateLimited ? Math.max(backoffMs, 1000) : backoffMs) * 2 ** n);
-        }
-      }
+      const reply: S1Reply = { ...(await withRetries(() => attempt(state, questions, timeoutMs), { retries, backoffMs })), ms: Date.now() - t0 };
+      cache.set(cacheKey, reply);
+      return reply;
     });
   }
 

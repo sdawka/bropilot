@@ -1,3 +1,5 @@
+import type { Explanation } from "./explain";
+
 export type NoulCriteria = { true: string; false: string };
 export type ChoiceCriteria = Record<string, string>;
 export type ScoreCriteria = string[];
@@ -47,6 +49,27 @@ export interface Provenance {
   thresholds: Thresholds;
   usage?: Usage;
   error?: { name: string; message: string; code?: string; status?: number };
+  /** Funnel round (1 for stage-1 entry questions) and stage name of the ask that settled the finding. */
+  round?: number;
+  stage?: string;
+  /** How many questions shared the provider call; `split` when a batch was re-asked one question at a time. */
+  batch?: { size: number; split?: boolean };
+  /** The explainer call behind `judgment.explanation`, without its text. */
+  explained?: { provider: string; model: string; usage?: Usage; error?: string };
+  /** A follow-up of this finding was cut by the call or round budget; the finding settled on an earlier step. */
+  truncated?: boolean;
+}
+
+/** One answered question on the way from an entry question to the finding's defect. */
+export interface JudgmentStep {
+  question: string;
+  subject: string;
+  status: JudgmentStatus;
+  answer?: string;
+  confidence?: number;
+  defect?: string;
+  /** Score questions: probability mass on the chosen side of the pass boundary (see `scoreConfidence`). */
+  bandedConfidence?: number;
 }
 
 export interface Judgment {
@@ -54,4 +77,15 @@ export interface Judgment {
   status: JudgmentStatus;
   answer?: string;
   confidence?: number;
+  /** The provider's distribution over answer keys (noul reads as `{yes, no}`). */
+  probabilities?: Record<string, number>;
+  /** defects@1 id the answer stands for. */
+  defect?: string;
+  /** Score questions: probability mass on the chosen side of the pass boundary, beside the top-level `confidence`. */
+  bandedConfidence?: number;
+  /** The questions asked to reach this judgment, entry question first. */
+  path?: JudgmentStep[];
+  /** Findings (rule ids or defect ids) that narrowed this one to a more specific defect. */
+  narrowedBy?: string[];
+  explanation?: Explanation;
 }

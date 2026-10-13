@@ -221,7 +221,8 @@
       "source": {
         "kind": "inferred",
         "note": "uip seed"
-      }
+      },
+      "description": "Marks a record \"verified\" as soon as the phone confirms its GPS fix is on site, before any biologist has looked at it."
     },
     {
       "id": "capability-volunteer-engagement",
@@ -242,7 +243,8 @@
       "source": {
         "kind": "inferred",
         "note": "uip seed"
-      }
+      },
+      "description": "Fewer surveys are abandoned half-way because a volunteer's phone lost signal on the beach."
     },
     {
       "id": "feature-photo-id-suggestions",
@@ -264,6 +266,17 @@
         "kind": "inferred",
         "note": "uip seed"
       }
+    },
+    {
+      "id": "feature-branded-merchandise-shop",
+      "kind": "feature",
+      "title": "Branded merchandise shop",
+      "status": "committed",
+      "source": {
+        "kind": "inferred",
+        "note": "semantic plant"
+      },
+      "description": "Volunteers can buy Tidepool T-shirts, mugs and stickers in the app and pay by card."
     },
     {
       "id": "flow-walk-a-transect-and-log-each-quadrat",

@@ -3,7 +3,7 @@ import {
   canon, DEFAULT_OPENROUTER_MODEL, evaluateAndJudge, loadTemplate, OPENROUTER_DECISIONS_URL, openRouterProvider, productSpec,
   providerFromEnv, readDecision, S1Error, withSemanticProbes, type Graph, type S1Questions,
 } from "../../src";
-import { probeFindings, SETTINGS } from "./vocabularies";
+import { probeFindings, SETTINGS_V1 as SETTINGS } from "./vocabularies";
 
 const KEY = "sk-or-v1-TESTKEY-0123456789abcdef";
 

@@ -6,7 +6,7 @@ export {
   emptyStore, instantiateNodes, loadTemplate, memoryStore, refOf, resolveLineage, templateHash,
   type Template, type TemplateStore,
 } from "./meta/template";
-export { cachedForm, checkTemplateForm, formFacts, packName, TemplateFormError, type TemplateForm } from "./meta/form";
+export { cachedForm, checkTemplateForm, formFacts, nextCycles, packName, TemplateFormError, type TemplateForm } from "./meta/form";
 export * from "./graph/graph";
 export { EDB_DECLS, EDB_RELATIONS, FORM_DECLS, GRAPH_DECLS, TEMPLATE_DECLS } from "./evaluate/edb";
 export { graphFacts, templateFacts, toFacts, type Facts } from "./evaluate/facts";
@@ -19,3 +19,4 @@ export * from "./judge";
 export * from "./adapters/artyfact";
 export * from "./adapters/product";
 export * from "./adapters/world";
+export * from "./route";
