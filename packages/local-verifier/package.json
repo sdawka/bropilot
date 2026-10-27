@@ -9,6 +9,6 @@
   },
   "dependencies": {
     "esbuild": "0.28.2",
-    "miniflare": "5.20261006.0-alpha"
+    "miniflare": "5.20261023.1-beta"
   }
 }
