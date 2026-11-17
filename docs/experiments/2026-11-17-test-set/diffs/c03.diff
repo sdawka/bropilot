@@ -1,0 +1,12 @@
+diff -ru clean/things/webapp/ontology.yaml variants/c03/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/c03/things/webapp/ontology.yaml	2026-11-17 09:53:07
+@@ -708,7 +708,7 @@
+     kind: entity
+     name: Block
+     parent: section.domain
+-    description: Blocker and blocked account IDs; overrides connection, sharing and subscription permissions
++    description: Blocker and blocked account IDs; overrides connection, sharing and subscription permissions. Each record runs from the blocker to the blocked account
+     source: { doc: keep-in-touch-world-specification, section: "5" }
+     fields:
+       - { name: blockerAccountId, type: "ref:entity.Account" }

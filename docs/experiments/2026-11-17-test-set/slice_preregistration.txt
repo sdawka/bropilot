@@ -1,0 +1,14 @@
+Written 2026-11-17 before building any slice or making any model call in E2.
+Slice rule S (pre-registered, not to be tuned):
+- Graphs: G_clean, G_var from loadArtyfactSystem(readDir(dir), {templates}). delta = diff(G_clean, G_var).
+- Changed nodes C = delta.nodes.added U delta.nodes.removed U delta.nodes.changed[].id
+  U {from,to} of every link in delta.links.added/removed/changed (a link change changes both endpoints' relationships;
+  interpretation decided here, before outputs).
+- If C is empty: fallback = node ids (from G_var U G_clean) appearing verbatim in the diff text (hunk + context lines); recorded.
+- Slice = C + full ancestor chain of each c in C + direct children (parent == c) of each c in C
+  + every node within 2 link hops (either direction, links of G_var plus removed links from G_clean) from C,
+  where nodes of kind system/thing/section/template/kit can be reached (endpoints) but are not expanded.
+  C itself is the start set, expanded at hop 0 regardless of kind? -> NO: blocked kinds in C are not expanded either.
+- Rendering: nodes from G_var (removed nodes from G_clean with removed: true), each {id, kind, parent, fields} (full fields, no cap),
+  plus links (from G_var, removed links from G_clean marked removed) whose both ends are in the slice; YAML.
+- Size recorded as node count and chars/4. No cap.

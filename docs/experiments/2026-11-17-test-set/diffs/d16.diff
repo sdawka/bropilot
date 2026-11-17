@@ -1,0 +1,12 @@
+diff -ru clean/theory.yaml variants/d16/theory.yaml
+--- clean/theory.yaml	2026-10-12 14:42:14
++++ variants/d16/theory.yaml	2026-11-17 09:53:06
+@@ -25,7 +25,7 @@
+     beneficiaries: [ext.owner]
+     activities: [GD.prompts]
+     outcome: Initiating contact takes less effort
+-    indicator: User-rated effort before and after use
++    indicator: Messages sent through the app per week
+     evaluationMethod: >-
+       Two-week personal baseline, then a four-week pilot; compare descriptive trends and interview participants.
+     limitation: A channel opened is not proof that contact occurred; before-and-after change cannot establish causality.

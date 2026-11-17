@@ -1,0 +1,12 @@
+diff -ru clean/kits.yaml variants/c02/kits.yaml
+--- clean/kits.yaml	2026-10-12 14:42:14
++++ variants/c02/kits.yaml	2026-11-17 09:53:07
+@@ -1,7 +1,7 @@
+ # spec §7 Rule Packs and Kits; spec §9 "Pin the authentication provider and Kit ... before claiming core readiness"
+ kits:
+-  - { id: privacy, version: "1" }
+   - { id: consent, version: "1" }
++  - { id: privacy, version: "1" }
+   - { id: topology.private-pairs, version: "1" }
+   - { id: notification-restraint, version: "1" }
+   - { id: accessibility, version: "1" }

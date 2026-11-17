@@ -1,0 +1,11 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d27/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d27/things/webapp/ontology.yaml	2026-11-17 09:53:07
+@@ -370,7 +370,6 @@
+     kind: screen
+     name: Goal
+     parent: section.ui
+-    route: /people/:id/goal
+     roles: [owner]
+     states: [loaded, loading, error, validation-error, no-goal]
+     description: >-

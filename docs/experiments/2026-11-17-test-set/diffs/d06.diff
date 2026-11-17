@@ -1,0 +1,12 @@
+diff -ru clean/journeys/J.control.export.yaml variants/d06/journeys/J.control.export.yaml
+--- clean/journeys/J.control.export.yaml	2026-10-12 14:42:14
++++ variants/d06/journeys/J.control.export.yaml	2026-11-17 09:53:06
+@@ -22,7 +22,7 @@
+   kind: action
+   screen: screen.settings
+   next:
+-  - to: x3
++  - to: x4
+   requirementRefs:
+   - S.webapp.operations
+ - id: x3

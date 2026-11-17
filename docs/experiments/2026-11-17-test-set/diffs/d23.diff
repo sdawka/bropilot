@@ -1,0 +1,12 @@
+diff -ru clean/things/webapp/criteria.yaml variants/d23/things/webapp/criteria.yaml
+--- clean/things/webapp/criteria.yaml	2026-10-12 14:42:14
++++ variants/d23/things/webapp/criteria.yaml	2026-11-17 09:53:06
+@@ -220,7 +220,7 @@
+     triggers: [candidate, promotion]
+     inputs:
+       fixture: "protected browser fixture over all screens"
+-    timeoutMs: 120000
++    timeoutMs: 120
+     costTier: expensive
+     binding: defined
+   - id: hook.webapp.revocation.current

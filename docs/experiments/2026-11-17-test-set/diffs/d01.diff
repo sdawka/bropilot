@@ -1,0 +1,22 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d01/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d01/things/webapp/ontology.yaml	2026-11-17 09:53:06
+@@ -317,18 +317,6 @@
+             failure: [Not available when there is no active Connection]
+             links:
+               - { rel: invokes, to: operation.connection.revoke }
+-          - id: affordance.ConnectionPanel.block
+-            kind: affordance
+-            name: Block
+-            actor: ext.owner
+-            trigger: Owner confirms Block
+-            preconditions: [Contact is linked to an Account]
+-            effects:
+-              - A block prevents new app-mediated contact until removed
+-              - Pauses the blocker's corresponding goal and suppresses its suggestions
+-            failure: [Not available when the contact has no linked account]
+-            links:
+-              - { rel: invokes, to: operation.connection.revoke }
+       - id: component.PersonActionBar
+         kind: component
+         name: ActionBar

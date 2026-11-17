@@ -1,0 +1,12 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d26/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d26/things/webapp/ontology.yaml	2026-11-17 09:53:07
+@@ -751,7 +751,7 @@
+       - { name: id, type: string }
+       - { name: ownerAccountId, type: "ref:entity.Account" }
+       - { name: contactRecordId, type: "ref:entity.ContactRecord" }
+-      - { name: occurredAt, type: timestamp }
++      - { name: occurredAt, type: timestmap }
+       - { name: channel, type: string }
+       - { name: selfReportedDepth, type: "enum light|meaningful|shared-time" }
+       - { name: privateNote, type: string, optional: true }

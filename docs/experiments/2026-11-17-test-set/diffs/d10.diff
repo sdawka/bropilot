@@ -1,0 +1,12 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d10/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d10/things/webapp/ontology.yaml	2026-11-17 09:53:06
+@@ -232,7 +232,7 @@
+               - Network error keeps entered values and renders one ErrorSummary
+             source: { doc: keep-in-touch-world-specification, section: "6" }
+             links:
+-              - { rel: invokes, to: operation.contact.save }
++              - { rel: invokes, to: operation.contact.log }
+           - id: affordance.AddContactDialog.cancel
+             kind: affordance
+             name: Cancel

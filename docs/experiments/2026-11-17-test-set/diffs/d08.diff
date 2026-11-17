@@ -1,0 +1,12 @@
+diff -ru clean/things/webapp/criteria.yaml variants/d08/things/webapp/criteria.yaml
+--- clean/things/webapp/criteria.yaml	2026-10-12 14:42:14
++++ variants/d08/things/webapp/criteria.yaml	2026-11-17 09:53:06
+@@ -90,7 +90,7 @@
+     targetKind: artifact
+     sourceRefs: [S.webapp.operations]
+     gates: [candidate, promotion]
+-    hooks: [hook.webapp.lifecycle.data]
++    hooks: [hook.webapp.lifecycle.export]
+   - id: C.webapp.screen.people
+     title: People screen
+     claim: "Refines C.webapp.screen.exact for loaded, empty, loading, error and dialog states"

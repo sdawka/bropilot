@@ -1,0 +1,12 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d11/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d11/things/webapp/ontology.yaml	2026-11-17 09:53:06
+@@ -901,7 +901,7 @@
+     parent: section.domain
+     description: Owned contact, nonfuture event time. Persist event; recompute affected goals without sending anything
+     preconditions: [Owned contact, Nonfuture event time]
+-    effects: [Persist event, Recompute affected goals without sending anything, Logging qualifying contact resolves its suggestion]
++    effects: [Persist event, Recompute affected goals without sending anything, Logging any contact counts toward the goal and resolves its suggestion]
+     failure: [Future event time is rejected, Stale version returns conflict]
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:

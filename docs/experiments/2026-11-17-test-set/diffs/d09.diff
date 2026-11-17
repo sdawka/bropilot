@@ -1,0 +1,16 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d09/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d09/things/webapp/ontology.yaml	2026-11-17 09:53:06
+@@ -1022,11 +1022,10 @@
+     name: PrimaryNav
+     parent: component.AppShell
+     owningThing: thing.webapp
+-    description: Primary navigation containing Today, People and Settings
++    description: Primary navigation containing Today and People
+     links:
+       - { rel: references, to: screen.today }
+       - { rel: references, to: screen.people }
+-      - { rel: references, to: screen.settings }
+ 
+   # ---------------------------------------------------------------- Runtime: binding (spec §6, §8)
+   # Template ids binding.worker and binding.scheduler are inherited. The template's provisional binding.d1 placeholder

@@ -1,0 +1,12 @@
+diff -ru clean/journeys/J.prompts.yaml variants/d13/journeys/J.prompts.yaml
+--- clean/journeys/J.prompts.yaml	2026-10-12 14:42:14
++++ variants/d13/journeys/J.prompts.yaml	2026-11-17 09:53:06
+@@ -19,7 +19,7 @@
+   - S.webapp.prompts
+ - id: p2
+   actor: system
+-  action: At most five suggestions ordered by effective due date then goal ID, or one EmptyState
++  action: Up to ten suggestions ordered by effective due date then goal ID, or one EmptyState
+   kind: reaction
+   screen: screen.today
+   next:

@@ -1,0 +1,12 @@
+diff -ru clean/journeys/J.control.export.yaml variants/c05/journeys/J.control.export.yaml
+--- clean/journeys/J.control.export.yaml	2026-10-12 14:42:14
++++ variants/c05/journeys/J.control.export.yaml	2026-11-17 09:53:07
+@@ -67,7 +67,7 @@
+   - S.webapp.operations
+ - id: e2
+   actor: user
+-  action: No export produced
++  action: Nothing is exported
+   kind: end
+   screen: screen.settings
+   next: []

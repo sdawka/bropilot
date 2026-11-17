@@ -1,0 +1,12 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d24/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d24/things/webapp/ontology.yaml	2026-11-17 09:53:07
+@@ -883,7 +883,7 @@
+     kind: operation
+     name: Save goal
+     parent: section.domain
+-    description: Owned contact and valid interval. Increment goal version, recompute due state and cancel obsolete jobs
++    description: "TODO: describe goal save"
+     preconditions: [Owned contact, Valid interval]
+     effects: [Increment goal version, Recompute due state, Cancel obsolete jobs, Revising a goal must not create a ContactEvent]
+     failure: [Invalid interval is rejected with a validation error, Stale version returns conflict]

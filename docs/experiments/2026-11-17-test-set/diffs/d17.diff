@@ -1,0 +1,12 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d17/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d17/things/webapp/ontology.yaml	2026-11-17 09:53:06
+@@ -1012,7 +1012,7 @@
+     name: Current revocation
+     parent: section.authorization
+     mode: revocation
+-    description: Read and send authorization must check revocation against current authoritative state; a block overrides connection and sharing
++    description: Read and send authorization uses the permissions captured when the session started; a block overrides connection and sharing
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+ 
+   # ---------------------------------------------------------------- Template shell links (nodes come from the template)

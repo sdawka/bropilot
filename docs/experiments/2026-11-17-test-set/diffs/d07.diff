@@ -1,0 +1,12 @@
+diff -ru clean/things/webapp/criteria.yaml variants/d07/things/webapp/criteria.yaml
+--- clean/things/webapp/criteria.yaml	2026-10-12 14:42:14
++++ variants/d07/things/webapp/criteria.yaml	2026-11-17 09:53:06
+@@ -52,7 +52,7 @@
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: screen
+-    subjectId: screen.today
++    subjectId: screen.home
+     targetKind: artifact
+     sourceRefs: [S.webapp.prompts]
+     satisfies: [C.system.autonomy]

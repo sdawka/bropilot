@@ -1,0 +1,12 @@
+diff -ru clean/things/webapp/ontology.yaml variants/c01/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/c01/things/webapp/ontology.yaml	2026-11-17 09:53:07
+@@ -13,7 +13,7 @@
+     route: /signin
+     roles: [anonymous]
+     states: [loaded, loading, error]
+-    description: One SignInForm with one Continue control and one privacy link; no private content
++    description: A single SignInForm containing one Continue control and one privacy link; it shows no private content
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:
+       - { rel: serves, to: ext.owner }

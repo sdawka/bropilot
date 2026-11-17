@@ -1,0 +1,15 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d02/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d02/things/webapp/ontology.yaml	2026-11-17 09:53:06
+@@ -764,9 +764,9 @@
+     links:
+       - { rel: storedIn, to: binding.contactsStore }
+       - { rel: governs, to: policy.ownerOnly, direction: in }
+-  - id: entity.Suggestion
++  - id: entity.TodaySuggestion
+     kind: entity
+-    name: Suggestion
++    name: TodaySuggestion
+     parent: section.domain
+     description: ID, goal version, reason, due date, target ContactRecord and state; does not itself contact anybody
+     source: { doc: keep-in-touch-world-specification, section: "5" }

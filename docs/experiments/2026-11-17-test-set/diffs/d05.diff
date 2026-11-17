@@ -1,0 +1,21 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d05/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d05/things/webapp/ontology.yaml	2026-11-17 09:53:06
+@@ -948,16 +948,13 @@
+     parent: section.domain
+     description: Participant authority. Revoke affected app sharing and cancel pending deliveries; a block prevents new app-mediated contact until removed
+     preconditions: [Participant authority]
+-    effects: [Revoke affected app sharing, Cancel pending deliveries, A block prevents new app-mediated contact until removed, Blocking pauses the blocker's corresponding goal]
++    effects: [Revoke affected app sharing, Cancel pending deliveries, A block prevents new app-mediated contact until removed]
+     failure: [Non-participant is denied, Already delivered external messages or copied data cannot be retracted]
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:
+       - { rel: writes, to: entity.Connection }
+       - { rel: writes, to: entity.Block }
+       - { rel: writes, to: entity.NotificationJob }
+-      # S.webapp.prompts: "Blocking a linked counterpart must pause the blocker's corresponding goal and suppress its suggestions"
+-      - { rel: writes, to: entity.RelationshipGoal }
+-      - { rel: writes, to: entity.Suggestion }
+       - { rel: governs, to: policy.revocation, direction: in }
+       - { rel: governs, to: policy.authentication, direction: in } # S.webapp.operations: mutations authorize the authenticated owner
+   - id: operation.data.export

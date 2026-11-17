@@ -1,0 +1,21 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d03/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d03/things/webapp/ontology.yaml	2026-11-17 09:53:06
+@@ -960,6 +960,17 @@
+       - { rel: writes, to: entity.Suggestion }
+       - { rel: governs, to: policy.revocation, direction: in }
+       - { rel: governs, to: policy.authentication, direction: in } # S.webapp.operations: mutations authorize the authenticated owner
++  - id: operation.contact.archive
++    kind: operation
++    name: Archive contact
++    parent: section.domain
++    description: Owned contact. Hide the contact from People and Today without deleting its history
++    preconditions: [Owned contact]
++    effects: [Hide the contact from People and Today, Suppress suggestions for its goal]
++    failure: [Stale version returns conflict]
++    source: { doc: keep-in-touch-world-specification, section: "6" }
++    links:
++      - { rel: writes, to: entity.ContactRecord }
+   - id: operation.data.export
+     kind: operation
+     name: Export

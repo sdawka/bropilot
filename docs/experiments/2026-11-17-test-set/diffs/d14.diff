@@ -1,0 +1,12 @@
+diff -ru clean/journeys/J.connect.yaml variants/d14/journeys/J.connect.yaml
+--- clean/journeys/J.connect.yaml	2026-10-12 14:42:14
++++ variants/d14/journeys/J.connect.yaml	2026-11-17 09:53:06
+@@ -131,7 +131,7 @@
+   - S.webapp.operations
+ - id: e1
+   actor: system
+-  action: Connection active; both consents recorded; private goals and notes stay unshared
++  action: Connection active; both consents recorded; each person can now see the other's goal for them
+   kind: end
+   next: []
+   requirementRefs:

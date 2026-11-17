@@ -1,0 +1,12 @@
+diff -ru clean/things/webapp/criteria.yaml variants/d29/things/webapp/criteria.yaml
+--- clean/things/webapp/criteria.yaml	2026-10-12 14:42:14
++++ variants/d29/things/webapp/criteria.yaml	2026-11-17 09:53:07
+@@ -78,7 +78,7 @@
+     subjectId: policy.revocation
+     targetKind: artifact
+     sourceRefs: [S.webapp.concurrency]
+-    gates: [candidate, promotion]
++    gates: []
+     hooks: [hook.webapp.revocation.current]
+   - id: C.webapp.lifecycle.data
+     title: Data lifecycle

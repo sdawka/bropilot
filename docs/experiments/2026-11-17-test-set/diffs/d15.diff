@@ -1,0 +1,12 @@
+diff -ru clean/things/webapp/criteria.yaml variants/d15/things/webapp/criteria.yaml
+--- clean/things/webapp/criteria.yaml	2026-10-12 14:42:14
++++ variants/d15/things/webapp/criteria.yaml	2026-11-17 09:53:06
+@@ -37,7 +37,7 @@
+     hooks: [hook.webapp.outgoing.single]
+   - id: C.webapp.schedule.correct
+     title: Schedule correctness
+-    claim: "Fixed-clock fixtures cover zero logs, qualification, interval and depth changes, time zones, DST, snooze, pause and deleted events"
++    claim: "Fixed-clock fixtures in UTC cover zero logs, qualification, interval and depth changes, snooze, pause and deleted events"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: entity

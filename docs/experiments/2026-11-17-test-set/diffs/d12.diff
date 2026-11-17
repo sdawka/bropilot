@@ -1,0 +1,12 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d12/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d12/things/webapp/ontology.yaml	2026-11-17 09:53:06
+@@ -359,7 +359,7 @@
+             preconditions: [Contact has a recorded channel or copyable contact details]
+             effects:
+               - Opening an external channel must require a user gesture
+-              - Opening a channel does not automatically mark contact as completed
++              - Opening a channel logs a contact event so the goal stays current
+               - Unsupported channels must offer copyable contact details
+             failure: [Unsupported channel offers copyable contact details instead]
+             source: { doc: keep-in-touch-world-specification, section: "6" }

@@ -1,0 +1,11 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d04/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d04/things/webapp/ontology.yaml	2026-11-17 09:53:06
+@@ -803,7 +803,6 @@
+       - One owner notification per local day containing a link without contact details
+       - Queue bodies carry minimal IDs, not private relationship notes
+     links:
+-      - { rel: storedIn, to: binding.contactsStore }
+       - { rel: governs, to: policy.ownerOnly, direction: in }
+       - { rel: triggers, to: ext.providers, label: optional external reminder }
+   # --- provisional (later) entities, spec §5 "later" rows

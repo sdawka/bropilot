@@ -1,0 +1,11 @@
+diff -ru clean/journeys/J.goals.yaml variants/d28/journeys/J.goals.yaml
+--- clean/journeys/J.goals.yaml	2026-10-12 14:42:14
++++ variants/d28/journeys/J.goals.yaml	2026-11-17 09:53:07
+@@ -59,7 +59,6 @@
+   - to: g3
+     when: interval invalid, values kept
+   - to: e2
+-    when: cancel
+   requirementRefs:
+   - S.webapp.qualification
+ - id: e1

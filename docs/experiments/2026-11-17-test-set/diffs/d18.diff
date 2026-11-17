@@ -1,0 +1,15 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d18/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d18/things/webapp/ontology.yaml	2026-11-17 09:53:06
+@@ -979,9 +979,9 @@
+     kind: operation
+     name: Delete
+     parent: section.domain
+-    description: Owner reauthentication. Deletion revokes access immediately, cancels jobs and purges owned live data within seven days. Backup expiry follows a pinned retention policy disclosed separately
++    description: Owner reauthentication. Deletion revokes access immediately, cancels jobs and purges owned live data within thirty days. Backup expiry follows a pinned retention policy disclosed separately
+     preconditions: [Owner reauthentication]
+-    effects: [Revoke access immediately, Cancel jobs, Purge owned live data within seven days, Backup expiry follows a pinned retention policy disclosed separately]
++    effects: [Revoke access immediately, Cancel jobs, Purge owned live data within thirty days, Backup expiry follows a pinned retention policy disclosed separately]
+     failure: [Reauthentication failure denies the deletion]
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:

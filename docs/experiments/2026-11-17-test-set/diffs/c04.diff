@@ -1,0 +1,13 @@
+diff -ru clean/things/webapp/ontology.yaml variants/c04/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/c04/things/webapp/ontology.yaml	2026-11-17 09:53:07
+@@ -658,8 +658,8 @@
+       - { name: linkedAccountId, type: "ref:entity.Account", optional: true }
+       - { name: version, type: int }
+     invariants:
+-      - Belongs to one owner
+       - Owner-only
++      - Belongs to one owner
+       - Linking to an Account does not transfer ownership or reveal notes
+       - At most one linked contact per owner and counterpart account
+     links:

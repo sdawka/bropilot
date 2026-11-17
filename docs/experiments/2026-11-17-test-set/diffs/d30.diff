@@ -1,0 +1,12 @@
+diff -ru clean/externals.yaml variants/d30/externals.yaml
+--- clean/externals.yaml	2026-10-12 14:42:14
++++ variants/d30/externals.yaml	2026-11-17 09:53:07
+@@ -25,7 +25,7 @@
+     external: The app cannot infer their delivery or meaning merely by opening them
+     source: { doc: keep-in-touch-world-specification, section: "2" }
+   - id: ext.device
+-    kind: device
++    kind: person
+     name: Device
+     modeled: Browser, device notification permissions and selected files; access to a phone gallery is a later capability
+     external: Device capabilities and permissions granted by the owner

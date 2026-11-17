@@ -1,0 +1,560 @@
+[
+  {
+    "id": "d01",
+    "type": "defect",
+    "category": "cross-reference",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "affordance.ConnectionPanel.block",
+      "component.ConnectionPanel",
+      "J.control.block",
+      "screen.person"
+    ],
+    "description": "Removed the Block affordance from the Person screen's ConnectionPanel.",
+    "why": "J.control.block step b2 still has the user choose Block on screen.person and the screen description still promises Block availability, so the journey relies on a control that no longer exists.",
+    "subtlety": 2
+  },
+  {
+    "id": "d02",
+    "type": "defect",
+    "category": "cross-reference",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "entity.Suggestion",
+      "component.SuggestionCollection",
+      "component.SuggestionCard",
+      "affordance.SuggestionCard.snooze",
+      "operation.goal.save",
+      "operation.contact.log",
+      "operation.connection.revoke",
+      "entity.NotificationJob",
+      "S.webapp.prompts",
+      "S.webapp.due",
+      "evolution.4"
+    ],
+    "description": "Renamed entity.Suggestion to entity.TodaySuggestion in its definition only.",
+    "why": "Every read/write link, the NotificationJob field type, requirement subjects and evolution.4 still point at entity.Suggestion, which no longer exists.",
+    "subtlety": 1
+  },
+  {
+    "id": "d03",
+    "type": "defect",
+    "category": "cross-reference",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "operation.contact.archive",
+      "policy.ownerOnly",
+      "policy.authentication",
+      "S.webapp.operations",
+      "entity.Suggestion",
+      "screen.people"
+    ],
+    "description": "Added a new operation.contact.archive that writes ContactRecord.",
+    "why": "The new mutation has no governing ownerOnly/authentication policy, no affordance or journey that invokes it, is not a subject of S.webapp.operations, and claims to suppress suggestions without writing entity.Suggestion.",
+    "subtlety": 2
+  },
+  {
+    "id": "d04",
+    "type": "defect",
+    "category": "cross-reference",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "entity.NotificationJob",
+      "binding.contactsStore",
+      "operation.goal.save",
+      "operation.connection.revoke",
+      "operation.data.delete"
+    ],
+    "description": "Dropped the storedIn binding.contactsStore link from entity.NotificationJob.",
+    "why": "NotificationJob is written by three operations and binding.contactsStore says it stores jobs, but the entity no longer has any storage binding.",
+    "subtlety": 2
+  },
+  {
+    "id": "d05",
+    "type": "defect",
+    "category": "cross-reference",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "operation.connection.revoke",
+      "J.control.block",
+      "affordance.ConnectionPanel.block",
+      "S.webapp.prompts",
+      "entity.RelationshipGoal",
+      "entity.Suggestion"
+    ],
+    "description": "Removed goal pausing (effect and RelationshipGoal/Suggestion write links) from operation.connection.revoke.",
+    "why": "J.control.block step b4, the Block affordance effects and S.webapp.prompts still require blocking to pause the goal and suppress suggestions, but no operation on that path writes goals or suggestions any more.",
+    "subtlety": 2
+  },
+  {
+    "id": "d06",
+    "type": "defect",
+    "category": "cross-reference",
+    "files": [
+      "journeys/J.control.export.yaml"
+    ],
+    "nodes": [
+      "J.control.export",
+      "operation.data.export",
+      "affordance.ExportControls.export"
+    ],
+    "description": "Pointed J.control.export step x2 directly to the export step x4.",
+    "why": "The path now skips the reauthentication check x3 (which becomes unreachable along with f1/e2) although operation.data.export requires owner reauthentication.",
+    "subtlety": 2
+  },
+  {
+    "id": "d07",
+    "type": "defect",
+    "category": "cross-reference",
+    "files": [
+      "things/webapp/criteria.yaml"
+    ],
+    "nodes": [
+      "C.webapp.prompts.bounded",
+      "screen.today"
+    ],
+    "description": "Changed the subject of C.webapp.prompts.bounded to screen.home.",
+    "why": "No screen.home exists; the Today screen it tests is screen.today, so the criterion's subject dangles.",
+    "subtlety": 1
+  },
+  {
+    "id": "d08",
+    "type": "defect",
+    "category": "cross-reference",
+    "files": [
+      "things/webapp/criteria.yaml"
+    ],
+    "nodes": [
+      "C.webapp.lifecycle.data",
+      "hook.webapp.lifecycle.data"
+    ],
+    "description": "Changed C.webapp.lifecycle.data to reference hook.webapp.lifecycle.export.",
+    "why": "That hook does not exist, while hook.webapp.lifecycle.data still claims the criterion, so the criterion has no executable hook.",
+    "subtlety": 1
+  },
+  {
+    "id": "d09",
+    "type": "defect",
+    "category": "cross-reference",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "component.PrimaryNav",
+      "screen.settings",
+      "S.webapp.screens",
+      "J.control.export",
+      "J.control.delete"
+    ],
+    "description": "Removed Settings from PrimaryNav (link and description).",
+    "why": "S.webapp.screens requires PrimaryNav to contain Today, People and Settings, and the export/delete journeys start by opening Settings, which is now unreachable from navigation.",
+    "subtlety": 2
+  },
+  {
+    "id": "d10",
+    "type": "defect",
+    "category": "cross-reference",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "affordance.AddContactDialog.save",
+      "operation.contact.save",
+      "operation.contact.log",
+      "J.contacts"
+    ],
+    "description": "Changed the AddContactDialog Save affordance's invokes link to operation.contact.log.",
+    "why": "Its own effects text, J.contacts step s4 and C.webapp.contact.save all say it saves a contact via operation.contact.save; logging a contact event is a different operation.",
+    "subtlety": 2
+  },
+  {
+    "id": "d11",
+    "type": "defect",
+    "category": "semantic",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "operation.contact.log",
+      "S.webapp.qualification",
+      "entity.ContactEvent",
+      "affordance.ContactEventForm.save",
+      "J.contact"
+    ],
+    "description": "Reworded an effect of operation.contact.log so any logged contact counts toward the goal.",
+    "why": "S.webapp.qualification, the ContactEvent invariant and J.contact e2 say an event qualifies only when the owner explicitly marks Met this goal.",
+    "subtlety": 2
+  },
+  {
+    "id": "d12",
+    "type": "defect",
+    "category": "semantic",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "affordance.PersonActionBar.openChannel",
+      "commitment.personal-initiation",
+      "GD.prompts",
+      "J.contact",
+      "T2"
+    ],
+    "description": "Changed an Open channel effect to log a contact event automatically.",
+    "why": "commitment.personal-initiation, GD.prompts and J.contact c3 say opening a channel never completes a goal, and T2 notes an opened channel is not proof of contact.",
+    "subtlety": 1
+  },
+  {
+    "id": "d13",
+    "type": "defect",
+    "category": "semantic",
+    "files": [
+      "journeys/J.prompts.yaml"
+    ],
+    "nodes": [
+      "J.prompts",
+      "commitment.finite-incoming",
+      "S.webapp.prompts",
+      "screen.today",
+      "C.webapp.prompts.bounded"
+    ],
+    "description": "Changed J.prompts step p2 to show up to ten suggestions.",
+    "why": "commitment.finite-incoming, S.webapp.prompts, screen.today and C.webapp.prompts.bounded all cap Today at five suggestions.",
+    "subtlety": 2
+  },
+  {
+    "id": "d14",
+    "type": "defect",
+    "category": "semantic",
+    "files": [
+      "journeys/J.connect.yaml"
+    ],
+    "nodes": [
+      "J.connect",
+      "entity.RelationshipGoal",
+      "P1",
+      "commitment.owner-cadence"
+    ],
+    "description": "Rewrote J.connect end step e1 to say each connected person sees the other's goal for them.",
+    "why": "RelationshipGoal is owner-only and 'never exposed to its contact', and P1's constraint says connecting does not turn private goals into shared data.",
+    "subtlety": 2
+  },
+  {
+    "id": "d15",
+    "type": "defect",
+    "category": "semantic",
+    "files": [
+      "things/webapp/criteria.yaml"
+    ],
+    "nodes": [
+      "C.webapp.schedule.correct",
+      "S.webapp.due",
+      "hook.webapp.schedule.correct"
+    ],
+    "description": "Rewrote C.webapp.schedule.correct to test in UTC and dropped time zones and DST.",
+    "why": "S.webapp.due requires local dates in the owner's IANA time zone with DST fixtures (and the hook still names IANA zones and DST), so the criterion no longer tests what it refines.",
+    "subtlety": 3
+  },
+  {
+    "id": "d16",
+    "type": "defect",
+    "category": "semantic",
+    "files": [
+      "theory.yaml"
+    ],
+    "nodes": [
+      "T2",
+      "P1",
+      "S.webapp.scope"
+    ],
+    "description": "Changed T2's indicator to messages sent through the app per week.",
+    "why": "P1 lists message volume as a diagnostic-only non-goal and S.webapp.scope disables in-app messaging, so the indicator measures something the system neither targets nor offers.",
+    "subtlety": 2
+  },
+  {
+    "id": "d17",
+    "type": "defect",
+    "category": "semantic",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "policy.revocation",
+      "S.webapp.concurrency",
+      "C.webapp.revocation.current",
+      "J.control.disconnect"
+    ],
+    "description": "Reworded policy.revocation to authorize against permissions captured at session start.",
+    "why": "S.webapp.concurrency, C.webapp.revocation.current and J.control.disconnect d4 require revocation to be checked against current authoritative state on every read and send.",
+    "subtlety": 2
+  },
+  {
+    "id": "d18",
+    "type": "defect",
+    "category": "semantic",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "operation.data.delete",
+      "affordance.DeletionControls.delete",
+      "J.control.delete"
+    ],
+    "description": "Changed operation.data.delete to purge live data within thirty days.",
+    "why": "The DeletionControls affordance and J.control.delete step z5 still promise purge within seven days.",
+    "subtlety": 2
+  },
+  {
+    "id": "d19",
+    "type": "defect",
+    "category": "semantic",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "affordance.ConnectionPanel.disconnect",
+      "J.control.disconnect",
+      "P1",
+      "operation.connection.revoke"
+    ],
+    "description": "Changed the Disconnect affordance effect to delete the owner's ContactRecord.",
+    "why": "J.control.disconnect's actor goal and end step say the private record remains, and P1 keeps private contacts under the owner's control independent of connections.",
+    "subtlety": 2
+  },
+  {
+    "id": "d20",
+    "type": "defect",
+    "category": "semantic",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "affordance.ConnectionPanel.invite",
+      "commitment.one-to-one",
+      "C.system.topology",
+      "C.webapp.outgoing.single"
+    ],
+    "description": "Extended the Invite affordance to invite several selected contacts at once.",
+    "why": "commitment.one-to-one and C.system.topology require exactly one target per send request; a multi-recipient invite is a bulk send.",
+    "subtlety": 3
+  },
+  {
+    "id": "d21",
+    "type": "defect",
+    "category": "local",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "affordance.ExportControls.export"
+    ],
+    "description": "Emptied the effects of the Export affordance.",
+    "why": "An affordance with no effect does nothing observable; the export control is incomplete.",
+    "subtlety": 1
+  },
+  {
+    "id": "d22",
+    "type": "defect",
+    "category": "local",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "component.UnavailablePanel"
+    ],
+    "description": "Replaced the UnavailablePanel description with 'TBD'.",
+    "why": "A placeholder description leaves the component unspecified.",
+    "subtlety": 1
+  },
+  {
+    "id": "d23",
+    "type": "defect",
+    "category": "local",
+    "files": [
+      "things/webapp/criteria.yaml"
+    ],
+    "nodes": [
+      "hook.webapp.screen.exact"
+    ],
+    "description": "Set hook.webapp.screen.exact timeoutMs to 120.",
+    "why": "A 120 ms timeout for a browser fixture over all screens is a unit slip (seconds vs ms) that makes the hook fail by construction.",
+    "subtlety": 3
+  },
+  {
+    "id": "d24",
+    "type": "defect",
+    "category": "local",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "operation.goal.save"
+    ],
+    "description": "Replaced operation.goal.save's description with a TODO placeholder.",
+    "why": "The operation description is a placeholder rather than content.",
+    "subtlety": 1
+  },
+  {
+    "id": "d25",
+    "type": "defect",
+    "category": "local",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "affordance.ConsentPanel.decline"
+    ],
+    "description": "Removed actor and trigger from the Decline affordance.",
+    "why": "An affordance without an actor or trigger is incomplete; every other affordance declares both.",
+    "subtlety": 2
+  },
+  {
+    "id": "d26",
+    "type": "defect",
+    "category": "local",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "entity.ContactEvent"
+    ],
+    "description": "Misspelled the type of ContactEvent.occurredAt as 'timestmap'.",
+    "why": "The field type is not a valid type name.",
+    "subtlety": 2
+  },
+  {
+    "id": "d27",
+    "type": "defect",
+    "category": "local",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "screen.goal"
+    ],
+    "description": "Removed the route from screen.goal.",
+    "why": "Every screen has a route; the Goal screen (target of Edit goal navigation) now has none.",
+    "subtlety": 2
+  },
+  {
+    "id": "d28",
+    "type": "defect",
+    "category": "local",
+    "files": [
+      "journeys/J.goals.yaml"
+    ],
+    "nodes": [
+      "J.goals"
+    ],
+    "description": "Dropped the 'when: cancel' condition from one branch option of J.goals step g5.",
+    "why": "A branch step with an unconditioned option among conditioned ones is ambiguous about when that path is taken.",
+    "subtlety": 2
+  },
+  {
+    "id": "d29",
+    "type": "defect",
+    "category": "local",
+    "files": [
+      "things/webapp/criteria.yaml"
+    ],
+    "nodes": [
+      "C.webapp.revocation.current"
+    ],
+    "description": "Emptied the gates list of C.webapp.revocation.current.",
+    "why": "A criterion with no gates is never enforced anywhere.",
+    "subtlety": 2
+  },
+  {
+    "id": "d30",
+    "type": "defect",
+    "category": "local",
+    "files": [
+      "externals.yaml"
+    ],
+    "nodes": [
+      "ext.device"
+    ],
+    "description": "Changed ext.device's kind from device to person.",
+    "why": "The external is a browser/device, not a person; the kind is wrong.",
+    "subtlety": 2
+  },
+  {
+    "id": "c01",
+    "type": "control",
+    "category": "control",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "screen.signin"
+    ],
+    "description": "Reworded the Sign in screen description.",
+    "why": "Same composition and same no-private-content rule, just different wording.",
+    "subtlety": 1
+  },
+  {
+    "id": "c02",
+    "type": "control",
+    "category": "control",
+    "files": [
+      "kits.yaml"
+    ],
+    "nodes": [
+      "kits"
+    ],
+    "description": "Swapped the order of the privacy and consent kit pins.",
+    "why": "Pinned kits are a set; order carries no meaning and both stay pinned at version 1.",
+    "subtlety": 1
+  },
+  {
+    "id": "c03",
+    "type": "control",
+    "category": "control",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "entity.Block"
+    ],
+    "description": "Added a clarifying sentence that a Block record runs from blocker to blocked.",
+    "why": "This restates what the blockerAccountId/blockedAccountId fields already encode; 'block in either direction' checks still hold.",
+    "subtlety": 1
+  },
+  {
+    "id": "c04",
+    "type": "control",
+    "category": "control",
+    "files": [
+      "things/webapp/ontology.yaml"
+    ],
+    "nodes": [
+      "entity.ContactRecord"
+    ],
+    "description": "Swapped the order of two ContactRecord invariants.",
+    "why": "Invariants are an unordered conjunction; reordering changes nothing.",
+    "subtlety": 1
+  },
+  {
+    "id": "c05",
+    "type": "control",
+    "category": "control",
+    "files": [
+      "journeys/J.control.export.yaml"
+    ],
+    "nodes": [
+      "J.control.export"
+    ],
+    "description": "Reworded J.control.export end step e2.",
+    "why": "Same meaning as before.",
+    "subtlety": 1
+  }
+]

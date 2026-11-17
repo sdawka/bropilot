@@ -1,0 +1,12 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d20/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d20/things/webapp/ontology.yaml	2026-11-17 09:53:06
+@@ -303,7 +303,7 @@
+             actor: ext.owner
+             trigger: Owner activates Invite
+             preconditions: [Contact is not connected, No block in either direction]
+-            effects: [Invokes operation.invite.create and shows the invitation QR or connection code]
++            effects: [Invokes operation.invite.create for this contact and any other selected contacts, and shows the invitation QR or connection code]
+             failure: [Not available when already connected or blocked]
+             links:
+               - { rel: invokes, to: operation.invite.create }

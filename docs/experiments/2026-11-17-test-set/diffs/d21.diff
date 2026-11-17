@@ -1,0 +1,12 @@
+diff -ru clean/things/webapp/ontology.yaml variants/d21/things/webapp/ontology.yaml
+--- clean/things/webapp/ontology.yaml	2026-10-12 14:42:14
++++ variants/d21/things/webapp/ontology.yaml	2026-11-17 09:53:06
+@@ -603,7 +603,7 @@
+             actor: ext.owner
+             trigger: Owner reauthenticates and activates Export
+             preconditions: [Owner reauthentication]
+-            effects: [Export authorized records of the authenticated owner only]
++            effects: []
+             failure: [Reauthentication failure denies the export]
+             links:
+               - { rel: invokes, to: operation.data.export }
