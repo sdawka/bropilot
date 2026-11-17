@@ -109,3 +109,7 @@ Decision (user): preserve guidance on how to write a good ontology, with the cri
 ## 2026-10-13T04:10:00-04:00 — Ontology criteria are per-kind authoring checklists
 
 Decision (user, clarifying the 02:05 entry): the criteria an ontology carries are the concrete requirements a good node of each kind must meet, written by the ontology author. Examples given: each use case is described in Given/When/Then form; a screen (under the UI or design node) has explicit signifiers, affordances and feedback; a component has an empty state; non-static data has a loading state. The engine applies each criterion at its level as its own check, with parent criteria covering consistency among children. The generic instance, tangibility and testability wording is a separate, general layer.
+
+## 2026-11-17T08:47:00-06:00 — Application first, general library second
+
+Decision (user): build one application first and extract the general ontology library from it, rather than building the general abstraction first. The first application is a spec linter for AI-built apps on the artyfact template (System > Thing > Section > Page > Component > Affordance). This follows a research round on reuse models, candidate applications and a skeptic review; the earlier idea of making a template itself a graph under a meta-template is set aside for now.

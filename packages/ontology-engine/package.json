@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:live": "vitest run test/semantic/live.test.ts",
     "test:route:live": "vitest run test/route/live.test.ts",
-    "typecheck": "tsc -p . --noEmit"
+    "typecheck": "tsc -p . --noEmit",
+    "lint:system": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./bin/ts-resolve.mjs bin/lint.ts"
   },
   "dependencies": {
     "yaml": "^2.9.1",

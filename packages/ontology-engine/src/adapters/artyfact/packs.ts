@@ -68,6 +68,7 @@ export const facts = { id: "artyfact.facts", version: "1", source: `
 .decl astepOperation(Operation: sym)
 .decl astepRef(Journey: sym, Step: sym, Id: sym)
 .decl stepRefRel(Rel: sym)
+.decl aancestor(X: sym, A: sym)
 
 ${CROSS}
 stepRefRel("stepScreen").
@@ -87,6 +88,9 @@ asystem(S) :- node(S,"system","").
 athing(T,Tpl) :- node(T,"thing",_), link(T,"pinned",Tpl,_).
 athing(T,"") :- node(T,"thing",_), not pinsTemplate(T).
 aparent(C,P) :- parent(C,P), node(C,K,_), K != "step".
+% Containment closure, for packs that look several tree levels apart; terminates on containment cycles.
+aancestor(X,A) :- aparent(X,A).
+aancestor(X,A) :- aparent(X,Y), aancestor(Y,A).
 
 aknown(X) :- node(X,K,_), K != "artifact", K != "kit".
 aknown(K) :- link(_,"pinned",K,_), node(K,"kit",_).
@@ -393,4 +397,90 @@ outgoingDirect(A) :- anode(A,"affordance",_), link(A,"invokes",Op,_), outgoingDi
 violation("topology.pairCardinality",E,"hard") :- connection(E), not accountRefField(E,_).
 violation("topology.pairCardinality",E,"hard") :- connection(E), N = count : accountRefField(E,_), N != 2.
 semanticCandidate("topology.multiRecipient",N,T) :- aeffectText(N,T), matches(T,"${ci("recipient")}").
+` };
+
+export const flow = { id: "artyfact.flow", version: "1", source: `
+% artyfact.flow@1 - long-distance checks over artyfact.facts@1: data flow between operations, the UI and storage,
+% UI-to-operation reachability in journeys, and guard paths. Every rule here is a warning: each has legitimate exceptions.
+% An external linked to an entity in either direction (triggers, dependsOn, ...) counts as a source or sink.
+
+.decl link(From: sym, Rel: sym, To: sym, Certainty: sym)
+.decl node(Id: sym, Kind: sym, Parent: sym)
+.decl field(Node: sym, Field: sym, Value: sym)
+.decl provisional(Id: sym)
+.decl anode(Id: sym, Kind: sym, Thing: sym)
+.decl aancestor(X: sym, A: sym)
+.decl apolicyMode(Policy: sym, Mode: sym)
+.decl ajourney(Id: sym, Start: sym)
+.decl astepOf(Key: sym, Journey: sym, Step: sym)
+.decl flowEntity(E: sym)
+.decl flowWritten(E: sym)
+.decl flowRead(E: sym)
+.decl flowBoundary(E: sym)
+.decl flowStored(E: sym)
+.decl flowShown(E: sym)
+.decl flowEffect(Affordance: sym, E: sym)
+.decl flowHosts(Screen: sym, Affordance: sym)
+.decl flowControl(Screen: sym, Op: sym)
+.decl flowHumanStep(Step: sym)
+.decl flowPolicyAt(X: sym, Policy: sym)
+.decl flowOwnGoverned(X: sym)
+.decl flowGuardScreen(Op: sym, Screen: sym)
+.decl flowUiGuardedOnly(Op: sym)
+.decl flowStepOnGuard(Step: sym, Op: sym)
+.decl flowUnguardedReach(Step: sym, Op: sym)
+.decl warning(Rule: sym, Subject: sym) .output
+
+.message "flow.orphanWrite" "Entity {1} is written but nothing reads it and no external receives it."
+.message "flow.readNoWriter" "Entity {1} is read but nothing writes it and no external supplies it."
+.message "flow.unstored" "Entity {1} is read or written but stored in no non-provisional binding."
+.message "flow.effectUnsurfaced" "Affordance {1} changes an entity that no screen or component shows and no external receives, so the person never sees the effect."
+.message "flow.stepWithoutControl" "Journey step {1} has a person trigger an operation on a screen with no affordance that invokes it."
+.message "flow.guardBypass" "Journey step {1} reaches an operation governed only through a screen's affordance, by a path that never visits that screen."
+.message "flow.privateShownUnguarded" "Component {1} shows owner-only data on a screen that the owner-only policy does not govern."
+
+flowEntity(E) :- anode(E,"entity",_), not provisional(E).
+flowWritten(E) :- link(_,"writes",E,_).
+flowRead(E) :- link(_,"reads",E,_).
+flowBoundary(E) :- link(E,_,X,_), anode(X,"external",_).
+flowBoundary(E) :- link(X,_,E,_), anode(X,"external",_).
+flowStored(E) :- link(E,"storedIn",B,_), not provisional(B).
+flowShown(E) :- link(C,"reads",E,_), anode(C,"component",_).
+flowShown(E) :- link(S,"reads",E,_), anode(S,"screen",_).
+
+warning("flow.orphanWrite",E) :- flowEntity(E), flowWritten(E), not flowRead(E), not flowBoundary(E).
+warning("flow.readNoWriter",E) :- flowEntity(E), flowRead(E), not flowWritten(E), not flowBoundary(E).
+warning("flow.unstored",E) :- flowEntity(E), flowWritten(E), not flowStored(E).
+warning("flow.unstored",E) :- flowEntity(E), flowRead(E), not flowStored(E).
+
+% Affordance -> invokes -> operation -> writes -> entity, with no component or screen anywhere reading it.
+flowEffect(A,E) :- anode(A,"affordance",_), link(A,"invokes",Op,_), link(Op,"writes",E,_).
+flowEffect(A,E) :- anode(A,"affordance",_), link(A,"writes",E,_).
+warning("flow.effectUnsurfaced",A) :- flowEffect(A,E), not provisional(A), flowEntity(E), not flowShown(E), not flowBoundary(E).
+
+% A step where a person acts on screen S and triggers Op, but no affordance contained (at any depth) in S invokes Op.
+flowHosts(S,A) :- anode(A,"affordance",_), aancestor(A,S), anode(S,"screen",_).
+flowControl(S,Op) :- flowHosts(S,A), link(A,"invokes",Op,_).
+flowHumanStep(K) :- node(K,"step",_), field(K,"actor","user").
+flowHumanStep(K) :- node(K,"step",_), field(K,"actor","counterpart").
+warning("flow.stepWithoutControl",K) :- flowHumanStep(K), link(K,"stepOperation",Op,_), link(K,"stepScreen",S,_), not flowControl(S,Op).
+
+% Guard paths. An operation not governed itself (directly, through an ancestor or what it inherits) may still be
+% governed through an affordance that invokes it; that guard holds only on the screens hosting such an affordance.
+% A journey path from the start step to a step running the operation that visits none of those screens bypasses it.
+% Reachability is a least fixpoint over stepNext, so cyclic journeys terminate.
+flowPolicyAt(X,P) :- link(P,"governs",X,_), anode(P,"policy",_).
+flowPolicyAt(X,P) :- aancestor(X,A), link(P,"governs",A,_), anode(P,"policy",_).
+flowOwnGoverned(X) :- flowPolicyAt(X,_).
+flowOwnGoverned(X) :- link(X,"inherits",Y,_), flowOwnGoverned(Y).
+flowGuardScreen(Op,S) :- flowHosts(S,A), link(A,"invokes",Op,_), flowPolicyAt(A,_).
+flowUiGuardedOnly(Op) :- flowGuardScreen(Op,_), anode(Op,"operation",_), not flowOwnGoverned(Op).
+flowStepOnGuard(K,Op) :- link(K,"stepScreen",S,_), flowGuardScreen(Op,S).
+flowUnguardedReach(K,Op) :- ajourney(J,St), astepOf(K,J,St), flowUiGuardedOnly(Op), not flowStepOnGuard(K,Op).
+flowUnguardedReach(K2,Op) :- flowUnguardedReach(K,Op), link(K,"stepNext",K2,_), not flowStepOnGuard(K2,Op).
+warning("flow.guardBypass",K) :- flowUnguardedReach(K,Op), link(K,"stepOperation",Op,_).
+
+% Owner-only data reaching a screen outside that policy: component reads an entity governed owner-only (directly or
+% through an ancestor), and the screen containing the component is not governed by that policy.
+warning("flow.privateShownUnguarded",C) :- anode(C,"component",_), link(C,"reads",E,_), flowPolicyAt(E,P), apolicyMode(P,"owner-only"), aancestor(C,S), anode(S,"screen",_), not flowPolicyAt(S,P).
 ` };

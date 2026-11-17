@@ -100,6 +100,19 @@ The base template runs `artyfact.facts@1`, which derives `a`-prefixed artyfact r
 
 Not carried over: a cross link's `label` and `source`, whether `refines` came from a field or a cross link, and whether a thing's sections were defaulted from its template.
 
+### Spec linter
+
+`artyfactLint` (`template.meta.artyfact-lint@1`) extends the base template with `artyfact.flow@1`, long-distance checks whose findings depend on facts several links or tree levels apart. It is a separate template so the base keeps findings parity with artyfact. `artyfact.facts@1` provides `aancestor(X, A)`, the containment closure, for any pack. Every flow rule is a warning; an external linked to an entity in either direction counts as a source or sink.
+
+- `flow.orphanWrite` / `flow.readNoWriter`: an entity written but read by nothing, or read but written by nothing.
+- `flow.unstored`: an entity read or written but stored in no non-provisional binding.
+- `flow.effectUnsurfaced`: an affordance invokes an operation that writes an entity no screen or component shows.
+- `flow.stepWithoutControl`: a user or counterpart step runs an operation on a screen with no affordance (at any depth) that invokes it.
+- `flow.guardBypass`: an operation governed only through an invoking affordance's policy is reached by a journey path from the start step that visits none of the screens hosting such an affordance (a fixpoint over `stepNext`, so cycles terminate).
+- `flow.privateShownUnguarded`: a component shows an entity governed owner-only on a screen that policy does not govern.
+
+`npm run lint:system -- <system-dir> [--templates <dir>] [--json]` prints a summary line, then findings by level, with the input facts behind each flow finding; `--json` prints the Readiness. Without `--templates` it uses the nearest `packages/templates` above the system directory. It exits 1 on any error finding. The script runs the TypeScript sources on Node 24 with `--experimental-transform-types` and `bin/ts-resolve.mjs`, which resolves extensionless imports; no extra dependency.
+
 ## Product specs
 
 Two templates that share no vocabulary with artyfact, evaluated by the same engine without engine changes.

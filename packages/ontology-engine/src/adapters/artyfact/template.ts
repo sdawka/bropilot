@@ -1,5 +1,6 @@
 import type { Check, KindCriteria, TemplateInput } from "../../meta/schema";
-import { authorization, facts, journeys, metamodel, readiness, theory, topologyPrivatePairs } from "./packs";
+import { ARTYFACT_GENOME } from "./graph";
+import { authorization, facts, flow, journeys, metamodel, readiness, theory, topologyPrivatePairs } from "./packs";
 import * as schema from "./schema";
 
 type FieldType = "string" | "number" | "boolean" | "ref" | "list" | "object";
@@ -176,4 +177,18 @@ export const artyfactGenome: TemplateInput = {
     policy: [{ answer: "no", level: "pass" }, { answer: "yes", level: "error" }],
   }],
   rules: [facts, metamodel, readiness, authorization, journeys, theory, topologyPrivatePairs],
+};
+
+export const ARTYFACT_LINT = "template.meta.artyfact-lint@1";
+
+/**
+ * The genome plus the long-distance `artyfact.flow@1` pack, for the spec linter. A separate template so evaluations
+ * under the genome keep their findings parity with artyfact's own packs. Load it with `artyfactMetaStore`.
+ */
+export const artyfactLint: TemplateInput = {
+  id: "template.meta.artyfact-lint",
+  version: 1,
+  meta: 1,
+  extends: ARTYFACT_GENOME,
+  rules: [flow],
 };
