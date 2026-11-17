@@ -113,3 +113,7 @@ Decision (user, clarifying the 02:05 entry): the criteria an ontology carries ar
 ## 2026-11-17T08:47:00-06:00 — Application first, general library second
 
 Decision (user): build one application first and extract the general ontology library from it, rather than building the general abstraction first. The first application is a spec linter for AI-built apps on the artyfact template (System > Thing > Section > Page > Component > Affordance). This follows a research round on reuse models, candidate applications and a skeptic review; the earlier idea of making a template itself a graph under a meta-template is set aside for now.
+
+## 2026-11-17T09:05:00-06:00 — Spec linter slice: commit only, no PR
+
+Decision (user): for the spec linter slice and its kill test, commit to the branch without opening a PR; the kill-test design and seeding were left to Claude's judgement.
