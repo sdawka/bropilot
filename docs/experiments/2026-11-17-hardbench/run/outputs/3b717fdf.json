@@ -1,0 +1,23 @@
+{
+ "variant": "f381ab",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.HistoryRow.open"
+   ],
+   "severity": "medium",
+   "summary": "The affordance navigates to /people/:id/events/:eventId, but no screen in the spec declares that route; screen.logContact only covers /people/:id/events/new, so the event-revision destination is undefined.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "hook.webapp.screen.exact"
+   ],
+   "severity": "medium",
+   "summary": "The fixture now claims to cover /people/:id/events routes, including the revision route, but no screen defines that route's composition or states, so the browser check has no specified target to verify.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

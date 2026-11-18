@@ -1,0 +1,34 @@
+{
+ "variant": "698e3b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "screen.logContact",
+    "entity.ContactEvent"
+   ],
+   "severity": "high",
+   "summary": "Carrying over the previous log's 'Met this goal' choice means a new event can be saved as qualifying without the owner marking it, which contradicts the ContactEvent invariant and removes the former unchecked default.",
+   "evidence": "screen.logContact: \"channel, depth and the Met this goal choice carry over\" (removed: \"Met this goal defaults unchecked\") vs entity.ContactEvent invariant \"Qualifies only when the owner explicitly marks that it met this goal\""
+  },
+  {
+   "nodeIds": [
+    "screen.logContact",
+    "component.EventChannelSelect",
+    "component.EventDepthSelect"
+   ],
+   "severity": "medium",
+   "summary": "The prefill behaviour has no defined default for a person with no previous log, even though the spec explicitly covers the zero-logs case elsewhere.",
+   "evidence": "\"The form opens prefilled from this person's previous log\"; \"Prefilled with the channel of this person's previous log\"; C.webapp.schedule.correct covers \"zero logs\""
+  },
+  {
+   "nodeIds": [
+    "J.contact/c4"
+   ],
+   "severity": "low",
+   "summary": "The form-prefill description was attached to step c4, which runs on screen.person; the ContactEventForm actually opens at step c5 on screen.logContact.",
+   "evidence": "J.contact/c4 action \"Log what happened? The form opens prefilled from the previous log\" with stepScreen screen.person; c5 stepScreen screen.logContact"
+  }
+ ],
+ "unknownIds": []
+}

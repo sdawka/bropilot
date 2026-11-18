@@ -1,0 +1,32 @@
+{
+ "variant": "46753b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.deleteContact",
+    "operation.contact.delete"
+   ],
+   "severity": "high",
+   "summary": "The new affordance says deleted contacts are deleted at once and cannot be restored, contradicting the operation it invokes which soft-deletes with a 30-day restore window.",
+   "evidence": "affordance effects: \"The contact, its goal and its history are deleted at once and cannot be restored\" vs operation.contact.delete: \"they stay restorable for 30 days and are then purged\"; criteria: \"A deleted contact stays restorable for 30 days\""
+  },
+  {
+   "nodeIds": [
+    "operation.contact.delete"
+   ],
+   "severity": "medium",
+   "summary": "The operation promises the owner can restore a contact for 30 days but no restore operation, affordance, or journey is defined.",
+   "evidence": "effects: [..., The owner can restore the contact for 30 days, ...] with no operation.contact.restore or restore affordance added"
+  },
+  {
+   "nodeIds": [
+    "J.contacts.remove"
+   ],
+   "severity": "low",
+   "summary": "The journey step r3 states contact, goal and history are deleted, matching the affordance's immediate-delete wording rather than the operation's soft-delete semantics.",
+   "evidence": "r3 action: \"Contact, goal and history deleted; pending jobs cancelled\""
+  }
+ ],
+ "unknownIds": []
+}

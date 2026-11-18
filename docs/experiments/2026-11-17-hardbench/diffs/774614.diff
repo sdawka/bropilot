@@ -1,0 +1,90 @@
+--- a/evolutions/evolution.2.yaml
++++ b/evolutions/evolution.2.yaml
+@@ -13,7 +13,7 @@
+ - screen.today
+ acceptanceCriteria:
+ - C.webapp.schedule.correct
+-- C.webapp.prompts.bounded
++- C.webapp.prompts.cards
+ dependsOn:
+ - evolution.1
+ risk: medium
+--- a/evolutions/evolution.4.yaml
++++ b/evolutions/evolution.4.yaml
+@@ -14,7 +14,8 @@
+ - screen.today
+ acceptanceCriteria:
+ - C.webapp.lifecycle.data
+-- C.webapp.prompts.bounded
++- C.webapp.prompts.cards
++- C.webapp.reminders.daily
+ dependsOn:
+ - evolution.3
+ risk: medium
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -46,9 +46,9 @@
+     sourceRefs: [S.webapp.qualification, S.webapp.due]
+     gates: [candidate, promotion]
+     hooks: [hook.webapp.schedule.correct]
+-  - id: C.webapp.prompts.bounded
+-    title: Bounded prompts
+-    claim: "Six due goals yield exactly five ordered cards. Duplicate jobs must not duplicate prompts or owner reminders"
++  - id: C.webapp.prompts.cards
++    title: Bounded cards
++    claim: "Six due goals yield exactly five ordered cards. Duplicate jobs must not duplicate prompts"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: screen
+@@ -57,7 +57,19 @@
+     sourceRefs: [S.webapp.prompts]
+     satisfies: [C.system.autonomy]
+     gates: [candidate, promotion]
+-    hooks: [hook.webapp.prompts.bounded]
++    hooks: [hook.webapp.prompts.cards]
++  - id: C.webapp.reminders.daily
++    title: Daily reminder bound
++    claim: "At most one external owner reminder per local day, with a link and no contact details. Duplicate jobs must not duplicate reminders"
++    ownerKind: thing
++    ownerId: thing.webapp
++    subjectKind: entity
++    subjectId: entity.NotificationJob
++    targetKind: artifact
++    sourceRefs: [S.webapp.prompts]
++    satisfies: [C.system.autonomy]
++    gates: [candidate, promotion]
++    hooks: [hook.webapp.reminders.daily]
+   - id: C.webapp.screen.exact
+     title: Screen composition
+     claim: "Protected browser fixture checks loaded, empty, loading, error and validation compositions, login continuation and keyboard actions"
+@@ -199,15 +211,27 @@
+     timeoutMs: 60000
+     costTier: cheap
+     binding: defined
+-  - id: hook.webapp.prompts.bounded
+-    assay: webapp.prompts.bounded
+-    criteria: [C.webapp.prompts.bounded]
++  - id: hook.webapp.prompts.cards
++    assay: webapp.prompts.cards
++    criteria: [C.webapp.prompts.cards]
+     tier: execution
+     engine: vitest
+     targetKind: artifact
+     triggers: [candidate, promotion]
+     inputs:
+       fixture: "six due goals yield five ordered cards"
++    timeoutMs: 60000
++    costTier: cheap
++    binding: defined
++  - id: hook.webapp.reminders.daily
++    assay: webapp.reminders.daily
++    criteria: [C.webapp.reminders.daily]
++    tier: execution
++    engine: vitest
++    targetKind: artifact
++    triggers: [candidate, promotion]
++    inputs:
++      fixture: "duplicate jobs, one reminder per local day, no contact details"
+     timeoutMs: 60000
+     costTier: cheap
+     binding: defined

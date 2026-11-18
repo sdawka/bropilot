@@ -1,0 +1,33 @@
+{
+ "variant": "27bc02",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.AddContactDialog.save",
+    "component.AddContactBirthdayField"
+   ],
+   "severity": "high",
+   "summary": "The Save precondition now requires a nonblank birthday, but the birthday is described as optional everywhere else.",
+   "evidence": "preconditions: [Owner session, Nonblank name, Nonblank birthday] vs. description: Optional birthday as month and day; C.webapp.contact.save: \"an optional month-day birthday\""
+  },
+  {
+   "nodeIds": [
+    "component.AddContactBirthdayField"
+   ],
+   "severity": "medium",
+   "summary": "The birthday field has cardinality 'exactly one' while its description and the dialog description call it optional, unlike the sibling ChannelFields, which uses 'optional'.",
+   "evidence": "cardinality: exactly one / description: Optional birthday as month and day"
+  },
+  {
+   "nodeIds": [
+    "entity.ContactRecord",
+    "component.AddContactBirthdayField"
+   ],
+   "severity": "medium",
+   "summary": "The birthday attribute is typed local-date, which requires a year, but the field allows the year to be left blank and the criterion validates a month-day value.",
+   "evidence": "{ name: birthday, type: local-date, optional: true } vs. \"the year may be left blank\" and \"optional month-day birthday\""
+  }
+ ],
+ "unknownIds": []
+}

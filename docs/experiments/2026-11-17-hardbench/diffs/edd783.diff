@@ -1,0 +1,48 @@
+--- a/evolutions/evolution.7.yaml
++++ b/evolutions/evolution.7.yaml
+@@ -0,0 +1,12 @@
++id: evolution.7
++title: Faster goal editing
++intent: Save goal edits in one step and show the resulting schedule afterwards; browser fixtures
++state: proposed
++kind: implementation
++affectedNodes:
++- affordance.GoalForm.save
++acceptanceCriteria:
++- C.webapp.screen.exact
++dependsOn:
++- evolution.2
++risk: low
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -60,7 +60,7 @@
+     hooks: [hook.webapp.prompts.bounded]
+   - id: C.webapp.screen.exact
+     title: Screen composition
+-    claim: "Protected browser fixture checks loaded, empty, loading, error and validation compositions, login continuation and keyboard actions"
++    claim: "Protected browser fixture checks loaded, empty, loading, error and validation compositions, immediate goal save, login continuation and keyboard actions"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: section
+@@ -219,7 +219,7 @@
+     targetKind: artifact
+     triggers: [candidate, promotion]
+     inputs:
+-      fixture: "protected browser fixture over all screens"
++      fixture: "protected browser fixture over all screens incl. immediate goal save"
+     timeoutMs: 120000
+     costTier: expensive
+     binding: defined
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -416,8 +416,9 @@
+             trigger: Owner activates Save
+             preconditions: [Owned contact, Valid interval]
+             effects:
+-              - Invokes operation.goal.save
++              - Invokes operation.goal.save as soon as Save is activated, without a separate review step
+               - Increment goal version, recompute due state and cancel obsolete jobs
++              - After saving, SchedulePreview shows the new due date and which past events now qualify
+             failure:
+               - Validation failure keeps entered values and renders one ErrorSummary
+               - Stale version returns conflict

@@ -1,0 +1,35 @@
+{
+ "variant": "6fa350",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.ContactRecord",
+    "operation.data.export",
+    "J.control.export"
+   ],
+   "severity": "high",
+   "summary": "The change adds a ContactRecord invariant that private notes are never exported, but in the same change the export operation and the export journey both say each exported contact includes its private notes.",
+   "evidence": "entity.ContactRecord invariants: \"Private notes are never included in an export\" vs operation.data.export effects: \"Each exported contact includes its private notes\" and J.control.export x4: \"Export authorized records of the authenticated owner only, with each contact's private notes\""
+  },
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export",
+    "operation.data.export"
+   ],
+   "severity": "low",
+   "summary": "The Export affordance's effects were not updated to match the changed export operation, so the UI-level description of export no longer matches what the operation does.",
+   "evidence": "affordance.ExportControls.export effects: [Export authorized records of the authenticated owner only] vs operation.data.export effects: [..., Each exported contact includes its private notes, ...]"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.contact.storage",
+    "hook.webapp.contact.storage"
+   ],
+   "severity": "low",
+   "summary": "The criterion now checks the private notes column, but its hook fixture still covers only owner and version constraints, so the new claim has no executable evidence.",
+   "evidence": "claim: \"Checks owner and version constraints, the private notes column and authorized persistence...\" vs hook inputs fixture: \"owner and version constraints via binding.contactsStore\""
+  }
+ ],
+ "unknownIds": []
+}

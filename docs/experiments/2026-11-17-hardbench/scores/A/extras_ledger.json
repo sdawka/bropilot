@@ -1,0 +1,1451 @@
+[
+ {
+  "claimId": "04db7c-c1",
+  "variants": [
+   "04db7c"
+  ],
+  "outputs": [
+   "33581166",
+   "ddf1bc81"
+  ],
+  "claim": "Account description mentions the reminder hour but Account gains no field; NotificationPreferences has no write link/affordance to persist the choice",
+  "label": "false",
+  "reason": "The hour is part of notificationPreferences (json), as the description says ('notification preferences, including the local hour'). The clean spec has no preference-editing affordance either."
+ },
+ {
+  "claimId": "04db7c-c2",
+  "variants": [
+   "04db7c"
+  ],
+  "outputs": [
+   "45c4f4c8",
+   "5960ecbb",
+   "a2980f2a",
+   "ddf1bc81"
+  ],
+  "claim": "hook.webapp.prompts.bounded fixture now tests reminder timing but C.webapp.prompts.bounded claim not updated; DST skip/fall-back rule has no fixture",
+  "label": "false",
+  "reason": "Coverage nit; S.webapp.due already requires DST fixtures."
+ },
+ {
+  "claimId": "04db7c-c3",
+  "variants": [
+   "04db7c"
+  ],
+  "outputs": [
+   "5960ecbb",
+   "a2980f2a"
+  ],
+  "claim": "C.webapp.prompts.bounded gates evolution.2, but reminder transport only arrives in evolution.4, so evolution.2 cannot pass the extended fixture",
+  "label": "false",
+  "reason": "The clean criterion already covers owner reminders ('Duplicate jobs must not duplicate prompts or owner reminders') and also gates evolution.4; the change does not alter the evolution structure."
+ },
+ {
+  "claimId": "04db7c-c4",
+  "variants": [
+   "04db7c"
+  ],
+  "outputs": [
+   "45c4f4c8",
+   "5960ecbb",
+   "a2980f2a",
+   "ddf1bc81"
+  ],
+  "claim": "NotificationJob.localHour is an unbounded int with no 0..23 range; entity description/invariants not updated",
+  "label": "false",
+  "reason": "Typing nit; other int fields (preferenceVersion, version) are unbounded too."
+ },
+ {
+  "claimId": "089273-c1",
+  "variants": [
+   "089273"
+  ],
+  "outputs": [
+   "001ec5be",
+   "150cc4cd",
+   "1877bfab",
+   "9aacf5df",
+   "da7269f2"
+  ],
+  "claim": "Continue now accepts the invitation but has no invokes link to operation.invite.accept and lacks its preconditions/failure handling (credential validity, self-connection, block, concurrent redemption)",
+  "label": "real-introduced",
+  "subtype": "seeded-symptom",
+  "reason": "True: the edited effect performs acceptance while the affordance keeps only 'Not signed in' and 'Provider unavailable'. It vanishes if the seeded auto-accept is reverted."
+ },
+ {
+  "claimId": "089273-c2",
+  "variants": [
+   "089273"
+  ],
+  "outputs": [
+   "001ec5be",
+   "150cc4cd",
+   "1877bfab",
+   "da7269f2"
+  ],
+  "claim": "ConsentPanel now shown only to already-signed-in invitees, contradicting its unchanged cardinality 'exactly one after validation' and screen.invitation 'Exactly InvitePreview and ConsentPanel after validation'",
+  "label": "real-introduced",
+  "subtype": "second-manifestation",
+  "reason": "Variant ConsentPanel description vs its own cardinality and screen.invitation description: a signed-out invitee who validates the token no longer gets a ConsentPanel. Same root edit as the seeded defect, but a distinct unchanged statement the manifest does not list."
+ },
+ {
+  "claimId": "089273-c3",
+  "variants": [
+   "089273"
+  ],
+  "outputs": [
+   "001ec5be",
+   "150cc4cd",
+   "9aacf5df"
+  ],
+  "claim": "SignInForm names the inviter on the anonymous sign-in screen, violating screen.signin 'no private content'",
+  "label": "false",
+  "reason": "InvitePreview already shows the inviter to the token holder after validation and before sign-in (J.connect s4-s6, screen.invitation), so the inviter's name is not new private content on the sign-in path."
+ },
+ {
+  "claimId": "08b2b8-c1",
+  "variants": [
+   "08b2b8"
+  ],
+  "outputs": [
+   "3711b6ed",
+   "6d4b903f",
+   "9cc1c657",
+   "b69f511f"
+  ],
+  "claim": "'Ending a connection leaves no trace' contradicts operation.connection.revoke's failure clause / S.webapp.concurrency (delivered messages and copied data cannot be retracted)",
+  "label": "unclear",
+  "reason": "Literal tension in the new wording, but in context 'no trace' refers to the owner's own deleted record; it is part of the seeded edit's rationale, not a separate behaviour."
+ },
+ {
+  "claimId": "08b2b8-c2",
+  "variants": [
+   "08b2b8"
+  ],
+  "outputs": [
+   "66d6956c",
+   "e47da255"
+  ],
+  "claim": "C.webapp.revocation.current gains a deletion claim that its hook fixture / sourceRef (S.webapp.concurrency) does not cover",
+  "label": "false",
+  "reason": "Coverage nit; no statement contradicted beyond the seeded defect."
+ },
+ {
+  "claimId": "08b2b8-c3",
+  "variants": [
+   "08b2b8"
+  ],
+  "outputs": [
+   "3711b6ed",
+   "66d6956c",
+   "9cc1c657"
+  ],
+  "claim": "Disconnect now destroys more data than Block, which only pauses the goal (or disconnect after block destroys the paused goal)",
+  "label": "false",
+  "reason": "Design comparison; no stated rule says block must be the stronger action for private data. The only real problem is the seeded one."
+ },
+ {
+  "claimId": "22094b-c1",
+  "variants": [
+   "22094b"
+  ],
+  "outputs": [
+   "21d7ea41",
+   "3c73d19f",
+   "4434796d",
+   "d47f2fe9",
+   "d6ab2dd3"
+  ],
+  "claim": "Exporting contacts' recorded phone and email puts other people's data in the export, contradicting 'Export excludes other people's data' (and the no-contact-details rule)",
+  "label": "false",
+  "reason": "Verified: the clean operation.data.export already reads entity.ContactRecord, whose fields include the owner's own 'channels'. These are the owner's records; 'other people's data' means records owned by other accounts (cf. C.webapp.private.owner). The no-contact-details rule applies to reminders. The manifest's explanation holds."
+ },
+ {
+  "claimId": "22094b-c2",
+  "variants": [
+   "22094b"
+  ],
+  "outputs": [
+   "3c73d19f",
+   "4434796d",
+   "ca4a8df7",
+   "d47f2fe9",
+   "d6ab2dd3"
+  ],
+  "claim": "Channel inclusion added only to the affordance; operation.data.export, lifecycle criterion and fixture don't state or test it",
+  "label": "false",
+  "reason": "The operation's 'Export authorized records' already covers ContactRecord channels; coverage nit."
+ },
+ {
+  "claimId": "22094b-c3",
+  "variants": [
+   "22094b"
+  ],
+  "outputs": [
+   "21d7ea41",
+   "3c73d19f",
+   "4434796d"
+  ],
+  "claim": "JSON/CSV choice lacks a format-selection component; journey x4 and lifecycle criterion don't mention format",
+  "label": "false",
+  "reason": "Wording/coverage nit; no contradiction."
+ },
+ {
+  "claimId": "249a5b-c1",
+  "variants": [
+   "249a5b"
+  ],
+  "outputs": [
+   "485cab8e",
+   "bd445952",
+   "c448e145"
+  ],
+  "claim": "C.webapp.screen.people now names a 'search' state that screen.people does not declare",
+  "label": "false",
+  "reason": "The clean criterion already names a 'dialog' state that screen.people does not declare (dialog states live on AddContactDialog). The criterion lists conditions to check, following the existing pattern."
+ },
+ {
+  "claimId": "249a5b-c2",
+  "variants": [
+   "249a5b"
+  ],
+  "outputs": [
+   "485cab8e",
+   "bd445952",
+   "c448e145"
+  ],
+  "claim": "hook fixtures (private.owner, screen.people) and criteria out of step on search; no search operation/API defined",
+  "label": "false",
+  "reason": "Coverage nit; search is a read over the owner's ContactRecords via ContactCollection's reads link."
+ },
+ {
+  "claimId": "249a5b-c3",
+  "variants": [
+   "249a5b"
+  ],
+  "outputs": [
+   "485cab8e"
+  ],
+  "claim": "No defined outcome for a search with no matches",
+  "label": "false",
+  "reason": "Completeness nit."
+ },
+ {
+  "claimId": "27bc02-c1",
+  "variants": [
+   "27bc02"
+  ],
+  "outputs": [
+   "0cd818dd",
+   "19c1ceb9",
+   "3ebf2a6f",
+   "9b487302",
+   "a9b08801",
+   "cf411cac"
+  ],
+  "claim": "ContactRecord.birthday is typed local-date (full date with year) but the BirthdayField and C.webapp.contact.save define a month-day birthday whose year may be blank",
+  "label": "real-introduced",
+  "subtype": "independent",
+  "reason": "Verified in the variant: '{ name: birthday, type: local-date, optional: true }' vs BirthdayField 'Optional birthday as month and day; the year may be left blank' and criterion 'optional month-day birthday'. local-date is used for full calendar dates elsewhere (anchorDate, dueDate, snoozedUntil). A yearless birthday cannot be stored as specified. Not the seeded defect."
+ },
+ {
+  "claimId": "27bc02-c2",
+  "variants": [
+   "27bc02"
+  ],
+  "outputs": [
+   "0cd818dd",
+   "9b487302",
+   "a9b08801"
+  ],
+  "claim": "operation.contact.save / hook fixture / journey branch not updated for birthday validation the criterion now claims",
+  "label": "false",
+  "reason": "Coverage nit."
+ },
+ {
+  "claimId": "27bc02-c3",
+  "variants": [
+   "27bc02"
+  ],
+  "outputs": [
+   "19c1ceb9",
+   "3ebf2a6f",
+   "cf411cac"
+  ],
+  "claim": "BirthdayField cardinality 'exactly one' conflicts with it being optional (siblings use 'optional')",
+  "label": "false",
+  "reason": "Cardinality is about the control being present; the value is optional. NameField is also 'exactly one'. Convention nit, not a contradiction."
+ },
+ {
+  "claimId": "3a9735-c1",
+  "variants": [
+   "3a9735"
+  ],
+  "outputs": [
+   "0ece7398",
+   "4ab04146",
+   "5e18e657",
+   "62c5b110",
+   "9578b41b",
+   "fd4eef6c"
+  ],
+  "claim": "Hiding the inviter until acceptance undermines 'two explicit consents' / informed consent (invitee accepts an unknown counterpart)",
+  "label": "unclear",
+  "reason": "No spec text requires that consent be informed of the counterpart's identity apart from InvitePreview/J.connect s7, which is the seeded defect itself. A reasonable design concern, not a textual contradiction."
+ },
+ {
+  "claimId": "3a9735-c2",
+  "variants": [
+   "3a9735"
+  ],
+  "outputs": [
+   "5e18e657",
+   "62c5b110"
+  ],
+  "claim": "New anonymity clause in C.webapp.connection.consent has no traceable source requirement/operation effect",
+  "label": "false",
+  "reason": "Traceability nit; criteria may add coverage; no inconsistency."
+ },
+ {
+  "claimId": "3a9735-c3",
+  "variants": [
+   "3a9735"
+  ],
+  "outputs": [
+   "0ece7398",
+   "fd4eef6c"
+  ],
+  "claim": "Anonymity rule is placed on the inviter-side Invite affordance / operation.invite.create rather than the invitee-facing screen or accept operation",
+  "label": "false",
+  "reason": "Placement nit; does not identify a contradiction."
+ },
+ {
+  "claimId": "3a9735-c4",
+  "variants": [
+   "3a9735"
+  ],
+  "outputs": [
+   "9578b41b"
+  ],
+  "claim": "Forwarded code 'exposes nobody' is incomplete because any holder can accept and then learn the inviter",
+  "label": "false",
+  "reason": "The new rule only promises anonymity until acceptance; nothing contradicts it."
+ },
+ {
+  "claimId": "3a9735-c5",
+  "variants": [
+   "3a9735"
+  ],
+  "outputs": [],
+  "claim": "Anonymity 'probably conflicts with any accept/redeem flow that shows the inviter's identity' (hedged)",
+  "label": "real-introduced",
+  "subtype": "seeded-symptom",
+  "reason": "Hedged near-miss of the InvitePreview/J.connect s7 conflict."
+ },
+ {
+  "claimId": "45de63-c1",
+  "variants": [
+   "45de63"
+  ],
+  "outputs": [
+   "e5b33ee1"
+  ],
+  "claim": "J.control.unblock u3 resumes 'the paused goal' without saying it is the blocker's; end state 'needs a new invitation' not linked to an invite step",
+  "label": "false",
+  "reason": "Wording nit; operation.block.remove specifies the blocker's goal."
+ },
+ {
+  "claimId": "45de63-c2",
+  "variants": [
+   "45de63"
+  ],
+  "outputs": [
+   "07992189"
+  ],
+  "claim": "Remove block never updates the Connection left in state 'blocked', so its state after unblocking is undefined",
+  "label": "false",
+  "reason": "Underspecification only; the change explicitly says no pair is restored, so a non-active Connection is consistent."
+ },
+ {
+  "claimId": "45de63-c3",
+  "variants": [
+   "45de63"
+  ],
+  "outputs": [
+   "9d497ce7"
+  ],
+  "claim": "operation.block.remove not added to evolution.3",
+  "label": "false",
+  "reason": "Bookkeeping nit."
+ },
+ {
+  "claimId": "46753b-c1",
+  "variants": [
+   "46753b"
+  ],
+  "outputs": [
+   "04dc8f5b",
+   "12352e1f",
+   "1b72e788",
+   "93b0cc35",
+   "ca4b7d15"
+  ],
+  "claim": "30-day restore is promised but no restore operation, affordance, screen or journey exists",
+  "label": "real-introduced",
+  "subtype": "seeded-symptom",
+  "reason": "True; the README says this gap is part of the same seeded contradiction, not a second defect."
+ },
+ {
+  "claimId": "46753b-c2",
+  "variants": [
+   "46753b"
+  ],
+  "outputs": [
+   "93b0cc35",
+   "ca4b7d15"
+  ],
+  "claim": "Contact-restore claim added to C.webapp.lifecycle.data whose subject is operation.data.delete / hook fixture covers only export and account purge",
+  "label": "false",
+  "reason": "Coverage/traceability nit."
+ },
+ {
+  "claimId": "46753b-c3",
+  "variants": [
+   "46753b"
+  ],
+  "outputs": [
+   "04dc8f5b",
+   "12352e1f"
+  ],
+  "claim": "operation.contact.delete marks goal and events deleted but only ContactRecord gained deletedAt",
+  "label": "unclear",
+  "reason": "Could be implemented by cascading from the contact's deletedAt; the operation wording 'Mark the ContactRecord with its goal and events deleted' is ambiguous."
+ },
+ {
+  "claimId": "46753b-c4",
+  "variants": [
+   "46753b"
+  ],
+  "outputs": [
+   "1b72e788",
+   "a66072c0"
+  ],
+  "claim": "J.contacts.remove r3 describes deletion as outright/final, matching the affordance rather than the soft-delete",
+  "label": "false",
+  "reason": "r3 says 'Contact, goal and history deleted; pending jobs cancelled', which is compatible with a restorable soft delete; it does not say irreversible."
+ },
+ {
+  "claimId": "474d5e-c1",
+  "variants": [
+   "474d5e"
+  ],
+  "outputs": [
+   "49715c1f"
+  ],
+  "claim": "NotificationPreferences edits quiet hours but has only a reads link and no affordance that writes quietHours",
+  "label": "false",
+  "reason": "The clean spec models no preference-editing affordance for NotificationPreferences at all; the change follows the existing pattern."
+ },
+ {
+  "claimId": "474d5e-c2",
+  "variants": [
+   "474d5e"
+  ],
+  "outputs": [
+   "3e4aae35"
+  ],
+  "claim": "Deferral to the end of quiet hours can cross midnight into the next local day; interaction with the one-notification-per-local-day limit is undefined",
+  "label": "unclear",
+  "reason": "Genuine underspecification, but the per-day limit still applies and nothing contradicts it."
+ },
+ {
+  "claimId": "474d5e-c3",
+  "variants": [
+   "474d5e"
+  ],
+  "outputs": [
+   "60897238",
+   "923f7657"
+  ],
+  "claim": "Quiet-hours clause added to the bounded-cards criterion; its hook fixture covers only the five-card bound",
+  "label": "false",
+  "reason": "Coverage/placement nit."
+ },
+ {
+  "claimId": "499fa7-c1",
+  "variants": [
+   "499fa7"
+  ],
+  "outputs": [
+   "7c2a896e"
+  ],
+  "claim": "Monthly/quarterly/yearly presets don't map to fixed day counts; conversion undefined",
+  "label": "false",
+  "reason": "Presentation detail; any fixed mapping within 1-365 is consistent. Completeness nit."
+ },
+ {
+  "claimId": "499fa7-c2",
+  "variants": [
+   "499fa7"
+  ],
+  "outputs": [
+   "7c2a896e"
+  ],
+  "claim": "Lowering the bound to 365 invalidates existing goals above 365; no migration",
+  "label": "false",
+  "reason": "system.yaml phase: unrealized, so there are no stored goals (the same reasoning the manifest uses for K1)."
+ },
+ {
+  "claimId": "5cceea-c1",
+  "variants": [
+   "5cceea"
+  ],
+  "outputs": [
+   "55b540d8",
+   "8d44319c",
+   "b3b0b3bf",
+   "ddbef2c9"
+  ],
+  "claim": "Deletion routed through operation.contact.log, whose 'Nonfuture event time' precondition / 'Persist event' effect fit logging, with no owned-event precondition or missing-event failure",
+  "label": "false",
+  "reason": "operation.contact.log is 'Log or revise contact' and the change adds a deletion effect; missing precondition detail is a completeness nit, not a contradiction."
+ },
+ {
+  "claimId": "5f4559-c1",
+  "variants": [
+   "5f4559"
+  ],
+  "outputs": [
+   "212d724e",
+   "8038ae66",
+   "8331a8c7",
+   "dde96486",
+   "feeafc8a"
+  ],
+  "claim": "No operation, entity field or link carries calendar data from the device to server-side suggestion generation",
+  "label": "real-introduced",
+  "subtype": "seeded-symptom",
+  "reason": "True modelling gap that exists only because of the seeded calendar-read change; does not state the ext.events boundary conflict."
+ },
+ {
+  "claimId": "5f4559-c2",
+  "variants": [
+   "5f4559"
+  ],
+  "outputs": [
+   "212d724e",
+   "8038ae66",
+   "8331a8c7",
+   "cdbaf078",
+   "dde96486",
+   "feeafc8a"
+  ],
+  "claim": "CalendarAccessToggle has no affordance, persisted field or ext.device link for its 'off by default' state",
+  "label": "false",
+  "reason": "The clean spec models preference controls the same way (Account.notificationPreferences json, no affordances); consistent with existing pattern."
+ },
+ {
+  "claimId": "5f4559-c3",
+  "variants": [
+   "5f4559"
+  ],
+  "outputs": [
+   "212d724e",
+   "8331a8c7",
+   "cdbaf078",
+   "dde96486",
+   "feeafc8a"
+  ],
+  "claim": "Hook fixture now tests calendar reasons but its criterion/source requirement don't mention them; fixture precondition (toggle on) unstated",
+  "label": "false",
+  "reason": "Coverage nit."
+ },
+ {
+  "claimId": "5f4559-c4",
+  "variants": [
+   "5f4559"
+  ],
+  "outputs": [],
+  "claim": "Settings screen still lists exactly four components; SuggestionReason states calendar reasons unconditionally though access is off by default",
+  "label": "false",
+  "reason": "The toggle is nested in ProfilePreferences, so the four top-level components are unchanged; 'including' does not mean always."
+ },
+ {
+  "claimId": "5f4559-c5",
+  "variants": [
+   "5f4559"
+  ],
+  "outputs": [
+   "8038ae66"
+  ],
+  "claim": "Standard browsers expose no device-calendar read API, so the capability is unsupported for the web app",
+  "label": "unclear",
+  "reason": "Plausible real-world platform constraint, not a spec inconsistency; not checkable from the spec."
+ },
+ {
+  "claimId": "643d59-c1",
+  "variants": [
+   "643d59"
+  ],
+  "outputs": [
+   "2235d7dd",
+   "523310ec",
+   "567ffeef"
+  ],
+  "claim": "Goal saving now depends on entity.Connection, but evolution.2 (goals) precedes evolution.3 (connections), so evolution.2 cannot meet its own goal fixtures",
+  "label": "real-introduced",
+  "subtype": "second-manifestation",
+  "reason": "Verified: evolution.3 introduces entity.Connection and depends on evolution.2; evolution.2's acceptance criteria (C.webapp.schedule.correct) now need connected contacts. The seeded edit contradicts the unchanged evolution plan."
+ },
+ {
+  "claimId": "643d59-c2",
+  "variants": [
+   "643d59"
+  ],
+  "outputs": [
+   "2235d7dd",
+   "523310ec",
+   "567ffeef",
+   "f6f60ea4"
+  ],
+  "claim": "Snooze, pause and revise all invoke operation.goal.save, so after disconnect/block (or for never-connected contacts) existing goals can no longer be snoozed, paused or revised, conflicting with J.prompts p5-p7",
+  "label": "real-introduced",
+  "subtype": "second-manifestation",
+  "reason": "Verified: SuggestionCard.snooze and J.prompts p5/p6/p7 use operation.goal.save, which now refuses goals for contacts without an active Connection, while nothing stops the existing goal from producing suggestions after a disconnect. A specified flow now fails; same root edit, different unchanged counterparts."
+ },
+ {
+  "claimId": "643d59-c3",
+  "variants": [
+   "643d59"
+  ],
+  "outputs": [
+   "3afc8be0",
+   "98069151",
+   "f6f60ea4"
+  ],
+  "claim": "operation.goal.save description (and GoalForm Save failure list) still say only owned contact and valid interval",
+  "label": "real-introduced",
+  "subtype": "seeded-symptom",
+  "reason": "True stale summary inside the changed node; fixed together with the seeded defect."
+ },
+ {
+  "claimId": "643d59-c4",
+  "variants": [
+   "643d59"
+  ],
+  "outputs": [
+   "3afc8be0"
+  ],
+  "claim": "J.goals has no alternate path/messaging for unconnected contacts; existing goals on unconnected contacts become uneditable",
+  "label": "real-introduced",
+  "subtype": "seeded-symptom",
+  "reason": "Consequence of the seeded gating only."
+ },
+ {
+  "claimId": "643d59-c5",
+  "variants": [
+   "643d59"
+  ],
+  "outputs": [
+   "98069151"
+  ],
+  "claim": "Journey/affordance gate on 'accepted an invitation' while the operation gates on 'active Connection' (differs after a later disconnect)",
+  "label": "unclear",
+  "reason": "Wording mismatch that matters only after a disconnect; minor."
+ },
+ {
+  "claimId": "698e3b-c1",
+  "variants": [
+   "698e3b"
+  ],
+  "outputs": [
+   "287c7119",
+   "2f33c907",
+   "2f654a7f",
+   "962f35e3"
+  ],
+  "claim": "Prefill behaviour undefined for a person with no previous log (channel, depth, Met this goal)",
+  "label": "false",
+  "reason": "Completeness nit; MetGoalCheckbox still says it defaults unchecked and the date/note defaults are given."
+ },
+ {
+  "claimId": "698e3b-c2",
+  "variants": [
+   "698e3b"
+  ],
+  "outputs": [
+   "09994f8b",
+   "287c7119",
+   "2f33c907",
+   "962f35e3",
+   "e179c117"
+  ],
+  "claim": "Prefill statement attached to branch step J.contact/c4 on screen.person, while the form opens at c5 on screen.logContact",
+  "label": "false",
+  "reason": "c4 is the decision that leads into the form; describing what the form looks like when it opens is a placement nit, not a contradiction."
+ },
+ {
+  "claimId": "698e3b-c3",
+  "variants": [
+   "698e3b"
+  ],
+  "outputs": [
+   "e179c117"
+  ],
+  "claim": "hook.webapp.screen.exact fixture now covers prefill but C.webapp.screen.exact claim unchanged",
+  "label": "false",
+  "reason": "Coverage nit."
+ },
+ {
+  "claimId": "6fa350-c1",
+  "variants": [
+   "6fa350"
+  ],
+  "outputs": [
+   "14fcd4bf",
+   "17dd87ca",
+   "bc15f81c",
+   "f1f61b13"
+  ],
+  "claim": "ExportControls.export affordance effects not updated to mention private notes, so it no longer matches the operation",
+  "label": "false",
+  "reason": "'Export authorized records of the authenticated owner only' is still true of an export that includes the owner's notes; no contradiction."
+ },
+ {
+  "claimId": "6fa350-c2",
+  "variants": [
+   "6fa350"
+  ],
+  "outputs": [
+   "bc15f81c"
+  ],
+  "claim": "C.webapp.contact.storage claims the notes column but its hook fixture is unchanged",
+  "label": "false",
+  "reason": "Coverage nit."
+ },
+ {
+  "claimId": "864bc6-c1",
+  "variants": [
+   "864bc6"
+  ],
+  "outputs": [
+   "43a1e492",
+   "670840e4",
+   "d30e7bb6"
+  ],
+  "claim": "operation.invite.create was not updated for email (no recipient input, send effect, delivery failure, provider link); ContactRecord has no email field",
+  "label": "false",
+  "reason": "The send is specified on the Invite affordance with a triggers link to ext.providers and a delivery-failure case; ContactRecord.channels (list<json>) holds channels including email. Modelling-location nit, no contradiction."
+ },
+ {
+  "claimId": "864bc6-c2",
+  "variants": [
+   "864bc6"
+  ],
+  "outputs": [
+   "43a1e492",
+   "56a0b421"
+  ],
+  "claim": "Email delivery is now in evolution.3's acceptance criterion, but notification transport arrives only in evolution.4 (which depends on evolution.3)",
+  "label": "false",
+  "reason": "evolution.4 adds owner reminder transport (NotificationJob, binding.scheduler). Nothing assigns invitation email to evolution.4 or forbids evolution.3 from sending it."
+ },
+ {
+  "claimId": "864bc6-c3",
+  "variants": [
+   "864bc6"
+  ],
+  "outputs": [
+   "43a1e492",
+   "56a0b421",
+   "578699c5",
+   "670840e4",
+   "c00423c4"
+  ],
+  "claim": "App email to a non-owner contact / token link through a provider conflicts with S.webapp.prompts / NotificationJob owner-only reminder rules or S.webapp.authentication token-leak rule; ext.providers source does not support it",
+  "label": "false",
+  "reason": "S.webapp.prompts and NotificationJob govern reminders, not invitations; S.webapp.authentication concerns analytics and referrers. The invitation is already shared with the contact through an outside channel in the clean spec."
+ },
+ {
+  "claimId": "864bc6-c4",
+  "variants": [
+   "864bc6"
+  ],
+  "outputs": [
+   "56a0b421",
+   "578699c5",
+   "670840e4",
+   "c00423c4",
+   "d30e7bb6"
+  ],
+  "claim": "Missing-email / failed-delivery cases not covered by the criterion or failure list; hook fixture not updated for email delivery; criterion subject still operation.invite.accept",
+  "label": "false",
+  "reason": "Coverage nits. The missing email is a precondition and delivery failure is listed as a failure."
+ },
+ {
+  "claimId": "864bc6-c5",
+  "variants": [
+   "864bc6"
+  ],
+  "outputs": [
+   "578699c5"
+  ],
+  "claim": "No-QR invite is inconsistent with 'any redemption flow that depends on a displayed QR or connection code' (hedged, no step named)",
+  "label": "real-introduced",
+  "subtype": "seeded-symptom",
+  "reason": "Hedged near-miss of the seeded J.connect/s3 conflict."
+ },
+ {
+  "claimId": "8ac67f-c1",
+  "variants": [
+   "8ac67f"
+  ],
+  "outputs": [
+   "16fca1b1",
+   "59a29393",
+   "662cd8d8"
+  ],
+  "claim": "New GD.goals summary contains unquoted commas inside a YAML flow mapping, so the summary is truncated and stray keys appear",
+  "label": "real-preexisting",
+  "reason": "Verified with yaml.safe_load: the clean GD.goals summary already truncates at its comma ('with a schedule preview.' becomes a null key). The control adds two more stray keys but the parse defect predates the change. Same latent issue exists for any flow-mapping summary with a comma."
+ },
+ {
+  "claimId": "8ac67f-c2",
+  "variants": [
+   "8ac67f"
+  ],
+  "outputs": [
+   "16fca1b1",
+   "4b24f21e",
+   "662cd8d8"
+  ],
+  "claim": "C.webapp.schedule.correct now says 'interval preset and depth changes', narrowing fixture coverage to preset intervals and dropping typed intervals",
+  "label": "unclear",
+  "reason": "Wording is ambiguous ('interval preset changes' vs 'interval (preset) and depth changes'); a reading that excludes typed intervals is plausible but not forced. Not an inconsistency with another statement."
+ },
+ {
+  "claimId": "8fa895-c1",
+  "variants": [
+   "8fa895"
+  ],
+  "outputs": [
+   "0af81682",
+   "0c3355dd",
+   "210cb852",
+   "28e7e172",
+   "62614f3e",
+   "c48b582d"
+  ],
+  "claim": "S.webapp.prompts now suppresses suggestions only 'until the block lapses', but nothing unpauses the goal or restores suggestions at lapse (goal pause outlives the block)",
+  "label": "unclear",
+  "reason": "True that no node specifies resuming the paused goal at lapse, and pausing suppresses prompts, so the edited requirement has no mechanism. Whether this underspecification is a defect or acceptable is a judgement call; it is internal to the change's own edits. Listed in benchmark_issues as a candidate second issue."
+ },
+ {
+  "claimId": "8fa895-c2",
+  "variants": [
+   "8fa895"
+  ],
+  "outputs": [
+   "0af81682",
+   "0c3355dd",
+   "210cb852",
+   "62614f3e",
+   "c48b582d"
+  ],
+  "claim": "Automatic lapse removes the blocker's control (no renew/extend/early removal), undermining autonomy (T4/P1)",
+  "label": "false",
+  "reason": "Design objection; the clean spec defines no removal control either, and no stated rule requires renewal."
+ },
+ {
+  "claimId": "8fa895-c3",
+  "variants": [
+   "8fa895"
+  ],
+  "outputs": [
+   "28e7e172"
+  ],
+  "claim": "Changed nodes still cite the same source-document sections that defined blocks as lasting until removed",
+  "label": "false",
+  "reason": "External source not in the spec; unverifiable nit."
+ },
+ {
+  "claimId": "8fa895-c4",
+  "variants": [
+   "8fa895"
+  ],
+  "outputs": [
+   "0c3355dd",
+   "62614f3e",
+   "c48b582d"
+  ],
+  "claim": "C.webapp.revocation.current's lapsed-block clause conflicts with 'no new authorized sharing may follow revocation'; 'previous pair' / blocked Connection state after lapse undefined",
+  "label": "false",
+  "reason": "Restored invite eligibility is not authorized sharing (a new pair still needs two consents). Undefined term is a wording nit."
+ },
+ {
+  "claimId": "95dd79-c1",
+  "variants": [
+   "95dd79"
+  ],
+  "outputs": [
+   "024a0b1c",
+   "5b70bbbe"
+  ],
+  "claim": "Snooze writes goal attribute snoozedUntil that is not defined on the goal entity",
+  "label": "false",
+  "reason": "RelationshipGoal already declares { name: snoozedUntil, type: local-date, optional: true } (ontology.yaml ~735)."
+ },
+ {
+  "claimId": "95dd79-c2",
+  "variants": [
+   "95dd79"
+  ],
+  "outputs": [
+   "5b70bbbe"
+  ],
+  "claim": "Effect says 'chosen date' but trigger picks a duration; base date/time zone of computation unspecified",
+  "label": "false",
+  "reason": "Missing detail, not a contradiction; duration-to-date mapping is a natural reading and S.webapp time-zone rules apply."
+ },
+ {
+  "claimId": "95dd79-c3",
+  "variants": [
+   "95dd79"
+  ],
+  "outputs": [
+   "5b70bbbe"
+  ],
+  "claim": "Snooze acts on a suggestion but stores state on the goal, mixing scopes",
+  "label": "false",
+  "reason": "Clean spec already places pause and snooze on RelationshipGoal (entity description and spec section 5 comment); consistent with the existing model."
+ },
+ {
+  "claimId": "b434a4-c1",
+  "variants": [
+   "b434a4"
+  ],
+  "outputs": [
+   "1d398354",
+   "8dcf53a0",
+   "bcc5b1c7",
+   "c536ee49"
+  ],
+  "claim": "operation.account.setTimeZone declares 'Stale version returns conflict' but entity.Account has no version field",
+  "label": "real-introduced",
+  "subtype": "independent",
+  "reason": "Verified: Account fields are id, identitySubject, displayName, timeZone, notificationPreferences; versioned entities (ContactRecord, RelationshipGoal) declare 'version: int'. The new failure references a version the model lacks. Minor, but a real dangling reference unrelated to the seeded recompute-vs-keep defect."
+ },
+ {
+  "claimId": "b6a5d0-c1",
+  "variants": [
+   "b6a5d0"
+  ],
+  "outputs": [
+   "c48187db",
+   "ff708d2d"
+  ],
+  "claim": "'Logged depth' is undefined because ContactEvents carry no depth of their own; only the goal's desiredDepth is recorded",
+  "label": "false",
+  "reason": "ContactEvent has selfReportedDepth (enum light|meaningful|shared-time), the depth the owner logs; screen.logContact has a DepthSelect."
+ },
+ {
+  "claimId": "b6a5d0-c2",
+  "variants": [
+   "b6a5d0"
+  ],
+  "outputs": [
+   "c48187db"
+  ],
+  "claim": "C.webapp.schedule.correct adds 'any' fixtures without specifying expected outcomes after depth changes",
+  "label": "false",
+  "reason": "Coverage nit."
+ },
+ {
+  "claimId": "b7965d-c1",
+  "variants": [
+   "b7965d"
+  ],
+  "outputs": [
+   "49358ef1",
+   "bd9b2700"
+  ],
+  "claim": "MessageDraft loses its provisional flag and becomes core for nudges with no source backing (still under the 'provisional (later)' grouping, references provisional MediaAsset; section 6 lists no Nudge)",
+  "label": "real-introduced",
+  "subtype": "seeded-symptom",
+  "reason": "True: the change promotes a later-scope entity. It is the seeded scope violation seen from the entity side, but none of these findings names S.webapp.scope or the messaging exclusion."
+ },
+ {
+  "claimId": "b7965d-c2",
+  "variants": [
+   "b7965d"
+  ],
+  "outputs": [
+   "49c2a804",
+   "fce8252e"
+  ],
+  "claim": "No recipient-side model of how a nudge is received/displayed; no send/deliver operation or delivery state",
+  "label": "real-introduced",
+  "subtype": "seeded-symptom",
+  "reason": "True (the linter reports flow.effectUnsurfaced/orphanWrite for this); exists only because of the seeded messaging feature."
+ },
+ {
+  "claimId": "b7965d-c3",
+  "variants": [
+   "b7965d"
+  ],
+  "outputs": [
+   "0fa88095",
+   "49358ef1",
+   "49c2a804",
+   "fce8252e"
+  ],
+  "claim": "No authorization/revocation policy governs the nudge or MessageDraft; no send-time revocation check",
+  "label": "false",
+  "reason": "The affordance preconditions require an active Connection and no block, and C.webapp.nudge.single requires refusal after disconnect or block. Missing governs link is a modelling nit."
+ },
+ {
+  "claimId": "b7965d-c4",
+  "variants": [
+   "b7965d"
+  ],
+  "outputs": [
+   "0fa88095",
+   "49c2a804",
+   "9c807746",
+   "bd9b2700",
+   "fce8252e"
+  ],
+  "claim": "C.webapp.nudge.single has no sourceRefs; affordance has no source; evolution.7 affectedNodes incomplete; 'wired in incompletely'",
+  "label": "false",
+  "reason": "Traceability/bookkeeping nits (several clean criteria also lack sourceRefs)."
+ },
+ {
+  "claimId": "b7965d-c5",
+  "variants": [
+   "b7965d"
+  ],
+  "outputs": [
+   "9c807746",
+   "bd9b2700"
+  ],
+  "claim": "Nudge failure list covers only the missing connection, not block",
+  "label": "false",
+  "reason": "Block is excluded by the precondition."
+ },
+ {
+  "claimId": "b7965d-c6",
+  "variants": [
+   "b7965d"
+  ],
+  "outputs": [
+   "9c807746"
+  ],
+  "claim": "Using MessageDraft for delivered nudges conflicts with its draft / no-autonomous-send semantics",
+  "label": "false",
+  "reason": "The nudge needs a user gesture, so 'no autonomous send' holds; 'draft' naming is not a contradiction."
+ },
+ {
+  "claimId": "bc8433-c1",
+  "variants": [
+   "bc8433"
+  ],
+  "outputs": [
+   "12ef28cc",
+   "29ea4c5f",
+   "d8751f4e"
+  ],
+  "claim": "'No owner reminder sent yet today' ties the test to the daily budget; whether it suppresses or is blocked by the real reminder is undefined (or it would push the real one over the per-day limit)",
+  "label": "unclear",
+  "reason": "The precondition keeps the test within one per day; the real reminder must then be suppressed by the per-day limit. Underspecified interaction, not a contradiction."
+ },
+ {
+  "claimId": "bc8433-c2",
+  "variants": [
+   "bc8433"
+  ],
+  "outputs": [
+   "12ef28cc",
+   "d8751f4e"
+  ],
+  "claim": "Behaviour when no suggestion is due is undefined",
+  "label": "false",
+  "reason": "Completeness nit."
+ },
+ {
+  "claimId": "bc8433-c3",
+  "variants": [
+   "bc8433"
+  ],
+  "outputs": [
+   "29ea4c5f",
+   "353fb85d",
+   "6001d554"
+  ],
+  "claim": "Test reminder bypasses NotificationJob/operation (dedup key, preference and cancellation recheck, per-day accounting, ownerOnly/policy coverage)",
+  "label": "false",
+  "reason": "Preconditions check the opt-in and per-day limit; nothing requires every send to be a NotificationJob. Modelling nit."
+ },
+ {
+  "claimId": "bc8433-c4",
+  "variants": [
+   "bc8433"
+  ],
+  "outputs": [
+   "6001d554",
+   "68225569"
+  ],
+  "claim": "Test-reminder fixture added to the bounded-prompts hook whose criterion does not claim test reminders",
+  "label": "false",
+  "reason": "Coverage/placement nit."
+ },
+ {
+  "claimId": "d1c15a-c1",
+  "variants": [
+   "d1c15a"
+  ],
+  "outputs": [
+   "441d75c5",
+   "c00ec22e",
+   "cf19bfc2",
+   "d067f065",
+   "d196150a",
+   "f24dc213"
+  ],
+  "claim": "J.contact/c4 now offers 'plan the next meeting' but its branches are still only 'log contact' and 'skip logging'; no planning path",
+  "label": "unclear",
+  "reason": "True that the branch labels were not updated, but planning uses the same log form (c5 on screen.logContact, where a future time now records a planned meeting), so a path exists under the 'log contact' label. Wording gap more than a broken flow."
+ },
+ {
+  "claimId": "d1c15a-c2",
+  "variants": [
+   "d1c15a"
+  ],
+  "outputs": [
+   "441d75c5",
+   "cf19bfc2",
+   "d067f065",
+   "d196150a",
+   "f24dc213"
+  ],
+  "claim": "The planned flag's semantics are undefined (how set, relation to future occurredAt, effect on qualification, anchoring, recompute; Met checkbox allowed on future events)",
+  "label": "false",
+  "reason": "The new invariant says a planned event never qualifies before its time has passed, and qualification still needs explicit marking, so anchoring and recompute ignore it until then. Remaining questions are completeness nits."
+ },
+ {
+  "claimId": "d1c15a-c3",
+  "variants": [
+   "d1c15a"
+  ],
+  "outputs": [
+   "d067f065",
+   "f24dc213"
+  ],
+  "claim": "Save precondition loosened from 'Nonfuture event time' to undefined 'Valid event time' (without noting the operation still rejects future times)",
+  "label": "real-introduced",
+  "subtype": "seeded-symptom",
+  "reason": "Points at the seeded edit but not at operation.contact.log's conflicting precondition."
+ },
+ {
+  "claimId": "dfba1a-c1",
+  "variants": [
+   "dfba1a"
+  ],
+  "outputs": [
+   "069f999e",
+   "1d5a67ff",
+   "4aadd0e7",
+   "c30d61d6",
+   "dafb873f",
+   "db108cc0"
+  ],
+  "claim": "J.connect/s1 now includes Resend, but its only successor s2 creates a new invitation (operation.invite.create), contradicting Resend's 'no new invitation is created'",
+  "label": "real-introduced",
+  "subtype": "independent",
+  "reason": "Verified in the variant: s1 'Open Person and choose Invite, or Resend invitation while one is pending' -> next s2 'Create invitation...' with operation.invite.create. The resend branch flows into invitation creation, contradicting the new affordance. Independent of the token-hash defect."
+ },
+ {
+  "claimId": "dfba1a-c2",
+  "variants": [
+   "dfba1a"
+  ],
+  "outputs": [
+   "069f999e",
+   "c30d61d6",
+   "dafb873f",
+   "db108cc0"
+  ],
+  "claim": "Resend precondition needs a pending invitation 'for this contact', but ConnectionInvite has no ContactRecord reference (only inviter and optional bound account)",
+  "label": "real-introduced",
+  "subtype": "independent",
+  "reason": "Verified: ConnectionInvite fields are id, inviterAccountId, tokenHash, expiresAt, state, optional boundAccountId. Nothing ties an invite to a ContactRecord, so the new precondition refers to a relation the model lacks. Minor (a field could be added), but real and not the seeded defect."
+ },
+ {
+  "claimId": "dfba1a-c3",
+  "variants": [
+   "dfba1a"
+  ],
+  "outputs": [
+   "1d5a67ff",
+   "4aadd0e7"
+  ],
+  "claim": "Invite availability not updated, so Invite and Resend are both offered while an invitation is pending, conflicting with 'connection status determines availability'",
+  "label": "false",
+  "reason": "'Determines availability' does not require exclusivity; offering both is consistent."
+ },
+ {
+  "claimId": "dfba1a-c4",
+  "variants": [
+   "dfba1a"
+  ],
+  "outputs": [
+   "4aadd0e7"
+  ],
+  "claim": "Consent criterion's subject is an operation but resend invokes no operation",
+  "label": "false",
+  "reason": "Coverage nit."
+ },
+ {
+  "claimId": "e3bf46-c1",
+  "variants": [
+   "e3bf46"
+  ],
+  "outputs": [
+   "065e8a31",
+   "111501eb",
+   "a5bc3433",
+   "aab99379",
+   "e0bc408c"
+  ],
+  "claim": "New high-priority-first Today ordering is untraced/unspecified: screen.today, S.webapp.prompts and C.webapp.prompts.bounded not updated (or 'may conflict')",
+  "label": "real-introduced",
+  "subtype": "seeded-symptom",
+  "reason": "True gap, but framed as missing traceability or hedged ('may conflict'); does not state that S.webapp.prompts/SuggestionCollection/J.prompts define an incompatible order. Disappears when the seeded defect is fixed."
+ },
+ {
+  "claimId": "e3bf46-c2",
+  "variants": [
+   "e3bf46"
+  ],
+  "outputs": [
+   "065e8a31",
+   "111501eb",
+   "8a89079b",
+   "a5bc3433",
+   "aab99379",
+   "e0bc408c"
+  ],
+  "claim": "C.webapp.schedule.correct now covers priority changes though priority does not affect due dates or qualification",
+  "label": "false",
+  "reason": "Criterion-scope nit; adding a fixture case contradicts nothing."
+ },
+ {
+  "claimId": "e3bf46-c3",
+  "variants": [
+   "e3bf46"
+  ],
+  "outputs": [
+   "065e8a31",
+   "111501eb",
+   "a5bc3433",
+   "aab99379",
+   "e0bc408c"
+  ],
+  "claim": "priority field is required on the entity with no default, while the form says default normal; existing goals undefined",
+  "label": "false",
+  "reason": "Entity fields in this spec carry no defaults; the form's default supplies the value; system.yaml phase is unrealized, so there are no existing goals."
+ },
+ {
+  "claimId": "edd783-c1",
+  "variants": [
+   "edd783"
+  ],
+  "outputs": [
+   "3d6c1461",
+   "56585efe",
+   "a4001e2c"
+  ],
+  "claim": "Post-save SchedulePreview lives on screen.goal, but J.goals g5 -> e1 lands on screen.person after save, so the post-save preview is never shown",
+  "label": "real-introduced",
+  "subtype": "second-manifestation",
+  "reason": "Verified: J.goals/e1 has screen: screen.person; SchedulePreview is a child of screen.goal. The new post-save effect contradicts the unchanged journey end screen. Same root edit as the seeded defect, different unchanged counterpart."
+ },
+ {
+  "claimId": "edd783-c2",
+  "variants": [
+   "edd783"
+  ],
+  "outputs": [
+   "3d6c1461",
+   "56585efe"
+  ],
+  "claim": "Saying saving changes 'which past events now qualify' contradicts operation.goal.save / per-event qualification set at log time",
+  "label": "false",
+  "reason": "S.webapp.qualification says only qualifications matching the current desiredDepth count and 'Changing depth may change which historical events qualify'."
+ },
+ {
+  "claimId": "edd783-c3",
+  "variants": [
+   "edd783"
+  ],
+  "outputs": [
+   "6923dab5",
+   "8d9e63be"
+  ],
+  "claim": "evolution.7 metadata (kind, affectedNodes missing SchedulePreview); criterion/hook only test immediate save; post-save effect stated unconditionally despite failure paths",
+  "label": "false",
+  "reason": "Bookkeeping and coverage nits."
+ },
+ {
+  "claimId": "edd783-c4",
+  "variants": [
+   "edd783"
+  ],
+  "outputs": [
+   "6923dab5"
+  ],
+  "claim": "Immediate save 'likely breaks any part of the spec that relies on previewing before confirming' (hedged, no counterpart)",
+  "label": "real-introduced",
+  "subtype": "seeded-symptom",
+  "reason": "Hedged near-miss of the seeded defect; true direction but names no counterpart and asserts no conflict."
+ },
+ {
+  "claimId": "ee73ec-c1",
+  "variants": [
+   "ee73ec"
+  ],
+  "outputs": [
+   "58de7fd4",
+   "8bdbd67d",
+   "c88bf928",
+   "fb0b5344"
+  ],
+  "claim": "J.control.disconnect d2/d3 add reauthentication but have no reauthentication-failure branch or check step",
+  "label": "false",
+  "reason": "Missing failure path in the journey; the affordance and operation define the failure. Completeness nit, not a contradiction."
+ },
+ {
+  "claimId": "ee73ec-c2",
+  "variants": [
+   "ee73ec"
+  ],
+  "outputs": [
+   "05e50e80",
+   "13f0533f"
+  ],
+  "claim": "'Participant authority' vs 'Owner reauthentication' mixes actor roles",
+  "label": "false",
+  "reason": "'Owner' in this spec denotes the authenticated user acting; the participant is that owner."
+ },
+ {
+  "claimId": "ee73ec-c3",
+  "variants": [
+   "ee73ec"
+  ],
+  "outputs": [
+   "13f0533f",
+   "58de7fd4",
+   "8bdbd67d",
+   "fb0b5344"
+  ],
+  "claim": "Reauthentication claim in C.webapp.revocation.current is untraced to a requirement / hook fixture not updated / covers only Disconnect",
+  "label": "false",
+  "reason": "Coverage/traceability nit."
+ },
+ {
+  "claimId": "f381ab-c1",
+  "variants": [
+   "f381ab"
+  ],
+  "outputs": [
+   "0f1cfd4a",
+   "1eddfb3f",
+   "3b717fdf",
+   "5405529e",
+   "b0bea476",
+   "b4d3d400"
+  ],
+  "claim": "affordance.HistoryRow.open navigates to /people/:id/events/:eventId, but no screen declares that route (screen.logContact covers only /events/new); hook fixture claims to cover a route with no screen",
+  "label": "real-introduced",
+  "subtype": "independent",
+  "reason": "Verified in the variant: the only screen routes under /people/:id/events are /events/new (screen.logContact); /people/:id/events/:eventId appears only in the new affordance effect. A dangling navigation target unrelated to the seeded stale /log route."
+ },
+ {
+  "claimId": "f381ab-c2",
+  "variants": [
+   "f381ab"
+  ],
+  "outputs": [
+   "0f1cfd4a",
+   "5405529e",
+   "b0bea476",
+   "b4d3d400"
+  ],
+  "claim": "Event revision has no operation, journey step or screen states; HistoryRow.open invokes no operation",
+  "label": "false",
+  "reason": "Navigation affordances in this spec do not invoke operations (cf. SuggestionCard.openPerson), and operation.contact.log is already 'Log or revise contact'. The real gap is the missing screen (f381ab-c1)."
+ },
+ {
+  "claimId": "f381ab-c3",
+  "variants": [
+   "f381ab"
+  ],
+  "outputs": [
+   "b0bea476"
+  ],
+  "claim": "screen.person composition text not updated for HistoryRow opening events",
+  "label": "false",
+  "reason": "'History has one row per event' remains true; nit."
+ },
+ {
+  "claimId": "f80839-c1",
+  "variants": [
+   "f80839"
+  ],
+  "outputs": [
+   "64cccde2",
+   "946e560f",
+   "be33ec36",
+   "be8ba967"
+  ],
+  "claim": "operation.data.export has no reads link to Connection/Account and its effects don't mention connections",
+  "label": "false",
+  "reason": "Missing-link nit, same treatment as 864bc6-c1. The operation's 'Export authorized records' effect is generic."
+ },
+ {
+  "claimId": "f80839-c2",
+  "variants": [
+   "f80839"
+  ],
+  "outputs": [
+   "be33ec36"
+  ],
+  "claim": "Export includes the counterpart's account email but entity.Account has no email field",
+  "label": "real-introduced",
+  "subtype": "seeded-symptom",
+  "reason": "Verified: Account fields have no email. A true dangling reference, but it is part of the seeded edit (counterpart identity fields) and disappears when the defect is fixed."
+ },
+ {
+  "claimId": "f80839-c3",
+  "variants": [
+   "f80839"
+  ],
+  "outputs": [
+   "eacba510"
+  ],
+  "claim": "ExportControls description lists 'connections' while the affordance limits to active Connections with counterpart fields; scopes differ",
+  "label": "false",
+  "reason": "Wording nit."
+ },
+ {
+  "claimId": "f80839-c4",
+  "variants": [
+   "f80839"
+  ],
+  "outputs": [
+   "5d1f4a42"
+  ],
+  "claim": "The isolation fixture cannot tell which counterpart fields may be disclosed; no rule defines it",
+  "label": "false",
+  "reason": "The rule exists: operation.data.export and J.control.export/e1 exclude other people's data."
+ }
+]

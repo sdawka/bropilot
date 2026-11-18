@@ -1,0 +1,33 @@
+{
+ "variant": "ee73ec",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.connection.revoke",
+    "affordance.ConnectionPanel.block"
+   ],
+   "severity": "medium",
+   "summary": "The shared 'Disconnect or block' operation now requires owner reauthentication for both disconnect and block, but the Block affordance that also invokes it was not updated, so the two now disagree on whether blocking needs reauthentication.",
+   "evidence": "operation: \"preconditions: [Participant authority, Owner reauthentication]\" / \"Reauthentication failure denies the change\"; only affordance Disconnect changed to \"trigger: Owner reauthenticates and confirms Disconnect\" while affordance.ConnectionPanel.block is untouched"
+  },
+  {
+   "nodeIds": [
+    "operation.connection.revoke"
+   ],
+   "severity": "low",
+   "summary": "The operation is governed by 'Participant authority' (any participant), but the new requirement says 'Owner reauthentication', which is an inconsistent actor scope.",
+   "evidence": "\"description: Participant authority and owner reauthentication.\" with \"failure: Non-participant is denied\""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.revocation.current",
+    "J.control.disconnect"
+   ],
+   "severity": "low",
+   "summary": "The reauthentication rule was attached to an unrelated criterion about revocation after a queued job, and the journey step merges reauthentication into the action without adding a branch for reauthentication failure.",
+   "evidence": "criterion claim: \"Revoke access after a job is queued, then retry dispatch and access... Disconnect without fresh reauthentication is denied\"; journey d2: \"action: Choose Disconnect, confirm and reauthenticate\""
+  }
+ ],
+ "unknownIds": []
+}

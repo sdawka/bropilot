@@ -1,0 +1,31 @@
+{
+ "variant": "f80839",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export"
+   ],
+   "severity": "medium",
+   "summary": "The new effect exports each Connection counterpart's display name and account email, which contradicts operation.data.export's effect 'Export excludes other people's data' and journey end step J.control.export/e1 ('excluding other people's data').",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "J.control.export/x4"
+   ],
+   "severity": "medium",
+   "summary": "The step now promises the connection list, but the invoked operation.data.export only reads ContactRecord, RelationshipGoal and ContactEvent and has no reads link or effect covering Connection, so the reference is missing.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "component.ExportControls"
+   ],
+   "severity": "medium",
+   "summary": "The description says the export includes connections, but the backing operation and owner-only policy define no Connection read, and exposing a counterpart's account email goes beyond the owner's authorized records.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,35 @@
+{
+ "variant": "04db7c",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "hook.webapp.prompts.bounded",
+    "C.webapp.prompts.bounded",
+    "evolution.2",
+    "evolution.4"
+   ],
+   "severity": "medium",
+   "summary": "The hook fixture now tests external reminder timing, but its criterion's claim does not cover reminder hours, and the criterion is an acceptance gate for evolution.2, which comes before reminder transport exists in evolution.4.",
+   "evidence": "hook fixture: \"six due goals yield five ordered cards; one reminder at the chosen local hour\"; C.webapp.prompts.bounded claim: \"Six due goals yield exactly five ordered cards. Duplicate jobs must not duplicate prompts or owner reminders\"; evolution.2 acceptance C.webapp.prompts.bounded with intent \"fixed-clock and bounded-card fixtures\"; evolution.4 intent: \"Add optional reminder transport\""
+  },
+  {
+   "nodeIds": [
+    "S.webapp.prompts",
+    "hook.webapp.prompts.bounded"
+   ],
+   "severity": "low",
+   "summary": "The new requirement that a chosen hour skipped by daylight saving moves to the next valid hour has no fixture or criterion verifying it.",
+   "evidence": "S.webapp.prompts: \"A chosen hour skipped by a daylight-saving change moves to the next valid hour.\" The hook fixture only covers \"one reminder at the chosen local hour\"."
+  },
+  {
+   "nodeIds": [
+    "entity.NotificationJob"
+   ],
+   "severity": "low",
+   "summary": "The new localHour field is an unbounded int with no 0..23 range, and the entity's description and invariants were not updated to mention it.",
+   "evidence": "\"- { name: localHour, type: int }\" while the description still reads \"ID, owner, suggestion and preference version, scheduled time, delivery state and deduplication key\"; compare intervalDays typed \"int 1..3650\""
+  }
+ ],
+ "unknownIds": []
+}

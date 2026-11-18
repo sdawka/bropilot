@@ -1,0 +1,28 @@
+{
+ "variant": "edd783",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.GoalForm.save",
+    "J.goals/e1",
+    "screen.goal"
+   ],
+   "severity": "medium",
+   "summary": "The new effect says SchedulePreview, which is on the Goal screen, shows the result after saving, but the goal journey's end step after a successful save is on the Person screen, so the post-save preview is never shown in the specified flow.",
+   "evidence": "affordance.GoalForm.save: \"After saving, SchedulePreview shows the new due date and which past events now qualify\"; J.goals/e1 stepScreen -> screen.person; screen.goal: \"Exactly PageHeading, GoalForm and SchedulePreview\""
+  },
+  {
+   "nodeIds": [
+    "affordance.GoalForm.save",
+    "operation.goal.save",
+    "S.webapp.due",
+    "screen.logContact"
+   ],
+   "severity": "low",
+   "summary": "Showing 'which past events now qualify' after a goal edit implies that revising a goal retroactively changes event qualification, but neither operation.goal.save nor S.webapp.due defines this, and qualification is otherwise set per event through the 'Met this goal' checkbox when contact is logged.",
+   "evidence": "GoalForm.save: \"which past events now qualify\"; operation.goal.save effects: \"Increment goal version, Recompute due state, Cancel obsolete jobs\"; screen.logContact: \"Met this goal checkbox ... defaults unchecked\""
+  }
+ ],
+ "unknownIds": []
+}

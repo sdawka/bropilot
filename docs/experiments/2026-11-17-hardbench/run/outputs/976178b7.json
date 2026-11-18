@@ -1,0 +1,27 @@
+{
+ "variant": "125d6e",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "J.control.block/b3",
+    "J.control.block/b6",
+    "J.control.block/b2"
+   ],
+   "severity": "high",
+   "summary": "The revoke operation (b3) now runs before the user confirms or cancels in BlockConfirmDialog (b6), so cancelling happens after sharing has already been revoked and the Block recorded.",
+   "evidence": "b2 next: b3; b3 'Participant authority checked; sharing revoked; pending deliveries cancelled; Block recorded' next: b6; b6 'Confirm block or cancel' -> e2 when cancel"
+  },
+  {
+   "nodeIds": [
+    "J.control.block/e2",
+    "affordance.ConnectionPanel.block",
+    "C.webapp.revocation.current"
+   ],
+   "severity": "high",
+   "summary": "The cancel path ends at e2 'No block recorded' even though b3 has already recorded the Block. This contradicts the affordance effect and the new criterion claim.",
+   "evidence": "affordance effect: 'Nothing is revoked or recorded until the owner confirms in BlockConfirmDialog'; criterion: 'Cancelling a block confirmation leaves sharing and pending jobs untouched'; e2: 'No block recorded'"
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,35 @@
+{
+ "variant": "27bc02",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.AddContactDialog.save",
+    "component.AddContactBirthdayField",
+    "C.webapp.contact.save"
+   ],
+   "severity": "high",
+   "summary": "The Save affordance now requires a nonblank birthday, but the birthday is declared optional everywhere else.",
+   "evidence": "preconditions: [Owner session, Nonblank name, Nonblank birthday] vs. 'Optional birthday as month and day', 'an optional month-day birthday' and J.contacts s4 'save, name nonblank'"
+  },
+  {
+   "nodeIds": [
+    "entity.ContactRecord",
+    "component.AddContactBirthdayField"
+   ],
+   "severity": "medium",
+   "summary": "The birthday field is typed as a full local-date, but the UI and criterion define it as a month-day value whose year may be left blank.",
+   "evidence": "{ name: birthday, type: local-date, optional: true } vs. 'Optional birthday as month and day; the year may be left blank'"
+  },
+  {
+   "nodeIds": [
+    "operation.contact.save",
+    "hook.webapp.contact.save"
+   ],
+   "severity": "low",
+   "summary": "The operation and its hook fixture were not updated for birthday validation, so the new criterion claim has no matching operation contract or executable evidence.",
+   "evidence": "operation.contact.save preconditions: [Owner session, Nonblank name]; hook fixture: \"blank name rejected, input preserved on failure, owned record saved\""
+  }
+ ],
+ "unknownIds": []
+}

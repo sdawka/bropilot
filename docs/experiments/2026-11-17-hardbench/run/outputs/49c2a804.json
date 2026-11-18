@@ -1,0 +1,37 @@
+{
+ "variant": "b7965d",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.nudge",
+    "entity.MessageDraft",
+    "policy.revocation",
+    "operation.connection.revoke"
+   ],
+   "severity": "high",
+   "summary": "The nudge delivers an app-mediated message to another account, but no send operation exists and no revocation or authorization policy governs the affordance or MessageDraft, so the required current-state block/disconnect check on send has no home in the spec.",
+   "evidence": "Nudge effects: 'Delivers a short \"thinking of you\" card ... inside the app'; links only '{ rel: writes, to: entity.MessageDraft }'. policy.revocation: 'Read and send authorization must check revocation against current authoritative state'. MessageDraft gets only a storedIn link, while every other stored entity has a 'governs' link from a policy."
+  },
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.nudge",
+    "entity.MessageDraft"
+   ],
+   "severity": "medium",
+   "summary": "Nothing on the recipient side models how a nudge is received or displayed, so 'delivers ... inside the app' points to a missing piece.",
+   "evidence": "Nudge effect: 'Delivers a short \"thinking of you\" card from the owner to the connected person inside the app'. No screen or component in screen.today, screen.person or elsewhere reads entity.MessageDraft."
+  },
+  {
+   "nodeIds": [
+    "evolution.7",
+    "C.webapp.nudge.single",
+    "binding.contactsStore"
+   ],
+   "severity": "low",
+   "summary": "The new nodes are wired in incompletely.",
+   "evidence": "evolution.7 affectedNodes lists only the affordance and MessageDraft, yet the diff also changes screen.person and component.PersonActionBar. C.webapp.nudge.single has no sourceRefs, unlike sibling criteria such as 'sourceRefs: [S.webapp.operations]'. binding.contactsStore covers 'accounts, owned contacts, goals, events, consent and jobs', which does not include messages."
+  }
+ ],
+ "unknownIds": []
+}

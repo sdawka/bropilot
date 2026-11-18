@@ -1,0 +1,36 @@
+{
+ "variant": "edd783",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.GoalForm.save",
+    "component.SchedulePreview",
+    "S.webapp.qualification"
+   ],
+   "severity": "high",
+   "summary": "The changed Save affordance shows the schedule effect only after saving, which contradicts the requirement and the SchedulePreview node that both demand the depth-change effect be shown before saving.",
+   "evidence": "Diff: \"After saving, SchedulePreview shows the new due date and which past events now qualify\" vs S.webapp.qualification: \"Changing depth may change which historical events qualify; SchedulePreview must show that effect before saving.\" and component.SchedulePreview: \"SchedulePreview must show that effect before saving.\""
+  },
+  {
+   "nodeIds": [
+    "affordance.GoalForm.save",
+    "J.goals"
+   ],
+   "severity": "medium",
+   "summary": "The goals journey still has a preview step before the Save-or-cancel step, which conflicts with the new one-step save that has no review step and previews only afterwards.",
+   "evidence": "J.goals g4: \"SchedulePreview shows the due date and which historical events would qualify under the chosen depth\" precedes g5 \"Save or cancel\"; diff: \"without a separate review step\" ... \"After saving, SchedulePreview shows...\""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.screen.exact",
+    "hook.webapp.screen.exact",
+    "evolution.7"
+   ],
+   "severity": "medium",
+   "summary": "The protected screen criterion and its hook now assert immediate goal save, which encodes the behavior that violates the before-save preview requirement into acceptance evidence.",
+   "evidence": "\"Protected browser fixture checks loaded, empty, loading, error and validation compositions, immediate goal save, login continuation and keyboard actions\""
+  }
+ ],
+ "unknownIds": []
+}

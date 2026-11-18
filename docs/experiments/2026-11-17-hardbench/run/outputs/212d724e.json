@@ -1,0 +1,38 @@
+{
+ "variant": "5f4559",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.Suggestion",
+    "component.SuggestionReason",
+    "ext.device",
+    "binding.scheduler"
+   ],
+   "severity": "high",
+   "summary": "Suggestion reasons are said to come from the device calendar, but no operation, entity or link carries calendar data from the device to the server-side suggestion generation. The changed nodes therefore depend on a missing piece.",
+   "evidence": "Suggestion: 'The reason may mention an upcoming birthday or anniversary read from the owner's device calendar'. ext.device has no incoming reads or triggers links. Suggestions are written only by operation.goal.save, operation.contact.log and operation.connection.revoke, none of which reads ext.device. thing.webapp is 'one full-stack Worker application' with Cron Triggers."
+  },
+  {
+   "nodeIds": [
+    "component.CalendarAccessToggle",
+    "entity.Account",
+    "ext.device"
+   ],
+   "severity": "medium",
+   "summary": "The new CalendarAccessToggle has no affordance, no write link and no persisted field, so its 'off by default' state has nowhere to live and nothing gates calendar reads on it.",
+   "evidence": "CalendarAccessToggle: 'Allows reading birthdays and anniversaries from the device calendar; off by default'. It has no children or links. Account fields are only id, identitySubject, displayName, timeZone, notificationPreferences. ProfilePreferences only 'reads entity.Account'."
+  },
+  {
+   "nodeIds": [
+    "hook.webapp.prompts.bounded",
+    "C.webapp.prompts.bounded",
+    "S.webapp.prompts"
+   ],
+   "severity": "low",
+   "summary": "The hook fixture now tests 'calendar reasons', but its criterion and source requirement say nothing about calendar-derived reasons. The test scope drifts from the claim it verifies, and the hook version was not bumped.",
+   "evidence": "Hook fixture: 'six due goals yield five ordered cards, incl. calendar reasons' (version: 1). C.webapp.prompts.bounded claim: 'Six due goals yield exactly five ordered cards. Duplicate jobs must not duplicate prompts or owner reminders'. S.webapp.prompts does not mention calendar."
+  }
+ ],
+ "unknownIds": []
+}

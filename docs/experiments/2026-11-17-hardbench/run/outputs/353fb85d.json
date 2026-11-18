@@ -1,0 +1,27 @@
+{
+ "variant": "bc8433",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.NotificationPreferences.sendTest",
+    "S.webapp.prompts",
+    "entity.NotificationJob"
+   ],
+   "severity": "high",
+   "summary": "The test reminder puts the next due person's name and phone number in an external notification, which contradicts the rule that owner reminders contain only a link without contact details.",
+   "evidence": "sendTest effect: \"The test shows the next due person's name and phone number so the owner sees a realistic example\" vs S.webapp.prompts: \"Optional external reminders ... must be limited to one owner notification per local day containing a link without contact details\" and NotificationJob invariant \"containing a link without contact details\""
+  },
+  {
+   "nodeIds": [
+    "affordance.NotificationPreferences.sendTest",
+    "entity.NotificationJob",
+    "ext.providers"
+   ],
+   "severity": "medium",
+   "summary": "The test reminder goes straight to the provider without any operation or NotificationJob, so it skips the required preference and cancellation recheck, the deduplication key, the owner authorization, and the one-per-day accounting; the hook still expects it to be delivered exactly once.",
+   "evidence": "links: \"{ rel: triggers, to: ext.providers, label: test reminder }\" with no invokes link to any operation; S.webapp.prompts: \"Reminder delivery must recheck preferences and cancellations\"; S.webapp.operations: \"all mutations must authorize ... and support an idempotency key\"; hook fixture: \"an owner test reminder is delivered once\""
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,31 @@
+{
+ "variant": "e3bf46",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.RelationshipGoal"
+   ],
+   "severity": "medium",
+   "summary": "The new rule that high-priority suggestions are listed first on Today has no backing requirement: S.webapp.qualification, S.webapp.due and the Today prompts requirement do not mention priority, and screen.today does not describe this ordering.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.schedule.correct"
+   ],
+   "severity": "medium",
+   "summary": "The schedule-correctness criterion now covers 'priority changes', but priority does not affect due dates or qualification. Meanwhile C.webapp.prompts.bounded, which checks which five ordered cards appear out of six due goals, is not updated to test priority ordering.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "component.GoalPriorityField"
+   ],
+   "severity": "medium",
+   "summary": "The field says priority defaults to normal, but the entity's required priority field has no default or migration for existing goals, so goals saved before this change have no defined priority.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

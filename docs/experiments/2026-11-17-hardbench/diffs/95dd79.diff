@@ -1,0 +1,37 @@
+--- a/journeys/J.prompts.yaml
++++ b/journeys/J.prompts.yaml
+@@ -55,7 +55,7 @@
+   - S.webapp.due
+ - id: p5
+   actor: user
+-  action: Snooze the suggestion; its effective due date moves
++  action: Snooze the suggestion for 1, 3 or 7 days; its effective due date moves
+   kind: action
+   screen: screen.today
+   operation: operation.goal.save
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -37,7 +37,7 @@
+     hooks: [hook.webapp.outgoing.single]
+   - id: C.webapp.schedule.correct
+     title: Schedule correctness
+-    claim: "Fixed-clock fixtures cover zero logs, qualification, interval and depth changes, time zones, DST, snooze, pause and deleted events"
++    claim: "Fixed-clock fixtures cover zero logs, qualification, interval and depth changes, time zones, DST, 1-, 3- and 7-day snoozes, pause and deleted events"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: entity
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -119,10 +119,11 @@
+                 kind: affordance
+                 name: Snooze
+                 actor: ext.owner
+-                trigger: Owner activates Snooze on a card
++                trigger: Owner activates Snooze on a card and picks 1, 3 or 7 days
+                 preconditions: [Open suggestion for an enabled goal]
+                 effects:
+                   - Snoozing must update its effective due date
++                  - Sets the goal's snoozedUntil to the chosen date
+                   - Cancels obsolete notification jobs for the snoozed suggestion
+                 failure: [Stale version returns conflict without overwriting current data]
+                 links:

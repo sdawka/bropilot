@@ -1,0 +1,6657 @@
+{
+ "notes": [
+  "Findings in blind outputs are in the CLI's order: runReview stable-sorts by severity (high, medium, low), so the model's own order is preserved only within each severity; --json does not include the raw reply.",
+  "Usage-limit failures (claude 5-hour limit, cost $0, api time 0) were not counted as retries; they are logged in retries.jsonl with usage_limit or as the 52 early records parked in failed_ratelimit/.",
+  "prompt = --print-prompt stats for the call's mode; cli_stats = stats from the run itself; deterministic = new-in-head lint findings from the CLI."
+ ],
+ "cells": {
+  "A1": {
+   "8ac67f": {
+    "outid": "d6f374fd",
+    "cost": 0.0330658,
+    "wall": 3.7,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1001,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 4003,
+     "slice": 61,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 61,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 4003,
+     "approxTokens": 1001
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "9edff9": {
+    "outid": "f148d820",
+    "cost": 0.0331538,
+    "wall": 3.9,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 949,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 3796,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3796,
+     "approxTokens": 949
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "f381ab": {
+    "outid": "0f1cfd4a",
+    "cost": 0.0363058,
+    "wall": 6.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 802,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 3206,
+     "slice": 63,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 63,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 3206,
+     "approxTokens": 802
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "8fa895": {
+    "outid": "0c3355dd",
+    "cost": 0.053913800000000005,
+    "wall": 12.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1403,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 5613,
+     "slice": 83,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 83,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 5613,
+     "approxTokens": 1403
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "operation.disconnectOrBlock",
+     "requirement.prompts"
+    ]
+   },
+   "22094b": {
+    "outid": "ca4a8df7",
+    "cost": 0.0383138,
+    "wall": 8.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 700,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 2801,
+     "slice": 74,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 74,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 2801,
+     "approxTokens": 700
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "edd783": {
+    "outid": "8d9e63be",
+    "cost": 0.0444818,
+    "wall": 11.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 729,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 2914,
+     "slice": 46,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 46,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 2914,
+     "approxTokens": 729
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "04db7c": {
+    "outid": "eefccb54",
+    "cost": 0.0364218,
+    "wall": 6.0,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 928,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 3713,
+     "slice": 73,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 73,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3713,
+     "approxTokens": 928
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "474d5e": {
+    "outid": "60897238",
+    "cost": 0.0368418,
+    "wall": 5.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1008,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 4032,
+     "slice": 73,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 73,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 4032,
+     "approxTokens": 1008
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "e3bf46": {
+    "outid": "065e8a31",
+    "cost": 0.0447898,
+    "wall": 7.8,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1134,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 4536,
+     "slice": 91,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 91,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 4536,
+     "approxTokens": 1134
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "45de63": {
+    "outid": "e5b33ee1",
+    "cost": 0.0448978,
+    "wall": 5.4,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1673,
+     "changed": 16,
+     "fallback": false,
+     "promptChars": 6690,
+     "slice": 139,
+     "total": 310
+    },
+    "cli_stats": {
+     "changed": 16,
+     "slice": 139,
+     "total": 310,
+     "fallback": false,
+     "promptChars": 6690,
+     "approxTokens": 1673
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "flow.effectUnsurfaced",
+      "subject": "affordance.ConnectionPanel.unblock",
+      "message": "Affordance affordance.ConnectionPanel.unblock changes an entity that no screen or component shows and no external receives, so the person never sees the effect.",
+      "pack": "artyfact.flow@1"
+     }
+    ],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "dfba1a": {
+    "outid": "1d5a67ff",
+    "cost": 0.0469098,
+    "wall": 10.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 894,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 3576,
+     "slice": 103,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 103,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 3576,
+     "approxTokens": 894
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "J.connect.s1"
+    ]
+   },
+   "499fa7": {
+    "outid": "750712c0",
+    "cost": 0.0333858,
+    "wall": 5.7,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 796,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 3182,
+     "slice": 68,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 68,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3182,
+     "approxTokens": 796
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "3a9735": {
+    "outid": "9578b41b",
+    "cost": 0.0425018,
+    "wall": 7.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1014,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 4055,
+     "slice": 56,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 56,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 4055,
+     "approxTokens": 1014
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "125d6e": {
+    "outid": "54d958d3",
+    "cost": 0.040257799999999996,
+    "wall": 7.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 920,
+     "changed": 9,
+     "fallback": false,
+     "promptChars": 3679,
+     "slice": 105,
+     "total": 304
+    },
+    "cli_stats": {
+     "changed": 9,
+     "slice": 105,
+     "total": 304,
+     "fallback": false,
+     "promptChars": 3679,
+     "approxTokens": 920
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": [
+     "J.control.block.b2",
+     "J.control.block.b3",
+     "J.control.block.b6"
+    ]
+   },
+   "cfc784": {
+    "outid": "2f282945",
+    "cost": 0.0318738,
+    "wall": 4.2,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 881,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 3525,
+     "slice": 57,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 57,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3525,
+     "approxTokens": 881
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "089273": {
+    "outid": "da7269f2",
+    "cost": 0.0446178,
+    "wall": 8.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 907,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 3626,
+     "slice": 48,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 48,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 3626,
+     "approxTokens": 907
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "6fa350": {
+    "outid": "870d3f16",
+    "cost": 0.034249800000000004,
+    "wall": 4.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 941,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 3765,
+     "slice": 95,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 95,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3765,
+     "approxTokens": 941
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": [
+     "J.control.export.x4"
+    ]
+   },
+   "249a5b": {
+    "outid": "59b9649d",
+    "cost": 0.0278058,
+    "wall": 3.3,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 652,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 2606,
+     "slice": 49,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 49,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 2606,
+     "approxTokens": 652
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "698e3b": {
+    "outid": "962f35e3",
+    "cost": 0.0407898,
+    "wall": 8.4,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 732,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 2926,
+     "slice": 72,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 72,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 2926,
+     "approxTokens": 732
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "J.contact.c4"
+    ]
+   },
+   "5f4559": {
+    "outid": "8331a8c7",
+    "cost": 0.0441098,
+    "wall": 10.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 844,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 3377,
+     "slice": 70,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 70,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 3377,
+     "approxTokens": 844
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "774614": {
+    "outid": "f19ee731",
+    "cost": 0.0432418,
+    "wall": 8.4,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 996,
+     "changed": 12,
+     "fallback": false,
+     "promptChars": 3982,
+     "slice": 117,
+     "total": 304
+    },
+    "cli_stats": {
+     "changed": 12,
+     "slice": 117,
+     "total": 304,
+     "fallback": false,
+     "promptChars": 3982,
+     "approxTokens": 996
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.prompts.cards",
+      "message": "Criterion C.webapp.prompts.cards has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     },
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.reminders.daily",
+      "message": "Criterion C.webapp.reminders.daily has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     }
+    ],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "d1c15a": {
+    "outid": "f24dc213",
+    "cost": 0.044489799999999996,
+    "wall": 10.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 875,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 3498,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3498,
+     "approxTokens": 875
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "action.Save",
+     "c4"
+    ]
+   },
+   "b6a5d0": {
+    "outid": "ff708d2d",
+    "cost": 0.0461778,
+    "wall": 9.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 949,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 3794,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3794,
+     "approxTokens": 949
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": [
+     "entity.Goal"
+    ]
+   },
+   "46753b": {
+    "outid": "1b72e788",
+    "cost": 0.0480098,
+    "wall": 6.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1650,
+     "changed": 19,
+     "fallback": false,
+     "promptChars": 6598,
+     "slice": 180,
+     "total": 310
+    },
+    "cli_stats": {
+     "changed": 19,
+     "slice": 180,
+     "total": 310,
+     "fallback": false,
+     "promptChars": 6598,
+     "approxTokens": 1650
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "643d59": {
+    "outid": "3afc8be0",
+    "cost": 0.0451938,
+    "wall": 8.4,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1084,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 4336,
+     "slice": 96,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 96,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 4336,
+     "approxTokens": 1084
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "requirement.webapp.goal-dates"
+    ]
+   },
+   "b7965d": {
+    "outid": "9c807746",
+    "cost": 0.0560898,
+    "wall": 11.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1367,
+     "changed": 9,
+     "fallback": false,
+     "promptChars": 5467,
+     "slice": 111,
+     "total": 306
+    },
+    "cli_stats": {
+     "changed": 9,
+     "slice": 111,
+     "total": 306,
+     "fallback": false,
+     "promptChars": 5467,
+     "approxTokens": 1367
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "flow.effectUnsurfaced",
+      "subject": "affordance.PersonActionBar.nudge",
+      "message": "Affordance affordance.PersonActionBar.nudge changes an entity that no screen or component shows and no external receives, so the person never sees the effect.",
+      "pack": "artyfact.flow@1"
+     },
+     {
+      "level": "warning",
+      "rule": "flow.orphanWrite",
+      "subject": "entity.MessageDraft",
+      "message": "Entity entity.MessageDraft is written but nothing reads it and no external receives it.",
+      "pack": "artyfact.flow@1"
+     },
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.nudge.single",
+      "message": "Criterion C.webapp.nudge.single has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     },
+     {
+      "level": "info",
+      "rule": "semantic:topology.multiRecipient",
+      "subject": "affordance.PersonActionBar.nudge",
+      "message": "affordance.PersonActionBar.nudge may address several recipients; ask whether it breaks one-to-one delivery.",
+      "pack": "artyfact.topology.private-pairs@1"
+     }
+    ],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "864bc6": {
+    "outid": "c00423c4",
+    "cost": 0.048569799999999996,
+    "wall": 12.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 870,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 3481,
+     "slice": 61,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 61,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3481,
+     "approxTokens": 870
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "component.AddContactDialog.ChannelFields"
+    ]
+   },
+   "08b2b8": {
+    "outid": "9cc1c657",
+    "cost": 0.0473498,
+    "wall": 8.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1347,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 5387,
+     "slice": 102,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 102,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 5387,
+     "approxTokens": 1347
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "affordance.disconnect"
+    ]
+   },
+   "b434a4": {
+    "outid": "8e799ee1",
+    "cost": 0.0438058,
+    "wall": 5.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1447,
+     "changed": 14,
+     "fallback": false,
+     "promptChars": 5786,
+     "slice": 167,
+     "total": 309
+    },
+    "cli_stats": {
+     "changed": 14,
+     "slice": 167,
+     "total": 309,
+     "fallback": false,
+     "promptChars": 5786,
+     "approxTokens": 1447
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "ee73ec": {
+    "outid": "05e50e80",
+    "cost": 0.0413858,
+    "wall": 7.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 976,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 3903,
+     "slice": 78,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 78,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3903,
+     "approxTokens": 976
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "aaf530": {
+    "outid": "afbcdb5e",
+    "cost": 0.0329458,
+    "wall": 5.8,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 888,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 3551,
+     "slice": 63,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 63,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3551,
+     "approxTokens": 888
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "5cceea": {
+    "outid": "8d44319c",
+    "cost": 0.0415778,
+    "wall": 7.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 971,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 3882,
+     "slice": 111,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 111,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 3882,
+     "approxTokens": 971
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "bc8433": {
+    "outid": "12ef28cc",
+    "cost": 0.0402018,
+    "wall": 8.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 877,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 3509,
+     "slice": 94,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 94,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 3509,
+     "approxTokens": 877
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "95dd79": {
+    "outid": "024a0b1c",
+    "cost": 0.0335058,
+    "wall": 6.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 648,
+     "changed": 3,
+     "fallback": false,
+     "promptChars": 2592,
+     "slice": 50,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 3,
+     "slice": 50,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 2592,
+     "approxTokens": 648
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 1,
+    "unknownIds": []
+   },
+   "f80839": {
+    "outid": "eacba510",
+    "cost": 0.0323938,
+    "wall": 5.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 673,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 2691,
+     "slice": 31,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 31,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 2691,
+     "approxTokens": 673
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": [
+     "ExportControls",
+     "x4"
+    ]
+   },
+   "27bc02": {
+    "outid": "3ebf2a6f",
+    "cost": 0.039645799999999995,
+    "wall": 5.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1201,
+     "changed": 7,
+     "fallback": false,
+     "promptChars": 4803,
+     "slice": 93,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 7,
+     "slice": 93,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 4803,
+     "approxTokens": 1201
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   }
+  },
+  "A2": {
+   "8ac67f": {
+    "outid": "662cd8d8",
+    "cost": 0.17464980000000002,
+    "wall": 8.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 11966,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 47862,
+     "slice": 61,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 61,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 47862,
+     "approxTokens": 11966
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "9edff9": {
+    "outid": "8ebdb0da",
+    "cost": 0.1942578,
+    "wall": 5.4,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 14492,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 57966,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 57966,
+     "approxTokens": 14492
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "f381ab": {
+    "outid": "5405529e",
+    "cost": 0.1726858,
+    "wall": 8.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 12122,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 48488,
+     "slice": 63,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 63,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 48488,
+     "approxTokens": 12122
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "8fa895": {
+    "outid": "28e7e172",
+    "cost": 0.2451138,
+    "wall": 16.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 16879,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 67517,
+     "slice": 83,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 83,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 67517,
+     "approxTokens": 16879
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "22094b": {
+    "outid": "3c73d19f",
+    "cost": 0.1988018,
+    "wall": 11.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 13745,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 54978,
+     "slice": 74,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 74,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 54978,
+     "approxTokens": 13745
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "edd783": {
+    "outid": "56585efe",
+    "cost": 0.1440658,
+    "wall": 12.4,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 9039,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 36157,
+     "slice": 46,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 46,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 36157,
+     "approxTokens": 9039
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "04db7c": {
+    "outid": "a2980f2a",
+    "cost": 0.2132818,
+    "wall": 13.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 14431,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 57725,
+     "slice": 73,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 73,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 57725,
+     "approxTokens": 14431
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "474d5e": {
+    "outid": "49715c1f",
+    "cost": 0.1963338,
+    "wall": 7.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 14645,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 58579,
+     "slice": 73,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 73,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 58579,
+     "approxTokens": 14645
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "e3bf46": {
+    "outid": "111501eb",
+    "cost": 0.2393898,
+    "wall": 12.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 16997,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 67988,
+     "slice": 91,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 91,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 67988,
+     "approxTokens": 16997
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "45de63": {
+    "outid": "07992189",
+    "cost": 0.3321298,
+    "wall": 9.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 25111,
+     "changed": 16,
+     "fallback": false,
+     "promptChars": 100443,
+     "slice": 139,
+     "total": 310
+    },
+    "cli_stats": {
+     "changed": 16,
+     "slice": 139,
+     "total": 310,
+     "fallback": false,
+     "promptChars": 100443,
+     "approxTokens": 25111
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "flow.effectUnsurfaced",
+      "subject": "affordance.ConnectionPanel.unblock",
+      "message": "Affordance affordance.ConnectionPanel.unblock changes an entity that no screen or component shows and no external receives, so the person never sees the effect.",
+      "pack": "artyfact.flow@1"
+     }
+    ],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "dfba1a": {
+    "outid": "dafb873f",
+    "cost": 0.2519818,
+    "wall": 9.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 18563,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 74251,
+     "slice": 103,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 103,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 74251,
+     "approxTokens": 18563
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "499fa7": {
+    "outid": "3954c306",
+    "cost": 0.1822418,
+    "wall": 6.7,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 13558,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 54230,
+     "slice": 68,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 68,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 54230,
+     "approxTokens": 13558
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "3a9735": {
+    "outid": "fd4eef6c",
+    "cost": 0.1651858,
+    "wall": 10.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 11167,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 44669,
+     "slice": 56,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 56,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 44669,
+     "approxTokens": 11167
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "125d6e": {
+    "outid": "5c7fe4df",
+    "cost": 0.2471018,
+    "wall": 7.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 18562,
+     "changed": 9,
+     "fallback": false,
+     "promptChars": 74248,
+     "slice": 105,
+     "total": 304
+    },
+    "cli_stats": {
+     "changed": 9,
+     "slice": 105,
+     "total": 304,
+     "fallback": false,
+     "promptChars": 74248,
+     "approxTokens": 18562
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "cfc784": {
+    "outid": "b17ef3f6",
+    "cost": 0.1498778,
+    "wall": 4.2,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 11228,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 44912,
+     "slice": 57,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 57,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 44912,
+     "approxTokens": 11228
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "089273": {
+    "outid": "9aacf5df",
+    "cost": 0.1496538,
+    "wall": 12.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 9415,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 37659,
+     "slice": 48,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 48,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 37659,
+     "approxTokens": 9415
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "6fa350": {
+    "outid": "17dd87ca",
+    "cost": 0.2327098,
+    "wall": 5.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 17617,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 70468,
+     "slice": 95,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 95,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 70468,
+     "approxTokens": 17617
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "249a5b": {
+    "outid": "485cab8e",
+    "cost": 0.13298580000000002,
+    "wall": 9.4,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 8355,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 33420,
+     "slice": 49,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 49,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 33420,
+     "approxTokens": 8355
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "698e3b": {
+    "outid": "e179c117",
+    "cost": 0.1796978,
+    "wall": 9.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 12457,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 49828,
+     "slice": 72,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 72,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 49828,
+     "approxTokens": 12457
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "5f4559": {
+    "outid": "212d724e",
+    "cost": 0.1982538,
+    "wall": 11.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 13808,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 55231,
+     "slice": 70,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 70,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 55231,
+     "approxTokens": 13808
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "774614": {
+    "outid": "d1b7dc8d",
+    "cost": 0.27562980000000004,
+    "wall": 7.4,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 20605,
+     "changed": 12,
+     "fallback": false,
+     "promptChars": 82418,
+     "slice": 117,
+     "total": 304
+    },
+    "cli_stats": {
+     "changed": 12,
+     "slice": 117,
+     "total": 304,
+     "fallback": false,
+     "promptChars": 82418,
+     "approxTokens": 20605
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.prompts.cards",
+      "message": "Criterion C.webapp.prompts.cards has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     },
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.reminders.daily",
+      "message": "Criterion C.webapp.reminders.daily has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     }
+    ],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "d1c15a": {
+    "outid": "cf19bfc2",
+    "cost": 0.1897818,
+    "wall": 6.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 13825,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 55300,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 55300,
+     "approxTokens": 13825
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "b6a5d0": {
+    "outid": "45043bd3",
+    "cost": 0.2060898,
+    "wall": 9.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 14525,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 58101,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 58101,
+     "approxTokens": 14525
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "46753b": {
+    "outid": "04dc8f5b",
+    "cost": 0.3907898,
+    "wall": 7.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 29747,
+     "changed": 19,
+     "fallback": false,
+     "promptChars": 118986,
+     "slice": 180,
+     "total": 310
+    },
+    "cli_stats": {
+     "changed": 19,
+     "slice": 180,
+     "total": 310,
+     "fallback": false,
+     "promptChars": 118986,
+     "approxTokens": 29747
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "643d59": {
+    "outid": "2235d7dd",
+    "cost": 0.2535738,
+    "wall": 10.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 18487,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 73946,
+     "slice": 96,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 96,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 73946,
+     "approxTokens": 18487
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "b7965d": {
+    "outid": "49c2a804",
+    "cost": 0.27451380000000003,
+    "wall": 14.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 19667,
+     "changed": 9,
+     "fallback": false,
+     "promptChars": 78667,
+     "slice": 111,
+     "total": 306
+    },
+    "cli_stats": {
+     "changed": 9,
+     "slice": 111,
+     "total": 306,
+     "fallback": false,
+     "promptChars": 78667,
+     "approxTokens": 19667
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "flow.effectUnsurfaced",
+      "subject": "affordance.PersonActionBar.nudge",
+      "message": "Affordance affordance.PersonActionBar.nudge changes an entity that no screen or component shows and no external receives, so the person never sees the effect.",
+      "pack": "artyfact.flow@1"
+     },
+     {
+      "level": "warning",
+      "rule": "flow.orphanWrite",
+      "subject": "entity.MessageDraft",
+      "message": "Entity entity.MessageDraft is written but nothing reads it and no external receives it.",
+      "pack": "artyfact.flow@1"
+     },
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.nudge.single",
+      "message": "Criterion C.webapp.nudge.single has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     },
+     {
+      "level": "info",
+      "rule": "semantic:topology.multiRecipient",
+      "subject": "affordance.PersonActionBar.nudge",
+      "message": "affordance.PersonActionBar.nudge may address several recipients; ask whether it breaks one-to-one delivery.",
+      "pack": "artyfact.topology.private-pairs@1"
+     }
+    ],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "864bc6": {
+    "outid": "43a1e492",
+    "cost": 0.1996898,
+    "wall": 18.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 13062,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 52249,
+     "slice": 61,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 61,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 52249,
+     "approxTokens": 13062
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "08b2b8": {
+    "outid": "6d4b903f",
+    "cost": 0.2814818,
+    "wall": 14.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 20069,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 80274,
+     "slice": 102,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 102,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 80274,
+     "approxTokens": 20069
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "b434a4": {
+    "outid": "8dcf53a0",
+    "cost": 0.3673938,
+    "wall": 8.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27947,
+     "changed": 14,
+     "fallback": false,
+     "promptChars": 111787,
+     "slice": 167,
+     "total": 309
+    },
+    "cli_stats": {
+     "changed": 14,
+     "slice": 167,
+     "total": 309,
+     "fallback": false,
+     "promptChars": 111787,
+     "approxTokens": 27947
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "ee73ec": {
+    "outid": "c88bf928",
+    "cost": 0.20312980000000003,
+    "wall": 10.8,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 14401,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 57602,
+     "slice": 78,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 78,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 57602,
+     "approxTokens": 14401
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "aaf530": {
+    "outid": "5311924c",
+    "cost": 0.1753058,
+    "wall": 8.0,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 12586,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 50344,
+     "slice": 63,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 63,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 50344,
+     "approxTokens": 12586
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "5cceea": {
+    "outid": "75912da2",
+    "cost": 0.2630498,
+    "wall": 7.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 19424,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 77696,
+     "slice": 111,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 111,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 77696,
+     "approxTokens": 19424
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "bc8433": {
+    "outid": "6001d554",
+    "cost": 0.23233779999999998,
+    "wall": 7.4,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 17093,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 68373,
+     "slice": 94,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 94,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 68373,
+     "approxTokens": 17093
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "95dd79": {
+    "outid": "6ff5aa24",
+    "cost": 0.1387738,
+    "wall": 4.4,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 9828,
+     "changed": 3,
+     "fallback": false,
+     "promptChars": 39312,
+     "slice": 50,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 3,
+     "slice": 50,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 39312,
+     "approxTokens": 9828
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "f80839": {
+    "outid": "64cccde2",
+    "cost": 0.0934538,
+    "wall": 8.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 5530,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 22120,
+     "slice": 31,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 31,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 22120,
+     "approxTokens": 5530
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "27bc02": {
+    "outid": "cf411cac",
+    "cost": 0.2344618,
+    "wall": 7.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 17513,
+     "changed": 7,
+     "fallback": false,
+     "promptChars": 70050,
+     "slice": 93,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 7,
+     "slice": 93,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 70050,
+     "approxTokens": 17513
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   }
+  },
+  "A3": {
+   "8ac67f": {
+    "outid": "4b24f21e",
+    "cost": 0.3628498,
+    "wall": 11.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27900,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 111599,
+     "slice": 61,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 61,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 111599,
+     "approxTokens": 27900
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 1,
+    "unknownIds": []
+   },
+   "9edff9": {
+    "outid": "0ad32cb8",
+    "cost": 0.3603378,
+    "wall": 8.2,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27807,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 111229,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 111229,
+     "approxTokens": 27807
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "f381ab": {
+    "outid": "1eddfb3f",
+    "cost": 0.3600818,
+    "wall": 6.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27806,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 111225,
+     "slice": 63,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 63,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 111225,
+     "approxTokens": 27806
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "8fa895": {
+    "outid": "210cb852",
+    "cost": 0.3760058,
+    "wall": 12.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 28339,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 113357,
+     "slice": 83,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 83,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 113357,
+     "approxTokens": 28339
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "22094b": {
+    "outid": "4434796d",
+    "cost": 0.3647338,
+    "wall": 11.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27611,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 110442,
+     "slice": 74,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 74,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 110442,
+     "approxTokens": 27611
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "edd783": {
+    "outid": "0ec16022",
+    "cost": 0.3591418,
+    "wall": 6.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27729,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 110917,
+     "slice": 46,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 46,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 110917,
+     "approxTokens": 27729
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "04db7c": {
+    "outid": "45c4f4c8",
+    "cost": 0.3715698,
+    "wall": 12.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27879,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 111517,
+     "slice": 73,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 73,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 111517,
+     "approxTokens": 27879
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "474d5e": {
+    "outid": "923f7657",
+    "cost": 0.3609458,
+    "wall": 6.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27987,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 111946,
+     "slice": 73,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 73,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 111946,
+     "approxTokens": 27987
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "e3bf46": {
+    "outid": "8a89079b",
+    "cost": 0.3675618,
+    "wall": 8.4,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 28111,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 112444,
+     "slice": 91,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 91,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 112444,
+     "approxTokens": 28111
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "45de63": {
+    "outid": "9d497ce7",
+    "cost": 0.3806498,
+    "wall": 9.8,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 29208,
+     "changed": 16,
+     "fallback": false,
+     "promptChars": 116832,
+     "slice": 139,
+     "total": 310
+    },
+    "cli_stats": {
+     "changed": 16,
+     "slice": 139,
+     "total": 310,
+     "fallback": false,
+     "promptChars": 116832,
+     "approxTokens": 29208
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "flow.effectUnsurfaced",
+      "subject": "affordance.ConnectionPanel.unblock",
+      "message": "Affordance affordance.ConnectionPanel.unblock changes an entity that no screen or component shows and no external receives, so the person never sees the effect.",
+      "pack": "artyfact.flow@1"
+     }
+    ],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "dfba1a": {
+    "outid": "db108cc0",
+    "cost": 0.3671178,
+    "wall": 10.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27928,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 111712,
+     "slice": 103,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 103,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 111712,
+     "approxTokens": 27928
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "499fa7": {
+    "outid": "7c2a896e",
+    "cost": 0.35744180000000003,
+    "wall": 6.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27679,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 110716,
+     "slice": 68,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 68,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 110716,
+     "approxTokens": 27679
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "3a9735": {
+    "outid": "4ab04146",
+    "cost": 0.3632298,
+    "wall": 8.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27946,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 111785,
+     "slice": 56,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 56,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 111785,
+     "approxTokens": 27946
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "125d6e": {
+    "outid": "4903f16b",
+    "cost": 0.35646180000000005,
+    "wall": 6.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27959,
+     "changed": 9,
+     "fallback": false,
+     "promptChars": 111837,
+     "slice": 105,
+     "total": 304
+    },
+    "cli_stats": {
+     "changed": 9,
+     "slice": 105,
+     "total": 304,
+     "fallback": false,
+     "promptChars": 111837,
+     "approxTokens": 27959
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 1,
+    "unknownIds": []
+   },
+   "cfc784": {
+    "outid": "af01c86a",
+    "cost": 0.3539818,
+    "wall": 5.7,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27747,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 110986,
+     "slice": 57,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 57,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 110986,
+     "approxTokens": 27747
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "089273": {
+    "outid": "cd7c04d3",
+    "cost": 0.3623618,
+    "wall": 7.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27946,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 111783,
+     "slice": 48,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 48,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 111783,
+     "approxTokens": 27946
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "6fa350": {
+    "outid": "bc15f81c",
+    "cost": 0.3591858,
+    "wall": 6.8,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27901,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 111604,
+     "slice": 95,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 95,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 111604,
+     "approxTokens": 27901
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "249a5b": {
+    "outid": "c448e145",
+    "cost": 0.3571338,
+    "wall": 7.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27578,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 110310,
+     "slice": 49,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 49,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 110310,
+     "approxTokens": 27578
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "698e3b": {
+    "outid": "09994f8b",
+    "cost": 0.3595098,
+    "wall": 7.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27693,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 110770,
+     "slice": 72,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 72,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 110770,
+     "approxTokens": 27693
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "5f4559": {
+    "outid": "cdbaf078",
+    "cost": 0.3663818,
+    "wall": 10.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27855,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 111420,
+     "slice": 70,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 70,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 111420,
+     "approxTokens": 27855
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "774614": {
+    "outid": "61942208",
+    "cost": 0.36236579999999996,
+    "wall": 5.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 28071,
+     "changed": 12,
+     "fallback": false,
+     "promptChars": 112285,
+     "slice": 117,
+     "total": 304
+    },
+    "cli_stats": {
+     "changed": 12,
+     "slice": 117,
+     "total": 304,
+     "fallback": false,
+     "promptChars": 112285,
+     "approxTokens": 28071
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.prompts.cards",
+      "message": "Criterion C.webapp.prompts.cards has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     },
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.reminders.daily",
+      "message": "Criterion C.webapp.reminders.daily has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     }
+    ],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "d1c15a": {
+    "outid": "441d75c5",
+    "cost": 0.3591018,
+    "wall": 6.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27778,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 111113,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 111113,
+     "approxTokens": 27778
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "c4"
+    ]
+   },
+   "b6a5d0": {
+    "outid": "d85c46e2",
+    "cost": 0.3645658,
+    "wall": 8.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27840,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 111358,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 111358,
+     "approxTokens": 27840
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "46753b": {
+    "outid": "ca4b7d15",
+    "cost": 0.38042180000000003,
+    "wall": 7.8,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 29205,
+     "changed": 19,
+     "fallback": false,
+     "promptChars": 116821,
+     "slice": 180,
+     "total": 310
+    },
+    "cli_stats": {
+     "changed": 19,
+     "slice": 180,
+     "total": 310,
+     "fallback": false,
+     "promptChars": 116821,
+     "approxTokens": 29205
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "643d59": {
+    "outid": "523310ec",
+    "cost": 0.37086579999999997,
+    "wall": 10.4,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 28056,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 112224,
+     "slice": 96,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 96,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 112224,
+     "approxTokens": 28056
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "b7965d": {
+    "outid": "49358ef1",
+    "cost": 0.3779298,
+    "wall": 9.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 28680,
+     "changed": 9,
+     "fallback": false,
+     "promptChars": 114718,
+     "slice": 111,
+     "total": 306
+    },
+    "cli_stats": {
+     "changed": 9,
+     "slice": 111,
+     "total": 306,
+     "fallback": false,
+     "promptChars": 114718,
+     "approxTokens": 28680
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "flow.effectUnsurfaced",
+      "subject": "affordance.PersonActionBar.nudge",
+      "message": "Affordance affordance.PersonActionBar.nudge changes an entity that no screen or component shows and no external receives, so the person never sees the effect.",
+      "pack": "artyfact.flow@1"
+     },
+     {
+      "level": "warning",
+      "rule": "flow.orphanWrite",
+      "subject": "entity.MessageDraft",
+      "message": "Entity entity.MessageDraft is written but nothing reads it and no external receives it.",
+      "pack": "artyfact.flow@1"
+     },
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.nudge.single",
+      "message": "Criterion C.webapp.nudge.single has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     },
+     {
+      "level": "info",
+      "rule": "semantic:topology.multiRecipient",
+      "subject": "affordance.PersonActionBar.nudge",
+      "message": "affordance.PersonActionBar.nudge may address several recipients; ask whether it breaks one-to-one delivery.",
+      "pack": "artyfact.topology.private-pairs@1"
+     }
+    ],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "864bc6": {
+    "outid": "d30e7bb6",
+    "cost": 0.3657978,
+    "wall": 10.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27825,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 111301,
+     "slice": 61,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 61,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 111301,
+     "approxTokens": 27825
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "08b2b8": {
+    "outid": "e47da255",
+    "cost": 0.3654378,
+    "wall": 7.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 28325,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 113301,
+     "slice": 102,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 102,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 113301,
+     "approxTokens": 28325
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "b434a4": {
+    "outid": "bcc5b1c7",
+    "cost": 0.37795779999999995,
+    "wall": 8.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 28902,
+     "changed": 14,
+     "fallback": false,
+     "promptChars": 115606,
+     "slice": 167,
+     "total": 309
+    },
+    "cli_stats": {
+     "changed": 14,
+     "slice": 167,
+     "total": 309,
+     "fallback": false,
+     "promptChars": 115606,
+     "approxTokens": 28902
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "ee73ec": {
+    "outid": "8bdbd67d",
+    "cost": 0.3669138,
+    "wall": 9.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27909,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 111636,
+     "slice": 78,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 78,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 111636,
+     "approxTokens": 27909
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "aaf530": {
+    "outid": "72277e71",
+    "cost": 0.3572498,
+    "wall": 6.9,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27815,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 111259,
+     "slice": 63,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 63,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 111259,
+     "approxTokens": 27815
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "5cceea": {
+    "outid": "55b540d8",
+    "cost": 0.3655738,
+    "wall": 8.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 28023,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 112090,
+     "slice": 111,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 111,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 112090,
+     "approxTokens": 28023
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "bc8433": {
+    "outid": "68225569",
+    "cost": 0.3626978,
+    "wall": 10.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27974,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 111897,
+     "slice": 94,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 94,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 111897,
+     "approxTokens": 27974
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "95dd79": {
+    "outid": "839b942c",
+    "cost": 0.3533458,
+    "wall": 6.2,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27545,
+     "changed": 3,
+     "fallback": false,
+     "promptChars": 110179,
+     "slice": 50,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 3,
+     "slice": 50,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 110179,
+     "approxTokens": 27545
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "f80839": {
+    "outid": "be33ec36",
+    "cost": 0.35789380000000004,
+    "wall": 7.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27607,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 110427,
+     "slice": 31,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 31,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 110427,
+     "approxTokens": 27607
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "27bc02": {
+    "outid": "a9b08801",
+    "cost": 0.36354179999999997,
+    "wall": 6.8,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 28173,
+     "changed": 7,
+     "fallback": false,
+     "promptChars": 112692,
+     "slice": 93,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 7,
+     "slice": 93,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 112692,
+     "approxTokens": 28173
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   }
+  },
+  "B2": {
+   "8ac67f": {
+    "outid": "59a29393",
+    "cost": 0.1692178,
+    "wall": 7.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 11942,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 47766,
+     "slice": 61,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 61,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 47766,
+     "approxTokens": 11942
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 1,
+    "unknownIds": []
+   },
+   "9edff9": {
+    "outid": "9ff6d8c5",
+    "cost": 0.1947218,
+    "wall": 5.7,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 14468,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 57870,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 57870,
+     "approxTokens": 14468
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "f381ab": {
+    "outid": "3b717fdf",
+    "cost": 0.1647738,
+    "wall": 5.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 12098,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 48392,
+     "slice": 63,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 63,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 48392,
+     "approxTokens": 12098
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "8fa895": {
+    "outid": "62614f3e",
+    "cost": 0.2287978,
+    "wall": 9.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 16855,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 67421,
+     "slice": 83,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 83,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 67421,
+     "approxTokens": 16855
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "22094b": {
+    "outid": "d6ab2dd3",
+    "cost": 0.1886698,
+    "wall": 7.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 13721,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 54882,
+     "slice": 74,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 74,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 54882,
+     "approxTokens": 13721
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "edd783": {
+    "outid": "a4001e2c",
+    "cost": 0.1339178,
+    "wall": 9.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 9015,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 36061,
+     "slice": 46,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 46,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 36061,
+     "approxTokens": 9015
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 1,
+    "unknownIds": []
+   },
+   "04db7c": {
+    "outid": "5960ecbb",
+    "cost": 0.20113779999999998,
+    "wall": 9.4,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 14407,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 57629,
+     "slice": 73,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 73,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 57629,
+     "approxTokens": 14407
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "474d5e": {
+    "outid": "a310b704",
+    "cost": 0.19273780000000001,
+    "wall": 5.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 14621,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 58483,
+     "slice": 73,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 73,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 58483,
+     "approxTokens": 14621
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 1,
+    "unknownIds": []
+   },
+   "e3bf46": {
+    "outid": "a5bc3433",
+    "cost": 0.2295978,
+    "wall": 8.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 16973,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 67892,
+     "slice": 91,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 91,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 67892,
+     "approxTokens": 16973
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "45de63": {
+    "outid": "b5acbf47",
+    "cost": 0.32489379999999995,
+    "wall": 6.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 25087,
+     "changed": 16,
+     "fallback": false,
+     "promptChars": 100347,
+     "slice": 139,
+     "total": 310
+    },
+    "cli_stats": {
+     "changed": 16,
+     "slice": 139,
+     "total": 310,
+     "fallback": false,
+     "promptChars": 100347,
+     "approxTokens": 25087
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "flow.effectUnsurfaced",
+      "subject": "affordance.ConnectionPanel.unblock",
+      "message": "Affordance affordance.ConnectionPanel.unblock changes an entity that no screen or component shows and no external receives, so the person never sees the effect.",
+      "pack": "artyfact.flow@1"
+     }
+    ],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "dfba1a": {
+    "outid": "c30d61d6",
+    "cost": 0.2447658,
+    "wall": 6.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 18539,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 74155,
+     "slice": 103,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 103,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 74155,
+     "approxTokens": 18539
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "499fa7": {
+    "outid": "cb74b7d7",
+    "cost": 0.18301779999999998,
+    "wall": 6.2,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 13534,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 54134,
+     "slice": 68,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 68,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 54134,
+     "approxTokens": 13534
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "3a9735": {
+    "outid": "5e18e657",
+    "cost": 0.1577538,
+    "wall": 8.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 11143,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 44573,
+     "slice": 56,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 56,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 44573,
+     "approxTokens": 11143
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "125d6e": {
+    "outid": "dee0a010",
+    "cost": 0.2460538,
+    "wall": 6.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 18538,
+     "changed": 9,
+     "fallback": false,
+     "promptChars": 74152,
+     "slice": 105,
+     "total": 304
+    },
+    "cli_stats": {
+     "changed": 9,
+     "slice": 105,
+     "total": 304,
+     "fallback": false,
+     "promptChars": 74152,
+     "approxTokens": 18538
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "cfc784": {
+    "outid": "d771ee37",
+    "cost": 0.14861780000000002,
+    "wall": 3.4,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 11204,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 44816,
+     "slice": 57,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 57,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 44816,
+     "approxTokens": 11204
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "089273": {
+    "outid": "150cc4cd",
+    "cost": 0.1370938,
+    "wall": 9.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 9391,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 37563,
+     "slice": 48,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 48,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 37563,
+     "approxTokens": 9391
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "6fa350": {
+    "outid": "f1f61b13",
+    "cost": 0.2302178,
+    "wall": 4.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 17593,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 70372,
+     "slice": 95,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 95,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 70372,
+     "approxTokens": 17593
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "249a5b": {
+    "outid": "bd445952",
+    "cost": 0.1261978,
+    "wall": 8.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 8331,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 33324,
+     "slice": 49,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 49,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 33324,
+     "approxTokens": 8331
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "698e3b": {
+    "outid": "2f33c907",
+    "cost": 0.1731458,
+    "wall": 6.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 12433,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 49732,
+     "slice": 72,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 72,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 49732,
+     "approxTokens": 12433
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "5f4559": {
+    "outid": "dde96486",
+    "cost": 0.1893378,
+    "wall": 7.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 13784,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 55135,
+     "slice": 70,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 70,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 55135,
+     "approxTokens": 13784
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "774614": {
+    "outid": "5996e108",
+    "cost": 0.27361779999999997,
+    "wall": 6.7,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 20581,
+     "changed": 12,
+     "fallback": false,
+     "promptChars": 82322,
+     "slice": 117,
+     "total": 304
+    },
+    "cli_stats": {
+     "changed": 12,
+     "slice": 117,
+     "total": 304,
+     "fallback": false,
+     "promptChars": 82322,
+     "approxTokens": 20581
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.prompts.cards",
+      "message": "Criterion C.webapp.prompts.cards has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     },
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.reminders.daily",
+      "message": "Criterion C.webapp.reminders.daily has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     }
+    ],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "d1c15a": {
+    "outid": "c00ec22e",
+    "cost": 0.1863098,
+    "wall": 5.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 13801,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 55204,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 55204,
+     "approxTokens": 13801
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "b6a5d0": {
+    "outid": "02bca05e",
+    "cost": 0.1979218,
+    "wall": 6.4,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 14501,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 58005,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 58005,
+     "approxTokens": 14501
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "46753b": {
+    "outid": "12352e1f",
+    "cost": 0.3858298,
+    "wall": 6.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 29723,
+     "changed": 19,
+     "fallback": false,
+     "promptChars": 118890,
+     "slice": 180,
+     "total": 310
+    },
+    "cli_stats": {
+     "changed": 19,
+     "slice": 180,
+     "total": 310,
+     "fallback": false,
+     "promptChars": 118890,
+     "approxTokens": 29723
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "643d59": {
+    "outid": "567ffeef",
+    "cost": 0.24654579999999998,
+    "wall": 7.8,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 18463,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 73850,
+     "slice": 96,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 96,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 73850,
+     "approxTokens": 18463
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "b7965d": {
+    "outid": "0fa88095",
+    "cost": 0.2696818,
+    "wall": 11.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 19643,
+     "changed": 9,
+     "fallback": false,
+     "promptChars": 78571,
+     "slice": 111,
+     "total": 306
+    },
+    "cli_stats": {
+     "changed": 9,
+     "slice": 111,
+     "total": 306,
+     "fallback": false,
+     "promptChars": 78571,
+     "approxTokens": 19643
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "flow.effectUnsurfaced",
+      "subject": "affordance.PersonActionBar.nudge",
+      "message": "Affordance affordance.PersonActionBar.nudge changes an entity that no screen or component shows and no external receives, so the person never sees the effect.",
+      "pack": "artyfact.flow@1"
+     },
+     {
+      "level": "warning",
+      "rule": "flow.orphanWrite",
+      "subject": "entity.MessageDraft",
+      "message": "Entity entity.MessageDraft is written but nothing reads it and no external receives it.",
+      "pack": "artyfact.flow@1"
+     },
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.nudge.single",
+      "message": "Criterion C.webapp.nudge.single has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     },
+     {
+      "level": "info",
+      "rule": "semantic:topology.multiRecipient",
+      "subject": "affordance.PersonActionBar.nudge",
+      "message": "affordance.PersonActionBar.nudge may address several recipients; ask whether it breaks one-to-one delivery.",
+      "pack": "artyfact.topology.private-pairs@1"
+     }
+    ],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "864bc6": {
+    "outid": "670840e4",
+    "cost": 0.1827018,
+    "wall": 10.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 13038,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 52153,
+     "slice": 61,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 61,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 52153,
+     "approxTokens": 13038
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "08b2b8": {
+    "outid": "66d6956c",
+    "cost": 0.2669098,
+    "wall": 8.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 20045,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 80178,
+     "slice": 102,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 102,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 80178,
+     "approxTokens": 20045
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "b434a4": {
+    "outid": "c536ee49",
+    "cost": 0.3625578,
+    "wall": 5.8,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27923,
+     "changed": 14,
+     "fallback": false,
+     "promptChars": 111691,
+     "slice": 167,
+     "total": 309
+    },
+    "cli_stats": {
+     "changed": 14,
+     "slice": 167,
+     "total": 309,
+     "fallback": false,
+     "promptChars": 111691,
+     "approxTokens": 27923
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "ee73ec": {
+    "outid": "fb0b5344",
+    "cost": 0.19595780000000002,
+    "wall": 7.8,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 14377,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 57506,
+     "slice": 78,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 78,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 57506,
+     "approxTokens": 14377
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "aaf530": {
+    "outid": "3e91be6b",
+    "cost": 0.1696218,
+    "wall": 6.1,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 12562,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 50248,
+     "slice": 63,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 63,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 50248,
+     "approxTokens": 12562
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "5cceea": {
+    "outid": "7900cb29",
+    "cost": 0.25636580000000003,
+    "wall": 5.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 19400,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 77600,
+     "slice": 111,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 111,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 77600,
+     "approxTokens": 19400
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "bc8433": {
+    "outid": "29ea4c5f",
+    "cost": 0.22457380000000002,
+    "wall": 6.4,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 17069,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 68277,
+     "slice": 94,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 94,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 68277,
+     "approxTokens": 17069
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "95dd79": {
+    "outid": "38ee5050",
+    "cost": 0.14036179999999998,
+    "wall": 5.1,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 9804,
+     "changed": 3,
+     "fallback": false,
+     "promptChars": 39216,
+     "slice": 50,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 3,
+     "slice": 50,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 39216,
+     "approxTokens": 9804
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "f80839": {
+    "outid": "be8ba967",
+    "cost": 0.0881578,
+    "wall": 6.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 5506,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 22024,
+     "slice": 31,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 31,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 22024,
+     "approxTokens": 5506
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "27bc02": {
+    "outid": "0cd818dd",
+    "cost": 0.22989779999999999,
+    "wall": 5.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 17489,
+     "changed": 7,
+     "fallback": false,
+     "promptChars": 69954,
+     "slice": 93,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 7,
+     "slice": 93,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 69954,
+     "approxTokens": 17489
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   }
+  },
+  "A1r": {
+   "8ac67f": {
+    "outid": "f7fbc4f4",
+    "cost": 0.0363978,
+    "wall": 5.3,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1001,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 4003,
+     "slice": 61,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 61,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 4003,
+     "approxTokens": 1001
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "9edff9": {
+    "outid": "ab502b09",
+    "cost": 0.0338338,
+    "wall": 4.6,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 949,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 3796,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3796,
+     "approxTokens": 949
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "f381ab": {
+    "outid": "b4d3d400",
+    "cost": 0.0356058,
+    "wall": 6.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 802,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 3206,
+     "slice": 63,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 63,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 3206,
+     "approxTokens": 802
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "8fa895": {
+    "outid": "c48b582d",
+    "cost": 0.0531738,
+    "wall": 11.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1403,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 5613,
+     "slice": 83,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 83,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 5613,
+     "approxTokens": 1403
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "operation Disconnect or block",
+     "spec.requirements (GD.prompts refinement)"
+    ]
+   },
+   "22094b": {
+    "outid": "d47f2fe9",
+    "cost": 0.0350938,
+    "wall": 6.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 700,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 2801,
+     "slice": 74,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 74,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 2801,
+     "approxTokens": 700
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "edd783": {
+    "outid": "6923dab5",
+    "cost": 0.043365799999999996,
+    "wall": 10.1,
+    "exit": 1,
+    "attempts": 2,
+    "retries": 1,
+    "retry_errors": [
+     "review: spawnSync claude ETIMEDOUT\n"
+    ],
+    "prompt": {
+     "approxTokens": 729,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 2914,
+     "slice": 46,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 46,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 2914,
+     "approxTokens": 729
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "04db7c": {
+    "outid": "33581166",
+    "cost": 0.043421799999999997,
+    "wall": 9.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 928,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 3713,
+     "slice": 73,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 73,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3713,
+     "approxTokens": 928
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "474d5e": {
+    "outid": "66db0782",
+    "cost": 0.0340058,
+    "wall": 4.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1008,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 4032,
+     "slice": 73,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 73,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 4032,
+     "approxTokens": 1008
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 1,
+    "unknownIds": []
+   },
+   "e3bf46": {
+    "outid": "e0bc408c",
+    "cost": 0.0469058,
+    "wall": 8.8,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1134,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 4536,
+     "slice": 91,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 91,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 4536,
+     "approxTokens": 1134
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "45de63": {
+    "outid": "38e8aa52",
+    "cost": 0.0448138,
+    "wall": 5.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1673,
+     "changed": 16,
+     "fallback": false,
+     "promptChars": 6690,
+     "slice": 139,
+     "total": 310
+    },
+    "cli_stats": {
+     "changed": 16,
+     "slice": 139,
+     "total": 310,
+     "fallback": false,
+     "promptChars": 6690,
+     "approxTokens": 1673
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "flow.effectUnsurfaced",
+      "subject": "affordance.ConnectionPanel.unblock",
+      "message": "Affordance affordance.ConnectionPanel.unblock changes an entity that no screen or component shows and no external receives, so the person never sees the effect.",
+      "pack": "artyfact.flow@1"
+     }
+    ],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "dfba1a": {
+    "outid": "4aadd0e7",
+    "cost": 0.0479898,
+    "wall": 10.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 894,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 3576,
+     "slice": 103,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 103,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 3576,
+     "approxTokens": 894
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "J.connect.s1"
+    ]
+   },
+   "499fa7": {
+    "outid": "a9ffc884",
+    "cost": 0.0373058,
+    "wall": 8.4,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 796,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 3182,
+     "slice": 68,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 68,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3182,
+     "approxTokens": 796
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "3a9735": {
+    "outid": "0ece7398",
+    "cost": 0.046529799999999996,
+    "wall": 10.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1014,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 4055,
+     "slice": 56,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 56,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 4055,
+     "approxTokens": 1014
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "125d6e": {
+    "outid": "b5c99344",
+    "cost": 0.0416818,
+    "wall": 7.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 920,
+     "changed": 9,
+     "fallback": false,
+     "promptChars": 3679,
+     "slice": 105,
+     "total": 304
+    },
+    "cli_stats": {
+     "changed": 9,
+     "slice": 105,
+     "total": 304,
+     "fallback": false,
+     "promptChars": 3679,
+     "approxTokens": 920
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "J.control.block.b2",
+     "J.control.block.b3",
+     "J.control.block.b6"
+    ]
+   },
+   "cfc784": {
+    "outid": "a277570a",
+    "cost": 0.0322698,
+    "wall": 4.1,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 881,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 3525,
+     "slice": 57,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 57,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3525,
+     "approxTokens": 881
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "089273": {
+    "outid": "1877bfab",
+    "cost": 0.044997800000000004,
+    "wall": 9.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 907,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 3626,
+     "slice": 48,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 48,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 3626,
+     "approxTokens": 907
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "6fa350": {
+    "outid": "805bd103",
+    "cost": 0.032709800000000004,
+    "wall": 5.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 941,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 3765,
+     "slice": 95,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 95,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3765,
+     "approxTokens": 941
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 1,
+    "unknownIds": [
+     "x4"
+    ]
+   },
+   "249a5b": {
+    "outid": "ccaec884",
+    "cost": 0.0285818,
+    "wall": 3.9,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 652,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 2606,
+     "slice": 49,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 49,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 2606,
+     "approxTokens": 652
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "698e3b": {
+    "outid": "2f654a7f",
+    "cost": 0.0448098,
+    "wall": 10.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 732,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 2926,
+     "slice": 72,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 72,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 2926,
+     "approxTokens": 732
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "component.ChannelSelect"
+    ]
+   },
+   "5f4559": {
+    "outid": "8038ae66",
+    "cost": 0.0445458,
+    "wall": 9.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 844,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 3377,
+     "slice": 70,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 70,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 3377,
+     "approxTokens": 844
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "component.SuggestionCard.Reason"
+    ]
+   },
+   "774614": {
+    "outid": "36cd71c3",
+    "cost": 0.0419418,
+    "wall": 7.0,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 996,
+     "changed": 12,
+     "fallback": false,
+     "promptChars": 3982,
+     "slice": 117,
+     "total": 304
+    },
+    "cli_stats": {
+     "changed": 12,
+     "slice": 117,
+     "total": 304,
+     "fallback": false,
+     "promptChars": 3982,
+     "approxTokens": 996
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.prompts.cards",
+      "message": "Criterion C.webapp.prompts.cards has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     },
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.reminders.daily",
+      "message": "Criterion C.webapp.reminders.daily has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     }
+    ],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "d1c15a": {
+    "outid": "d067f065",
+    "cost": 0.043809799999999996,
+    "wall": 9.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 875,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 3498,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3498,
+     "approxTokens": 875
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "Save",
+     "c4"
+    ]
+   },
+   "b6a5d0": {
+    "outid": "c48187db",
+    "cost": 0.0482978,
+    "wall": 10.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 949,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 3794,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3794,
+     "approxTokens": 949
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "entity.Goal.desiredDepth",
+     "things/webapp/spec.yaml#goal-qualification"
+    ]
+   },
+   "46753b": {
+    "outid": "a66072c0",
+    "cost": 0.0472898,
+    "wall": 5.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1650,
+     "changed": 19,
+     "fallback": false,
+     "promptChars": 6598,
+     "slice": 180,
+     "total": 310
+    },
+    "cli_stats": {
+     "changed": 19,
+     "slice": 180,
+     "total": 310,
+     "fallback": false,
+     "promptChars": 6598,
+     "approxTokens": 1650
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "643d59": {
+    "outid": "98069151",
+    "cost": 0.047653799999999996,
+    "wall": 9.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1084,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 4336,
+     "slice": 96,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 96,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 4336,
+     "approxTokens": 1084
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "journey.J.goals.g2"
+    ]
+   },
+   "b7965d": {
+    "outid": "bd9b2700",
+    "cost": 0.0570098,
+    "wall": 11.8,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1367,
+     "changed": 9,
+     "fallback": false,
+     "promptChars": 5467,
+     "slice": 111,
+     "total": 306
+    },
+    "cli_stats": {
+     "changed": 9,
+     "slice": 111,
+     "total": 306,
+     "fallback": false,
+     "promptChars": 5467,
+     "approxTokens": 1367
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "flow.effectUnsurfaced",
+      "subject": "affordance.PersonActionBar.nudge",
+      "message": "Affordance affordance.PersonActionBar.nudge changes an entity that no screen or component shows and no external receives, so the person never sees the effect.",
+      "pack": "artyfact.flow@1"
+     },
+     {
+      "level": "warning",
+      "rule": "flow.orphanWrite",
+      "subject": "entity.MessageDraft",
+      "message": "Entity entity.MessageDraft is written but nothing reads it and no external receives it.",
+      "pack": "artyfact.flow@1"
+     },
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.nudge.single",
+      "message": "Criterion C.webapp.nudge.single has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     },
+     {
+      "level": "info",
+      "rule": "semantic:topology.multiRecipient",
+      "subject": "affordance.PersonActionBar.nudge",
+      "message": "affordance.PersonActionBar.nudge may address several recipients; ask whether it breaks one-to-one delivery.",
+      "pack": "artyfact.topology.private-pairs@1"
+     }
+    ],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "864bc6": {
+    "outid": "578699c5",
+    "cost": 0.0463498,
+    "wall": 10.4,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 870,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 3481,
+     "slice": 61,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 61,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3481,
+     "approxTokens": 870
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "08b2b8": {
+    "outid": "3711b6ed",
+    "cost": 0.048965800000000004,
+    "wall": 9.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1347,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 5387,
+     "slice": 102,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 102,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 5387,
+     "approxTokens": 1347
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "b434a4": {
+    "outid": "dcef7612",
+    "cost": 0.0443458,
+    "wall": 5.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1447,
+     "changed": 14,
+     "fallback": false,
+     "promptChars": 5786,
+     "slice": 167,
+     "total": 309
+    },
+    "cli_stats": {
+     "changed": 14,
+     "slice": 167,
+     "total": 309,
+     "fallback": false,
+     "promptChars": 5786,
+     "approxTokens": 1447
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "ee73ec": {
+    "outid": "13f0533f",
+    "cost": 0.0454378,
+    "wall": 9.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 976,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 3903,
+     "slice": 78,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 78,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3903,
+     "approxTokens": 976
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "aaf530": {
+    "outid": "a62ec338",
+    "cost": 0.0313298,
+    "wall": 3.9,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 888,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 3551,
+     "slice": 63,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 63,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 3551,
+     "approxTokens": 888
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "5cceea": {
+    "outid": "ddbef2c9",
+    "cost": 0.0410938,
+    "wall": 7.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 971,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 3882,
+     "slice": 111,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 111,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 3882,
+     "approxTokens": 971
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "bc8433": {
+    "outid": "d8751f4e",
+    "cost": 0.0412818,
+    "wall": 8.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 877,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 3509,
+     "slice": 94,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 94,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 3509,
+     "approxTokens": 877
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "95dd79": {
+    "outid": "5b70bbbe",
+    "cost": 0.0381418,
+    "wall": 7.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 648,
+     "changed": 3,
+     "fallback": false,
+     "promptChars": 2592,
+     "slice": 50,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 3,
+     "slice": 50,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 2592,
+     "approxTokens": 648
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": [
+     "journeys/J.prompts.yaml#p5",
+     "things/webapp/ontology.yaml#Snooze"
+    ]
+   },
+   "f80839": {
+    "outid": "5d1f4a42",
+    "cost": 0.0337538,
+    "wall": 6.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 673,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 2691,
+     "slice": 31,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 31,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 2691,
+     "approxTokens": 673
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": [
+     "J.control.export.x4",
+     "things/webapp/criteria.yaml"
+    ]
+   },
+   "27bc02": {
+    "outid": "19c1ceb9",
+    "cost": 0.0403858,
+    "wall": 5.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 1201,
+     "changed": 7,
+     "fallback": false,
+     "promptChars": 4803,
+     "slice": 93,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 7,
+     "slice": 93,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 4803,
+     "approxTokens": 1201
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   }
+  },
+  "A2r": {
+   "8ac67f": {
+    "outid": "16fca1b1",
+    "cost": 0.1753498,
+    "wall": 8.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 11966,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 47862,
+     "slice": 61,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 61,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 47862,
+     "approxTokens": 11966
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "9edff9": {
+    "outid": "618df661",
+    "cost": 0.1937578,
+    "wall": 5.2,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 14492,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 57966,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 57966,
+     "approxTokens": 14492
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "f381ab": {
+    "outid": "b0bea476",
+    "cost": 0.1739018,
+    "wall": 9.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 12122,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 48488,
+     "slice": 63,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 63,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 48488,
+     "approxTokens": 12122
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "8fa895": {
+    "outid": "0af81682",
+    "cost": 0.24070580000000003,
+    "wall": 14.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 16879,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 67517,
+     "slice": 83,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 83,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 67517,
+     "approxTokens": 16879
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "22094b": {
+    "outid": "21d7ea41",
+    "cost": 0.20067780000000002,
+    "wall": 13.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 13745,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 54978,
+     "slice": 74,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 74,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 54978,
+     "approxTokens": 13745
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "edd783": {
+    "outid": "3d6c1461",
+    "cost": 0.1463298,
+    "wall": 11.5,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 9039,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 36157,
+     "slice": 46,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 46,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 36157,
+     "approxTokens": 9039
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "04db7c": {
+    "outid": "ddf1bc81",
+    "cost": 0.21280179999999999,
+    "wall": 13.8,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 14431,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 57725,
+     "slice": 73,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 73,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 57725,
+     "approxTokens": 14431
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "474d5e": {
+    "outid": "3e4aae35",
+    "cost": 0.20108979999999999,
+    "wall": 7.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 14645,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 58579,
+     "slice": 73,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 73,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 58579,
+     "approxTokens": 14645
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "e3bf46": {
+    "outid": "aab99379",
+    "cost": 0.2402938,
+    "wall": 12.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 16997,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 67988,
+     "slice": 91,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 91,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 67988,
+     "approxTokens": 16997
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "45de63": {
+    "outid": "de2fb073",
+    "cost": 0.3286898,
+    "wall": 7.7,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 25111,
+     "changed": 16,
+     "fallback": false,
+     "promptChars": 100443,
+     "slice": 139,
+     "total": 310
+    },
+    "cli_stats": {
+     "changed": 16,
+     "slice": 139,
+     "total": 310,
+     "fallback": false,
+     "promptChars": 100443,
+     "approxTokens": 25111
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "flow.effectUnsurfaced",
+      "subject": "affordance.ConnectionPanel.unblock",
+      "message": "Affordance affordance.ConnectionPanel.unblock changes an entity that no screen or component shows and no external receives, so the person never sees the effect.",
+      "pack": "artyfact.flow@1"
+     }
+    ],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "dfba1a": {
+    "outid": "069f999e",
+    "cost": 0.25280179999999997,
+    "wall": 13.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 18563,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 74251,
+     "slice": 103,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 103,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 74251,
+     "approxTokens": 18563
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "499fa7": {
+    "outid": "0608ba25",
+    "cost": 0.18610580000000002,
+    "wall": 8.1,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 13558,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 54230,
+     "slice": 68,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 68,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 54230,
+     "approxTokens": 13558
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "3a9735": {
+    "outid": "62c5b110",
+    "cost": 0.1653858,
+    "wall": 10.8,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 11167,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 44669,
+     "slice": 56,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 56,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 44669,
+     "approxTokens": 11167
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "125d6e": {
+    "outid": "976178b7",
+    "cost": 0.2449978,
+    "wall": 6.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 18562,
+     "changed": 9,
+     "fallback": false,
+     "promptChars": 74248,
+     "slice": 105,
+     "total": 304
+    },
+    "cli_stats": {
+     "changed": 9,
+     "slice": 105,
+     "total": 304,
+     "fallback": false,
+     "promptChars": 74248,
+     "approxTokens": 18562
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "cfc784": {
+    "outid": "179e3361",
+    "cost": 0.1503218,
+    "wall": 3.8,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 11228,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 44912,
+     "slice": 57,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 57,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 44912,
+     "approxTokens": 11228
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "089273": {
+    "outid": "001ec5be",
+    "cost": 0.1461658,
+    "wall": 11.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 9415,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 37659,
+     "slice": 48,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 48,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 37659,
+     "approxTokens": 9415
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "6fa350": {
+    "outid": "14fcd4bf",
+    "cost": 0.2328898,
+    "wall": 5.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 17617,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 70468,
+     "slice": 95,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 95,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 70468,
+     "approxTokens": 17617
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "249a5b": {
+    "outid": "da0b9512",
+    "cost": 0.1246058,
+    "wall": 6.0,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 8355,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 33420,
+     "slice": 49,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 49,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 33420,
+     "approxTokens": 8355
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "698e3b": {
+    "outid": "287c7119",
+    "cost": 0.1788578,
+    "wall": 8.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 12457,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 49828,
+     "slice": 72,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 72,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 49828,
+     "approxTokens": 12457
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "5f4559": {
+    "outid": "feeafc8a",
+    "cost": 0.2024858,
+    "wall": 13.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 13808,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 55231,
+     "slice": 70,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 70,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 55231,
+     "approxTokens": 13808
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "774614": {
+    "outid": "3f8c31d3",
+    "cost": 0.2768298,
+    "wall": 7.8,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 20605,
+     "changed": 12,
+     "fallback": false,
+     "promptChars": 82418,
+     "slice": 117,
+     "total": 304
+    },
+    "cli_stats": {
+     "changed": 12,
+     "slice": 117,
+     "total": 304,
+     "fallback": false,
+     "promptChars": 82418,
+     "approxTokens": 20605
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.prompts.cards",
+      "message": "Criterion C.webapp.prompts.cards has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     },
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.reminders.daily",
+      "message": "Criterion C.webapp.reminders.daily has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     }
+    ],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "d1c15a": {
+    "outid": "d196150a",
+    "cost": 0.1900058,
+    "wall": 6.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 13825,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 55300,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 55300,
+     "approxTokens": 13825
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "b6a5d0": {
+    "outid": "33c338c3",
+    "cost": 0.20227379999999998,
+    "wall": 7.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 14525,
+     "changed": 5,
+     "fallback": false,
+     "promptChars": 58101,
+     "slice": 75,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 5,
+     "slice": 75,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 58101,
+     "approxTokens": 14525
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "46753b": {
+    "outid": "93b0cc35",
+    "cost": 0.39020580000000005,
+    "wall": 7.4,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 29747,
+     "changed": 19,
+     "fallback": false,
+     "promptChars": 118986,
+     "slice": 180,
+     "total": 310
+    },
+    "cli_stats": {
+     "changed": 19,
+     "slice": 180,
+     "total": 310,
+     "fallback": false,
+     "promptChars": 118986,
+     "approxTokens": 29747
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "643d59": {
+    "outid": "f6f60ea4",
+    "cost": 0.2544018,
+    "wall": 10.9,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 18487,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 73946,
+     "slice": 96,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 96,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 73946,
+     "approxTokens": 18487
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "b7965d": {
+    "outid": "fce8252e",
+    "cost": 0.27573380000000003,
+    "wall": 17.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 19667,
+     "changed": 9,
+     "fallback": false,
+     "promptChars": 78667,
+     "slice": 111,
+     "total": 306
+    },
+    "cli_stats": {
+     "changed": 9,
+     "slice": 111,
+     "total": 306,
+     "fallback": false,
+     "promptChars": 78667,
+     "approxTokens": 19667
+    },
+    "deterministic": [
+     {
+      "level": "warning",
+      "rule": "flow.effectUnsurfaced",
+      "subject": "affordance.PersonActionBar.nudge",
+      "message": "Affordance affordance.PersonActionBar.nudge changes an entity that no screen or component shows and no external receives, so the person never sees the effect.",
+      "pack": "artyfact.flow@1"
+     },
+     {
+      "level": "warning",
+      "rule": "flow.orphanWrite",
+      "subject": "entity.MessageDraft",
+      "message": "Entity entity.MessageDraft is written but nothing reads it and no external receives it.",
+      "pack": "artyfact.flow@1"
+     },
+     {
+      "level": "warning",
+      "rule": "hook.unbound",
+      "subject": "C.webapp.nudge.single",
+      "message": "Criterion C.webapp.nudge.single has a hook whose implementation is missing.",
+      "pack": "artyfact.readiness@1"
+     },
+     {
+      "level": "info",
+      "rule": "semantic:topology.multiRecipient",
+      "subject": "affordance.PersonActionBar.nudge",
+      "message": "affordance.PersonActionBar.nudge may address several recipients; ask whether it breaks one-to-one delivery.",
+      "pack": "artyfact.topology.private-pairs@1"
+     }
+    ],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "864bc6": {
+    "outid": "56a0b421",
+    "cost": 0.1945898,
+    "wall": 14.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 13062,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 52249,
+     "slice": 61,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 61,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 52249,
+     "approxTokens": 13062
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "08b2b8": {
+    "outid": "b69f511f",
+    "cost": 0.27198180000000005,
+    "wall": 10.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 20069,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 80274,
+     "slice": 102,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 102,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 80274,
+     "approxTokens": 20069
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "b434a4": {
+    "outid": "1d398354",
+    "cost": 0.3692538,
+    "wall": 7.6,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 27947,
+     "changed": 14,
+     "fallback": false,
+     "promptChars": 111787,
+     "slice": 167,
+     "total": 309
+    },
+    "cli_stats": {
+     "changed": 14,
+     "slice": 167,
+     "total": 309,
+     "fallback": false,
+     "promptChars": 111787,
+     "approxTokens": 27947
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "ee73ec": {
+    "outid": "58de7fd4",
+    "cost": 0.2052538,
+    "wall": 11.1,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 14401,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 57602,
+     "slice": 78,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 78,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 57602,
+     "approxTokens": 14401
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "aaf530": {
+    "outid": "03e17fb0",
+    "cost": 0.1723258,
+    "wall": 7.1,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 12586,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 50344,
+     "slice": 63,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 63,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 50344,
+     "approxTokens": 12586
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "5cceea": {
+    "outid": "b3b0b3bf",
+    "cost": 0.2652898,
+    "wall": 8.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 19424,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 77696,
+     "slice": 111,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 111,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 77696,
+     "approxTokens": 19424
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "bc8433": {
+    "outid": "353fb85d",
+    "cost": 0.2324018,
+    "wall": 8.0,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 17093,
+     "changed": 6,
+     "fallback": false,
+     "promptChars": 68373,
+     "slice": 94,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 6,
+     "slice": 94,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 68373,
+     "approxTokens": 17093
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 2,
+    "unknownIds": []
+   },
+   "95dd79": {
+    "outid": "626891a9",
+    "cost": 0.1399298,
+    "wall": 5.0,
+    "exit": 0,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 9828,
+     "changed": 3,
+     "fallback": false,
+     "promptChars": 39312,
+     "slice": 50,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 3,
+     "slice": 50,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 39312,
+     "approxTokens": 9828
+    },
+    "deterministic": [],
+    "verdict": "clean",
+    "n_findings": 0,
+    "unknownIds": []
+   },
+   "f80839": {
+    "outid": "946e560f",
+    "cost": 0.09324980000000001,
+    "wall": 7.3,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 5530,
+     "changed": 4,
+     "fallback": false,
+     "promptChars": 22120,
+     "slice": 31,
+     "total": 302
+    },
+    "cli_stats": {
+     "changed": 4,
+     "slice": 31,
+     "total": 302,
+     "fallback": false,
+     "promptChars": 22120,
+     "approxTokens": 5530
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   },
+   "27bc02": {
+    "outid": "9b487302",
+    "cost": 0.2349738,
+    "wall": 7.2,
+    "exit": 1,
+    "attempts": 1,
+    "retries": 0,
+    "retry_errors": [],
+    "prompt": {
+     "approxTokens": 17513,
+     "changed": 7,
+     "fallback": false,
+     "promptChars": 70050,
+     "slice": 93,
+     "total": 303
+    },
+    "cli_stats": {
+     "changed": 7,
+     "slice": 93,
+     "total": 303,
+     "fallback": false,
+     "promptChars": 70050,
+     "approxTokens": 17513
+    },
+    "deterministic": [],
+    "verdict": "defect",
+    "n_findings": 3,
+    "unknownIds": []
+   }
+  }
+ }
+}

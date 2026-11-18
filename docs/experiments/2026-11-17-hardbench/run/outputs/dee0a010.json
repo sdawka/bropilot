@@ -1,0 +1,31 @@
+{
+ "variant": "125d6e",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "J.control.block/b3"
+   ],
+   "severity": "medium",
+   "summary": "The revoke step (sharing revoked, pending deliveries cancelled, Block recorded) now runs before the confirm/cancel branch b6. This contradicts the Block affordance's effect that nothing is revoked or recorded until the owner confirms in BlockConfirmDialog.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "J.control.block/e2"
+   ],
+   "severity": "medium",
+   "summary": "The cancel path reaches e2 'No block recorded' only after b3 has already recorded the Block and revoked sharing, so the end state is inconsistent with the flow.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.revocation.current"
+   ],
+   "severity": "medium",
+   "summary": "The new claim that cancelling a block confirmation leaves sharing and pending jobs untouched cannot hold, because the journey revokes sharing and cancels deliveries in b3 before the cancel branch in b6.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

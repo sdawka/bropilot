@@ -1,0 +1,31 @@
+{
+ "variant": "3a9735",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.invite"
+   ],
+   "severity": "medium",
+   "summary": "The new rule that an opened invitation hides the sender until acceptance conflicts with screen.invitation, which shows an InvitePreview before the Accept/Decline decision; the spec never says what that preview may show if not the inviter.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "GD.connect"
+   ],
+   "severity": "medium",
+   "summary": "Hiding the inviter until acceptance undermines the 'two explicit consents' model in policy.pairConsent, because the invitee would be accepting a pair with an unknown counterparty, so the consent is not informed.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.connection.consent"
+   ],
+   "severity": "medium",
+   "summary": "The criterion now asserts inviter anonymity, but its sourceRefs (S.webapp.operations, S.webapp.concurrency) and operation.invite.accept contain no such requirement, so the new check traces to no requirement or operation effect.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

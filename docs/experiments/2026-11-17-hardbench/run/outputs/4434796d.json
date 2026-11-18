@@ -1,0 +1,36 @@
+{
+ "variant": "22094b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export",
+    "operation.data.export",
+    "J.control.export"
+   ],
+   "severity": "medium",
+   "summary": "The new export effect puts each contact's recorded phone and email in the export, which conflicts with the existing guarantee that the export excludes other people's data.",
+   "evidence": "affordance: \"Each exported contact includes the channels the owner recorded, such as phone and email\"; operation.data.export: \"Export excludes other people's data\"; J.control.export e1: \"Receive export excluding other people's data\""
+  },
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export",
+    "operation.data.export",
+    "C.webapp.lifecycle.data"
+   ],
+   "severity": "low",
+   "summary": "The channel-inclusion effect was added only to the affordance; the export operation and the lifecycle criterion and fixture were not updated, so nothing requires or tests it.",
+   "evidence": "operation.data.export effects: [Export authorized records as JSON or CSV, Export excludes other people's data]; fixture: \"export isolation in both formats, deletion purge and retention\""
+  },
+  {
+   "nodeIds": [
+    "component.ExportControls",
+    "J.control.export"
+   ],
+   "severity": "low",
+   "summary": "The journey now has the user pick JSON or CSV, but ExportControls has no format-selection component or affordance to support that choice.",
+   "evidence": "x2: \"Choose Export in ExportControls, pick JSON or CSV, and reauthenticate\"; component.ExportControls children: only affordance.ExportControls.export"
+  }
+ ],
+ "unknownIds": []
+}

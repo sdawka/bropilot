@@ -1,0 +1,35 @@
+{
+ "variant": "d1c15a",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "component.EventDateTimeField",
+    "entity.ContactEvent"
+   ],
+   "severity": "medium",
+   "summary": "A new `planned` boolean was added to ContactEvent, but nothing defines how it is set or how it relates to a future `occurredAt`, so the two can contradict each other (for example, planned=true with a past time, or a future time with planned=false).",
+   "evidence": "+ - { name: planned, type: boolean }  /  description: Date and time; a future time records a planned meeting"
+  },
+  {
+   "nodeIds": [
+    "action.Save"
+   ],
+   "severity": "medium",
+   "summary": "The precondition changed from the concrete 'Nonfuture event time' to the undefined 'Valid event time', and Save's effects still recompute goals immediately with no rule for how a planned future event affects the schedule or qualification.",
+   "evidence": "- preconditions: [Owned contact, Nonfuture event time]\n+ preconditions: [Owned contact, Valid event time] ... effects: Persist event; recompute affected goals without sending anything"
+  },
+  {
+   "nodeIds": [
+    "c4"
+   ],
+   "severity": "low",
+   "summary": "Journey step c4 now offers a 'plan the next meeting' choice, but its `next` targets were not changed, so no branch leads to a planning path.",
+   "evidence": "- action: Log what happened?\n+ action: Log what happened, or plan the next meeting?\n  kind: branch ... next: (unchanged)"
+  }
+ ],
+ "unknownIds": [
+  "action.Save",
+  "c4"
+ ]
+}

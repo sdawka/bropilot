@@ -1,0 +1,31 @@
+{
+ "variant": "46753b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.deleteContact"
+   ],
+   "severity": "medium",
+   "summary": "The affordance says the contact, goal and history are deleted at once and cannot be restored, which contradicts operation.contact.delete and C.webapp.lifecycle.data, where a deleted contact stays restorable for 30 days before purge.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "operation.contact.delete"
+   ],
+   "severity": "medium",
+   "summary": "The operation promises the owner can restore the contact for 30 days, but no restore operation, affordance, screen or journey is defined, and the People screen and journey e1 give no way to reach a soft-deleted contact.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "entity.RelationshipGoal"
+   ],
+   "severity": "medium",
+   "summary": "operation.contact.delete marks the goal and its events deleted, but only entity.ContactRecord gained a deletedAt field; RelationshipGoal and ContactEvent have no deletion marker to support that soft delete.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,35 @@
+{
+ "variant": "b434a4",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.account.setTimeZone",
+    "S.webapp.due"
+   ],
+   "severity": "high",
+   "summary": "The new operation keeps existing due dates unchanged, but the revised S.webapp.due requires every open goal's due date to be recomputed in the new zone.",
+   "evidence": "S.webapp.due: \"When the owner changes time zone, every open goal's due date must be recomputed in the new zone.\" vs operation.account.setTimeZone effects: \"Keep existing due dates unchanged, Goals saved afterwards use the new zone\""
+  },
+  {
+   "nodeIds": [
+    "operation.account.setTimeZone",
+    "J.settings.timezone/t3",
+    "J.settings.timezone"
+   ],
+   "severity": "medium",
+   "summary": "Neither the operation nor the journey recomputes goals, suggestions or jobs, so the journey's goal of keeping due dates right is never achieved.",
+   "evidence": "operation.account.setTimeZone links: only \"writes entity.Account\"; t3: \"Update the owner's time zone\" -> e1 \"Settings show the new time zone\"; actorGoal: \"Keep due dates right after moving to another time zone\""
+  },
+  {
+   "nodeIds": [
+    "operation.account.setTimeZone",
+    "entity.Account"
+   ],
+   "severity": "low",
+   "summary": "The operation lists a stale-version conflict, but entity.Account has no version field to check against.",
+   "evidence": "failure: \"Stale version returns conflict\"; entity.Account fields: id, identitySubject, displayName, timeZone, notificationPreferences"
+  }
+ ],
+ "unknownIds": []
+}

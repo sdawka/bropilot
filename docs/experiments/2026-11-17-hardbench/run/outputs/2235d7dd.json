@@ -1,0 +1,42 @@
+{
+ "variant": "643d59",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.goal.save",
+    "S.webapp.due",
+    "GD.contacts",
+    "GD.goals",
+    "entity.RelationshipGoal"
+   ],
+   "severity": "high",
+   "summary": "Requiring an active Connection to save a goal contradicts the product's model of private, owner-only goals on contacts that may never install the app.",
+   "evidence": "GD.contacts: \"Keep a private contact record before any friend installs the app\"; entity.RelationshipGoal invariants: \"Owner-only\", \"Goal is never exposed to its contact\"; new S.webapp.due: \"A goal may be saved only for a contact with an active Connection.\""
+  },
+  {
+   "nodeIds": [
+    "operation.goal.save",
+    "evolution.2",
+    "evolution.3"
+   ],
+   "severity": "high",
+   "summary": "Goal saving now depends on the Connection entity and invite flow, but those are delivered in evolution.3, which itself depends on evolution.2 (goals), so evolution.2 cannot satisfy its own goal fixtures.",
+   "evidence": "evolution.2 affects operation.goal.save; evolution.3 \"Add invite state machine, unique pairs...\" dependsOn evolution.2; operation.goal.save now \"reads entity.Connection\" and preconditions include \"Active Connection with the contact's linked account\"."
+  },
+  {
+   "nodeIds": [
+    "operation.goal.save",
+    "affordance.SuggestionCard.snooze",
+    "J.prompts/p5",
+    "J.prompts/p6",
+    "J.prompts/p7",
+    "operation.connection.revoke"
+   ],
+   "severity": "medium",
+   "summary": "Snooze, pause and revise all go through operation.goal.save, so after a disconnect or block the owner can no longer snooze, pause or revise existing goals, which conflicts with block pausing goals and with the prompt journeys.",
+   "evidence": "affordance.SuggestionCard.snooze invokes operation.goal.save with precondition only \"Open suggestion for an enabled goal\"; J.prompts/p6 \"Pause the goal\" stepOperation operation.goal.save; new failure \"A goal for an unconnected contact is refused\"."
+  }
+ ],
+ "unknownIds": []
+}

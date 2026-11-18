@@ -1,0 +1,36 @@
+{
+ "variant": "08b2b8",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.disconnect",
+    "operation.connection.revoke",
+    "J.control.disconnect"
+   ],
+   "severity": "high",
+   "summary": "Disconnect now deletes the owner's private ContactRecord, goal and history, which contradicts the disconnect journey that says the private record remains and the actor goal of keeping it.",
+   "evidence": "Diff: \"Deletes the owner's private ContactRecord for this person with its goal and history\" vs J.control.disconnect e1: \"Pair no longer active; the private ContactRecord remains\" and actorGoal \"End app-mediated sharing with one person while keeping my private record\""
+  },
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.disconnect",
+    "P1",
+    "GD.contacts"
+   ],
+   "severity": "high",
+   "summary": "Deleting the private record on disconnect breaks the Purpose constraint and the private-contacts feature: connecting adds only sharing capabilities, and private records exist independently of any connection and stay under the owner's control.",
+   "evidence": "purpose.yaml constraint: \"connecting accounts adds consensual sharing capabilities and does not turn private notes or goals into shared data\"; removed text: \"private records remain under the owner's control\""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.revocation.current",
+    "hook.webapp.revocation.current"
+   ],
+   "severity": "medium",
+   "summary": "The revocation criterion now claims disconnect deletes the participant's record, goal and history, but its hook fixture and source requirement (S.webapp.concurrency) do not cover this, and it conflicts with owner-controlled data lifecycle.",
+   "evidence": "claim: \"Disconnect removes the participant's own record, goal and history for that person\"; hook inputs: fixture: \"revoke after queue, retry dispatch and access\""
+  }
+ ],
+ "unknownIds": []
+}

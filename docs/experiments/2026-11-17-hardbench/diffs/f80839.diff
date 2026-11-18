@@ -1,0 +1,43 @@
+--- a/journeys/J.control.export.yaml
++++ b/journeys/J.control.export.yaml
+@@ -39,7 +39,7 @@
+   - S.webapp.operations
+ - id: x4
+   actor: system
+-  action: Export authorized records of the authenticated owner only
++  action: Export authorized records of the authenticated owner only, including the connection list
+   kind: action
+   screen: screen.settings
+   operation: operation.data.export
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -243,7 +243,7 @@
+     targetKind: artifact
+     triggers: [candidate, promotion]
+     inputs:
+-      fixture: "export isolation, deletion purge and retention"
++      fixture: "export isolation incl. connection list, deletion purge and retention"
+     timeoutMs: 60000
+     costTier: cheap
+     binding: defined
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -596,6 +596,7 @@
+         kind: component
+         name: ExportControls
+         cardinality: exactly one
++        description: One export of contacts, goals, events and connections as a single JSON file
+         children:
+           - id: affordance.ExportControls.export
+             kind: affordance
+@@ -603,7 +604,9 @@
+             actor: ext.owner
+             trigger: Owner reauthenticates and activates Export
+             preconditions: [Owner reauthentication]
+-            effects: [Export authorized records of the authenticated owner only]
++            effects:
++              - Export authorized records of the authenticated owner only
++              - The export also lists each active Connection with the counterpart's display name and account email
+             failure: [Reauthentication failure denies the export]
+             links:
+               - { rel: invokes, to: operation.data.export }

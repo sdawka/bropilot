@@ -1,0 +1,36 @@
+{
+ "variant": "864bc6",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.invite",
+    "operation.invite.create"
+   ],
+   "severity": "high",
+   "summary": "The Invite affordance now says no QR or connection code is shown and the link is emailed instead, but operation.invite.create and the redemption flow still appear built around a QR or connection code the owner shares in person, so the invite flow contradicts itself.",
+   "evidence": "- effects: [Invokes operation.invite.create and shows the invitation QR or connection code]\n+ - Invokes operation.invite.create and emails the invitation link to the contact's recorded email address\n+ - No QR or connection code is shown"
+  },
+  {
+   "nodeIds": [
+    "ext.providers",
+    "affordance.ConnectionPanel.invite"
+   ],
+   "severity": "medium",
+   "summary": "Invitation emails go to a third party (the contact) through the notification provider, but ext.providers still cites the unchanged world spec section 2, which only supports owner-facing notification, so the new scope has no source and conflicts with the owner-private model.",
+   "evidence": "+ modeled: Identity, notification (owner reminders and invitation emails) ...\n  source: { doc: keep-in-touch-world-specification, section: \"2\" }\n+ - { rel: triggers, to: ext.providers, label: invitation email }"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.connection.consent",
+    "component.AddContactDialog.ChannelFields"
+   ],
+   "severity": "low",
+   "summary": "Inviting now requires an email address, but the criterion adds only 'email delivery' coverage: there is no case for a contact with no email (Invite unavailable) or for a failed send, and ChannelFields stays optional with no matching validation.",
+   "evidence": "+ preconditions: [..., Contact has a recorded email address]\n+ claim: \"Invite fixture covers email delivery, acceptance, expiry, replay, self-connection, block and simultaneous redemption\"\n  cardinality: optional"
+  }
+ ],
+ "unknownIds": [
+  "component.AddContactDialog.ChannelFields"
+ ]
+}

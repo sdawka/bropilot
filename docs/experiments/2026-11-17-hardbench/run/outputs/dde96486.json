@@ -1,0 +1,31 @@
+{
+ "variant": "5f4559",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "component.CalendarAccessToggle"
+   ],
+   "severity": "medium",
+   "summary": "The new toggle has no persisted state (entity.Account has no calendar-access preference field) and no link to ext.device, so its 'off by default' setting and the calendar read permission it grants are not modeled anywhere.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "entity.Suggestion"
+   ],
+   "severity": "medium",
+   "summary": "Suggestion reasons now depend on device-calendar data, but no operation or link reads ext.device or calendar data. Suggestions are computed server-side by operation.goal.save and the scheduler, which cannot access the owner's device calendar, so the data source is missing.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "hook.webapp.prompts.bounded"
+   ],
+   "severity": "medium",
+   "summary": "The hook fixture now covers calendar reasons, but its criterion C.webapp.prompts.bounded and its source requirement S.webapp.prompts say nothing about calendar-derived reasons, so the hook tests behavior its criterion does not claim.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

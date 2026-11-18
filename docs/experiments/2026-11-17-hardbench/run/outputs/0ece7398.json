@@ -1,0 +1,24 @@
+{
+ "variant": "3a9735",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "GD.connect",
+    "C.webapp.connection.consent"
+   ],
+   "severity": "medium",
+   "summary": "Hiding the inviter until acceptance means the invitee must consent to a connection without knowing who they are connecting with, which undercuts the 'two explicit consents' model and probably conflicts with any accept/redeem flow that shows the inviter's identity.",
+   "evidence": "\"Invitation-based pairs formed by two explicit consents; the inviter stays anonymous until acceptance\" / \"an unaccepted invitation never reveals the inviter\""
+  },
+  {
+   "nodeIds": [
+    "operation.invite.create"
+   ],
+   "severity": "low",
+   "summary": "The anonymity rule is added as an effect of the owner's Invite interaction, but it governs what the recipient sees when opening or redeeming the invitation, and no redeem/accept operation is updated to carry it.",
+   "evidence": "effects: - Opening the invitation does not reveal who sent it until it has been accepted, so a forwarded code exposes nobody (on actor: ext.owner, trigger: Owner activates Invite)"
+  }
+ ],
+ "unknownIds": []
+}

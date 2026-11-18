@@ -1,0 +1,33 @@
+{
+ "variant": "04db7c",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "hook.webapp.prompts.bounded",
+    "C.webapp.prompts.bounded"
+   ],
+   "severity": "medium",
+   "summary": "The hook fixture now checks reminder delivery at the chosen local hour, but the criterion it serves was not updated to claim that behaviour, and nothing covers the new daylight-saving skip rule.",
+   "evidence": "hook fixture: \"six due goals yield five ordered cards; one reminder at the chosen local hour\" vs C.webapp.prompts.bounded claim: \"Six due goals yield exactly five ordered cards. Duplicate jobs must not duplicate prompts or owner reminders\"; S.webapp.prompts adds \"A chosen hour skipped by a daylight-saving change moves to the next valid hour\" with no fixture or criterion covering it"
+  },
+  {
+   "nodeIds": [
+    "component.NotificationPreferences",
+    "entity.Account"
+   ],
+   "severity": "medium",
+   "summary": "NotificationPreferences is now described as where the owner chooses the reminder hour, but it has only a reads link to Account and no affordance or operation that saves the chosen hour.",
+   "evidence": "component.NotificationPreferences description: \"External reminder opt-in and the local hour at which the daily reminder is sent\"; links: \"{ rel: reads, to: entity.Account }\" only"
+  },
+  {
+   "nodeIds": [
+    "entity.NotificationJob"
+   ],
+   "severity": "low",
+   "summary": "The new localHour field is an unbounded int with no 0..23 range, and NotificationJob's description and invariants were not updated to mention it or the chosen-hour and daylight-saving rule.",
+   "evidence": "\"- { name: localHour, type: int }\" (compare \"intervalDays, type: int 1..3650\"); description still \"ID, owner, suggestion and preference version, scheduled time, delivery state and deduplication key\""
+  }
+ ],
+ "unknownIds": []
+}

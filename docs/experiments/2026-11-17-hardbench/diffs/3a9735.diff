@@ -1,0 +1,44 @@
+--- a/description.yaml
++++ b/description.yaml
+@@ -7,7 +7,7 @@
+ features:
+   - { id: GD.contacts, name: Private contacts, summary: Keep a private contact record before any friend installs the app; optional channel and context., source: { doc: keep-in-touch-world-specification, section: "3" } }
+   - { id: GD.goals, name: Cadence and depth, summary: An owner-only goal with an interval and a desired depth, with a schedule preview., source: { doc: keep-in-touch-world-specification, section: "3" } }
+-  - { id: GD.connect, name: Consented pair connections, summary: Invitation-based pairs formed by two explicit consents; either party can disconnect or block., source: { doc: keep-in-touch-world-specification, section: "3" } }
++  - { id: GD.connect, name: Consented pair connections, summary: Invitation-based pairs formed by two explicit consents; the inviter stays anonymous until acceptance; either party can disconnect or block., source: { doc: keep-in-touch-world-specification, section: "3" } }
+   - { id: GD.prompts, name: Suggested next actions, summary: A finite Today view of at most five due suggestions; opening a channel never completes a goal., source: { doc: keep-in-touch-world-specification, section: "3" } }
+   - { id: GD.updates, name: Digests and photo suggestions (later), summary: Later digests and photo suggestions; realization deferred while the digest interpretation is unresolved., deferred: true, source: { doc: keep-in-touch-world-specification, section: "3" } }
+ commitments:
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -14,7 +14,7 @@
+     hooks: [hook.webapp.private.owner]
+   - id: C.webapp.connection.consent
+     title: Connection consent
+-    claim: "Invite fixture covers acceptance, expiry, replay, self-connection, block and simultaneous redemption"
++    claim: "Invite fixture covers acceptance, expiry, replay, self-connection, block and simultaneous redemption, and that an unaccepted invitation never reveals the inviter"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: operation
+@@ -171,7 +171,7 @@
+     targetKind: artifact
+     triggers: [candidate, promotion]
+     inputs:
+-      fixture: "invite state machine incl. concurrent redemption"
++      fixture: "invite state machine incl. concurrent redemption and inviter anonymity"
+     timeoutMs: 60000
+     costTier: cheap
+     binding: defined
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -303,7 +303,9 @@
+             actor: ext.owner
+             trigger: Owner activates Invite
+             preconditions: [Contact is not connected, No block in either direction]
+-            effects: [Invokes operation.invite.create and shows the invitation QR or connection code]
++            effects:
++              - Invokes operation.invite.create and shows the invitation QR or connection code
++              - Opening the invitation does not reveal who sent it until it has been accepted, so a forwarded code exposes nobody
+             failure: [Not available when already connected or blocked]
+             links:
+               - { rel: invokes, to: operation.invite.create }

@@ -1,0 +1,31 @@
+{
+ "variant": "8fa895",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.Block"
+   ],
+   "severity": "medium",
+   "summary": "Blocks now lapse automatically after 90 days, and the old 'until removed' wording is gone, so a blocker can no longer keep a block in force or remove it early; the blocked account silently regains invite eligibility, which undermines the participant-authority purpose of blocking.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "S.webapp.prompts"
+   ],
+   "severity": "medium",
+   "summary": "Suggestion suppression now ends 'until the block lapses', but operation.connection.revoke and the block affordance only pause the blocker's goal (pausedAt) and define no mechanism to unpause or resume it on lapse, so the two are inconsistent.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "operation.connection.revoke"
+   ],
+   "severity": "medium",
+   "summary": "Nothing defines what happens to a Connection left in state 'blocked' or to the Block record when expiresAt passes, so it is unclear what 'not the previous pair' means in C.webapp.revocation.current.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

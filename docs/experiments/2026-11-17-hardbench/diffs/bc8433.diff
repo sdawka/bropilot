@@ -1,0 +1,58 @@
+--- a/evolutions/evolution.4.yaml
++++ b/evolutions/evolution.4.yaml
+@@ -1,6 +1,6 @@
+ id: evolution.4
+ title: Owner reminders and lifecycle
+-intent: Add optional reminder transport, export and deletion; cancellation, deduplication and retention
++intent: Add optional reminder transport with a test reminder, export and deletion; cancellation, deduplication and retention
+   fixtures
+ state: proposed
+ kind: implementation
+--- a/externals.yaml
++++ b/externals.yaml
+@@ -33,7 +33,7 @@
+   - id: ext.providers
+     kind: service
+     name: Providers
+-    modeled: Identity, notification and optional model providers, including their limits and failures
++    modeled: Identity, notification and optional model providers, including their limits, failures and owner-requested test reminders
+     external: Provider availability, limits and failures
+     source: { doc: keep-in-touch-world-specification, section: "2" }
+   - id: ext.events
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -207,7 +207,7 @@
+     targetKind: artifact
+     triggers: [candidate, promotion]
+     inputs:
+-      fixture: "six due goals yield five ordered cards"
++      fixture: "six due goals yield five ordered cards; an owner test reminder is delivered once"
+     timeoutMs: 60000
+     costTier: cheap
+     binding: defined
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -590,8 +590,23 @@
+         kind: component
+         name: NotificationPreferences
+         cardinality: exactly one
++        description: External reminder opt-in and a Send test reminder control
+         links:
+           - { rel: reads, to: entity.Account }
++        children:
++          - id: affordance.NotificationPreferences.sendTest
++            kind: affordance
++            name: Send test reminder
++            actor: ext.owner
++            trigger: Owner activates Send test reminder
++            preconditions: [External reminders enabled, No owner reminder sent yet today]
++            effects:
++              - Sends one external reminder now through the notification provider
++              - The test shows the next due person's name and phone number so the owner sees a realistic example
++            failure: [Provider unavailable shows the shared ErrorSummary]
++            links:
++              - { rel: reads, to: entity.Suggestion }
++              - { rel: triggers, to: ext.providers, label: test reminder }
+       - id: component.ExportControls
+         kind: component
+         name: ExportControls

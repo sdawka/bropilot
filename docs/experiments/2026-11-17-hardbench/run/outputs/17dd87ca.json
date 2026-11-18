@@ -1,0 +1,26 @@
+{
+ "variant": "6fa350",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.ContactRecord",
+    "operation.data.export",
+    "J.control.export/x4"
+   ],
+   "severity": "high",
+   "summary": "The new ContactRecord invariant says private notes are never exported, but the same change makes the export operation and journey step include each contact's private notes, a direct contradiction.",
+   "evidence": "entity.ContactRecord invariant: \"Private notes are never included in an export\" vs operation.data.export effect: \"Each exported contact includes its private notes\" and J.control.export/x4: \"Export authorized records of the authenticated owner only, with each contact's private notes\""
+  },
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export",
+    "operation.data.export"
+   ],
+   "severity": "low",
+   "summary": "The export affordance effects were not updated to match the changed operation, so the affordance and the operation it invokes now describe different export contents.",
+   "evidence": "affordance.ExportControls.export effects: [\"Export authorized records of the authenticated owner only\"] vs operation.data.export effects now include \"Each exported contact includes its private notes\""
+  }
+ ],
+ "unknownIds": []
+}

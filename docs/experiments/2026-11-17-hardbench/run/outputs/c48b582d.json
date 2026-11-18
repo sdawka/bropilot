@@ -1,0 +1,38 @@
+{
+ "variant": "8fa895",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "C.webapp.revocation.current",
+    "policy.revocation"
+   ],
+   "severity": "medium",
+   "summary": "The criterion now says a lapsed block restores invite eligibility, which conflicts with its own unchanged sentence that no new authorized sharing may follow revocation, and it introduces an undefined notion of a 'previous pair' that no ontology node defines.",
+   "evidence": "\"No new authorized sharing may follow revocation. A lapsed block restores invite eligibility but not the previous pair\""
+  },
+  {
+   "nodeIds": [
+    "spec.requirements (GD.prompts refinement)",
+    "operation Disconnect or block",
+    "entity.Block"
+   ],
+   "severity": "medium",
+   "summary": "The requirement now limits goal pausing and suggestion suppression to 'until the block lapses', implying the goal resumes on lapse, but the Block operation's effects only pause the goal and define no resume or unpause behavior.",
+   "evidence": "spec.yaml: \"pause the blocker's corresponding goal and suppress its suggestions until the block lapses\" vs ontology effects: \"Pauses the blocker's corresponding goal and suppresses its suggestions\" / \"Blocking pauses the blocker's corresponding goal\""
+  },
+  {
+   "nodeIds": [
+    "entity.Block",
+    "operation Disconnect or block"
+   ],
+   "severity": "low",
+   "summary": "Replacing 'until removed' with a fixed 90-day lapse drops any mention of the owner removing a block early, so manual block removal is now unspecified.",
+   "evidence": "\"- A block prevents new app-mediated contact until removed\" \u2192 \"+ A block prevents new app-mediated contact for 90 days, then lapses automatically\""
+  }
+ ],
+ "unknownIds": [
+  "operation Disconnect or block",
+  "spec.requirements (GD.prompts refinement)"
+ ]
+}

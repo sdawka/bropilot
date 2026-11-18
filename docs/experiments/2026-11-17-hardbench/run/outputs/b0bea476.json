@@ -1,0 +1,35 @@
+{
+ "variant": "f381ab",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.HistoryRow.open",
+    "screen.logContact"
+   ],
+   "severity": "high",
+   "summary": "The new HistoryRow.open affordance navigates to /people/:id/events/:eventId, but no screen in the spec declares that route, so the navigation target is a broken reference and there is no screen for revising an event.",
+   "evidence": "effects: [Navigates to /people/:id/events/:eventId to revise the event] \u2014 the only event route is screen.logContact route: /people/:id/events/new; the other screens use /people/:id, /people/:id/goal, /today, /people, /settings, /signin and /connect/:token"
+  },
+  {
+   "nodeIds": [
+    "affordance.HistoryRow.open",
+    "operation.contact.log",
+    "S.webapp.qualification"
+   ],
+   "severity": "medium",
+   "summary": "The event-revision affordance introduced by this change has no defined editing screen or form, and it does not invoke operation.contact.log ('Log or revise contact'), so the revise path that S.webapp.qualification requires (schedule recompute on edit) is unspecified.",
+   "evidence": "S.webapp.qualification: 'Editing or deleting an event must recompute the schedule.'; affordance.HistoryRow.open has no invokes link, while affordance.ContactEventForm.save invokes operation.contact.log only from screen.logContact (/people/:id/events/new)"
+  },
+  {
+   "nodeIds": [
+    "component.HistoryRow",
+    "screen.person"
+   ],
+   "severity": "low",
+   "summary": "The HistoryRow description now says each row opens the event for revision, but the screen.person composition text was not updated and still says only that history has one row per event.",
+   "evidence": "component.HistoryRow: 'History has one row per event; each row opens the event for revision' vs screen.person description: 'History has one row per event.'"
+  }
+ ],
+ "unknownIds": []
+}

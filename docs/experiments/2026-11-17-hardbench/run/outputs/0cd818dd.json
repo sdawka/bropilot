@@ -1,0 +1,31 @@
+{
+ "variant": "27bc02",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.AddContactDialog.save"
+   ],
+   "severity": "medium",
+   "summary": "The new precondition 'Nonblank birthday' makes birthday mandatory for Save, which contradicts the optional birthday stated in the BirthdayField, AddContactDialog, screen.people, journey step s3 and C.webapp.contact.save.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "entity.ContactRecord"
+   ],
+   "severity": "medium",
+   "summary": "The birthday field is typed local-date, which requires a full date, but the BirthdayField and C.webapp.contact.save describe a month-day birthday whose year may be left blank, so a yearless birthday cannot be stored.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.contact.save"
+   ],
+   "severity": "medium",
+   "summary": "The criterion now requires validating a month-day birthday, but operation.contact.save, which the affordance invokes, has no birthday validation precondition or failure, so the criterion has no operation contract backing it.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

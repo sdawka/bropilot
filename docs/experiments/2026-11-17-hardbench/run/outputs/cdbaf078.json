@@ -1,0 +1,37 @@
+{
+ "variant": "5f4559",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "ext.device",
+    "ext.events",
+    "component.SuggestionReason",
+    "entity.Suggestion"
+   ],
+   "severity": "high",
+   "summary": "The change models read access to the owner's device calendar, which contradicts ext.events: that external explicitly avoids assuming access to private calendars and places the owner's private calendars outside the boundary.",
+   "evidence": "ext.events: \"record source, time and uncertainty, without assuming access to private calendars\"; external: \"The events themselves and the owner's private calendars\" vs. ext.device: \"read access to the device calendar\" and Suggestion: \"upcoming birthday or anniversary read from the owner's device calendar\""
+  },
+  {
+   "nodeIds": [
+    "component.CalendarAccessToggle",
+    "entity.Account",
+    "S.webapp.scope"
+   ],
+   "severity": "medium",
+   "summary": "The new CalendarAccessToggle has no backing persisted preference, requirement or criterion: Account has no calendar-access field, S.webapp.scope does not list calendar reading, and no criterion verifies the 'off by default' or declined-permission behaviour.",
+   "evidence": "component.CalendarAccessToggle: \"Allows reading birthdays and anniversaries from the device calendar; off by default\"; entity.Account fields: id, identitySubject, displayName, timeZone, notificationPreferences only"
+  },
+  {
+   "nodeIds": [
+    "hook.webapp.prompts.bounded",
+    "C.webapp.prompts.bounded"
+   ],
+   "severity": "low",
+   "summary": "The hook fixture now tests calendar reasons, but the criterion it evidences was not updated, so the hook checks behaviour the criterion does not claim.",
+   "evidence": "hook fixture: \"six due goals yield five ordered cards, incl. calendar reasons\" vs. C.webapp.prompts.bounded claim: \"Six due goals yield exactly five ordered cards. Duplicate jobs must not duplicate prompts or owner reminders\""
+  }
+ ],
+ "unknownIds": []
+}

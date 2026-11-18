@@ -1,0 +1,34 @@
+{
+ "variant": "249a5b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "C.webapp.screen.people",
+    "screen.people"
+   ],
+   "severity": "medium",
+   "summary": "The People criterion now claims to check a 'search' state, but screen.people's declared states do not include any search state, so the criterion refines a state the screen does not define.",
+   "evidence": "C.webapp.screen.people claim: \"Refines C.webapp.screen.exact for loaded, empty, loading, error, search and dialog states\"; screen.people states: [loaded, loading, empty, error]"
+  },
+  {
+   "nodeIds": [
+    "hook.webapp.private.owner",
+    "C.webapp.private.owner"
+   ],
+   "severity": "low",
+   "summary": "The owner-isolation hook fixture now covers search, but the criterion it verifies still only claims guessed IDs and export, so the hook tests something its criterion does not state.",
+   "evidence": "hook inputs.fixture: \"two-account API fixture incl. guessed ids, search and export\" vs C.webapp.private.owner claim: \"...Include guessed IDs and export\""
+  },
+  {
+   "nodeIds": [
+    "component.ContactCollection",
+    "screen.people"
+   ],
+   "severity": "low",
+   "summary": "ContactCollection is now filtered by search, but the screen defines no outcome for a search with no matches; only the unfiltered 'empty' state exists.",
+   "evidence": "component.ContactCollection description: \"The owner's contacts, filtered by the current search\"; screen.people states: [loaded, loading, empty, error]"
+  }
+ ],
+ "unknownIds": []
+}

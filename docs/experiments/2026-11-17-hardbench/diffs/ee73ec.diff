@@ -1,0 +1,55 @@
+--- a/journeys/J.control.disconnect.yaml
++++ b/journeys/J.control.disconnect.yaml
+@@ -19,7 +19,7 @@
+   - S.webapp.operations
+ - id: d2
+   actor: user
+-  action: Choose Disconnect and confirm
++  action: Choose Disconnect, confirm and reauthenticate
+   kind: branch
+   screen: screen.person
+   next:
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -71,7 +71,7 @@
+     hooks: [hook.webapp.screen.exact]
+   - id: C.webapp.revocation.current
+     title: Current revocation
+-    claim: "Revoke access after a job is queued, then retry dispatch and access. No new authorized sharing may follow revocation"
++    claim: "Revoke access after a job is queued, then retry dispatch and access. No new authorized sharing may follow revocation. Disconnect without fresh reauthentication is denied"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: policy
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -311,10 +311,10 @@
+             kind: affordance
+             name: Disconnect
+             actor: ext.owner
+-            trigger: Owner confirms Disconnect
+-            preconditions: [Active Connection with this contact's linked account]
++            trigger: Owner reauthenticates and confirms Disconnect
++            preconditions: [Active Connection with this contact's linked account, Owner reauthentication]
+             effects: [Removes shared capabilities while private records remain under the owner's control]
+-            failure: [Not available when there is no active Connection]
++            failure: [Not available when there is no active Connection, Reauthentication failure denies the disconnect]
+             links:
+               - { rel: invokes, to: operation.connection.revoke }
+           - id: affordance.ConnectionPanel.block
+@@ -946,10 +946,13 @@
+     kind: operation
+     name: Disconnect or block
+     parent: section.domain
+-    description: Participant authority. Revoke affected app sharing and cancel pending deliveries; a block prevents new app-mediated contact until removed
+-    preconditions: [Participant authority]
++    description: Participant authority and owner reauthentication. Revoke affected app sharing and cancel pending deliveries; a block prevents new app-mediated contact until removed
++    preconditions: [Participant authority, Owner reauthentication]
+     effects: [Revoke affected app sharing, Cancel pending deliveries, A block prevents new app-mediated contact until removed, Blocking pauses the blocker's corresponding goal]
+-    failure: [Non-participant is denied, Already delivered external messages or copied data cannot be retracted]
++    failure:
++      - Non-participant is denied
++      - Reauthentication failure denies the change
++      - Already delivered external messages or copied data cannot be retracted
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:
+       - { rel: writes, to: entity.Connection }

@@ -1,0 +1,19 @@
+{
+ "variant": "6fa350",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.ContactRecord",
+    "operation.data.export",
+    "x4"
+   ],
+   "severity": "high",
+   "summary": "The new ContactRecord invariant forbids private notes in exports, while the export operation effects and journey step x4 now require each exported contact to include its private notes.",
+   "evidence": "invariants: '- Private notes are never included in an export' vs effects: [Export authorized records, Each exported contact includes its private notes, ...] and x4 action: 'Export authorized records of the authenticated owner only, with each contact's private notes'"
+  }
+ ],
+ "unknownIds": [
+  "x4"
+ ]
+}

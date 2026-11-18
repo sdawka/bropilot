@@ -1,0 +1,24 @@
+{
+ "variant": "3a9735",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "GD.connect",
+    "C.webapp.connection.consent"
+   ],
+   "severity": "high",
+   "summary": "Keeping the inviter anonymous until acceptance undermines 'explicit consent': the invitee must accept a connection without knowing who they are connecting to, so the consent is not informed and a forwarded code lets an unintended recipient connect blindly to the owner.",
+   "evidence": "\"Invitation-based pairs formed by two explicit consents; the inviter stays anonymous until acceptance\" / \"an unaccepted invitation never reveals the inviter\""
+  },
+  {
+   "nodeIds": [
+    "GD.connect"
+   ],
+   "severity": "medium",
+   "summary": "The new rule says a forwarded code 'exposes nobody', but it does not say how the code is bound to the intended recipient. Any holder of a forwarded code can still accept it and then learn the inviter's identity, so the claimed protection is incomplete.",
+   "evidence": "\"Opening the invitation does not reveal who sent it until it has been accepted, so a forwarded code exposes nobody\""
+  }
+ ],
+ "unknownIds": []
+}

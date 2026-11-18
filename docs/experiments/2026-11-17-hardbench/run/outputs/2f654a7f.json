@@ -1,0 +1,37 @@
+{
+ "variant": "698e3b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "screen.person",
+    "component.MetGoalCheckbox"
+   ],
+   "severity": "high",
+   "summary": "Carrying the 'Met this goal' choice over from the previous log means a goal already met (or a different, earlier goal) can be pre-checked, so new logs may falsely record the current goal as met; the old 'defaults unchecked' safeguard was removed.",
+   "evidence": "- Met this goal defaults unchecked and is disabled when no current goal exists\n+ channel, depth and the Met this goal choice carry over, the date defaults to now and the note starts empty."
+  },
+  {
+   "nodeIds": [
+    "screen.person",
+    "component.ChannelSelect",
+    "component.EventDepthSelect",
+    "component.MetGoalCheckbox"
+   ],
+   "severity": "medium",
+   "summary": "The prefill rule does not say what the form shows when the person has no previous log, so channel, depth and Met this goal have no initial value for a first log.",
+   "evidence": "+ The form opens prefilled from this person's previous log ... / + description: Prefilled with the channel of this person's previous log"
+  },
+  {
+   "nodeIds": [
+    "component.MetGoalCheckbox"
+   ],
+   "severity": "low",
+   "summary": "ChannelSelect and DepthSelect gained prefill descriptions but MetGoalCheckbox did not, even though the screen description says its choice also carries over, so the component-level spec is inconsistent.",
+   "evidence": "+ description: Prefilled with the depth of this person's previous log\n  - id: component.MetGoalCheckbox ... name: MetGoalCheckbox (no description added)"
+  }
+ ],
+ "unknownIds": [
+  "component.ChannelSelect"
+ ]
+}

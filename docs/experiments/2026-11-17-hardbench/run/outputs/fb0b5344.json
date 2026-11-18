@@ -1,0 +1,31 @@
+{
+ "variant": "ee73ec",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.connection.revoke"
+   ],
+   "severity": "medium",
+   "summary": "The shared Disconnect-or-block operation now requires owner reauthentication, but affordance.ConnectionPanel.block and journey step J.control.block/b2 still only require confirmation, so Block contradicts the operation's preconditions.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "J.control.disconnect/d2"
+   ],
+   "severity": "medium",
+   "summary": "The step now includes reauthentication, but its branch only models confirm and cancel; there is no path for the newly specified reauthentication failure, which should deny the disconnect.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.revocation.current"
+   ],
+   "severity": "medium",
+   "summary": "The added reauthentication claim is sourced only to S.webapp.concurrency, and neither that nor any other requirement mandates reauthentication for disconnect, so the criterion asserts an untraced requirement.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

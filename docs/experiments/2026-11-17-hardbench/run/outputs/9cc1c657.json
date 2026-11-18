@@ -1,0 +1,37 @@
+{
+ "variant": "08b2b8",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.disconnect",
+    "operation.connection.revoke",
+    "GD.contacts"
+   ],
+   "severity": "high",
+   "summary": "Disconnect now deletes the owner's private ContactRecord, goal and history, which contradicts the private-contacts design where contact records exist independently of any connection and stay under the owner's control.",
+   "evidence": "GD.contacts: 'Keep a private contact record before any friend installs the app'; removed effect: 'Removes shared capabilities while private records remain under the owner's control'; added: 'Deletes the owner's private ContactRecord for this person with its goal and history'"
+  },
+  {
+   "nodeIds": [
+    "affordance.disconnect",
+    "operation.connection.revoke"
+   ],
+   "severity": "medium",
+   "summary": "The claim that disconnecting 'leaves no trace' contradicts the revoke operation's own failure clause, which says delivered messages and copied data cannot be retracted.",
+   "evidence": "'so ending a connection leaves no trace' vs failure: 'Already delivered external messages or copied data cannot be retracted'"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.revocation.current",
+    "GD.connect"
+   ],
+   "severity": "medium",
+   "summary": "Destructive deletion on disconnect is added to a revocation criterion and to the feature summary without matching statements elsewhere, and it conflicts with block, which only pauses the goal, so a milder action now destroys more data than block does.",
+   "evidence": "'Disconnect removes the participant's own record, goal and history for that person' vs 'Blocking pauses the blocker's corresponding goal'"
+  }
+ ],
+ "unknownIds": [
+  "affordance.disconnect"
+ ]
+}

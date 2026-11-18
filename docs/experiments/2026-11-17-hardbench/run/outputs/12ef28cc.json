@@ -1,0 +1,32 @@
+{
+ "variant": "bc8433",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.NotificationPreferences.sendTest"
+   ],
+   "severity": "high",
+   "summary": "The test reminder puts the next due person's name and phone number into an external notification, which leaks private contact data to the notification provider and the delivery channel; owner reminders should not carry contact details.",
+   "evidence": "effects: - The test shows the next due person's name and phone number so the owner sees a realistic example; links: - { rel: triggers, to: ext.providers, label: test reminder }"
+  },
+  {
+   "nodeIds": [
+    "affordance.NotificationPreferences.sendTest"
+   ],
+   "severity": "medium",
+   "summary": "The 'No owner reminder sent yet today' precondition ties the test to the daily reminder deduplication budget, so a test can block that day's real reminder or be blocked by it, and the spec does not say how the two interact.",
+   "evidence": "preconditions: [External reminders enabled, No owner reminder sent yet today]; evolution intent: 'cancellation, deduplication and retention'"
+  },
+  {
+   "nodeIds": [
+    "affordance.NotificationPreferences.sendTest",
+    "entity.Suggestion"
+   ],
+   "severity": "low",
+   "summary": "The test reads entity.Suggestion to find the 'next due person', but the spec does not define what the test sends when no suggestion is due.",
+   "evidence": "links: - { rel: reads, to: entity.Suggestion }; effects: 'The test shows the next due person's name...'"
+  }
+ ],
+ "unknownIds": []
+}

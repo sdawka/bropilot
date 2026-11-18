@@ -1,0 +1,31 @@
+{
+ "variant": "08b2b8",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.disconnect"
+   ],
+   "severity": "medium",
+   "summary": "Disconnect now deletes the owner's private ContactRecord, goal and history, which contradicts GD.contacts and entity.ContactRecord: a contact record is the owner's own private record, independent of any linked account, and previously remained under the owner's control after disconnect.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "operation.connection.revoke"
+   ],
+   "severity": "medium",
+   "summary": "Disconnect now destroys the goal and events while the stronger Block action only pauses the goal, and the 'leaves no trace' claim conflicts with the operation's own failure note and S.webapp.concurrency that copied or delivered data cannot be retracted.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.revocation.current"
+   ],
+   "severity": "medium",
+   "summary": "The new deletion claim has no backing requirement in its sourceRef S.webapp.concurrency, and the J.control.disconnect journey (d3/d4, which return to screen.person) still describes only revocation, not deletion of the person.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

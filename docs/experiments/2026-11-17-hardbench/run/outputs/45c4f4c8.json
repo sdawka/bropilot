@@ -1,0 +1,35 @@
+{
+ "variant": "04db7c",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "C.webapp.prompts.bounded",
+    "hook.webapp.prompts.bounded"
+   ],
+   "severity": "medium",
+   "summary": "The hook fixture now checks for one reminder at the chosen local hour, but the criterion it serves was not updated, so the new timing behavior has no protected claim behind it.",
+   "evidence": "hook fixture: \"six due goals yield five ordered cards; one reminder at the chosen local hour\" vs claim: \"Six due goals yield exactly five ordered cards. Duplicate jobs must not duplicate prompts or owner reminders\""
+  },
+  {
+   "nodeIds": [
+    "S.webapp.prompts",
+    "hook.webapp.prompts.bounded",
+    "C.webapp.schedule.correct"
+   ],
+   "severity": "low",
+   "summary": "The new rule for a reminder hour skipped by daylight saving has no fixture, and the repeated hour when clocks fall back is not specified.",
+   "evidence": "\"A chosen hour skipped by a daylight-saving change moves to the next valid hour.\" \u2014 no criterion or hook fixture mentions skipped or repeated reminder hours"
+  },
+  {
+   "nodeIds": [
+    "entity.NotificationJob",
+    "entity.Account"
+   ],
+   "severity": "low",
+   "summary": "NotificationJob gained a localHour field without a 0\u201323 range, and its field-listing description was not updated; Account now describes a reminder hour but declares no field for it.",
+   "evidence": "+ { name: localHour, type: int } vs description: \"ID, owner, suggestion and preference version, scheduled time, delivery state and deduplication key\"; Account fields still only list notificationPreferences: json"
+  }
+ ],
+ "unknownIds": []
+}

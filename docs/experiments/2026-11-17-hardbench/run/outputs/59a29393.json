@@ -1,0 +1,15 @@
+{
+ "variant": "8ac67f",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "GD.goals"
+   ],
+   "severity": "medium",
+   "summary": "The new summary text contains unquoted commas inside a YAML flow mapping, so it parses as just 'An owner-only goal with an interval', dropping the depth and schedule-preview content and leaving stray keys such as 'chosen from presets or typed'.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,36 @@
+{
+ "variant": "b6a5d0",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "things/webapp/spec.yaml#goal-qualification",
+    "entity.Goal.desiredDepth"
+   ],
+   "severity": "medium",
+   "summary": "The new 'any accepts every logged depth' rule conflicts with the existing rule that only qualifications matching the current desiredDepth are counted, so it is unclear how stored qualifications are counted when switching to or from 'any'.",
+   "evidence": "\"desiredDepth in any, light, meaningful or shared-time; any accepts every logged depth\" vs. existing \"The app must record the goal ID and desiredDepth at confirmation and count only qualifications matching the current desiredDepth.\""
+  },
+  {
+   "nodeIds": [
+    "component.GoalDepthField",
+    "things/webapp/spec.yaml#goal-qualification"
+   ],
+   "severity": "medium",
+   "summary": "'Logged depth' is undefined, because ContactEvents carry no depth of their own; the only depth recorded is the goal's desiredDepth at confirmation, which can now be 'any'.",
+   "evidence": "\"any accepts every logged depth\" alongside \"A ContactEvent must qualify only when the owner explicitly marks that it met this goal. The app must record the goal ID and desiredDepth at confirmation\""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.schedule.correct"
+   ],
+   "severity": "low",
+   "summary": "The criterion adds fixtures for 'the any depth' but does not say how qualifications recorded under 'any' behave after the depth changes to a specific value, so the expected test outcome is unspecified.",
+   "evidence": "\"interval and depth changes including the any depth\""
+  }
+ ],
+ "unknownIds": [
+  "entity.Goal.desiredDepth",
+  "things/webapp/spec.yaml#goal-qualification"
+ ]
+}

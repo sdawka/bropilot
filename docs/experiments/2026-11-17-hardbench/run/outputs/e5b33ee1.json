@@ -1,0 +1,26 @@
+{
+ "variant": "45de63",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.unblock",
+    "operation.block.remove",
+    "entity.Block"
+   ],
+   "severity": "high",
+   "summary": "The affordance says either party to the block may remove it, but the operation and the Block invariant say only the blocker can remove it.",
+   "evidence": "affordance effects: \"Either party to the block may remove it\" vs operation.block.remove preconditions: [Caller is the blocker], failure: [Any caller other than the blocker is denied]; Block invariants: \"Only the blocker can remove it\""
+  },
+  {
+   "nodeIds": [
+    "J.control.unblock",
+    "operation.block.remove"
+   ],
+   "severity": "low",
+   "summary": "The journey step says it resumes 'the paused goal' without saying it belongs to the blocker, and the end state's 'needs a new invitation' is not linked to any invite step.",
+   "evidence": "u3 action: \"Delete the Block and resume the paused goal\""
+  }
+ ],
+ "unknownIds": []
+}

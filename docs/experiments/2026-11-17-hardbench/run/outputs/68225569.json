@@ -1,0 +1,26 @@
+{
+ "variant": "bc8433",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.NotificationPreferences.sendTest",
+    "S.webapp.prompts",
+    "entity.NotificationJob"
+   ],
+   "severity": "high",
+   "summary": "The new test reminder sends the next due person's name and phone number through the external notification provider, which contradicts the requirement that external reminders contain only a link without contact details.",
+   "evidence": "sendTest effects: \"The test shows the next due person's name and phone number so the owner sees a realistic example\" vs S.webapp.prompts: \"Optional external reminders, when enabled, must be limited to one owner notification per local day containing a link without contact details\" and NotificationJob invariant \"One owner notification per local day containing a link without contact details\""
+  },
+  {
+   "nodeIds": [
+    "hook.webapp.prompts.bounded",
+    "C.webapp.prompts.bounded"
+   ],
+   "severity": "low",
+   "summary": "The hook fixture now checks test-reminder delivery, but the criterion it evidences says nothing about test reminders, so the hook tests something the criterion does not claim and the reminder content rule stays unchecked.",
+   "evidence": "hook fixture: \"six due goals yield five ordered cards; an owner test reminder is delivered once\" vs C.webapp.prompts.bounded claim: \"Six due goals yield exactly five ordered cards. Duplicate jobs must not duplicate prompts or owner reminders\""
+  }
+ ],
+ "unknownIds": []
+}

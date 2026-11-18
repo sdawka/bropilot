@@ -1,0 +1,34 @@
+{
+ "variant": "f381ab",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.HistoryRow.open",
+    "screen.logContact"
+   ],
+   "severity": "high",
+   "summary": "The new HistoryRow open affordance navigates to /people/:id/events/:eventId, but no screen declares that route; screen.logContact only covers /people/:id/events/new, so the revision destination is a broken reference.",
+   "evidence": "effects: [Navigates to /people/:id/events/:eventId to revise the event] vs. screen.logContact route: /people/:id/events/new (no other screen has an :eventId route)"
+  },
+  {
+   "nodeIds": [
+    "hook.webapp.screen.exact",
+    "affordance.HistoryRow.open"
+   ],
+   "severity": "medium",
+   "summary": "The screen-composition fixture now claims to cover the /people/:id/events routes, but the event-revision route has no defined screen, states or composition to verify.",
+   "evidence": "fixture: \"protected browser fixture over all screens incl. /people/:id/events routes\""
+  },
+  {
+   "nodeIds": [
+    "affordance.HistoryRow.open",
+    "operation.contact.log"
+   ],
+   "severity": "low",
+   "summary": "The added revise-event affordance has no link to any operation or screen for revising, so the revise path for operation.contact.log ('Log or revise contact') is not reachable through a specified form.",
+   "evidence": "affordance.HistoryRow.open has no invokes/navigates link; only affordance.ContactEventForm.save invokes operation.contact.log"
+  }
+ ],
+ "unknownIds": []
+}

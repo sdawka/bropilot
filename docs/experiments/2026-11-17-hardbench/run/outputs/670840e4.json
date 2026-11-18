@@ -1,0 +1,31 @@
+{
+ "variant": "864bc6",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.invite"
+   ],
+   "severity": "medium",
+   "summary": "The Invite affordance now has the app email the contact directly through the notification provider, but S.webapp.prompts and NotificationJob only allow external notifications to the owner (one per local day, no contact details), so app-originated email to a non-user third party conflicts with the spec.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "operation.invite.create"
+   ],
+   "severity": "medium",
+   "summary": "The affordance says operation.invite.create emails the invitation link to the contact's recorded address, but that operation's effects, inputs and failure modes were not updated: it has no recipient address, no email send and no delivery-failure handling.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.connection.consent"
+   ],
+   "severity": "medium",
+   "summary": "The criterion now claims to cover email delivery, but its subject is still operation.invite.accept, and nothing records how email delivery handles the invitation token, which S.webapp.authentication says must not leak to third parties.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

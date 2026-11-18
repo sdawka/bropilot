@@ -1,0 +1,32 @@
+{
+ "variant": "e3bf46",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.RelationshipGoal",
+    "component.GoalPriorityField"
+   ],
+   "severity": "medium",
+   "summary": "The change adds a Today ordering rule (high-priority suggestions first) only on the goal entity and form field; the Today screen and suggestion-ordering spec are not updated, so they may conflict with any existing ordering rule there.",
+   "evidence": "\"Suggestions for high-priority goals are listed first on Today\" / \"high-priority suggestions come first on Today\" \u2014 no corresponding change to the Today screen or its suggestion list"
+  },
+  {
+   "nodeIds": [
+    "entity.RelationshipGoal"
+   ],
+   "severity": "medium",
+   "summary": "The new priority field is required on the entity but has no default there, while the form component says the default is normal, so existing goals and non-form creation paths have no defined value.",
+   "evidence": "- { name: priority, type: \"enum high|normal\" } (not optional, no default) vs \"priority high or normal, default normal\""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.schedule.correct"
+   ],
+   "severity": "low",
+   "summary": "The schedule-correctness criterion now requires fixtures for priority changes, but priority is described only as affecting display order on Today, not schedule computation, so the criterion's scope does not match.",
+   "evidence": "\"Fixed-clock fixtures cover zero logs, qualification, interval, depth and priority changes...\""
+  }
+ ],
+ "unknownIds": []
+}

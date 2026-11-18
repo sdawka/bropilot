@@ -1,0 +1,37 @@
+{
+ "variant": "e3bf46",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.RelationshipGoal",
+    "component.GoalPriorityField",
+    "S.webapp.prompts",
+    "component.SuggestionCollection"
+   ],
+   "severity": "high",
+   "summary": "The new rule that high-priority suggestions come first on Today contradicts the normative Today ordering, which is effective due date then stable goal ID.",
+   "evidence": "Added: 'Suggestions for high-priority goals are listed first on Today' / 'high-priority suggestions come first on Today'; S.webapp.prompts: 'Today must return at most five suggestions, ordered by effective due date then stable goal ID'"
+  },
+  {
+   "nodeIds": [
+    "J.prompts",
+    "C.webapp.prompts.bounded"
+   ],
+   "severity": "medium",
+   "summary": "The Today journey and the bounded-prompts criterion still define and test ordering without priority, so the new priority ordering is neither reflected in the journey nor verified by any criterion.",
+   "evidence": "J.prompts p2: 'At most five suggestions ordered by effective due date then goal ID'; C.webapp.prompts.bounded: 'Six due goals yield exactly five ordered cards'"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.schedule.correct",
+    "S.webapp.due",
+    "S.webapp.qualification"
+   ],
+   "severity": "low",
+   "summary": "The schedule-correctness criterion now claims fixture coverage of priority changes, but no requirement gives priority any effect on due dates or qualification, and the Specification does not define the priority field at all.",
+   "evidence": "C.webapp.schedule.correct: 'cover zero logs, qualification, interval, depth and priority changes'; S.webapp.due and S.webapp.qualification mention only intervalDays, desiredDepth, anchor, pause and snooze"
+  }
+ ],
+ "unknownIds": []
+}

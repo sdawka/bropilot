@@ -1,0 +1,37 @@
+{
+ "variant": "698e3b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "screen.person",
+    "component.MetGoalCheckbox"
+   ],
+   "severity": "high",
+   "summary": "Carrying over the previous log's 'Met this goal' choice replaces the explicit 'defaults unchecked' rule, so a goal can be silently recorded as met again, even after the current goal has changed since that log.",
+   "evidence": "- Met this goal defaults unchecked and is disabled when no current goal exists / + the Met this goal choice carry over ... Met this goal is disabled when no current goal exists"
+  },
+  {
+   "nodeIds": [
+    "screen.person",
+    "component.EventChannelSelect",
+    "component.EventDepthSelect",
+    "component.MetGoalCheckbox"
+   ],
+   "severity": "medium",
+   "summary": "The spec does not say what channel, depth and Met this goal show when the person has no previous log, so the first-log case is undefined now that the old default was removed.",
+   "evidence": "The form opens prefilled from this person's previous log: channel, depth and the Met this goal choice carry over"
+  },
+  {
+   "nodeIds": [
+    "J.contact.c4"
+   ],
+   "severity": "low",
+   "summary": "The journey step for a branch decision now carries a UI-behaviour statement that does not fit the branch question, and it does not cover the case where there is no previous log.",
+   "evidence": "action: Log what happened? The form opens prefilled from the previous log\n  kind: branch"
+  }
+ ],
+ "unknownIds": [
+  "J.contact.c4"
+ ]
+}

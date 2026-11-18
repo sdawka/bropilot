@@ -1,0 +1,58 @@
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -48,7 +48,7 @@
+     hooks: [hook.webapp.schedule.correct]
+   - id: C.webapp.prompts.bounded
+     title: Bounded prompts
+-    claim: "Six due goals yield exactly five ordered cards. Duplicate jobs must not duplicate prompts or owner reminders"
++    claim: "Six due goals yield exactly five ordered cards. Duplicate jobs must not duplicate prompts or owner reminders. A reminder due during quiet hours is delivered when they end"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: screen
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -590,6 +590,7 @@
+         kind: component
+         name: NotificationPreferences
+         cardinality: exactly one
++        description: External reminder opt-in and quiet hours, as a start and end time in the owner's time zone
+         links:
+           - { rel: reads, to: entity.Account }
+       - id: component.ExportControls
+@@ -629,7 +630,7 @@
+     kind: entity
+     name: Account
+     parent: section.domain
+-    description: ID, identity-provider subject, display name, time zone and notification preferences; one authenticated owner
++    description: ID, identity-provider subject, display name, time zone, notification preferences and optional quiet hours; one authenticated owner
+     source: { doc: keep-in-touch-world-specification, section: "5" }
+     fields:
+       - { name: id, type: string }
+@@ -637,6 +638,7 @@
+       - { name: displayName, type: string }
+       - { name: timeZone, type: iana-time-zone }
+       - { name: notificationPreferences, type: json }
++      - { name: quietHours, type: json, optional: true }
+     invariants: [One authenticated owner]
+     links:
+       - { rel: storedIn, to: binding.contactsStore }
+@@ -800,6 +802,7 @@
+       - { name: dedupKey, type: string }
+     invariants:
+       - Delivery rechecks preferences and cancellations
++      - A job whose delivery time falls inside the owner's quiet hours is cancelled at delivery
+       - One owner notification per local day containing a link without contact details
+       - Queue bodies carry minimal IDs, not private relationship notes
+     links:
+--- a/things/webapp/spec.yaml
++++ b/things/webapp/spec.yaml
+@@ -43,7 +43,8 @@
+       Snoozing must update its effective due date; pausing must suppress prompts. Blocking a linked counterpart must
+       pause the blocker's corresponding goal and suppress its suggestions. In-app reminders are required. Optional
+       external reminders, when enabled, must be limited to one owner notification per local day containing a link
+-      without contact details. Reminder delivery must recheck preferences and cancellations.
++      without contact details. Reminder delivery must recheck preferences and cancellations. A reminder that falls inside
++      the owner's quiet hours must be deferred to the end of the quiet period.
+     refines: [GD.prompts]
+     subjects: [screen.today, entity.Suggestion, entity.NotificationJob]
+     source: { doc: keep-in-touch-world-specification, section: "6" }

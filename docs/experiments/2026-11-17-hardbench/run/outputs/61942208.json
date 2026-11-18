@@ -1,0 +1,25 @@
+{
+ "variant": "774614",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "C.system.autonomy",
+    "C.webapp.prompts.cards"
+   ],
+   "severity": "high",
+   "summary": "C.system.autonomy's claim still requires coverage by C.webapp.prompts.bounded, which the change renamed away, leaving a dangling reference and omitting the new C.webapp.reminders.daily notification-bound criterion.",
+   "evidence": "criteria.yaml C.system.autonomy: \"A coverage hook must resolve these obligations to C.webapp.private.owner, C.webapp.connection.consent, C.webapp.revocation.current and C.webapp.prompts.bounded\""
+  },
+  {
+   "nodeIds": [
+    "hook.system.autonomy",
+    "C.webapp.reminders.daily"
+   ],
+   "severity": "high",
+   "summary": "hook.system.autonomy's requires input still names the removed C.webapp.prompts.bounded, so the autonomy coverage check will fail to resolve and does not require the reminder bound.",
+   "evidence": "hook.system.autonomy inputs: { packs: \"authorization@1\", requires: \"C.webapp.private.owner,C.webapp.connection.consent,C.webapp.revocation.current,C.webapp.prompts.bounded\" }"
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,36 @@
+{
+ "variant": "dfba1a",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.resendInvite",
+    "entity.ConnectionInvite",
+    "operation.invite.create"
+   ],
+   "severity": "high",
+   "summary": "Resend invitation promises to show the pending invitation's original QR or connection code again, but the spec stores only a token hash, so the original credential cannot be reconstructed for display.",
+   "evidence": "resendInvite effects: \"Shows the pending invitation's original QR or connection code again; no new invitation is created\" vs ConnectionInvite invariants: \"Stores only a token hash\" and operation.invite.create: \"store only a token hash\""
+  },
+  {
+   "nodeIds": [
+    "J.connect/s1",
+    "J.connect/s2",
+    "affordance.ConnectionPanel.resendInvite"
+   ],
+   "severity": "medium",
+   "summary": "Journey step s1 now includes the Resend path, but its only successor s2 always creates a new invitation, which contradicts the resend affordance's guarantee that no new invitation is created.",
+   "evidence": "s1: \"Open Person and choose Invite, or Resend invitation while one is pending\" next: s2; s2: \"Create invitation: 128-bit credential, only a token hash stored, expires in 24 hours, one acceptance\""
+  },
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.resendInvite",
+    "entity.ConnectionInvite"
+   ],
+   "severity": "medium",
+   "summary": "The resend precondition refers to a pending invitation 'for this contact', but ConnectionInvite has no ContactRecord reference and only an optional boundAccountId, so there is no defined way to find a contact's pending invitation.",
+   "evidence": "preconditions: \"A pending, unexpired invitation exists for this contact\"; ConnectionInvite fields: id, inviterAccountId, tokenHash, expiresAt, state, boundAccountId (optional)"
+  }
+ ],
+ "unknownIds": []
+}

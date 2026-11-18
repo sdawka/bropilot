@@ -1,0 +1,31 @@
+{
+ "variant": "698e3b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "screen.logContact"
+   ],
+   "severity": "medium",
+   "summary": "Carrying over the previous log's 'Met this goal' choice means the checkbox can open pre-checked, which contradicts the ContactEvent invariant that an event qualifies only when the owner explicitly marks it, and removes the earlier 'defaults unchecked' safeguard.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "screen.logContact"
+   ],
+   "severity": "medium",
+   "summary": "The prefill rule does not say what the channel, depth and Met this goal fields show when the person has no previous log, so the first-log case is left undefined.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "J.contact/c4"
+   ],
+   "severity": "medium",
+   "summary": "Step c4 is the branch decision on screen.person, but it now describes the form opening prefilled; the form belongs to screen.logContact in step c5, so the behaviour is attached to the wrong step and screen.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,35 @@
+{
+ "variant": "125d6e",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "J.control.block/b3",
+    "J.control.block/b6",
+    "J.control.block/b2"
+   ],
+   "severity": "high",
+   "summary": "The journey now runs the revoke operation (b3) before the user confirms or cancels (b6), so sharing is revoked and the block is recorded even when the user cancels.",
+   "evidence": "b2 next: b3; b3 action: 'Participant authority checked; sharing revoked; pending deliveries cancelled; Block recorded' next: b6; b6: 'Confirm block or cancel' -> e2 when cancel"
+  },
+  {
+   "nodeIds": [
+    "J.control.block/e2",
+    "affordance.ConnectionPanel.block"
+   ],
+   "severity": "high",
+   "summary": "The cancel path ends at e2 'No block recorded', and the affordance says nothing happens before confirmation, but both are contradicted by b3 having already recorded the block.",
+   "evidence": "affordance effect: 'Nothing is revoked or recorded until the owner confirms in BlockConfirmDialog'; e2: 'No block recorded'; b3 precedes b6"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.revocation.current",
+    "J.control.block/b3"
+   ],
+   "severity": "medium",
+   "summary": "The new criterion clause requires that cancelling leaves sharing and pending jobs untouched, but the journey cancels pending deliveries before the cancel branch is reached.",
+   "evidence": "criterion: 'Cancelling a block confirmation leaves sharing and pending jobs untouched'; b3: 'pending deliveries cancelled' then next b6"
+  }
+ ],
+ "unknownIds": []
+}

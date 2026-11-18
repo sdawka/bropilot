@@ -1,0 +1,23 @@
+{
+ "variant": "249a5b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "hook.webapp.private.owner"
+   ],
+   "severity": "medium",
+   "summary": "The hook fixture now covers search, but its criterion C.webapp.private.owner still only names guessed IDs and export, and no search operation or API is defined, so the hook tests something the criterion and domain do not specify.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.screen.people"
+   ],
+   "severity": "medium",
+   "summary": "The criterion now requires a 'search' state, but screen.people declares only loaded, loading, empty and error states, so the refined criterion refers to a state the screen does not define.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

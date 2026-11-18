@@ -1,0 +1,37 @@
+{
+ "variant": "8fa895",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.Block",
+    "operation.disconnectOrBlock",
+    "policy.revocation"
+   ],
+   "severity": "high",
+   "summary": "Blocks now lapse automatically after 90 days, so a blocked account can reach the blocker again with no action from the blocker, and the wording that let the blocker remove a block was dropped without a stated replacement.",
+   "evidence": "\"A block prevents new app-mediated contact until removed\" -> \"A block prevents new app-mediated contact for 90 days, then lapses automatically\"; invariant \"Lapses automatically 90 days after creation\"; source still cites keep-in-touch-world-specification section 5/6 unchanged"
+  },
+  {
+   "nodeIds": [
+    "requirement.prompts",
+    "operation.disconnectOrBlock"
+   ],
+   "severity": "medium",
+   "summary": "The requirement now says suggestions are suppressed only until the block lapses, but no operation or effect says what happens to the paused goal when the block lapses, so the goal's state after lapse is undefined.",
+   "evidence": "spec.yaml: \"pause the blocker's corresponding goal and suppress its suggestions until the block lapses\" vs ontology effects: \"Pauses the blocker's corresponding goal and suppresses its suggestions\" (no resume-on-lapse effect)"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.revocation.current"
+   ],
+   "severity": "medium",
+   "summary": "The acceptance criterion adds behaviour after a block lapses (invite eligibility comes back, the previous pair does not) that no ontology node, operation or requirement defines.",
+   "evidence": "\"A lapsed block restores invite eligibility but not the previous pair\" \u2014 Block entity and Disconnect-or-block operation only say the block \"lapses automatically\" with no post-lapse connection or invite semantics"
+  }
+ ],
+ "unknownIds": [
+  "operation.disconnectOrBlock",
+  "requirement.prompts"
+ ]
+}

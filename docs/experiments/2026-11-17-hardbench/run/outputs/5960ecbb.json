@@ -1,0 +1,31 @@
+{
+ "variant": "04db7c",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "hook.webapp.prompts.bounded"
+   ],
+   "severity": "medium",
+   "summary": "The hook fixture now tests a reminder sent at the chosen local hour, but criterion C.webapp.prompts.bounded's claim still covers only five ordered cards and duplicate-job deduplication, so the hook checks something its criterion does not state.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "hook.webapp.prompts.bounded"
+   ],
+   "severity": "medium",
+   "summary": "C.webapp.prompts.bounded is an acceptance criterion for evolution.2, but optional reminder transport arrives only in evolution.4, so evolution.2 cannot pass the extended fixture.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "entity.NotificationJob"
+   ],
+   "severity": "medium",
+   "summary": "The new localHour field has no 0..23 range, and the entity description does not mention it, unlike the bounded int types used elsewhere (e.g. intervalDays 1..3650).",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

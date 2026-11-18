@@ -1,0 +1,36 @@
+{
+ "variant": "3a9735",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "GD.connect",
+    "affordance.ConnectionPanel.invite",
+    "component.InvitePreview"
+   ],
+   "severity": "high",
+   "summary": "The new rule that the inviter stays anonymous until acceptance contradicts InvitePreview, which shows the recipient who is inviting them before they Accept or Decline.",
+   "evidence": "Diff: \"Opening the invitation does not reveal who sent it until it has been accepted\" vs component.InvitePreview: \"The recipient sees who is inviting them\" (cardinality: exactly one after validation, i.e. before acceptance)"
+  },
+  {
+   "nodeIds": [
+    "J.connect",
+    "C.webapp.connection.consent"
+   ],
+   "severity": "high",
+   "summary": "Journey step s7 has the invitee see the inviter before choosing Accept or Decline, which conflicts with the new anonymity claim the consent criterion and fixture now test.",
+   "evidence": "J.connect s7: \"See who is inviting; Accept or Decline\" vs C.webapp.connection.consent claim: \"an unaccepted invitation never reveals the inviter\""
+  },
+  {
+   "nodeIds": [
+    "GD.connect",
+    "policy.pairConsent",
+    "affordance.ConsentPanel.accept"
+   ],
+   "severity": "medium",
+   "summary": "Hiding the inviter's identity until after acceptance means the invitee consents to a pair without knowing who the other party is, which undermines the explicit two-party consent the feature and policy require.",
+   "evidence": "GD.connect: \"Invitation-based pairs formed by two explicit consents; the inviter stays anonymous until acceptance\"; policy.pairConsent: \"creating the invitation and accepting it provide the two consents\""
+  }
+ ],
+ "unknownIds": []
+}

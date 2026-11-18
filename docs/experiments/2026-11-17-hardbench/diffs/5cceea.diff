@@ -1,0 +1,63 @@
+--- a/evolutions/evolution.2.yaml
++++ b/evolutions/evolution.2.yaml
+@@ -11,6 +11,7 @@
+ - screen.goal
+ - screen.logContact
+ - screen.today
++- affordance.HistoryRow.delete
+ acceptanceCriteria:
+ - C.webapp.schedule.correct
+ - C.webapp.prompts.bounded
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -195,7 +195,7 @@
+     targetKind: artifact
+     triggers: [candidate, promotion]
+     inputs:
+-      fixture: "fixed-clock scheduling fixtures with IANA zones and DST"
++      fixture: "fixed-clock scheduling fixtures with IANA zones, DST and event deletion"
+     timeoutMs: 60000
+     costTier: cheap
+     binding: defined
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -250,7 +250,7 @@
+     states: [loaded, loading, error]
+     description: >-
+       Exactly PersonSummary, GoalPanel, ContactHistory, PrivateNotes, ConnectionPanel and ActionBar. History has one
+-      row per event. Actions are Edit goal, Log contact and Open channel; connection status determines Invite,
++      row per event, each with Delete. Actions are Edit goal, Log contact and Open channel; connection status determines Invite,
+       Disconnect or Block availability
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:
+@@ -281,7 +281,20 @@
+             kind: component
+             name: HistoryRow
+             cardinality: 1 per event
+-            description: History has one row per event
++            description: History has one row per event, each with a Delete control
++            children:
++              - id: affordance.HistoryRow.delete
++                kind: affordance
++                name: Delete event
++                actor: ext.owner
++                trigger: Owner confirms Delete on a history row
++                preconditions: [Owned contact, Owned event]
++                effects:
++                  - Invokes operation.contact.log to remove the event
++                  - The schedule is left as it is until the goal is next saved
++                failure: [Stale version returns conflict]
++                links:
++                  - { rel: invokes, to: operation.contact.log }
+       - id: component.PrivateNotes
+         kind: component
+         name: PrivateNotes
+@@ -901,7 +914,7 @@
+     parent: section.domain
+     description: Owned contact, nonfuture event time. Persist event; recompute affected goals without sending anything
+     preconditions: [Owned contact, Nonfuture event time]
+-    effects: [Persist event, Recompute affected goals without sending anything, Logging qualifying contact resolves its suggestion]
++    effects: [Persist event, Recompute affected goals without sending anything, Logging qualifying contact resolves its suggestion, Deleting an event removes it from history]
+     failure: [Future event time is rejected, Stale version returns conflict]
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:

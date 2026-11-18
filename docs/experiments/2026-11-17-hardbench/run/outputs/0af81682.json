@@ -1,0 +1,37 @@
+{
+ "variant": "8fa895",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.Block",
+    "operation.connection.revoke",
+    "affordance.ConnectionPanel.block",
+    "policy.revocation"
+   ],
+   "severity": "high",
+   "summary": "A block that previously held until the blocker removed it now expires automatically after 90 days, so the blocked account regains invite eligibility without the blocker acting, and the nodes still cite the same source sections that defined a block as lasting until removed.",
+   "evidence": "Diff: \"- A block prevents new app-mediated contact until removed\" -> \"+ ... for 90 days, then lapses automatically\"; entity.Block source { doc: keep-in-touch-world-specification, section: \"5\" } unchanged; C.webapp.revocation.current: \"A lapsed block restores invite eligibility\""
+  },
+  {
+   "nodeIds": [
+    "S.webapp.prompts",
+    "affordance.ConnectionPanel.block",
+    "operation.connection.revoke",
+    "entity.RelationshipGoal"
+   ],
+   "severity": "medium",
+   "summary": "The prompts requirement now says suggestions are suppressed only until the block lapses, but blocking pauses the goal and nothing unpauses it on lapse; since pausing suppresses prompts, suggestions would stay suppressed after the lapse.",
+   "evidence": "S.webapp.prompts: \"pause the blocker's corresponding goal and suppress its suggestions until the block lapses\"; operation.connection.revoke effects: \"Blocking pauses the blocker's corresponding goal\" (no time limit); S.webapp.prompts: \"pausing must suppress prompts\"; S.webapp.due: due \"unless paused\""
+  },
+  {
+   "nodeIds": [
+    "J.control.block/b5"
+   ],
+   "severity": "low",
+   "summary": "The block journey still says new invitations and acceptances are refused with no time bound, which contradicts the new 90-day lapse.",
+   "evidence": "J.control.block/b5: \"New invitations and acceptances between the two accounts are refused\""
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,35 @@
+{
+ "variant": "089273",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.SignInContinue.continue",
+    "operation.invite.accept"
+   ],
+   "severity": "high",
+   "summary": "The Continue affordance now accepts the invitation, but it has no invokes link to operation.invite.accept, and its failure list does not cover the accept refusals (invalid, expired or used credential, self-connection, block, concurrent redemption).",
+   "evidence": "effects: 'Login continuation from an invitation accepts it for the invitee once sign-in succeeds...'; failure: only 'Provider unavailable shows the shared ErrorSummary'; links from the affordance: only 'references ext.providers', whereas affordance.ConsentPanel.accept 'invokes operation.invite.accept'"
+  },
+  {
+   "nodeIds": [
+    "component.ConsentPanel",
+    "screen.invitation",
+    "policy.pairConsent"
+   ],
+   "severity": "high",
+   "summary": "ConsentPanel is now limited to invitees who are already signed in, so invitees who sign in skip the panel and its Accept/Decline choice; this contradicts the invitation screen's guarantee of exactly one ConsentPanel after validation and weakens the explicit accept consent.",
+   "evidence": "ConsentPanel description: 'Shown to invitees who open the invitation while already signed in' vs. cardinality 'exactly one after validation' and screen.invitation: 'Exactly InvitePreview and ConsentPanel after validation; Accept and Decline controls'; GD.connect: 'formed by two explicit consents'"
+  },
+  {
+   "nodeIds": [
+    "component.SignInForm",
+    "screen.signin"
+   ],
+   "severity": "medium",
+   "summary": "SignInForm now shows the inviter's name to an anonymous visitor, which conflicts with the sign-in screen's 'no private content' rule for the anonymous role.",
+   "evidence": "SignInForm: 'when opened from an invitation it names the inviter' vs. screen.signin: 'One SignInForm with one Continue control and one privacy link; no private content', roles: [anonymous]"
+  }
+ ],
+ "unknownIds": []
+}

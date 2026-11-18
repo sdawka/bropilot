@@ -1,0 +1,17 @@
+{
+ "variant": "8ac67f",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "C.webapp.schedule.correct",
+    "component.GoalIntervalField",
+    "S.webapp.qualification"
+   ],
+   "severity": "medium",
+   "summary": "The schedule-correctness criterion was reworded from 'interval ... changes' to 'interval preset ... changes', so fixtures now cover only preset changes, while the goal form and journey still allow any typed interval from 1 to 3650 days.",
+   "evidence": "-    claim: \"Fixed-clock fixtures cover zero logs, qualification, interval and depth changes, ...\" / +    claim: \"Fixed-clock fixtures cover zero logs, qualification, interval preset and depth changes, ...\"; J.goals g3: \"Set interval (a preset or 1-3650 days)\"; IntervalField: \"intervalDays from 1 through 3650; presets for ...\""
+  }
+ ],
+ "unknownIds": []
+}

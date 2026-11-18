@@ -1,0 +1,31 @@
+{
+ "variant": "b7965d",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.nudge"
+   ],
+   "severity": "medium",
+   "summary": "The Nudge affordance claims to deliver an in-app card, but it only writes a MessageDraft: no send operation invokes it, and no policy (policy.revocation or policy.pairConsent) governs it, so nothing enforces the revocation check against current state that the S.webapp.concurrency 'send' authorization and C.webapp.nudge.single require.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.nudge.single"
+   ],
+   "severity": "medium",
+   "summary": "The new hard criterion has no sourceRefs and no requirement (S.webapp.*) that specifies nudges, unlike every other criterion, so the nudge feature is not traced to any requirement or feature.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "evolution.7"
+   ],
+   "severity": "medium",
+   "summary": "The evolution lists only the nudge affordance and MessageDraft as affected nodes, even though the change also modifies component.PersonActionBar and screen.person (new action) and adds a MessageDraft storage link to binding.contactsStore.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

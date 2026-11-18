@@ -1,0 +1,48 @@
+--- a/journeys/J.contact.yaml
++++ b/journeys/J.contact.yaml
+@@ -39,7 +39,7 @@
+   - S.webapp.qualification
+ - id: c4
+   actor: user
+-  action: Log what happened?
++  action: Log what happened? The form opens prefilled from the previous log
+   kind: branch
+   screen: screen.person
+   next:
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -219,7 +219,7 @@
+     targetKind: artifact
+     triggers: [candidate, promotion]
+     inputs:
+-      fixture: "protected browser fixture over all screens"
++      fixture: "protected browser fixture over all screens incl. log-form prefill"
+     timeoutMs: 120000
+     costTier: expensive
+     binding: defined
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -449,7 +449,9 @@
+     states: [loaded, loading, error, validation-error, no-goal]
+     description: >-
+       Exactly PersonSummary and ContactEventForm. Form contains date and time, channel, depth, Met this goal checkbox,
+-      optional note, Save and Cancel. Met this goal defaults unchecked and is disabled when no current goal exists
++      optional note, Save and Cancel. The form opens prefilled from this person's previous log: channel, depth and the
++      Met this goal choice carry over, the date defaults to now and the note starts empty. Met this goal is disabled when
++      no current goal exists
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:
+       - { rel: serves, to: ext.owner }
+@@ -473,10 +475,12 @@
+             kind: component
+             name: ChannelSelect
+             cardinality: exactly one
++            description: Prefilled with the channel of this person's previous log
+           - id: component.EventDepthSelect
+             kind: component
+             name: DepthSelect
+             cardinality: exactly one
++            description: Prefilled with the depth of this person's previous log
+           - id: component.MetGoalCheckbox
+             kind: component
+             name: MetGoalCheckbox

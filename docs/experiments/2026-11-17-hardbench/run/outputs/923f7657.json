@@ -1,0 +1,26 @@
+{
+ "variant": "474d5e",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.NotificationJob",
+    "S.webapp.prompts",
+    "C.webapp.prompts.bounded"
+   ],
+   "severity": "high",
+   "summary": "The new NotificationJob invariant cancels reminders that fall in quiet hours, but the new requirement and criterion say those reminders are deferred and delivered when quiet hours end.",
+   "evidence": "ontology: \"A job whose delivery time falls inside the owner's quiet hours is cancelled at delivery\" vs spec: \"A reminder that falls inside the owner's quiet hours must be deferred to the end of the quiet period\" and criterion: \"A reminder due during quiet hours is delivered when they end\""
+  },
+  {
+   "nodeIds": [
+    "hook.webapp.prompts.bounded",
+    "C.webapp.prompts.bounded"
+   ],
+   "severity": "low",
+   "summary": "The criterion now claims quiet-hours deferral, but its only hook's fixture still covers just the five-card bound, so the new claim has no executable evidence.",
+   "evidence": "hook.webapp.prompts.bounded inputs: fixture: \"six due goals yield five ordered cards\""
+  }
+ ],
+ "unknownIds": []
+}

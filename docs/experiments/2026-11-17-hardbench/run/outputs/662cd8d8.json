@@ -1,0 +1,23 @@
+{
+ "variant": "8ac67f",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "GD.goals"
+   ],
+   "severity": "medium",
+   "summary": "The new GD.goals summary contains unquoted commas inside a YAML flow mapping, so the parsed summary is cut off at 'An owner-only goal with an interval' and the rest of the text becomes stray keys.",
+   "evidence": "Diff: `summary: An owner-only goal with an interval, chosen from presets or typed, and a desired depth, with a schedule preview.` inside `{ ... }`; the graph slice shows GD.goals summary: 'An owner-only goal with an interval'. The depth and schedule preview parts are lost."
+  },
+  {
+   "nodeIds": [
+    "C.webapp.schedule.correct"
+   ],
+   "severity": "low",
+   "summary": "The criterion now says fixtures cover 'interval preset' changes, which can be read as narrowing coverage so that typed (non-preset) interval changes are no longer required to be tested.",
+   "evidence": "Old: 'interval and depth changes'. New: 'interval preset and depth changes'. Meanwhile component.GoalIntervalField and J.goals/g3 still allow any intervalDays from 1 through 3650."
+  }
+ ],
+ "unknownIds": []
+}

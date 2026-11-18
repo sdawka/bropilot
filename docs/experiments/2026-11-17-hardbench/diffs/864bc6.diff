@@ -1,0 +1,51 @@
+--- a/externals.yaml
++++ b/externals.yaml
+@@ -33,7 +33,7 @@
+   - id: ext.providers
+     kind: service
+     name: Providers
+-    modeled: Identity, notification and optional model providers, including their limits and failures
++    modeled: Identity, notification (owner reminders and invitation emails) and optional model providers, including their limits and failures
+     external: Provider availability, limits and failures
+     source: { doc: keep-in-touch-world-specification, section: "2" }
+   - id: ext.events
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -14,7 +14,7 @@
+     hooks: [hook.webapp.private.owner]
+   - id: C.webapp.connection.consent
+     title: Connection consent
+-    claim: "Invite fixture covers acceptance, expiry, replay, self-connection, block and simultaneous redemption"
++    claim: "Invite fixture covers email delivery, acceptance, expiry, replay, self-connection, block and simultaneous redemption"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: operation
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -217,7 +217,7 @@
+             kind: component
+             name: ChannelFields
+             cardinality: optional
+-            description: Optional channel fields
++            description: Optional channel fields; an email address is needed to invite the person
+           - id: affordance.AddContactDialog.save
+             kind: affordance
+             name: Save
+@@ -302,11 +302,14 @@
+             name: Invite
+             actor: ext.owner
+             trigger: Owner activates Invite
+-            preconditions: [Contact is not connected, No block in either direction]
+-            effects: [Invokes operation.invite.create and shows the invitation QR or connection code]
+-            failure: [Not available when already connected or blocked]
++            preconditions: [Contact is not connected, No block in either direction, Contact has a recorded email address]
++            effects:
++              - Invokes operation.invite.create and emails the invitation link to the contact's recorded email address
++              - No QR or connection code is shown
++            failure: [Not available when already connected or blocked, Email delivery failure shows the shared ErrorSummary]
+             links:
+               - { rel: invokes, to: operation.invite.create }
++              - { rel: triggers, to: ext.providers, label: invitation email }
+           - id: affordance.ConnectionPanel.disconnect
+             kind: affordance
+             name: Disconnect

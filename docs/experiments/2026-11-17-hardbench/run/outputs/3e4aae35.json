@@ -1,0 +1,26 @@
+{
+ "variant": "474d5e",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.NotificationJob",
+    "S.webapp.prompts",
+    "C.webapp.prompts.bounded"
+   ],
+   "severity": "high",
+   "summary": "The new NotificationJob invariant cancels a job that falls inside quiet hours, but the requirement says such reminders are deferred and the criterion says they are delivered when quiet hours end.",
+   "evidence": "entity.NotificationJob invariant: \"A job whose delivery time falls inside the owner's quiet hours is cancelled at delivery\" vs S.webapp.prompts: \"A reminder that falls inside the owner's quiet hours must be deferred to the end of the quiet period\" and C.webapp.prompts.bounded: \"A reminder due during quiet hours is delivered when they end\""
+  },
+  {
+   "nodeIds": [
+    "entity.NotificationJob",
+    "S.webapp.prompts"
+   ],
+   "severity": "low",
+   "summary": "Deferring a reminder to the end of a quiet period that crosses midnight can move it into the next local day, and the spec does not say how this interacts with the one-notification-per-local-day limit.",
+   "evidence": "S.webapp.prompts: \"limited to one owner notification per local day\" ... \"must be deferred to the end of the quiet period\"; NotificationPreferences: \"quiet hours, as a start and end time in the owner's time zone\""
+  }
+ ],
+ "unknownIds": []
+}

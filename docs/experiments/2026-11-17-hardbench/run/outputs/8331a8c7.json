@@ -1,0 +1,33 @@
+{
+ "variant": "5f4559",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "component.CalendarAccessToggle",
+    "entity.Suggestion",
+    "ext.device"
+   ],
+   "severity": "medium",
+   "summary": "Calendar reading is added to the device external, the Reason component and the Suggestion description, but nothing in the spec models where calendar data comes from or how it reaches suggestions: no link to ext.device, no stored permission or toggle state, and no birthday or anniversary data on any entity.",
+   "evidence": "CalendarAccessToggle has only a description ('Allows reading birthdays and anniversaries from the device calendar; off by default') and no links; its parent only 'reads entity.Account'; the Suggestion fields are unchanged while its description now says 'The reason may mention an upcoming birthday or anniversary read from the owner's device calendar'."
+  },
+  {
+   "nodeIds": [
+    "component.CalendarAccessToggle"
+   ],
+   "severity": "medium",
+   "summary": "The toggle's state is not persisted anywhere: the parent reads entity.Account, but no field for calendar consent is added to Account or any other entity.",
+   "evidence": "links: - { rel: reads, to: entity.Account } with new children CalendarAccessToggle '... off by default'"
+  },
+  {
+   "nodeIds": [
+    "component.CalendarAccessToggle"
+   ],
+   "severity": "low",
+   "summary": "The ordering-check fixture now expects calendar reasons, but calendar access is off by default, so the fixture depends on a precondition (toggle on, permission granted) that it does not state.",
+   "evidence": "fixture: \"six due goals yield five ordered cards, incl. calendar reasons\" vs. CalendarAccessToggle 'off by default'"
+  }
+ ],
+ "unknownIds": []
+}

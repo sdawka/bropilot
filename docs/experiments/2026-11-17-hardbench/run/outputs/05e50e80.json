@@ -1,0 +1,24 @@
+{
+ "variant": "ee73ec",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.connection.revoke",
+    "affordance.ConnectionPanel.block"
+   ],
+   "severity": "medium",
+   "summary": "Owner reauthentication was added as a precondition of the shared 'Disconnect or block' operation, so blocking now requires it too, but the Block affordance (and any block path in the journey) was not updated to require reauthentication.",
+   "evidence": "operation 'Disconnect or block' preconditions: [Participant authority, Owner reauthentication]; failure adds 'Reauthentication failure denies the change'; only affordance Disconnect changed to 'Owner reauthenticates and confirms Disconnect', and affordance.ConnectionPanel.block is left untouched."
+  },
+  {
+   "nodeIds": [
+    "operation.connection.revoke"
+   ],
+   "severity": "low",
+   "summary": "The operation is authorized by 'Participant authority' (any participant), but the new precondition names 'Owner reauthentication', which mixes actor roles and is unclear for a non-owner participant who disconnects or blocks.",
+   "evidence": "description: Participant authority and owner reauthentication."
+  }
+ ],
+ "unknownIds": []
+}

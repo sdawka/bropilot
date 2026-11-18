@@ -1,0 +1,31 @@
+{
+ "variant": "d1c15a",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ContactEventForm.save"
+   ],
+   "severity": "medium",
+   "summary": "Save now accepts a future 'valid event time' for planned meetings, but the operation it invokes, operation.contact.log, still requires a nonfuture event time and rejects future times.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "component.EventDateTimeField"
+   ],
+   "severity": "medium",
+   "summary": "The field says a future time records a planned meeting, which contradicts operation.contact.log, the operation behind this form, since it rejects any future event time.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "J.contact/c4"
+   ],
+   "severity": "medium",
+   "summary": "The branch question now offers 'plan the next meeting', but its outgoing branches are still only 'log contact' and 'skip logging', so no path or step handles planning.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

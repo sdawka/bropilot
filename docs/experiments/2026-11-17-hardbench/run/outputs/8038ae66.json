@@ -1,0 +1,36 @@
+{
+ "variant": "5f4559",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "component.CalendarAccessToggle",
+    "ext.device",
+    "entity.Account"
+   ],
+   "severity": "medium",
+   "summary": "The new calendar toggle has no link to ext.device, no permission-request flow, and no field to persist its on/off state, so how the toggle grants calendar access and keeps its 'off by default' setting is undefined.",
+   "evidence": "+ id: component.CalendarAccessToggle ... description: Allows reading birthdays and anniversaries from the device calendar; off by default (no links; parent only `reads entity.Account`)"
+  },
+  {
+   "nodeIds": [
+    "ext.device"
+   ],
+   "severity": "medium",
+   "summary": "Read access to the device calendar is listed as a modeled capability of a browser-based device, but standard browsers expose no device-calendar read API, so this capability is unsupported for the web app.",
+   "evidence": "modeled: Browser, device notification permissions, read access to the device calendar and selected files"
+  },
+  {
+   "nodeIds": [
+    "entity.Suggestion",
+    "component.SuggestionCard.Reason"
+   ],
+   "severity": "low",
+   "summary": "Suggestion reasons now depend on calendar data, but no entity, field, or data flow carries birthday or anniversary data from the device to suggestion generation, and nothing says what happens when the toggle is off.",
+   "evidence": "The reason may mention an upcoming birthday or anniversary read from the owner's device calendar"
+  }
+ ],
+ "unknownIds": [
+  "component.SuggestionCard.Reason"
+ ]
+}

@@ -1,0 +1,34 @@
+{
+ "variant": "ee73ec",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.connection.revoke",
+    "affordance.ConnectionPanel.block",
+    "J.control.block"
+   ],
+   "severity": "high",
+   "summary": "The shared revoke operation now requires owner reauthentication, but Block also invokes this operation, and neither the Block affordance nor the block journey includes any reauthentication.",
+   "evidence": "operation.connection.revoke: \"preconditions: [Participant authority, Owner reauthentication]\"; affordance.ConnectionPanel.block: \"trigger: Owner confirms Block\", \"preconditions: [Contact is linked to an Account]\"; J.control.block b2: \"Choose Block and confirm\" -> b3 operation.connection.revoke"
+  },
+  {
+   "nodeIds": [
+    "J.control.disconnect"
+   ],
+   "severity": "medium",
+   "summary": "The disconnect journey now asks the user to reauthenticate, but it has no reauthentication check or failure branch; the only outcomes are confirm or cancel, unlike the export and delete journeys.",
+   "evidence": "d2: \"Choose Disconnect, confirm and reauthenticate\" next: [d3 when confirm, e2 when cancel]; affordance failure: \"Reauthentication failure denies the disconnect\"; compare J.control.delete z3 \"Owner reauthentication checked\" -> f1 \"when: reauthentication failed\""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.revocation.current",
+    "hook.webapp.revocation.current"
+   ],
+   "severity": "low",
+   "summary": "The criterion now claims that disconnect without fresh reauthentication is denied, but its only hook's fixture still covers just revoke-after-queue and retry, so the new obligation has no executable evidence.",
+   "evidence": "claim: \"... Disconnect without fresh reauthentication is denied\"; hook.webapp.revocation.current inputs: fixture: \"revoke after queue, retry dispatch and access\""
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,31 @@
+{
+ "variant": "dfba1a",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.resendInvite"
+   ],
+   "severity": "medium",
+   "summary": "Resend claims to show the pending invitation's original QR or connection code again, but entity.ConnectionInvite and operation.invite.create store only a token hash, so the original credential cannot be recovered and redisplayed.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "J.connect/s1"
+   ],
+   "severity": "medium",
+   "summary": "Step s1 now includes the Resend invitation path, but its only next step is s2 ('Create invitation'), which contradicts the resend affordance's effect that no new invitation is created.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.resendInvite"
+   ],
+   "severity": "medium",
+   "summary": "The precondition requires a pending invitation 'for this contact', but ConnectionInvite has no ContactRecord reference (only inviter and an optional bound account), so a pending invite cannot be associated with a specific contact.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

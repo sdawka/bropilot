@@ -1,0 +1,35 @@
+{
+ "variant": "45de63",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.unblock",
+    "operation.block.remove",
+    "entity.Block"
+   ],
+   "severity": "high",
+   "summary": "The new Remove block affordance says either party may remove a block, but the operation it invokes and the Block entity invariant both say only the blocker may remove it.",
+   "evidence": "affordance.ConnectionPanel.unblock effects: \"Either party to the block may remove it\" vs operation.block.remove preconditions: \"Caller is the blocker\" / failure: \"Any caller other than the blocker is denied\" and entity.Block invariant \"Only the blocker can remove it\""
+  },
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.unblock",
+    "operation.block.remove"
+   ],
+   "severity": "medium",
+   "summary": "The affordance's availability precondition and failure condition let a blocked person see Remove block, but the operation will always deny that person.",
+   "evidence": "affordance preconditions: \"A block exists between the owner and this contact's linked account\"; failure: \"Not available when no block exists\" \u2014 no blocker-only condition, while operation.block.remove requires \"Caller is the blocker\""
+  },
+  {
+   "nodeIds": [
+    "operation.block.remove",
+    "entity.Connection"
+   ],
+   "severity": "low",
+   "summary": "Remove block deletes the Block but never updates the Connection whose state was set to blocked, so that Connection's state after unblocking is undefined.",
+   "evidence": "entity.Connection state: \"enum active|disconnected|blocked\"; operation.block.remove links write only entity.Block and entity.RelationshipGoal, and its effects say \"Delete the Block\" with no Connection transition"
+  }
+ ],
+ "unknownIds": []
+}

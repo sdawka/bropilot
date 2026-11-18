@@ -1,0 +1,35 @@
+{
+ "variant": "d1c15a",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ContactEventForm.save",
+    "component.EventDateTimeField",
+    "operation.contact.log"
+   ],
+   "severity": "high",
+   "summary": "The form now accepts future event times as planned meetings, but the operation it invokes still requires a nonfuture event time and rejects future times.",
+   "evidence": "affordance preconditions: [Owned contact, Valid event time]; DateTimeField: 'a future time records a planned meeting'; operation.contact.log preconditions: 'Nonfuture event time', failure: 'Future event time is rejected'"
+  },
+  {
+   "nodeIds": [
+    "J.contact/c4"
+   ],
+   "severity": "medium",
+   "summary": "Step c4 now offers a 'plan the next meeting' choice, but its branches only cover 'log contact' and 'skip logging', so the new option has no path.",
+   "evidence": "action: Log what happened, or plan the next meeting?; next: [c5 when: log contact, e2 when: skip logging]"
+  },
+  {
+   "nodeIds": [
+    "entity.ContactEvent",
+    "S.webapp.due",
+    "S.webapp.qualification"
+   ],
+   "severity": "medium",
+   "summary": "A new planned flag and a time-gated qualification rule were added to ContactEvent, but the qualification and due-date requirements were not updated to say how planned events affect the anchor or recomputation.",
+   "evidence": "invariant: 'A planned event never qualifies before its time has passed'; S.webapp.due: 'The anchor must be the latest qualifying event date' with no mention of planned events"
+  }
+ ],
+ "unknownIds": []
+}

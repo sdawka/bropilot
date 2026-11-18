@@ -1,0 +1,23 @@
+{
+ "variant": "b6a5d0",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.ContactEvent"
+   ],
+   "severity": "medium",
+   "summary": "S.webapp.qualification requires recording the goal's desiredDepth at confirmation, but qualifiedDepth is still typed enum light|meaningful|shared-time, so a goal with the new 'any' depth cannot be recorded.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "S.webapp.qualification"
+   ],
+   "severity": "medium",
+   "summary": "The rule to count only qualifications matching the current desiredDepth now conflicts with 'any accepts every logged depth', because it is unspecified whether events confirmed under a specific depth count after switching to 'any' (or vice versa), and SchedulePreview depends on that rule.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

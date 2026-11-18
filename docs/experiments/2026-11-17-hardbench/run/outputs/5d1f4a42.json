@@ -1,0 +1,27 @@
+{
+ "variant": "f80839",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export",
+    "J.control.export.x4"
+   ],
+   "severity": "high",
+   "summary": "The new export effect includes each connection counterpart's account email, which is another user's personal data. This contradicts the 'authenticated owner only' isolation guarantee that the same effect list and journey step still state.",
+   "evidence": "effects: - Export authorized records of the authenticated owner only - The export also lists each active Connection with the counterpart's display name and account email"
+  },
+  {
+   "nodeIds": [
+    "things/webapp/criteria.yaml"
+   ],
+   "severity": "medium",
+   "summary": "The isolation fixture now says export isolation includes the connection list, but the spec defines no rule for which counterpart fields may be disclosed. The check therefore cannot tell whether exposing a counterpart's email is a leak or allowed.",
+   "evidence": "fixture: \"export isolation incl. connection list, deletion purge and retention\""
+  }
+ ],
+ "unknownIds": [
+  "J.control.export.x4",
+  "things/webapp/criteria.yaml"
+ ]
+}

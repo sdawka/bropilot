@@ -1,0 +1,36 @@
+{
+ "variant": "643d59",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.goal.save",
+    "affordance.PersonActionBar.editGoal",
+    "journey.J.goals.g2"
+   ],
+   "severity": "high",
+   "summary": "Goals now require an active Connection with the contact's linked account, but contacts are owner-held records that need not have a linked account; this gating likely contradicts the core keep-in-touch goal flow, which elsewhere needs only an owned contact.",
+   "evidence": "preconditions: [Owned contact, Active Connection with the contact's linked account, Valid interval]; failure: [... A goal for an unconnected contact is refused ...]; 'A goal may be saved only for a contact with an active Connection.'"
+  },
+  {
+   "nodeIds": [
+    "operation.goal.save"
+   ],
+   "severity": "medium",
+   "summary": "The operation's description was not updated and still says saving needs only an owned contact and a valid interval, which contradicts the new Connection precondition.",
+   "evidence": "description: Owned contact and valid interval. Increment goal version, recompute due state and cancel obsolete jobs"
+  },
+  {
+   "nodeIds": [
+    "journey.J.goals.g2",
+    "affordance.PersonActionBar.editGoal"
+   ],
+   "severity": "low",
+   "summary": "The journey and affordance gate on the person having 'accepted an invitation', while the operation gates on an 'active Connection'; these are different conditions (for example, a connection that is later ended), so the wording is inconsistent.",
+   "evidence": "action: Choose Edit goal (available once the person has accepted an invitation) vs preconditions: [..., Active Connection with this contact's linked account]"
+  }
+ ],
+ "unknownIds": [
+  "journey.J.goals.g2"
+ ]
+}

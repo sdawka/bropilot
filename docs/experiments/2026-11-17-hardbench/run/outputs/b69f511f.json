@@ -1,0 +1,38 @@
+{
+ "variant": "08b2b8",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.disconnect",
+    "operation.connection.revoke",
+    "GD.contacts",
+    "entity.ContactRecord"
+   ],
+   "severity": "high",
+   "summary": "Disconnect now deletes the owner's private ContactRecord, goal and history, which contradicts the model where private records exist independently of any connection and stay under the owner's control.",
+   "evidence": "Diff removes 'private records remain under the owner's control' and adds 'Deletes the owner's private ContactRecord for this person with its goal and history'; GD.contacts: 'Keep a private contact record before any friend installs the app'; ContactRecord: 'Linking it to an Account does not transfer ownership'"
+  },
+  {
+   "nodeIds": [
+    "J.control.disconnect/d2",
+    "J.control.disconnect/d3",
+    "J.control.disconnect/d4"
+   ],
+   "severity": "medium",
+   "summary": "The disconnect journey was not updated: it has no removal warning, no deletion step, and still ends on the Person screen for a record that no longer exists.",
+   "evidence": "d3: 'Participant authority checked; sharing revoked; pending deliveries cancelled'; d2/d3 stepScreen screen.person; affordance trigger now 'after a warning that the person will be removed'"
+  },
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.disconnect",
+    "operation.connection.revoke",
+    "operation.data.delete"
+   ],
+   "severity": "medium",
+   "summary": "The 'leaves no trace' promise contradicts the revoke operation's own failure clause, and it allows irreversible destruction of owned data without the reauthentication and retention handling required for other deletions.",
+   "evidence": "'so ending a connection leaves no trace' vs failure 'Already delivered external messages or copied data cannot be retracted'; operation.data.delete requires 'Owner reauthentication' and 'Backup expiry follows a pinned retention policy'"
+  }
+ ],
+ "unknownIds": []
+}

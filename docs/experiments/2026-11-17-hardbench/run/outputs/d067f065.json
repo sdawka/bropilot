@@ -1,0 +1,38 @@
+{
+ "variant": "d1c15a",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "c4",
+    "J.contact"
+   ],
+   "severity": "medium",
+   "summary": "Branch c4 now offers a 'plan the next meeting' option, but its `next` targets are unchanged, so no step handles the planning path.",
+   "evidence": "-  action: Log what happened?\n+  action: Log what happened, or plan the next meeting? (only the action text changed; screen and next are untouched)"
+  },
+  {
+   "nodeIds": [
+    "component.EventDateTimeField",
+    "Save",
+    "entity.ContactEvent"
+   ],
+   "severity": "medium",
+   "summary": "The Save precondition was loosened to an undefined 'Valid event time', and nothing defines how the new `planned` boolean relates to a future `occurredAt` or what happens to it once the time passes.",
+   "evidence": "preconditions: [Owned contact, Valid event time]; description: Date and time; a future time records a planned meeting; + { name: planned, type: boolean }"
+  },
+  {
+   "nodeIds": [
+    "Save",
+    "C.webapp.schedule.correct"
+   ],
+   "severity": "low",
+   "summary": "Saving a planned future event still recomputes affected goals immediately, and nothing says whether a planned event counts as the last contact for scheduling before it happens; the criterion names planned events but no behavior is specified.",
+   "evidence": "effects: Persist event; recompute affected goals without sending anything; claim: \"... pause, planned future events and deleted events\""
+  }
+ ],
+ "unknownIds": [
+  "Save",
+  "c4"
+ ]
+}

@@ -1,0 +1,34 @@
+{
+ "variant": "08b2b8",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "GD.connect",
+    "GD.contacts",
+    "operation.connection.revoke"
+   ],
+   "severity": "high",
+   "summary": "Disconnect now deletes the owner's private ContactRecord, goal and history. This contradicts the product premise that private contact records exist independently of any connection and stay under the owner's control.",
+   "evidence": "GD.contacts: 'Keep a private contact record before any friend installs the app'; removed effect: 'Removes shared capabilities while private records remain under the owner's control'; added: 'Deletes the owner's private ContactRecord for this person with its goal and history'"
+  },
+  {
+   "nodeIds": [
+    "operation.connection.revoke"
+   ],
+   "severity": "medium",
+   "summary": "The claim that ending a connection 'leaves no trace' contradicts the revoke operation's own failure clause: delivered messages and copied data cannot be retracted.",
+   "evidence": "Added: 'so ending a connection leaves no trace' vs. failure: 'Already delivered external messages or copied data cannot be retracted'"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.revocation.current",
+    "operation.connection.revoke"
+   ],
+   "severity": "medium",
+   "summary": "Revoke is shared by disconnect and block, and only blocking pauses the blocker's goal, which implies the goal persists. Now disconnecting a connection that was blocked would destroy that paused goal, and the revocation criterion was extended with a destructive data claim that its test steps do not cover.",
+   "evidence": "effects: 'Blocking pauses the blocker's corresponding goal, Disconnecting deletes the participant's own ContactRecord with its goal and events'; criterion claim: 'Revoke access after a job is queued, then retry dispatch and access... Disconnect removes the participant's own record, goal and history'"
+  }
+ ],
+ "unknownIds": []
+}

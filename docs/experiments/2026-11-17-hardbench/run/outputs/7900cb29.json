@@ -1,0 +1,23 @@
+{
+ "variant": "5cceea",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.HistoryRow.delete"
+   ],
+   "severity": "medium",
+   "summary": "The effect 'The schedule is left as it is until the goal is next saved' contradicts S.webapp.qualification ('Editing or deleting an event must recompute the schedule') and operation.contact.log's own 'Recompute affected goals' effect, which the affordance invokes.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "affordance.HistoryRow.delete"
+   ],
+   "severity": "medium",
+   "summary": "Deferring recomputation conflicts with C.webapp.schedule.correct and its hook, which now explicitly cover deleted events and expect correct due dates after deletion.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

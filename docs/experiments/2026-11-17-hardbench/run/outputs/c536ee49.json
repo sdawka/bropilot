@@ -1,0 +1,31 @@
+{
+ "variant": "b434a4",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.account.setTimeZone"
+   ],
+   "severity": "medium",
+   "summary": "Its effects say existing due dates are kept unchanged and only goals saved afterwards use the new zone, which contradicts the S.webapp.due change requiring every open goal's due date to be recomputed in the new zone.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "operation.account.setTimeZone"
+   ],
+   "severity": "medium",
+   "summary": "It only writes entity.Account and has no writes to entity.RelationshipGoal, entity.Suggestion or entity.NotificationJob, so the recomputation and obsolete-job cancellation that S.webapp.due now requires is never modeled.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "operation.account.setTimeZone"
+   ],
+   "severity": "medium",
+   "summary": "Its failure 'Stale version returns conflict' relies on a version that entity.Account does not have, since Account has no version field.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

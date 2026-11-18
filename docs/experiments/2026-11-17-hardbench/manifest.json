@@ -1,0 +1,2323 @@
+{
+ "8ac67f": {
+  "class": "control",
+  "feature": "Interval presets",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.GoalIntervalField: presets within the existing range"
+   },
+   {
+    "file": "journeys/J.goals.yaml",
+    "description": "J.goals/g3: presets"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.schedule.correct: claim covers presets"
+   },
+   {
+    "file": "description.yaml",
+    "description": "GD.goals: summary mentions presets"
+   }
+  ],
+  "stats": {
+   "changedNodes": 4,
+   "sliceSize": 61,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "suspicious": [
+   {
+    "edit": "Interval field and journey wording changed next to the 1-3650 range",
+    "whyCorrect": "Every preset (7, 14, 30, 91, 365) lies inside 1-3650. The range in S.webapp.qualification, RelationshipGoal and J.goals/g3 is unchanged."
+   }
+  ]
+ },
+ "9edff9": {
+  "class": "control",
+  "feature": "Rename the depth labels",
+  "edits": [
+   {
+    "file": "things/webapp/spec.yaml",
+    "description": "S.webapp.qualification: depth labels renamed"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.RelationshipGoal: desiredDepth labels renamed"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.ContactEvent: selfReportedDepth labels renamed"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.ContactEvent: qualifiedDepth labels renamed"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.GoalDepthField: labels renamed"
+   },
+   {
+    "file": "journeys/J.goals.yaml",
+    "description": "J.goals/g3: labels renamed"
+   }
+  ],
+  "stats": {
+   "changedNodes": 5,
+   "sliceSize": 75,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "suspicious": [
+   {
+    "edit": "Enum values of stored fields renamed with no migration",
+    "whyCorrect": "system.yaml has phase: unrealized, so there is no stored data to migrate. Every occurrence of the three labels (requirement, two entities, depth field, journey) changes together; commitment.owner-cadence and the narrative name no labels."
+   }
+  ]
+ },
+ "f381ab": {
+  "class": "U",
+  "feature": "Event editor routes",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "screen.logContact: route moves to /people/:id/events/new"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.PersonActionBar.logContact: navigates to the new route"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.HistoryRow.open: opens an event for revision"
+   },
+   {
+    "file": "journeys/J.contact.yaml",
+    "description": "J.contact/c5: names the new route"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "hook.webapp.screen.exact: fixture covers the event routes"
+   }
+  ],
+  "stats": {
+   "changedNodes": 6,
+   "sliceSize": 63,
+   "nodes": 303,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "The log screen moved from /people/:id/log to /people/:id/events/new. The Log contact control on each Today card (affordance.SuggestionCard.logContact) still navigates to /people/:id/log, which no longer exists.",
+  "changedSide": [
+   "screen.logContact"
+  ],
+  "counterpart": [
+   "affordance.SuggestionCard.logContact"
+  ],
+  "minLinkHops": null,
+  "minLinkHopsRaw": null,
+  "inSlice": false,
+  "counterpartDetail": [
+   {
+    "id": "affordance.SuggestionCard.logContact",
+    "inSlice": false,
+    "hopsBlocked": null,
+    "hopsRaw": null,
+    "family": null,
+    "path": null
+   }
+  ],
+  "mechanism": "route literal stale in unlinked affordance"
+ },
+ "8fa895": {
+  "class": "F",
+  "feature": "Blocks lapse after 90 days",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.Block: expiresAt field and lapse invariant"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.Block: description mentions the expiry"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.ConnectionPanel.block: block lasts 90 days"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.connection.revoke: description, 90-day block"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.connection.revoke: effects, 90-day block"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "policy.revocation: block overrides until it lapses"
+   },
+   {
+    "file": "things/webapp/spec.yaml",
+    "description": "S.webapp.prompts: goal paused until the block lapses"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.revocation.current: claim covers lapsed blocks"
+   }
+  ],
+  "stats": {
+   "changedNodes": 6,
+   "sliceSize": 83,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "Blocks now lapse automatically after 90 days, but the block journey still ends with 'Block in force until removed' and its actor goal is to stop contact until the owner removes the block. The journey's end state and goal are no longer what the operation delivers.",
+  "changedSide": [
+   "operation.connection.revoke",
+   "entity.Block",
+   "affordance.ConnectionPanel.block"
+  ],
+  "counterpart": [
+   "J.control.block/e1",
+   "J.control.block"
+  ],
+  "minLinkHops": 3,
+  "minLinkHopsRaw": 3,
+  "inSlice": false,
+  "counterpartDetail": [
+   {
+    "id": "J.control.block/e1",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "entity.Block <-reads- operation.invite.accept <-stepOperation- J.control.block/b5 -stepNext-> J.control.block/e1"
+   },
+   {
+    "id": "J.control.block",
+    "inSlice": false,
+    "hopsBlocked": null,
+    "hopsRaw": null,
+    "family": null,
+    "path": null
+   }
+  ],
+  "mechanism": "journey end state contradicted by duration change",
+  "borderline": "The journey node J.control.block has no links (journeys only connect through their steps), so only e1 has a hop count. In-slice neighbours b3 to b5 state no duration."
+ },
+ "22094b": {
+  "class": "control",
+  "feature": "JSON or CSV export",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.ExportControls.export: format choice; contacts include recorded channels"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.data.export: JSON or CSV"
+   },
+   {
+    "file": "journeys/J.control.export.yaml",
+    "description": "J.control.export/x2: pick a format"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "hook.webapp.lifecycle.data: fixture covers both formats"
+   }
+  ],
+  "stats": {
+   "changedNodes": 4,
+   "sliceSize": 74,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "suspicious": [
+   {
+    "edit": "Export explicitly includes contacts' phone numbers and email addresses",
+    "whyCorrect": "These are the channels stored on the owner's own ContactRecord, which operation.data.export already reads. 'Other people's data' in the export rule means records owned by other accounts. The no-contact-details rule applies to reminders, not to the owner's export."
+   }
+  ]
+ },
+ "edd783": {
+  "class": "F",
+  "feature": "Save goals without a review step",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.GoalForm.save: saves at once; preview shown after saving"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.screen.exact: claim covers immediate goal save"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "hook.webapp.screen.exact: fixture covers immediate goal save"
+   },
+   {
+    "file": "evolutions/evolution.7.yaml",
+    "description": "evolution.7: new Evolution for faster goal editing"
+   }
+  ],
+  "stats": {
+   "changedNodes": 4,
+   "sliceSize": 46,
+   "nodes": 303,
+   "links": 469
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "Goal edits now save immediately and SchedulePreview shows the effect only afterwards. S.webapp.qualification and SchedulePreview require it to show the effect of a depth change before saving, and J.goals/g4 puts the preview before the save at g5.",
+  "changedSide": [
+   "affordance.GoalForm.save"
+  ],
+  "counterpart": [
+   "S.webapp.qualification",
+   "component.SchedulePreview",
+   "J.goals/g4"
+  ],
+  "minLinkHops": 3,
+  "minLinkHopsRaw": 3,
+  "inSlice": false,
+  "counterpartDetail": [
+   {
+    "id": "S.webapp.qualification",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "C.webapp.screen.exact -sourceRef-> S.webapp.screens -refines-> GD.goals <-refines- S.webapp.qualification"
+   },
+   {
+    "id": "component.SchedulePreview",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "affordance.GoalForm.save -invokes-> operation.goal.save -writes-> entity.RelationshipGoal <-reads- component.SchedulePreview"
+   },
+   {
+    "id": "J.goals/g4",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "C.webapp.screen.exact -sourceRef-> S.webapp.screens -subject-> screen.goal <-stepScreen- J.goals/g4"
+   }
+  ],
+  "mechanism": "workflow order contradicts preview-before-save rule",
+  "borderline": "SchedulePreview is a sibling of the changed GoalForm: both are children of screen.goal. The slice includes ancestors and direct children but not siblings, so a reviewer who reads the whole screen block sees the conflict immediately."
+ },
+ "04db7c": {
+  "class": "control",
+  "feature": "Choose the hour of the daily reminder",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.Account: preferences include the reminder hour"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.NotificationPreferences: reminder hour control"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.NotificationJob: localHour field"
+   },
+   {
+    "file": "things/webapp/spec.yaml",
+    "description": "S.webapp.prompts: reminder sent at the chosen hour, still one per day"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "hook.webapp.prompts.bounded: fixture covers the chosen hour"
+   }
+  ],
+  "stats": {
+   "changedNodes": 5,
+   "sliceSize": 73,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "suspicious": [
+   {
+    "edit": "S.webapp.prompts sentence on the one-per-day reminder bound rewritten",
+    "whyCorrect": "The rewrite keeps 'one owner notification per local day' and 'a link without contact details' and only adds when it is sent. The NotificationJob invariant is unchanged and still agrees. The daylight-saving case is handled explicitly, matching the S.webapp.due DST fixtures."
+   }
+  ]
+ },
+ "474d5e": {
+  "class": "I",
+  "feature": "Quiet hours for external reminders",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.Account: add optional quietHours field"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.Account: description mentions quiet hours"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.NotificationPreferences: quiet-hours controls"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.NotificationJob: invariant cancels jobs that fall in quiet hours"
+   },
+   {
+    "file": "things/webapp/spec.yaml",
+    "description": "S.webapp.prompts: reminders inside quiet hours are deferred"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.prompts.bounded: claim covers deferred delivery after quiet hours"
+   }
+  ],
+  "stats": {
+   "changedNodes": 5,
+   "sliceSize": 73,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "The requirement and the criterion say a reminder that falls inside quiet hours is deferred to the end of the quiet period, but the NotificationJob invariant added by the same change cancels such a job at delivery. The two edits prescribe different outcomes for the same reminder.",
+  "changedSide": [
+   "entity.NotificationJob"
+  ],
+  "counterpart": [
+   "S.webapp.prompts",
+   "C.webapp.prompts.bounded"
+  ],
+  "minLinkHops": 0,
+  "minLinkHopsRaw": 0,
+  "inSlice": true,
+  "counterpartDetail": [
+   {
+    "id": "S.webapp.prompts",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": null,
+    "path": "S.webapp.prompts"
+   },
+   {
+    "id": "C.webapp.prompts.bounded",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": null,
+    "path": "C.webapp.prompts.bounded"
+   }
+  ],
+  "mechanism": "defer versus cancel rule (internal)",
+  "note": "Class I counterparts are edits of the same change, so they are in C by construction (hops 0)."
+ },
+ "e3bf46": {
+  "class": "F",
+  "feature": "Goal priority",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.RelationshipGoal: add priority"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.RelationshipGoal: high-priority suggestions listed first"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "screen.goal: form includes priority"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.GoalForm: form includes priority"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.GoalPriorityField: new field"
+   },
+   {
+    "file": "journeys/J.goals.yaml",
+    "description": "J.goals/g3: step sets priority"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.schedule.correct: claim covers priority changes"
+   }
+  ],
+  "stats": {
+   "changedNodes": 6,
+   "sliceSize": 91,
+   "nodes": 303,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "High-priority goals' suggestions are now listed first on Today, but S.webapp.prompts, SuggestionCollection and J.prompts/p2 still order suggestions by effective due date then stable goal ID. The ordering rule is defined in two incompatible ways.",
+  "changedSide": [
+   "entity.RelationshipGoal",
+   "component.GoalPriorityField"
+  ],
+  "counterpart": [
+   "S.webapp.prompts",
+   "component.SuggestionCollection",
+   "J.prompts/p2"
+  ],
+  "minLinkHops": 3,
+  "minLinkHopsRaw": 3,
+  "inSlice": false,
+  "counterpartDetail": [
+   {
+    "id": "S.webapp.prompts",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "C.webapp.schedule.correct -sourceRef-> S.webapp.qualification -refines-> GD.prompts <-refines- S.webapp.prompts"
+   },
+   {
+    "id": "component.SuggestionCollection",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "C.webapp.schedule.correct -sourceRef-> S.webapp.due -subject-> entity.Suggestion <-reads- component.SuggestionCollection"
+   },
+   {
+    "id": "J.prompts/p2",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "C.webapp.schedule.correct <-acceptance- evolution.2 -affects-> screen.today <-stepScreen- J.prompts/p2"
+   }
+  ],
+  "mechanism": "ordering rule contradicted through data flow",
+  "borderline": "S.webapp.prompts is reached through the GD.prompts refines hub, and J.prompts/p2 through evolution.2's affects edges. The semantic chain RelationshipGoal to Suggestion to SuggestionCollection is not a direct link, because Suggestion has no link to RelationshipGoal."
+ },
+ "45de63": {
+  "class": "I",
+  "feature": "Remove a block",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.ConnectionPanel: status also determines Remove block"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "screen.person: description includes Remove block"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.ConnectionPanel.unblock: new Remove block action"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.block.remove: new operation, blocker only"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.Block: only the blocker can remove it"
+   },
+   {
+    "file": "things/webapp/spec.yaml",
+    "description": "S.webapp.operations: subjects include operation.block.remove"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.revocation.current: claim covers block removal"
+   },
+   {
+    "file": "journeys/J.control.unblock.yaml",
+    "description": "J.control.unblock: new journey for removing a block"
+   }
+  ],
+  "stats": {
+   "changedNodes": 16,
+   "sliceSize": 139,
+   "nodes": 310,
+   "links": 483
+  },
+  "newLinterFinding": {
+   "value": true,
+   "rules": [
+    "warning:flow.effectUnsurfaced:affordance.ConnectionPanel.unblock"
+   ],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "The new operation and the Block invariant allow only the blocker to remove a block, but the new Remove block affordance says either party to the block may remove it. The blocked person would see a control that the operation always denies, or the operation is wrong.",
+  "changedSide": [
+   "affordance.ConnectionPanel.unblock"
+  ],
+  "counterpart": [
+   "operation.block.remove",
+   "entity.Block"
+  ],
+  "minLinkHops": 0,
+  "minLinkHopsRaw": 0,
+  "inSlice": true,
+  "counterpartDetail": [
+   {
+    "id": "operation.block.remove",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": null,
+    "path": "operation.block.remove"
+   },
+   {
+    "id": "entity.Block",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": null,
+    "path": "entity.Block"
+   }
+  ],
+  "mechanism": "actor authority mismatch (internal)",
+  "note": "Class I counterparts are edits of the same change, so they are in C by construction (hops 0)."
+ },
+ "dfba1a": {
+  "class": "N",
+  "feature": "Resend a pending invitation",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.ConnectionPanel: status also determines Resend invitation"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "screen.person: description includes Resend invitation"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.ConnectionPanel.resendInvite: new action that re-shows the pending code"
+   },
+   {
+    "file": "journeys/J.connect.yaml",
+    "description": "J.connect/s1: step mentions Resend invitation"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.connection.consent: claim covers resend"
+   }
+  ],
+  "stats": {
+   "changedNodes": 6,
+   "sliceSize": 103,
+   "nodes": 303,
+   "links": 468
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "Resend invitation shows the pending invitation's original QR or connection code again, but entity.ConnectionInvite stores only a token hash, and operation.invite.create says to store only a token hash. The original code cannot be reconstructed, so the affordance cannot work as specified without storing the raw token.",
+  "changedSide": [
+   "affordance.ConnectionPanel.resendInvite"
+  ],
+  "counterpart": [
+   "entity.ConnectionInvite",
+   "operation.invite.create"
+  ],
+  "minLinkHops": 0,
+  "minLinkHopsRaw": 0,
+  "inSlice": true,
+  "counterpartDetail": [
+   {
+    "id": "entity.ConnectionInvite",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": null,
+    "path": "entity.ConnectionInvite"
+   },
+   {
+    "id": "operation.invite.create",
+    "inSlice": true,
+    "hopsBlocked": 1,
+    "hopsRaw": 1,
+    "family": null,
+    "path": "entity.ConnectionInvite <-writes- operation.invite.create"
+   }
+  ],
+  "mechanism": "feature needs data the store must not keep",
+  "borderline": "entity.ConnectionInvite is in C only because the new affordance adds a reads link to it. Its 'stores only a token hash' text is unchanged, so this is N, not I."
+ },
+ "499fa7": {
+  "class": "U",
+  "feature": "Cap goal intervals at one year",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.RelationshipGoal: intervalDays capped at 365"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.GoalIntervalField: range 1-365 with presets"
+   },
+   {
+    "file": "things/webapp/spec.yaml",
+    "description": "S.webapp.qualification: range 1-365"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.schedule.correct: claim covers the limit"
+   }
+  ],
+  "stats": {
+   "changedNodes": 4,
+   "sliceSize": 68,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "Goal intervals are now capped at 365 days in the entity, field, requirement and criterion. J.goals/g3 still tells the owner to set an interval of 1-3650 days, which the form now rejects.",
+  "changedSide": [
+   "entity.RelationshipGoal",
+   "S.webapp.qualification"
+  ],
+  "counterpart": [
+   "J.goals/g3"
+  ],
+  "minLinkHops": 3,
+  "minLinkHopsRaw": 3,
+  "inSlice": false,
+  "counterpartDetail": [
+   {
+    "id": "J.goals/g3",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "C.webapp.schedule.correct <-acceptance- evolution.2 -affects-> screen.goal <-stepScreen- J.goals/g3"
+   }
+  ],
+  "mechanism": "range literal stale in journey text",
+  "borderline": "J.goals/g3 is 3 hops away through evolution.2 and screen.goal. Structurally this resembles F2: a journey step on the screen that contains the changed field. It is labelled U because the stale item is a numeric range literal in free text."
+ },
+ "3a9735": {
+  "class": "F",
+  "feature": "Anonymous invitations",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.ConnectionPanel.invite: invitations hide the inviter until accepted"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.connection.consent: claim covers inviter anonymity"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "hook.webapp.connection.consent: fixture covers inviter anonymity"
+   },
+   {
+    "file": "description.yaml",
+    "description": "GD.connect: summary says the inviter stays anonymous until acceptance"
+   }
+  ],
+  "stats": {
+   "changedNodes": 4,
+   "sliceSize": 56,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "Invitations must no longer reveal who sent them until accepted, but InvitePreview still shows the recipient who is inviting them and J.connect/s7 still has the invitee see who is inviting before choosing Accept or Decline.",
+  "changedSide": [
+   "affordance.ConnectionPanel.invite"
+  ],
+  "counterpart": [
+   "component.InvitePreview",
+   "J.connect/s7"
+  ],
+  "minLinkHops": 3,
+  "minLinkHopsRaw": 3,
+  "inSlice": false,
+  "counterpartDetail": [
+   {
+    "id": "component.InvitePreview",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "C.webapp.connection.consent -subject-> operation.invite.accept -writes-> entity.ConnectionInvite <-reads- component.InvitePreview"
+   },
+   {
+    "id": "J.connect/s7",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "C.webapp.connection.consent -subject-> operation.invite.accept <-stepOperation- J.connect/s8 <-stepNext- J.connect/s7"
+   }
+  ],
+  "mechanism": "visibility rule contradicts downstream reader",
+  "borderline": "The 3-hop path to InvitePreview goes through the edited criterion C.webapp.connection.consent (subject operation.invite.accept). Without that edit the distance from the invite affordance alone would be larger."
+ },
+ "125d6e": {
+  "class": "I",
+  "feature": "Confirmation dialog before blocking",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.ConnectionPanel.block: confirmation happens in a dialog before anything changes"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.BlockConfirmDialog: new dialog under ConnectionPanel"
+   },
+   {
+    "file": "journeys/J.control.block.yaml",
+    "description": "J.control.block/b2: choosing Block opens the dialog"
+   },
+   {
+    "file": "journeys/J.control.block.yaml",
+    "description": "J.control.block/b3: continues to the confirmation step"
+   },
+   {
+    "file": "journeys/J.control.block.yaml",
+    "description": "J.control.block/b6: new confirm-or-cancel step"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.revocation.current: claim covers cancelling the confirmation"
+   }
+  ],
+  "stats": {
+   "changedNodes": 9,
+   "sliceSize": 105,
+   "nodes": 304,
+   "links": 469
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "The affordance and dialog say nothing is revoked or recorded until the owner confirms, but the journey wires the confirmation step after b3, which already runs operation.connection.revoke. In the journey, cancelling at b6 leads to 'No block recorded' after the block was recorded.",
+  "changedSide": [
+   "J.control.block/b3",
+   "J.control.block/b6"
+  ],
+  "counterpart": [
+   "affordance.ConnectionPanel.block",
+   "component.BlockConfirmDialog"
+  ],
+  "minLinkHops": 0,
+  "minLinkHopsRaw": 0,
+  "inSlice": true,
+  "counterpartDetail": [
+   {
+    "id": "affordance.ConnectionPanel.block",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": null,
+    "path": "affordance.ConnectionPanel.block"
+   },
+   {
+    "id": "component.BlockConfirmDialog",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": null,
+    "path": "component.BlockConfirmDialog"
+   }
+  ],
+  "mechanism": "step ordering contradicts confirm-first rule (internal)",
+  "note": "Class I counterparts are edits of the same change, so they are in C by construction (hops 0)."
+ },
+ "cfc784": {
+  "class": "control",
+  "feature": "Purge deleted accounts within 72 hours",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.DeletionControls.delete: 72-hour purge"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.data.delete: description, 72-hour purge"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.data.delete: effects, 72-hour purge"
+   },
+   {
+    "file": "journeys/J.control.delete.yaml",
+    "description": "J.control.delete/z5: 72-hour purge"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.lifecycle.data: claim names the 72-hour purge"
+   }
+  ],
+  "stats": {
+   "changedNodes": 4,
+   "sliceSize": 57,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "suspicious": [
+   {
+    "edit": "Retention window shortened from seven days to 72 hours",
+    "whyCorrect": "A shorter live-data purge is stricter, not looser. Every statement of the window changes (affordance, operation description and effects, journey step z5, criterion), and backup expiry still follows the separately disclosed retention policy."
+   }
+  ]
+ },
+ "089273": {
+  "class": "F",
+  "feature": "One-tap join after signing in from an invitation",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.SignInContinue.continue: signing in from an invitation accepts it"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.SignInForm: tells the invitee that continuing accepts"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.ConsentPanel: shown to already signed-in invitees"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.connection.consent: claim covers acceptance at sign-in"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "hook.webapp.connection.consent: fixture covers acceptance at sign-in"
+   },
+   {
+    "file": "evolutions/evolution.7.yaml",
+    "description": "evolution.7: new Evolution for one-tap join"
+   }
+  ],
+  "stats": {
+   "changedNodes": 6,
+   "sliceSize": 48,
+   "nodes": 303,
+   "links": 471
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "Signing in from an invitation now accepts it on the invitee's behalf. S.webapp.authentication requires login continuation to preserve a validated invitation without consuming it, and J.connect/s6 says the invitation is preserved and not consumed before the explicit Accept at s7.",
+  "changedSide": [
+   "affordance.SignInContinue.continue"
+  ],
+  "counterpart": [
+   "S.webapp.authentication",
+   "J.connect/s6"
+  ],
+  "minLinkHops": 3,
+  "minLinkHopsRaw": 3,
+  "inSlice": false,
+  "counterpartDetail": [
+   {
+    "id": "S.webapp.authentication",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "C.webapp.connection.consent -subject-> operation.invite.accept <-governs- policy.authentication <-subject- S.webapp.authentication"
+   },
+   {
+    "id": "J.connect/s6",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "affordance.SignInContinue.continue -references-> ext.providers <-references- screen.signin <-stepScreen- J.connect/s6"
+   }
+  ],
+  "mechanism": "requirement violated by sign-in behaviour",
+  "borderline": "Both shortest paths run through hubs: to J.connect/s6 via ext.providers (both reference it), to S.webapp.authentication via policy.authentication. The real coupling is containment plus a journey screen: s6 is a step on screen.signin, which is the grandparent of the changed affordance. Reasonable people could call this U."
+ },
+ "6fa350": {
+  "class": "I",
+  "feature": "Private notes on each contact",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.ContactRecord: add optional privateNotes field"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.ContactRecord: invariant keeps private notes out of exports"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.PrivateNotes: notes now live on the ContactRecord and are saved through operation.contact.save"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.data.export: each exported contact includes its private notes"
+   },
+   {
+    "file": "journeys/J.control.export.yaml",
+    "description": "J.control.export/x4: export carries the private notes"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.contact.storage: claim covers the notes column"
+   }
+  ],
+  "stats": {
+   "changedNodes": 6,
+   "sliceSize": 95,
+   "nodes": 302,
+   "links": 469
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "The change adds a ContactRecord invariant that private notes are never included in an export, while its edits to operation.data.export and J.control.export/x4 put each contact's private notes into the export. The two halves of the change disagree on whether notes are exported.",
+  "changedSide": [
+   "operation.data.export",
+   "J.control.export/x4"
+  ],
+  "counterpart": [
+   "entity.ContactRecord"
+  ],
+  "minLinkHops": 0,
+  "minLinkHopsRaw": 0,
+  "inSlice": true,
+  "counterpartDetail": [
+   {
+    "id": "entity.ContactRecord",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": null,
+    "path": "entity.ContactRecord"
+   }
+  ],
+  "mechanism": "export inclusion contradicts new invariant (internal)",
+  "note": "Class I counterparts are edits of the same change, so they are in C by construction (hops 0)."
+ },
+ "249a5b": {
+  "class": "control",
+  "feature": "Search contacts by channel",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.SearchInput: searches names and channels"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.ContactCollection: filtered by search"
+   },
+   {
+    "file": "journeys/J.contacts.yaml",
+    "description": "J.contacts/s1: optional search"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.screen.people: claim covers search"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "hook.webapp.private.owner: fixture covers search isolation"
+   }
+  ],
+  "stats": {
+   "changedNodes": 5,
+   "sliceSize": 49,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "suspicious": [
+   {
+    "edit": "Search over phone numbers and email addresses",
+    "whyCorrect": "The search covers only the owner's own ContactRecords. The owner-only fixture now includes search, so another owner's records stay invisible. No linked Account data is searched."
+   }
+  ]
+ },
+ "698e3b": {
+  "class": "U",
+  "feature": "Prefill the log form from the previous log",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "screen.logContact: form prefilled from the previous log, including Met this goal"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.EventChannelSelect: prefilled channel"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.EventDepthSelect: prefilled depth"
+   },
+   {
+    "file": "journeys/J.contact.yaml",
+    "description": "J.contact/c4: form opens prefilled"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "hook.webapp.screen.exact: fixture covers prefill"
+   }
+  ],
+  "stats": {
+   "changedNodes": 5,
+   "sliceSize": 72,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "The log screen now carries the previous log's Met this goal choice over, so the box can start checked. MetGoalCheckbox, a grandchild of the screen with no links, still says Met this goal defaults unchecked. S.webapp.qualification also requires the owner to mark each qualifying event explicitly, which a carried-over tick undermines.",
+  "changedSide": [
+   "screen.logContact"
+  ],
+  "counterpart": [
+   "component.MetGoalCheckbox",
+   "S.webapp.qualification"
+  ],
+  "minLinkHops": 3,
+  "minLinkHopsRaw": 3,
+  "inSlice": false,
+  "counterpartDetail": [
+   {
+    "id": "component.MetGoalCheckbox",
+    "inSlice": false,
+    "hopsBlocked": null,
+    "hopsRaw": null,
+    "family": null,
+    "path": null
+   },
+   {
+    "id": "S.webapp.qualification",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "J.contact/c4 -stepNext-> J.contact/c5 -stepOperation-> operation.contact.log <-subject- S.webapp.qualification"
+   }
+  ],
+  "mechanism": "default stale in contained component",
+  "borderline": "Secondary, softer counterparts carry the explicit-marking rule: entity.ContactEvent's invariant is inside the slice (2 hops) and affordance.ContactEventForm.save is outside it (3 hops). Whether a carried-over tick violates 'explicitly marks' is arguable. The unambiguous conflict is MetGoalCheckbox's 'defaults unchecked', which is outside the slice and has no links."
+ },
+ "5f4559": {
+  "class": "U",
+  "feature": "Calendar-aware suggestions",
+  "edits": [
+   {
+    "file": "externals.yaml",
+    "description": "ext.device: models calendar read access"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.Suggestion: reason may cite calendar events"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.SuggestionReason: shows calendar-derived reasons"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.CalendarAccessToggle: new opt-in"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "hook.webapp.prompts.bounded: fixture covers calendar reasons"
+   }
+  ],
+  "stats": {
+   "changedNodes": 5,
+   "sliceSize": 70,
+   "nodes": 303,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "Suggestions now read birthdays and anniversaries from the owner's device calendar. The Externals boundary for ext.events models events without assuming access to private calendars and keeps the owner's private calendars outside the model.",
+  "changedSide": [
+   "entity.Suggestion",
+   "ext.device"
+  ],
+  "counterpart": [
+   "ext.events"
+  ],
+  "minLinkHops": null,
+  "minLinkHopsRaw": null,
+  "inSlice": false,
+  "counterpartDetail": [
+   {
+    "id": "ext.events",
+    "inSlice": false,
+    "hopsBlocked": null,
+    "hopsRaw": null,
+    "family": null,
+    "path": null
+   }
+  ],
+  "mechanism": "boundary statement violated (free text)"
+ },
+ "774614": {
+  "class": "U",
+  "feature": "Separate card and reminder bounds",
+  "edits": [
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.prompts.bounded renamed C.webapp.prompts.cards and narrowed to cards"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.reminders.daily: new criterion for the reminder bound"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "hook.webapp.prompts.bounded renamed hook.webapp.prompts.cards"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "hook.webapp.reminders.daily: new hook"
+   },
+   {
+    "file": "evolutions/evolution.2.yaml",
+    "description": "evolution.2: acceptance uses C.webapp.prompts.cards"
+   },
+   {
+    "file": "evolutions/evolution.4.yaml",
+    "description": "evolution.4: acceptance uses both new criteria"
+   }
+  ],
+  "stats": {
+   "changedNodes": 12,
+   "sliceSize": 117,
+   "nodes": 304,
+   "links": 471
+  },
+  "newLinterFinding": {
+   "value": true,
+   "rules": [
+    "warning:hook.unbound:C.webapp.prompts.cards",
+    "warning:hook.unbound:C.webapp.reminders.daily"
+   ],
+   "removed": [
+    "hook.unbound:C.webapp.prompts.bounded"
+   ],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "C.webapp.prompts.bounded no longer exists, but hook.system.autonomy still requires it in its coverage input, and C.system.autonomy's claim still resolves the notification bound to it. The system autonomy coverage check now points at a missing criterion and does not name the two replacements.",
+  "changedSide": [
+   "C.webapp.prompts.cards",
+   "C.webapp.reminders.daily"
+  ],
+  "counterpart": [
+   "hook.system.autonomy",
+   "C.system.autonomy"
+  ],
+  "minLinkHops": 3,
+  "minLinkHopsRaw": 3,
+  "inSlice": false,
+  "counterpartDetail": [
+   {
+    "id": "hook.system.autonomy",
+    "inSlice": false,
+    "hopsBlocked": null,
+    "hopsRaw": null,
+    "family": null,
+    "path": null
+   },
+   {
+    "id": "C.system.autonomy",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "screen.today -serves-> ext.owner <-beneficiary- P1 <-sourceRef- C.system.autonomy"
+   }
+  ],
+  "mechanism": "renamed id stale in free-text hook input",
+  "borderline": "C.system.autonomy is incidentally 3 hops away via screen.today, ext.owner and P1. The dependency itself sits in hook.system.autonomy's free-text inputs, which have no links, and in the claim text."
+ },
+ "d1c15a": {
+  "class": "N",
+  "feature": "Plan a future meeting from the log form",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.EventDateTimeField: accepts future times as planned meetings"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.ContactEventForm.save: preconditions accept any valid time"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.ContactEvent: add planned flag"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.ContactEvent: planned events do not qualify early"
+   },
+   {
+    "file": "journeys/J.contact.yaml",
+    "description": "J.contact/c4: step offers planning"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.schedule.correct: claim covers planned events"
+   }
+  ],
+  "stats": {
+   "changedNodes": 5,
+   "sliceSize": 75,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "The form and entity now accept future event times as planned meetings, but operation.contact.log, which the form's Save invokes, still requires a nonfuture event time and rejects future times. Every planned meeting would be refused by the operation.",
+  "changedSide": [
+   "affordance.ContactEventForm.save",
+   "component.EventDateTimeField"
+  ],
+  "counterpart": [
+   "operation.contact.log"
+  ],
+  "minLinkHops": 1,
+  "minLinkHopsRaw": 1,
+  "inSlice": true,
+  "counterpartDetail": [
+   {
+    "id": "operation.contact.log",
+    "inSlice": true,
+    "hopsBlocked": 1,
+    "hopsRaw": 1,
+    "family": null,
+    "path": "affordance.ContactEventForm.save -invokes-> operation.contact.log"
+   }
+  ],
+  "mechanism": "caller precondition wider than operation"
+ },
+ "b6a5d0": {
+  "class": "N",
+  "feature": "An 'any depth' goal option",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.RelationshipGoal: desiredDepth gains 'any'"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.GoalDepthField: offers 'any'"
+   },
+   {
+    "file": "things/webapp/spec.yaml",
+    "description": "S.webapp.qualification: depth set includes 'any'"
+   },
+   {
+    "file": "journeys/J.goals.yaml",
+    "description": "J.goals/g3: step lists 'any'"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.schedule.correct: claim covers the any depth"
+   }
+  ],
+  "stats": {
+   "changedNodes": 5,
+   "sliceSize": 75,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "S.webapp.qualification still requires recording the goal's desiredDepth at confirmation and counting only qualifications matching the current desiredDepth. ContactEvent.qualifiedDepth remains 'enum light|meaningful|shared-time', so a qualification under an 'any' goal cannot be recorded or matched.",
+  "changedSide": [
+   "entity.RelationshipGoal",
+   "S.webapp.qualification"
+  ],
+  "counterpart": [
+   "entity.ContactEvent"
+  ],
+  "minLinkHops": 1,
+  "minLinkHopsRaw": 1,
+  "inSlice": true,
+  "counterpartDetail": [
+   {
+    "id": "entity.ContactEvent",
+    "inSlice": true,
+    "hopsBlocked": 1,
+    "hopsRaw": 1,
+    "family": null,
+    "path": "S.webapp.qualification -subject-> entity.ContactEvent"
+   }
+  ],
+  "mechanism": "enum widened on one side only"
+ },
+ "46753b": {
+  "class": "I",
+  "feature": "Delete a single contact",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "screen.person: actions include Delete contact"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.PersonActionBar: actions include Delete contact"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.PersonActionBar.deleteContact: new Delete contact action"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.contact.delete: new soft-delete operation with a 30-day restore window"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.ContactRecord: add deletedAt"
+   },
+   {
+    "file": "things/webapp/spec.yaml",
+    "description": "S.webapp.operations: subjects include operation.contact.delete"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.lifecycle.data: claim covers the contact restore window"
+   },
+   {
+    "file": "journeys/J.contacts.remove.yaml",
+    "description": "J.contacts.remove: new journey for deleting a contact"
+   }
+  ],
+  "stats": {
+   "changedNodes": 19,
+   "sliceSize": 180,
+   "nodes": 310,
+   "links": 485
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "The new operation keeps a deleted contact, goal and history restorable for 30 days, and the criterion says the same. The Delete contact affordance added by the same change says they are deleted at once and cannot be restored.",
+  "changedSide": [
+   "affordance.PersonActionBar.deleteContact"
+  ],
+  "counterpart": [
+   "operation.contact.delete",
+   "C.webapp.lifecycle.data"
+  ],
+  "minLinkHops": 0,
+  "minLinkHopsRaw": 0,
+  "inSlice": true,
+  "counterpartDetail": [
+   {
+    "id": "operation.contact.delete",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": null,
+    "path": "operation.contact.delete"
+   },
+   {
+    "id": "C.webapp.lifecycle.data",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": null,
+    "path": "C.webapp.lifecycle.data"
+   }
+  ],
+  "mechanism": "irreversible versus restorable deletion (internal)",
+  "note": "Class I counterparts are edits of the same change, so they are in C by construction (hops 0)."
+ },
+ "643d59": {
+  "class": "U",
+  "feature": "Goals only for connected people",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.PersonActionBar.editGoal: requires an active connection"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.GoalForm.save: requires an active connection"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.goal.save: requires an active connection"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.goal.save: refuses unconnected contacts and reads Connection"
+   },
+   {
+    "file": "things/webapp/spec.yaml",
+    "description": "S.webapp.due: goals require an active connection"
+   },
+   {
+    "file": "journeys/J.goals.yaml",
+    "description": "J.goals/g2: Edit goal needs an accepted invitation"
+   }
+  ],
+  "stats": {
+   "changedNodes": 6,
+   "sliceSize": 96,
+   "nodes": 302,
+   "links": 468
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "Goals can now be saved only for contacts with an active Connection. Purpose P1 constrains the system so that the app can help before any friend installs it, and GD.contacts keeps contacts useful before a friend installs the app. Without a goal there are no prompts for people who have no account.",
+  "changedSide": [
+   "operation.goal.save",
+   "S.webapp.due"
+  ],
+  "counterpart": [
+   "P1"
+  ],
+  "minLinkHops": 3,
+  "minLinkHopsRaw": 3,
+  "inSlice": false,
+  "counterpartDetail": [
+   {
+    "id": "P1",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "J.goals/g2 -stepScreen-> screen.goal -serves-> ext.owner <-beneficiary- P1"
+   }
+  ],
+  "mechanism": "purpose constraint violated (free text)",
+  "borderline": "P1 is 3 hops away only through the ext.owner beneficiary hub. The dependency is a free-text constraint in purpose.yaml."
+ },
+ "b7965d": {
+  "class": "U",
+  "feature": "Nudge a connected person",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.PersonActionBar.nudge: new in-app nudge"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.PersonActionBar: actions include Nudge"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "screen.person: actions include Nudge"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.MessageDraft: no longer provisional; used for nudges"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.MessageDraft: stored in binding.contactsStore"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.nudge.single: new criterion"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "hook.webapp.nudge.single: new hook"
+   },
+   {
+    "file": "evolutions/evolution.7.yaml",
+    "description": "evolution.7: new Evolution for nudges"
+   }
+  ],
+  "stats": {
+   "changedNodes": 9,
+   "sliceSize": 111,
+   "nodes": 306,
+   "links": 474
+  },
+  "newLinterFinding": {
+   "value": true,
+   "rules": [
+    "info:semantic:topology.multiRecipient:affordance.PersonActionBar.nudge",
+    "warning:flow.effectUnsurfaced:affordance.PersonActionBar.nudge",
+    "warning:flow.orphanWrite:entity.MessageDraft",
+    "warning:hook.unbound:C.webapp.nudge.single"
+   ],
+   "removed": [
+    "node.provisional:entity.MessageDraft"
+   ],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "Nudge delivers an owner-written card to the other person inside the app through MessageDraft, which is direct in-app messaging. S.webapp.scope requires direct in-app messaging to remain disabled in the core scope.",
+  "changedSide": [
+   "affordance.PersonActionBar.nudge",
+   "entity.MessageDraft"
+  ],
+  "counterpart": [
+   "S.webapp.scope"
+  ],
+  "minLinkHops": 3,
+  "minLinkHopsRaw": 1,
+  "inSlice": false,
+  "counterpartDetail": [
+   {
+    "id": "S.webapp.scope",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 1,
+    "family": null,
+    "path": "screen.person <-subject- S.webapp.screens -refines-> GD.contacts <-refines- S.webapp.scope"
+   }
+  ],
+  "mechanism": "scope exclusion violated (free text)",
+  "borderline": "S.webapp.scope's raw distance is 1, through thing.webapp: the new criterion's owner link puts thing.webapp in C, but blocked kinds are not expanded. It is also the subject of the sibling affordance PersonActionBar.openChannel. Under the pre-registered rule it is outside the slice."
+ },
+ "864bc6": {
+  "class": "F",
+  "feature": "Email invitations replace QR codes",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.ConnectionPanel.invite: emails the link; no QR or code shown"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.AddContactChannelFields: email needed for invitations"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.connection.consent: claim covers email delivery"
+   },
+   {
+    "file": "externals.yaml",
+    "description": "ext.providers: models invitation emails"
+   }
+  ],
+  "stats": {
+   "changedNodes": 4,
+   "sliceSize": 61,
+   "nodes": 302,
+   "links": 468
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "Invite now emails the link and shows no QR or connection code, but J.connect/s3, which follows invitation creation, still has the user share the invitation by QR or connection code through an outside channel.",
+  "changedSide": [
+   "affordance.ConnectionPanel.invite"
+  ],
+  "counterpart": [
+   "J.connect/s3"
+  ],
+  "minLinkHops": 3,
+  "minLinkHopsRaw": 3,
+  "inSlice": false,
+  "counterpartDetail": [
+   {
+    "id": "J.connect/s3",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "affordance.ConnectionPanel.invite -invokes-> operation.invite.create <-stepOperation- J.connect/s2 -stepNext-> J.connect/s3"
+   }
+  ],
+  "mechanism": "delivery channel change leaves downstream step stale"
+ },
+ "08b2b8": {
+  "class": "F",
+  "feature": "Disconnect removes the person",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.ConnectionPanel.disconnect: warning before removal"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.ConnectionPanel.disconnect: deletes the private record, goal and history"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.connection.revoke: disconnect deletes the participant's own record"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.connection.revoke: writes ContactRecord and ContactEvent"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.revocation.current: claim covers removal on disconnect"
+   },
+   {
+    "file": "description.yaml",
+    "description": "GD.connect: disconnect removes the person"
+   }
+  ],
+  "stats": {
+   "changedNodes": 6,
+   "sliceSize": 102,
+   "nodes": 302,
+   "links": 469
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "Disconnect now deletes the owner's private ContactRecord, goal and history. J.control.disconnect still ends with 'the private ContactRecord remains', and its actor goal is to end sharing while keeping the private record.",
+  "changedSide": [
+   "operation.connection.revoke",
+   "affordance.ConnectionPanel.disconnect"
+  ],
+  "counterpart": [
+   "J.control.disconnect/e1",
+   "J.control.disconnect"
+  ],
+  "minLinkHops": 3,
+  "minLinkHopsRaw": 3,
+  "inSlice": false,
+  "counterpartDetail": [
+   {
+    "id": "J.control.disconnect/e1",
+    "inSlice": false,
+    "hopsBlocked": 3,
+    "hopsRaw": 3,
+    "family": null,
+    "path": "operation.connection.revoke <-stepOperation- J.control.disconnect/d3 -stepNext-> J.control.disconnect/d4 -stepNext-> J.control.disconnect/e1"
+   },
+   {
+    "id": "J.control.disconnect",
+    "inSlice": false,
+    "hopsBlocked": null,
+    "hopsRaw": null,
+    "family": null,
+    "path": null
+   }
+  ],
+  "mechanism": "journey end state contradicted by data-retention change",
+  "borderline": "Same as F1: J.control.disconnect, the journey node, has no links; e1 is 3 hops away along the step chain."
+ },
+ "b434a4": {
+  "class": "I",
+  "feature": "Change time zone in Settings",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.ProfilePreferences.changeTimeZone: new control"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.account.setTimeZone: new operation"
+   },
+   {
+    "file": "things/webapp/spec.yaml",
+    "description": "S.webapp.due: a time-zone change recomputes open due dates"
+   },
+   {
+    "file": "things/webapp/spec.yaml",
+    "description": "S.webapp.operations: subjects include operation.account.setTimeZone"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.schedule.correct: claim covers owner time-zone changes"
+   },
+   {
+    "file": "journeys/J.settings.timezone.yaml",
+    "description": "J.settings.timezone: new journey for changing time zone"
+   }
+  ],
+  "stats": {
+   "changedNodes": 14,
+   "sliceSize": 167,
+   "nodes": 309,
+   "links": 480
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "S.webapp.due, as edited, requires every open goal's due date to be recomputed when the owner changes time zone, but the new operation keeps existing due dates unchanged and applies the new zone only to goals saved afterwards.",
+  "changedSide": [
+   "operation.account.setTimeZone"
+  ],
+  "counterpart": [
+   "S.webapp.due",
+   "C.webapp.schedule.correct"
+  ],
+  "minLinkHops": 0,
+  "minLinkHopsRaw": 0,
+  "inSlice": true,
+  "counterpartDetail": [
+   {
+    "id": "S.webapp.due",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": null,
+    "path": "S.webapp.due"
+   },
+   {
+    "id": "C.webapp.schedule.correct",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": null,
+    "path": "C.webapp.schedule.correct"
+   }
+  ],
+  "mechanism": "recompute versus keep (internal)",
+  "note": "Class I counterparts are edits of the same change, so they are in C by construction (hops 0)."
+ },
+ "ee73ec": {
+  "class": "N",
+  "feature": "Reauthentication before disconnecting",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.connection.revoke: description requires reauthentication"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.connection.revoke: preconditions require reauthentication"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.connection.revoke: reauthentication failure denies"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.ConnectionPanel.disconnect: trigger and preconditions include reauthentication"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.ConnectionPanel.disconnect: reauthentication failure"
+   },
+   {
+    "file": "journeys/J.control.disconnect.yaml",
+    "description": "J.control.disconnect/d2: step includes reauthentication"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.revocation.current: claim covers the reauthentication denial"
+   }
+  ],
+  "stats": {
+   "changedNodes": 4,
+   "sliceSize": 78,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "Reauthentication is added as a precondition of operation.connection.revoke, which is shared by Disconnect and Block. The Block affordance and J.control.block (b2 and b3) never collect reauthentication, so Block would always be denied.",
+  "changedSide": [
+   "operation.connection.revoke"
+  ],
+  "counterpart": [
+   "affordance.ConnectionPanel.block",
+   "J.control.block/b3"
+  ],
+  "minLinkHops": 1,
+  "minLinkHopsRaw": 1,
+  "inSlice": true,
+  "counterpartDetail": [
+   {
+    "id": "affordance.ConnectionPanel.block",
+    "inSlice": true,
+    "hopsBlocked": 1,
+    "hopsRaw": 1,
+    "family": null,
+    "path": "operation.connection.revoke <-invokes- affordance.ConnectionPanel.block"
+   },
+   {
+    "id": "J.control.block/b3",
+    "inSlice": true,
+    "hopsBlocked": 1,
+    "hopsRaw": 1,
+    "family": null,
+    "path": "operation.connection.revoke <-stepOperation- J.control.block/b3"
+   }
+  ],
+  "mechanism": "shared operation precondition breaks sibling caller"
+ },
+ "aaf530": {
+  "class": "control",
+  "feature": "Keep private goals running after disconnect",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.ConnectionPanel.disconnect: private goal keeps running"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.connection.revoke: disconnect leaves the private goal unchanged"
+   },
+   {
+    "file": "journeys/J.control.disconnect.yaml",
+    "description": "J.control.disconnect/e1: record and goal remain"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.revocation.current: claim distinguishes disconnect from block"
+   }
+  ],
+  "stats": {
+   "changedNodes": 4,
+   "sliceSize": 63,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "suspicious": [
+   {
+    "edit": "Suggestions keep coming for a person after disconnecting",
+    "whyCorrect": "Only blocking pauses the goal (S.webapp.prompts, the Block affordance, J.control.block/b4). A goal is the owner's private intention and does not depend on the connection (P1: the app helps before any friend installs it), so it keeps running after disconnect. Revocation removes shared capabilities, not private records."
+   }
+  ]
+ },
+ "5cceea": {
+  "class": "N",
+  "feature": "Delete an event from contact history",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.HistoryRow.delete: new Delete event action"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "screen.person: history rows have Delete"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "operation.contact.log: effects cover event deletion"
+   },
+   {
+    "file": "evolutions/evolution.2.yaml",
+    "description": "evolution.2: affects the new Delete event action"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "hook.webapp.schedule.correct: fixture covers event deletion"
+   }
+  ],
+  "stats": {
+   "changedNodes": 6,
+   "sliceSize": 111,
+   "nodes": 303,
+   "links": 469
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "Deleting an event from history leaves the schedule unchanged until the goal is next saved. S.webapp.qualification requires that editing or deleting an event recompute the schedule, and operation.contact.log recomputes affected goals.",
+  "changedSide": [
+   "affordance.HistoryRow.delete"
+  ],
+  "counterpart": [
+   "S.webapp.qualification",
+   "operation.contact.log"
+  ],
+  "minLinkHops": 0,
+  "minLinkHopsRaw": 0,
+  "inSlice": true,
+  "counterpartDetail": [
+   {
+    "id": "S.webapp.qualification",
+    "inSlice": true,
+    "hopsBlocked": 1,
+    "hopsRaw": 1,
+    "family": null,
+    "path": "operation.contact.log <-subject- S.webapp.qualification"
+   },
+   {
+    "id": "operation.contact.log",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": null,
+    "path": "operation.contact.log"
+   }
+  ],
+  "mechanism": "missing recompute side effect",
+  "borderline": "operation.contact.log is edited (one new effect), but the conflicting text ('Recompute affected goals') is pre-existing. The primary counterpart, S.webapp.qualification, is 1 hop away and unchanged."
+ },
+ "bc8433": {
+  "class": "N",
+  "feature": "Send a test reminder from Settings",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.NotificationPreferences.sendTest: new test-reminder control"
+   },
+   {
+    "file": "evolutions/evolution.4.yaml",
+    "description": "evolution.4: intent includes the test reminder"
+   },
+   {
+    "file": "externals.yaml",
+    "description": "ext.providers: models owner-requested test reminders"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "hook.webapp.prompts.bounded: fixture covers the test reminder"
+   }
+  ],
+  "stats": {
+   "changedNodes": 6,
+   "sliceSize": 94,
+   "nodes": 303,
+   "links": 469
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "The test reminder is an external reminder that shows the next due person's name and phone number. S.webapp.prompts and the NotificationJob invariant require external reminders to contain a link without contact details.",
+  "changedSide": [
+   "affordance.NotificationPreferences.sendTest"
+  ],
+  "counterpart": [
+   "entity.NotificationJob",
+   "S.webapp.prompts"
+  ],
+  "minLinkHops": 1,
+  "minLinkHopsRaw": 1,
+  "inSlice": true,
+  "counterpartDetail": [
+   {
+    "id": "entity.NotificationJob",
+    "inSlice": true,
+    "hopsBlocked": 1,
+    "hopsRaw": 1,
+    "family": null,
+    "path": "evolution.4 -affects-> entity.NotificationJob"
+   },
+   {
+    "id": "S.webapp.prompts",
+    "inSlice": true,
+    "hopsBlocked": 1,
+    "hopsRaw": 1,
+    "family": null,
+    "path": "entity.Suggestion <-subject- S.webapp.prompts"
+   }
+  ],
+  "mechanism": "payload content violates reminder rule"
+ },
+ "95dd79": {
+  "class": "control",
+  "feature": "Snooze for 1, 3 or 7 days",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.SuggestionCard.snooze: duration choice"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.SuggestionCard.snooze: sets snoozedUntil"
+   },
+   {
+    "file": "journeys/J.prompts.yaml",
+    "description": "J.prompts/p5: snooze durations"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.schedule.correct: claim covers snooze durations"
+   }
+  ],
+  "stats": {
+   "changedNodes": 3,
+   "sliceSize": 50,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "suspicious": []
+ },
+ "f80839": {
+  "class": "N",
+  "feature": "Export includes the connection list",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.ExportControls.export: export lists connections with counterpart name and email"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.ExportControls: description of the export contents"
+   },
+   {
+    "file": "journeys/J.control.export.yaml",
+    "description": "J.control.export/x4: export includes the connection list"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "hook.webapp.lifecycle.data: fixture covers the connection list"
+   }
+  ],
+  "stats": {
+   "changedNodes": 4,
+   "sliceSize": 31,
+   "nodes": 302,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "The export now carries each counterpart's display name and account email, which is other people's data. operation.data.export, which the affordance invokes, says the export excludes other people's data, as do J.control.export/e1, screen.settings and C.webapp.lifecycle.data.",
+  "changedSide": [
+   "affordance.ExportControls.export"
+  ],
+  "counterpart": [
+   "operation.data.export",
+   "J.control.export/e1"
+  ],
+  "minLinkHops": 1,
+  "minLinkHopsRaw": 1,
+  "inSlice": true,
+  "counterpartDetail": [
+   {
+    "id": "operation.data.export",
+    "inSlice": true,
+    "hopsBlocked": 1,
+    "hopsRaw": 1,
+    "family": null,
+    "path": "J.control.export/x4 -stepOperation-> operation.data.export"
+   },
+   {
+    "id": "J.control.export/e1",
+    "inSlice": true,
+    "hopsBlocked": 1,
+    "hopsRaw": 1,
+    "family": null,
+    "path": "J.control.export/x4 -stepNext-> J.control.export/e1"
+   }
+  ],
+  "mechanism": "export includes data the operation excludes",
+  "borderline": "The conflicting rule appears in several places: operation.data.export (1 hop), J.control.export/e1 (1 hop), screen.settings and C.webapp.lifecycle.data."
+ },
+ "27bc02": {
+  "class": "I",
+  "feature": "Optional birthday on private contacts",
+  "edits": [
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.ContactRecord: add optional birthday field"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "entity.ContactRecord: description mentions the optional birthday"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "screen.people: composition lists the optional birthday field"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.AddContactDialog: description lists the optional birthday field"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "component.AddContactBirthdayField: new optional birthday field in the dialog"
+   },
+   {
+    "file": "things/webapp/ontology.yaml",
+    "description": "affordance.AddContactDialog.save: preconditions now require a nonblank birthday"
+   },
+   {
+    "file": "journeys/J.contacts.yaml",
+    "description": "J.contacts/s3: step mentions the optional birthday"
+   },
+   {
+    "file": "things/webapp/criteria.yaml",
+    "description": "C.webapp.contact.save: claim covers the optional birthday"
+   }
+  ],
+  "stats": {
+   "changedNodes": 7,
+   "sliceSize": 93,
+   "nodes": 303,
+   "links": 467
+  },
+  "newLinterFinding": {
+   "value": false,
+   "rules": [],
+   "removed": [],
+   "pointsAtSeededDefect": false
+  },
+  "defect": "The birthday is declared optional in the entity, dialog, screen, journey and criterion, but the Save affordance's preconditions require a nonblank birthday. A contact without a birthday can never be saved, contradicting the rest of the change.",
+  "changedSide": [
+   "affordance.AddContactDialog.save"
+  ],
+  "counterpart": [
+   "component.AddContactBirthdayField",
+   "entity.ContactRecord",
+   "C.webapp.contact.save"
+  ],
+  "minLinkHops": 0,
+  "minLinkHopsRaw": 0,
+  "inSlice": true,
+  "counterpartDetail": [
+   {
+    "id": "component.AddContactBirthdayField",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": "child",
+    "path": "component.AddContactBirthdayField"
+   },
+   {
+    "id": "entity.ContactRecord",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": null,
+    "path": "entity.ContactRecord"
+   },
+   {
+    "id": "C.webapp.contact.save",
+    "inSlice": true,
+    "hopsBlocked": 0,
+    "hopsRaw": 0,
+    "family": null,
+    "path": "C.webapp.contact.save"
+   }
+  ],
+  "mechanism": "precondition contradicts optional field (internal)",
+  "note": "Class I counterparts are edits of the same change, so they are in C by construction (hops 0)."
+ }
+}

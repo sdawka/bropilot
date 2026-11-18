@@ -1,0 +1,36 @@
+{
+ "variant": "e3bf46",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.RelationshipGoal",
+    "component.GoalPriorityField",
+    "screen.today",
+    "C.webapp.prompts.bounded"
+   ],
+   "severity": "medium",
+   "summary": "The change adds a new Today ordering rule (high-priority suggestions first) but does not update screen.today, any requirement (S.webapp.prompts/S.webapp.due/S.webapp.qualification), or the bounded-prompts criterion, so the ordering and its interaction with the five-card cap are untraced and unverified.",
+   "evidence": "RelationshipGoal: \"Suggestions for high-priority goals are listed first on Today\"; screen.today: \"0\u20135 cards ... Each card has one person label, reason...\" (no ordering); C.webapp.prompts.bounded: \"Six due goals yield exactly five ordered cards\" (no priority case)"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.schedule.correct",
+    "S.webapp.due"
+   ],
+   "severity": "medium",
+   "summary": "Priority changes are added to the schedule-correctness criterion even though priority does not affect due dates or qualification, so the fixture targets the wrong behavior while the actual priority effect (Today ordering) remains untested.",
+   "evidence": "C.webapp.schedule.correct: \"Fixed-clock fixtures cover zero logs, qualification, interval, depth and priority changes...\"; S.webapp.due: \"dueDate must equal anchor plus intervalDays\" (no priority)"
+  },
+  {
+   "nodeIds": [
+    "entity.RelationshipGoal",
+    "component.GoalPriorityField"
+   ],
+   "severity": "low",
+   "summary": "The UI states priority defaults to normal, but the entity makes priority a required field with no default, leaving existing goals and saves that omit priority undefined.",
+   "evidence": "GoalPriorityField: \"priority high or normal, default normal\"; RelationshipGoal field: \"{ name: priority, type: \\\"enum high|normal\\\" }\" (optional: false, no default)"
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,37 @@
+{
+ "variant": "bc8433",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.NotificationPreferences.sendTest",
+    "S.webapp.prompts",
+    "entity.NotificationJob"
+   ],
+   "severity": "high",
+   "summary": "The test reminder includes the next due person's name and phone number, which violates the requirement that external reminders contain a link without contact details.",
+   "evidence": "sendTest effect: 'The test shows the next due person's name and phone number so the owner sees a realistic example' vs S.webapp.prompts: 'Optional external reminders ... limited to one owner notification per local day containing a link without contact details'"
+  },
+  {
+   "nodeIds": [
+    "affordance.NotificationPreferences.sendTest",
+    "entity.NotificationJob",
+    "S.webapp.prompts"
+   ],
+   "severity": "medium",
+   "summary": "The test reminder is sent straight to the provider, outside NotificationJob, so it skips the deduplication key, the preference and cancellation recheck, and the per-day limit tracking.",
+   "evidence": "sendTest links '{ rel: triggers, to: ext.providers }' and 'Sends one external reminder now', while NotificationJob holds the dedupKey and the invariant 'Delivery rechecks preferences and cancellations'; no link from sendTest to entity.NotificationJob exists"
+  },
+  {
+   "nodeIds": [
+    "affordance.NotificationPreferences.sendTest",
+    "hook.webapp.prompts.bounded",
+    "C.webapp.prompts.bounded"
+   ],
+   "severity": "low",
+   "summary": "The test-reminder fixture was added to the hook for the Bounded prompts criterion, whose claim says nothing about test reminders and whose subject is screen.today, not Settings.",
+   "evidence": "hook fixture: 'six due goals yield five ordered cards; an owner test reminder is delivered once' vs C.webapp.prompts.bounded claim: 'Six due goals yield exactly five ordered cards. Duplicate jobs must not duplicate prompts or owner reminders'"
+  }
+ ],
+ "unknownIds": []
+}

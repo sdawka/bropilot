@@ -1,0 +1,38 @@
+{
+ "variant": "3a9735",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "GD.connect",
+    "affordance.ConnectionPanel.invite",
+    "screen.invitation"
+   ],
+   "severity": "high",
+   "summary": "The new rule that the inviter stays anonymous until acceptance conflicts with the Invitation screen, which shows an InvitePreview before the invitee accepts, and nothing says what that preview may show.",
+   "evidence": "screen.invitation: \"Exactly InvitePreview and ConsentPanel after validation; Accept and Decline controls\" vs added effect \"Opening the invitation does not reveal who sent it until it has been accepted\""
+  },
+  {
+   "nodeIds": [
+    "GD.connect",
+    "policy.pairConsent",
+    "affordance.ConsentPanel.accept"
+   ],
+   "severity": "high",
+   "summary": "If the inviter is hidden until acceptance, the invitee accepts without knowing who they are connecting with, which undermines the requirement that each pair is formed by two explicit consents.",
+   "evidence": "GD.connect: \"Invitation-based pairs formed by two explicit consents; the inviter stays anonymous until acceptance\"; policy.pairConsent: \"creating the invitation and accepting it provide the two consents\""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.connection.consent",
+    "hook.webapp.connection.consent",
+    "S.webapp.operations",
+    "S.webapp.concurrency"
+   ],
+   "severity": "medium",
+   "summary": "The criterion now requires inviter anonymity, but no requirement it cites (and no operation or entity it tests) defines that behaviour, so the new obligation has no traceable source.",
+   "evidence": "C.webapp.connection.consent sourceRefs S.webapp.operations and S.webapp.concurrency, neither of which mentions inviter anonymity; the claim adds \"an unaccepted invitation never reveals the inviter\""
+  }
+ ],
+ "unknownIds": []
+}

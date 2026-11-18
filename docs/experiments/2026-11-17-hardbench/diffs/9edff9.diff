@@ -1,0 +1,55 @@
+--- a/journeys/J.goals.yaml
++++ b/journeys/J.goals.yaml
+@@ -28,7 +28,7 @@
+   - S.webapp.qualification
+ - id: g3
+   actor: user
+-  action: Set interval (1-3650 days), desired depth (light, meaningful or shared-time), preferred channel
++  action: Set interval (1-3650 days), desired depth (quick, catch-up or in-person), preferred channel
+     and enabled
+   kind: action
+   screen: screen.goal
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -400,7 +400,7 @@
+             kind: component
+             name: DepthField
+             cardinality: exactly one
+-            description: desiredDepth in light, meaningful or shared-time
++            description: desiredDepth in quick, catch-up or in-person
+           - id: component.GoalChannelField
+             kind: component
+             name: PreferredChannelField
+@@ -728,7 +728,7 @@
+       - { name: ownerAccountId, type: "ref:entity.Account" }
+       - { name: contactRecordId, type: "ref:entity.ContactRecord" }
+       - { name: intervalDays, type: "int 1..3650" }
+-      - { name: desiredDepth, type: "enum light|meaningful|shared-time" }
++      - { name: desiredDepth, type: "enum quick|catch-up|in-person" }
+       - { name: channel, type: string, optional: true }
+       - { name: anchorDate, type: local-date }
+       - { name: pausedAt, type: timestamp, optional: true }
+@@ -753,10 +753,10 @@
+       - { name: contactRecordId, type: "ref:entity.ContactRecord" }
+       - { name: occurredAt, type: timestamp }
+       - { name: channel, type: string }
+-      - { name: selfReportedDepth, type: "enum light|meaningful|shared-time" }
++      - { name: selfReportedDepth, type: "enum quick|catch-up|in-person" }
+       - { name: privateNote, type: string, optional: true }
+       - { name: qualifiedGoalId, type: "ref:entity.RelationshipGoal", optional: true }
+-      - { name: qualifiedDepth, type: "enum light|meaningful|shared-time", optional: true }
++      - { name: qualifiedDepth, type: "enum quick|catch-up|in-person", optional: true }
+     invariants:
+       - One contact target
+       - Qualifies only when the owner explicitly marks that it met this goal
+--- a/things/webapp/spec.yaml
++++ b/things/webapp/spec.yaml
+@@ -15,7 +15,7 @@
+     thing: thing.webapp
+     title: Goal qualification
+     text: >-
+-      an enabled goal must have intervalDays from 1 through 3650 and desiredDepth in light, meaningful or shared-time.
++      an enabled goal must have intervalDays from 1 through 3650 and desiredDepth in quick, catch-up or in-person.
+       These are the owner's labels, not a global quality ranking. A ContactEvent must qualify only when the owner
+       explicitly marks that it met this goal. The app must record the goal ID and desiredDepth at confirmation and
+       count only qualifications matching the current desiredDepth. Changing depth may change which historical events

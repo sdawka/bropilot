@@ -1,0 +1,25 @@
+{
+ "variant": "45de63",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.unblock",
+    "operation.block.remove",
+    "entity.Block"
+   ],
+   "severity": "high",
+   "summary": "The new affordance says either party to the block may remove it, but the operation and the Block invariant restrict removal to the blocker only.",
+   "evidence": "affordance effects: \"Either party to the block may remove it\" vs operation.block.remove preconditions: [Caller is the blocker] and Block invariants: \"Only the blocker can remove it\""
+  },
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.unblock"
+   ],
+   "severity": "medium",
+   "summary": "The affordance precondition makes Remove block available whenever any block exists between the two accounts, including to the blocked party, which conflicts with blocker-only authority.",
+   "evidence": "preconditions: [A block exists between the owner and this contact's linked account]; failure: [Not available when no block exists]"
+  }
+ ],
+ "unknownIds": []
+}

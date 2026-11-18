@@ -1,0 +1,149 @@
+--- a/journeys/J.control.unblock.yaml
++++ b/journeys/J.control.unblock.yaml
+@@ -0,0 +1,56 @@
++id: J.control.unblock
++name: Remove a block
++actorGoal: Allow contact through the app again after blocking someone
++features:
++- GD.connect
++requirements:
++- S.webapp.operations
++start: u1
++steps:
++- id: u1
++  actor: user
++  action: Open Person for the blocked contact
++  kind: action
++  screen: screen.person
++  next:
++  - to: u2
++  requirementRefs:
++  - S.webapp.operations
++- id: u2
++  actor: user
++  action: Choose Remove block and confirm
++  kind: branch
++  screen: screen.person
++  next:
++  - to: u3
++    when: confirm
++  - to: e2
++    when: cancel
++  requirementRefs:
++  - S.webapp.operations
++- id: u3
++  actor: system
++  action: Delete the Block and resume the paused goal
++  kind: action
++  screen: screen.person
++  operation: operation.block.remove
++  next:
++  - to: e1
++  requirementRefs:
++  - S.webapp.operations
++- id: e1
++  actor: user
++  action: No block in force; connecting again needs a new invitation
++  kind: end
++  screen: screen.person
++  next: []
++  requirementRefs:
++  - S.webapp.operations
++- id: e2
++  actor: user
++  action: Block still in force
++  kind: end
++  screen: screen.person
++  next: []
++  requirementRefs:
++  - S.webapp.operations
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -71,7 +71,7 @@
+     hooks: [hook.webapp.screen.exact]
+   - id: C.webapp.revocation.current
+     title: Current revocation
+-    claim: "Revoke access after a job is queued, then retry dispatch and access. No new authorized sharing may follow revocation"
++    claim: "Revoke access after a job is queued, then retry dispatch and access. No new authorized sharing may follow revocation. Removing a block restores invite eligibility, not the previous pair"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: policy
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -251,7 +251,7 @@
+     description: >-
+       Exactly PersonSummary, GoalPanel, ContactHistory, PrivateNotes, ConnectionPanel and ActionBar. History has one
+       row per event. Actions are Edit goal, Log contact and Open channel; connection status determines Invite,
+-      Disconnect or Block availability
++      Disconnect, Block or Remove block availability
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:
+       - { rel: serves, to: ext.owner }
+@@ -293,7 +293,7 @@
+         kind: component
+         name: ConnectionPanel
+         cardinality: exactly one
+-        description: Connection status determines Invite, Disconnect or Block availability
++        description: Connection status determines Invite, Disconnect, Block or Remove block availability
+         links:
+           - { rel: reads, to: entity.Connection }
+         children:
+@@ -329,6 +329,19 @@
+             failure: [Not available when the contact has no linked account]
+             links:
+               - { rel: invokes, to: operation.connection.revoke }
++          - id: affordance.ConnectionPanel.unblock
++            kind: affordance
++            name: Remove block
++            actor: ext.owner
++            trigger: Owner confirms Remove block
++            preconditions: [A block exists between the owner and this contact's linked account]
++            effects:
++              - Invokes operation.block.remove
++              - Either party to the block may remove it
++              - Removing a block does not restore the previous pair; a new invitation is needed
++            failure: [Not available when no block exists]
++            links:
++              - { rel: invokes, to: operation.block.remove }
+       - id: component.PersonActionBar
+         kind: component
+         name: ActionBar
+@@ -713,7 +726,7 @@
+     fields:
+       - { name: blockerAccountId, type: "ref:entity.Account" }
+       - { name: blockedAccountId, type: "ref:entity.Account" }
+-    invariants: [Overrides connection, sharing and subscription permissions]
++    invariants: [Overrides connection, sharing and subscription permissions, Only the blocker can remove it]
+     links:
+       - { rel: storedIn, to: binding.contactsStore }
+       - { rel: governs, to: policy.revocation, direction: in }
+@@ -960,6 +973,19 @@
+       - { rel: writes, to: entity.Suggestion }
+       - { rel: governs, to: policy.revocation, direction: in }
+       - { rel: governs, to: policy.authentication, direction: in } # S.webapp.operations: mutations authorize the authenticated owner
++  - id: operation.block.remove
++    kind: operation
++    name: Remove block
++    parent: section.domain
++    description: Blocker authority. Delete the Block and resume the blocker's paused goal; no pair is restored
++    preconditions: [Caller is the blocker]
++    effects: [Delete the Block, Resume the blocker's paused goal, Invitations between the two accounts become possible again]
++    failure: [Any caller other than the blocker is denied, A removed block does not restore the previous pair]
++    links:
++      - { rel: writes, to: entity.Block }
++      - { rel: writes, to: entity.RelationshipGoal }
++      - { rel: governs, to: policy.revocation, direction: in }
++      - { rel: governs, to: policy.authentication, direction: in }
+   - id: operation.data.export
+     kind: operation
+     name: Export
+--- a/things/webapp/spec.yaml
++++ b/things/webapp/spec.yaml
+@@ -84,6 +84,7 @@
+       - operation.invite.create
+       - operation.invite.accept
+       - operation.connection.revoke
++      - operation.block.remove
+       - operation.data.export
+       - operation.data.delete
+     source: { doc: keep-in-touch-world-specification, section: "6" }

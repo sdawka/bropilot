@@ -1,0 +1,42 @@
+{
+ "variant": "643d59",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.goal.save",
+    "S.webapp.due",
+    "affordance.PersonActionBar.editGoal",
+    "P1",
+    "GD.contacts",
+    "commitment.owner-cadence"
+   ],
+   "severity": "high",
+   "summary": "Requiring an active Connection before a goal can be saved contradicts the Purpose constraint and the private-contacts feature, which say the app must help before any friend installs it and that goals are owner-only and independent of connecting accounts.",
+   "evidence": "Diff: \"A goal may be saved only for a contact with an active Connection.\" vs purpose.yaml constraints: \"The app can help before any friend installs it.\" and \"connecting accounts adds consensual sharing capabilities and does not turn private notes or goals into shared data\"; GD.contacts: \"Keep a private contact record before any friend installs the app\""
+  },
+  {
+   "nodeIds": [
+    "evolution.2",
+    "evolution.3",
+    "operation.goal.save",
+    "entity.Connection"
+   ],
+   "severity": "medium",
+   "summary": "Goal saving now depends on entity.Connection, but evolution.2 (goals) is scheduled before evolution.3, which introduces Connection, so the goals evolution cannot satisfy its own precondition.",
+   "evidence": "operation.goal.save links: \"{ rel: reads, to: entity.Connection }\"; evolution.3 affectedNodes includes entity.Connection and \"dependsOn: evolution.2\"; evolution.2 affects operation.goal.save"
+  },
+  {
+   "nodeIds": [
+    "affordance.SuggestionCard.snooze",
+    "J.prompts",
+    "J.control.disconnect",
+    "operation.goal.save"
+   ],
+   "severity": "medium",
+   "summary": "Snooze, pause and revise on Today all go through operation.goal.save, so after a Disconnect the owner can no longer snooze, pause or revise an existing goal, even though Disconnect is meant to keep private records under the owner's control.",
+   "evidence": "J.prompts p5/p6/p7 operation: operation.goal.save; new failure \"A goal for an unconnected contact is refused\"; ConnectionPanel.disconnect effects: \"private records remain under the owner's control\""
+  }
+ ],
+ "unknownIds": []
+}

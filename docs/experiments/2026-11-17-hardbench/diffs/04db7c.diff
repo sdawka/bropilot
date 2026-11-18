@@ -1,0 +1,51 @@
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -207,7 +207,7 @@
+     targetKind: artifact
+     triggers: [candidate, promotion]
+     inputs:
+-      fixture: "six due goals yield five ordered cards"
++      fixture: "six due goals yield five ordered cards; one reminder at the chosen local hour"
+     timeoutMs: 60000
+     costTier: cheap
+     binding: defined
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -590,6 +590,7 @@
+         kind: component
+         name: NotificationPreferences
+         cardinality: exactly one
++        description: External reminder opt-in and the local hour at which the daily reminder is sent
+         links:
+           - { rel: reads, to: entity.Account }
+       - id: component.ExportControls
+@@ -629,7 +630,7 @@
+     kind: entity
+     name: Account
+     parent: section.domain
+-    description: ID, identity-provider subject, display name, time zone and notification preferences; one authenticated owner
++    description: ID, identity-provider subject, display name, time zone and notification preferences, including the local hour of the daily reminder; one authenticated owner
+     source: { doc: keep-in-touch-world-specification, section: "5" }
+     fields:
+       - { name: id, type: string }
+@@ -796,6 +797,7 @@
+       - { name: suggestionId, type: "ref:entity.Suggestion" }
+       - { name: preferenceVersion, type: int }
+       - { name: scheduledAt, type: timestamp }
++      - { name: localHour, type: int }
+       - { name: deliveryState, type: "enum scheduled|delivered|cancelled|failed" }
+       - { name: dedupKey, type: string }
+     invariants:
+--- a/things/webapp/spec.yaml
++++ b/things/webapp/spec.yaml
+@@ -42,8 +42,8 @@
+       most one open suggestion per goal version and due cycle. Logging qualifying contact must resolve its suggestion.
+       Snoozing must update its effective due date; pausing must suppress prompts. Blocking a linked counterpart must
+       pause the blocker's corresponding goal and suppress its suggestions. In-app reminders are required. Optional
+-      external reminders, when enabled, must be limited to one owner notification per local day containing a link
+-      without contact details. Reminder delivery must recheck preferences and cancellations.
++      external reminders, when enabled, must be limited to one owner notification per local day, sent at the owner's chosen local hour,
++      containing a link without contact details. A chosen hour skipped by a daylight-saving change moves to the next valid hour. Reminder delivery must recheck preferences and cancellations.
+     refines: [GD.prompts]
+     subjects: [screen.today, entity.Suggestion, entity.NotificationJob]
+     source: { doc: keep-in-touch-world-specification, section: "6" }

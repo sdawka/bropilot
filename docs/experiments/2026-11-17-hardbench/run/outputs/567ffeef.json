@@ -1,0 +1,31 @@
+{
+ "variant": "643d59",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.goal.save"
+   ],
+   "severity": "medium",
+   "summary": "Requiring an active Connection to save a goal contradicts GD.contacts and GD.goals, which describe private, owner-only goals on contact records kept before any friend installs the app, and the narrative where goals are the owner's private intention.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "S.webapp.due"
+   ],
+   "severity": "medium",
+   "summary": "The new connection requirement makes goals depend on entity.Connection, but evolution.2 (goals) is scheduled before evolution.3 (connections) and does not depend on it, so goals cannot be realized in their planned evolution.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "affordance.SuggestionCard.snooze"
+   ],
+   "severity": "medium",
+   "summary": "Snooze, pause and revise all invoke operation.goal.save, so after a disconnect or block (which sets Connection to disconnected or blocked) the owner can no longer snooze, pause or revise existing goals, which conflicts with S.webapp.prompts and J.prompts.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

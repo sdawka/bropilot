@@ -1,0 +1,34 @@
+{
+ "variant": "b7965d",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.nudge",
+    "screen.person",
+    "C.webapp.nudge.single"
+   ],
+   "severity": "high",
+   "summary": "The Nudge action is added to the Person screen and ActionBar, but both still cite world-spec section 6, which lists only Edit goal, Log contact and Open channel; the new affordance has no source and the new criterion has no sourceRefs, unlike its siblings.",
+   "evidence": "Actions are Edit goal, Log contact, Nudge and Open channel ... source: { doc: keep-in-touch-world-specification, section: \"6\" }; nudge affordance lacks a source field; C.webapp.nudge.single lacks sourceRefs"
+  },
+  {
+   "nodeIds": [
+    "entity.MessageDraft"
+   ],
+   "severity": "medium",
+   "summary": "MessageDraft loses its provisional flag and is repurposed as the record for delivered nudges, which conflicts with its draft and no-autonomous-send semantics and with the source section that defined it only as a provisional draft.",
+   "evidence": "- provisional: true ... description: ... no autonomous send. Used for nudges; affordance effect: Delivers a short \"thinking of you\" card ... links: writes entity.MessageDraft"
+  },
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.nudge",
+    "C.webapp.nudge.single"
+   ],
+   "severity": "low",
+   "summary": "The affordance's failure list covers only the missing-Connection case, although its preconditions and the acceptance criterion also require refusal when either side has blocked the other.",
+   "evidence": "preconditions: [Active Connection ..., No block in either direction]; failure: [Not available when there is no active Connection]; claim: \"... refused after disconnect or block\""
+  }
+ ],
+ "unknownIds": []
+}

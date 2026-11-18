@@ -1,0 +1,34 @@
+{
+ "variant": "b7965d",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.nudge",
+    "S.webapp.scope",
+    "evolution.7"
+   ],
+   "severity": "high",
+   "summary": "The new Nudge affordance delivers in-app messages between connected accounts, which contradicts the core scope requirement that direct in-app messaging stay disabled.",
+   "evidence": "S.webapp.scope: \"Direct in-app messaging, subscriptions, digests, media automation and groups must remain disabled in the core scope.\" vs nudge effects: \"Delivers a short \\\"thinking of you\\\" card from the owner to the connected person inside the app\""
+  },
+  {
+   "nodeIds": [
+    "entity.MessageDraft"
+   ],
+   "severity": "medium",
+   "summary": "MessageDraft loses its provisional flag and becomes core, but it still sits under the 'provisional (later) entities' grouping and references the still-provisional MediaAsset; the later-capability scope was never amended.",
+   "evidence": "Diff removes \"provisional: true\" from entity.MessageDraft, under \"# --- provisional (later) entities, spec \u00a75 \\\"later\\\" rows\"; field approvedAttachments: \"list<ref:entity.MediaAsset>\" while entity.MediaAsset remains provisional: true"
+  },
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.nudge",
+    "C.webapp.nudge.single"
+   ],
+   "severity": "medium",
+   "summary": "The nudge has no operation and no tie to the revocation policy, so it bypasses server-side authorization and the current-state revocation checks; its criterion also has no sourceRefs to any requirement.",
+   "evidence": "nudge links only \"{ rel: writes, to: entity.MessageDraft }\" (no invokes operation, no policy.revocation link); failure lists only \"Not available when there is no active Connection\"; C.webapp.nudge.single has no sourceRefs, unlike sibling active criteria"
+  }
+ ],
+ "unknownIds": []
+}

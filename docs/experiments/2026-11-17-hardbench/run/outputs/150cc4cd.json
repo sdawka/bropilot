@@ -1,0 +1,31 @@
+{
+ "variant": "089273",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.SignInContinue.continue"
+   ],
+   "severity": "medium",
+   "summary": "The affordance now consumes the invitation and creates a connection, but it has no invokes link to operation.invite.accept, and its preconditions and failures leave out the required checks (valid unused credential, distinct invitee, no block in either direction) and the refused-acceptance and concurrent-redemption outcomes.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "component.ConsentPanel"
+   ],
+   "severity": "medium",
+   "summary": "ConsentPanel is now limited to invitees who are already signed in, which contradicts screen.invitation, still described as always showing exactly InvitePreview and ConsentPanel after validation.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "component.SignInForm"
+   ],
+   "severity": "medium",
+   "summary": "SignInForm now names the inviter on the anonymous sign-in screen, which conflicts with screen.signin's 'no private content' description and exposes inviter identity before authentication.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

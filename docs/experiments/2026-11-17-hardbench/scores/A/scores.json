@@ -1,0 +1,4172 @@
+[
+ {
+  "outid": "b0bea476",
+  "variant": "f381ab",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "f381ab-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "f381ab-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "f381ab-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "28e7e172",
+  "variant": "8fa895",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 2,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "8fa895-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "8fa895-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "Hard call: F2 leads with no-renewal design concern, then says the block journey (cites J.control.block/b5) still states refusal without a time limit. b5 is a softer step; e1/actorGoal not named."
+ },
+ {
+  "outid": "567ffeef",
+  "variant": "643d59",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "643d59-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "643d59-c2",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": "GD.contacts 'before any friend installs' is named in the manifest defect text."
+ },
+ {
+  "outid": "afbcdb5e",
+  "variant": "aaf530",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "38ee5050",
+  "variant": "95dd79",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "12ef28cc",
+  "variant": "bc8433",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "bc8433-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "bc8433-c2",
+    "label": "false"
+   }
+  ],
+  "notes": "Hard call on grounding: no node cited, but states the rule's content ('owner reminders should not carry contact details')."
+ },
+ {
+  "outid": "dafb873f",
+  "variant": "dfba1a",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "dfba1a-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "dfba1a-c2",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "59b9649d",
+  "variant": "249a5b",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": ""
+ },
+ {
+  "outid": "b3b0b3bf",
+  "variant": "5cceea",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "5cceea-c1",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "aab99379",
+  "variant": "e3bf46",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "e3bf46-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "e3bf46-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "e3bf46-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "Names S.webapp.prompts as 'not updated', never says its ordering conflicts."
+ },
+ {
+  "outid": "9aacf5df",
+  "variant": "089273",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 2,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "089273-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "089273-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "Hard call: F2 is framed as ConsentPanel cardinality but states that signed-in-from-invite invitees skip the Accept/Decline choice and lose explicit accept consent; cites screen.invitation/policy.pairConsent, not S.webapp.authentication or J.connect. F3 = 089273-c3 counted below."
+ },
+ {
+  "outid": "ca4b7d15",
+  "variant": "46753b",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "46753b-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "46753b-c2",
+    "label": "false"
+   }
+  ],
+  "notes": "F2 also asserts J.contacts.remove describes deletion as final (46753b-c4)."
+ },
+ {
+  "outid": "d47f2fe9",
+  "variant": "22094b",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "22094b-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "22094b-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "49715c1f",
+  "variant": "474d5e",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "474d5e-c1",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "ddbef2c9",
+  "variant": "5cceea",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "5cceea-c1",
+    "label": "false"
+   }
+  ],
+  "notes": "Cites operation.contact.log's recompute effect."
+ },
+ {
+  "outid": "b4d3d400",
+  "variant": "f381ab",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "f381ab-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "f381ab-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "4903f16b",
+  "variant": "125d6e",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [],
+  "notes": ""
+ },
+ {
+  "outid": "210cb852",
+  "variant": "8fa895",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "8fa895-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "8fa895-c1",
+    "label": "unclear"
+   }
+  ],
+  "notes": "'Block journey still promises a block that lasts until the user removes it'."
+ },
+ {
+  "outid": "f1f61b13",
+  "variant": "6fa350",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "6fa350-c1",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "5311924c",
+  "variant": "aaf530",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "12352e1f",
+  "variant": "46753b",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "46753b-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "46753b-c3",
+    "label": "unclear"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "870d3f16",
+  "variant": "6fa350",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "c00ec22e",
+  "variant": "d1c15a",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "d1c15a-c1",
+    "label": "unclear"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "a310b704",
+  "variant": "474d5e",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [],
+  "notes": ""
+ },
+ {
+  "outid": "33c338c3",
+  "variant": "b6a5d0",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "93b0cc35",
+  "variant": "46753b",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "46753b-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "46753b-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "e47da255",
+  "variant": "08b2b8",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "08b2b8-c2",
+    "label": "false"
+   }
+  ],
+  "notes": "Cites J.control.disconnect and the 'private record remains' end state."
+ },
+ {
+  "outid": "1d5a67ff",
+  "variant": "dfba1a",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 3,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "dfba1a-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "dfba1a-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "Hard call: F3 says nothing keeps the original code retrievable (cites entity.ConnectionInvite) but not the hash-only rule; hedged 'may assume single display'. Grounded yes by node id."
+ },
+ {
+  "outid": "0cd818dd",
+  "variant": "27bc02",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "27bc02-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "27bc02-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "72277e71",
+  "variant": "aaf530",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "3afc8be0",
+  "variant": "643d59",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "643d59-c3",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "643d59-c4",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": "Grounded only in 'the product's model of goals on owner-held contact records'."
+ },
+ {
+  "outid": "36cd71c3",
+  "variant": "774614",
+  "class": "U",
+  "verdict": "clean",
+  "verdictCorrect": false,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "verdict clean, no findings"
+ },
+ {
+  "outid": "3954c306",
+  "variant": "499fa7",
+  "class": "U",
+  "verdict": "clean",
+  "verdictCorrect": false,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "verdict clean, no findings"
+ },
+ {
+  "outid": "2f282945",
+  "variant": "cfc784",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "8ebdb0da",
+  "variant": "9edff9",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "1877bfab",
+  "variant": "089273",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "089273-c2",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "089273-c1",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": "Describes the preserve-unconsumed guarantee (S.webapp.authentication text)."
+ },
+ {
+  "outid": "3e91be6b",
+  "variant": "aaf530",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "da7269f2",
+  "variant": "089273",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "089273-c2",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "089273-c1",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": "Bypass of explicit ConsentPanel accept; no S.webapp.authentication or J.connect."
+ },
+ {
+  "outid": "33581166",
+  "variant": "04db7c",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "04db7c-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "04db7c-c1",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "66db0782",
+  "variant": "474d5e",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [],
+  "notes": ""
+ },
+ {
+  "outid": "e5b33ee1",
+  "variant": "45de63",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "45de63-c1",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "8a89079b",
+  "variant": "e3bf46",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "e3bf46-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "43a1e492",
+  "variant": "864bc6",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "864bc6-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "864bc6-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "864bc6-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "f7fbc4f4",
+  "variant": "8ac67f",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "7c2a896e",
+  "variant": "499fa7",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "499fa7-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "499fa7-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "4b24f21e",
+  "variant": "8ac67f",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "8ac67f-c2",
+    "label": "unclear"
+   }
+  ],
+  "notes": "defect verdict on criterion wording narrowing"
+ },
+ {
+  "outid": "024a0b1c",
+  "variant": "95dd79",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "95dd79-c1",
+    "label": "false"
+   }
+  ],
+  "notes": "false undeclared-field claim"
+ },
+ {
+  "outid": "56a0b421",
+  "variant": "864bc6",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "864bc6-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "864bc6-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "864bc6-c4",
+    "label": "false"
+   }
+  ],
+  "notes": "F1 mixes 864bc6-c1 and c3."
+ },
+ {
+  "outid": "ccaec884",
+  "variant": "249a5b",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": ""
+ },
+ {
+  "outid": "56585efe",
+  "variant": "edd783",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "edd783-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "edd783-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "9cc1c657",
+  "variant": "08b2b8",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "08b2b8-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "08b2b8-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "Counterpart given as GD.contacts design premise, not the journey."
+ },
+ {
+  "outid": "f148d820",
+  "variant": "9edff9",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "0c3355dd",
+  "variant": "8fa895",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "8fa895-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "8fa895-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "8fa895-c4",
+    "label": "false"
+   }
+  ],
+  "notes": "F1 notes the 'until removed' wording was dropped, but on the changed nodes only."
+ },
+ {
+  "outid": "5996e108",
+  "variant": "774614",
+  "class": "U",
+  "verdict": "clean",
+  "verdictCorrect": false,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "verdict clean, no findings"
+ },
+ {
+  "outid": "d30e7bb6",
+  "variant": "864bc6",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "864bc6-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "864bc6-c4",
+    "label": "false"
+   }
+  ],
+  "notes": "Names J.connect and the QR/connection-code sharing step."
+ },
+ {
+  "outid": "212d724e",
+  "variant": "5f4559",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "5f4559-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "5f4559-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "5f4559-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "7900cb29",
+  "variant": "5cceea",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "9578b41b",
+  "variant": "3a9735",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "3a9735-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "3a9735-c4",
+    "label": "false"
+   }
+  ],
+  "notes": "Only the informed-consent argument; never names InvitePreview or J.connect/s7."
+ },
+ {
+  "outid": "1b72e788",
+  "variant": "46753b",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "46753b-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "46753b-c4",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "d1b7dc8d",
+  "variant": "774614",
+  "class": "U",
+  "verdict": "clean",
+  "verdictCorrect": false,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "verdict clean, no findings"
+ },
+ {
+  "outid": "64cccde2",
+  "variant": "f80839",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "f80839-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "111501eb",
+  "variant": "e3bf46",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "e3bf46-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "e3bf46-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "e3bf46-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "'Unspecified and untested' framing."
+ },
+ {
+  "outid": "f19ee731",
+  "variant": "774614",
+  "class": "U",
+  "verdict": "clean",
+  "verdictCorrect": false,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "verdict clean, no findings"
+ },
+ {
+  "outid": "07992189",
+  "variant": "45de63",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "45de63-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "4ab04146",
+  "variant": "3a9735",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "3a9735-c1",
+    "label": "unclear"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "523310ec",
+  "variant": "643d59",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "643d59-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "643d59-c2",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": "Cites P1."
+ },
+ {
+  "outid": "8d44319c",
+  "variant": "5cceea",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "5cceea-c1",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "9ff6d8c5",
+  "variant": "9edff9",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "5b70bbbe",
+  "variant": "95dd79",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "95dd79-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "95dd79-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "95dd79-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "all three findings false"
+ },
+ {
+  "outid": "16fca1b1",
+  "variant": "8ac67f",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "8ac67f-c1",
+    "label": "real-preexisting"
+   },
+   {
+    "claimId": "8ac67f-c2",
+    "label": "unclear"
+   }
+  ],
+  "notes": "YAML flow-mapping comma finding is true but pre-existing in clean"
+ },
+ {
+  "outid": "bd9b2700",
+  "variant": "b7965d",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "b7965d-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "b7965d-c4",
+    "label": "false"
+   },
+   {
+    "claimId": "b7965d-c5",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "5c7fe4df",
+  "variant": "125d6e",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": "F1 cites only journey steps; F2 adds the affordance."
+ },
+ {
+  "outid": "578699c5",
+  "variant": "864bc6",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "864bc6-c5",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "864bc6-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "864bc6-c4",
+    "label": "false"
+   }
+  ],
+  "notes": "Hard call: F1 hedges about 'any redemption flow that depend on a displayed QR or connection code' without identifying the sharing step; scored not found."
+ },
+ {
+  "outid": "75912da2",
+  "variant": "5cceea",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "946e560f",
+  "variant": "f80839",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "f80839-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "5d1f4a42",
+  "variant": "f80839",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "f80839-c4",
+    "label": "false"
+   }
+  ],
+  "notes": "Counterpart given as the 'authenticated owner only' wording on the same affordance and J.control.export/x4, not operation.data.export / e1 / screen.settings / C.webapp.lifecycle.data."
+ },
+ {
+  "outid": "5960ecbb",
+  "variant": "04db7c",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "04db7c-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "04db7c-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "04db7c-c4",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "45c4f4c8",
+  "variant": "04db7c",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "04db7c-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "04db7c-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "04db7c-c4",
+    "label": "false"
+   }
+  ],
+  "notes": "F3 also includes 04db7c-c1."
+ },
+ {
+  "outid": "001ec5be",
+  "variant": "089273",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "089273-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "089273-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "089273-c2",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": "Only cardinality, missing link and sign-in privacy; never says acceptance happens without the explicit step."
+ },
+ {
+  "outid": "feeafc8a",
+  "variant": "5f4559",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "5f4559-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "5f4559-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "5f4559-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "F2/F3 also include 5f4559-c4."
+ },
+ {
+  "outid": "58de7fd4",
+  "variant": "ee73ec",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "ee73ec-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "ee73ec-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "ab502b09",
+  "variant": "9edff9",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "59a29393",
+  "variant": "8ac67f",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "8ac67f-c1",
+    "label": "real-preexisting"
+   }
+  ],
+  "notes": "YAML comma finding, pre-existing"
+ },
+ {
+  "outid": "2235d7dd",
+  "variant": "643d59",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "643d59-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "643d59-c2",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "750712c0",
+  "variant": "499fa7",
+  "class": "U",
+  "verdict": "clean",
+  "verdictCorrect": false,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "verdict clean, no findings"
+ },
+ {
+  "outid": "805bd103",
+  "variant": "6fa350",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [],
+  "notes": ""
+ },
+ {
+  "outid": "a277570a",
+  "variant": "cfc784",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "8e799ee1",
+  "variant": "b434a4",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": "F2 (journey actorGoal unmet) restates the seeded defect."
+ },
+ {
+  "outid": "dee0a010",
+  "variant": "125d6e",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "441d75c5",
+  "variant": "d1c15a",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "d1c15a-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "d1c15a-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "62c5b110",
+  "variant": "3a9735",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "3a9735-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "3a9735-c2",
+    "label": "false"
+   }
+  ],
+  "notes": "Names InvitePreview shown before acceptance but wrongly says nothing defines what it shows (it says 'The recipient sees who is inviting them')."
+ },
+ {
+  "outid": "a9b08801",
+  "variant": "27bc02",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "27bc02-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "27bc02-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "962f35e3",
+  "variant": "698e3b",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "698e3b-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "698e3b-c2",
+    "label": "false"
+   }
+  ],
+  "notes": "Cites component.MetGoalCheckbox and the replaced 'defaults unchecked' rule."
+ },
+ {
+  "outid": "b5c99344",
+  "variant": "125d6e",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": "F1 journey-only; F2 cites BlockConfirmDialog."
+ },
+ {
+  "outid": "cf411cac",
+  "variant": "27bc02",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "27bc02-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "27bc02-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "F3 also mixes 27bc02-c2."
+ },
+ {
+  "outid": "d8751f4e",
+  "variant": "bc8433",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "bc8433-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "bc8433-c2",
+    "label": "false"
+   }
+  ],
+  "notes": "Hard call: hedged 'likely breaks the spec's privacy and minimal-content rules for external reminders'; no node."
+ },
+ {
+  "outid": "de2fb073",
+  "variant": "45de63",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "8d9e63be",
+  "variant": "edd783",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "edd783-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "edd783-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "Hard call: hedged 'likely conflicts', but states SchedulePreview's existing role of previewing before the owner commits."
+ },
+ {
+  "outid": "f24dc213",
+  "variant": "d1c15a",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "d1c15a-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "d1c15a-c3",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "d1c15a-c1",
+    "label": "unclear"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "d196150a",
+  "variant": "d1c15a",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "d1c15a-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "d1c15a-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "49c2a804",
+  "variant": "b7965d",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "b7965d-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "b7965d-c2",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "b7965d-c4",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "069f999e",
+  "variant": "dfba1a",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "dfba1a-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "dfba1a-c2",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": "F3 also includes dfba1a-c3."
+ },
+ {
+  "outid": "3b717fdf",
+  "variant": "f381ab",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "f381ab-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "f381ab-c1",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": "F2 restates f381ab-c1 via the hook fixture."
+ },
+ {
+  "outid": "49358ef1",
+  "variant": "b7965d",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "b7965d-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "b7965d-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "5405529e",
+  "variant": "f381ab",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "f381ab-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "f381ab-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "f381ab-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "bcc5b1c7",
+  "variant": "b434a4",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "b434a4-c1",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": "F2 (no recompute path/writes) restates the seeded defect."
+ },
+ {
+  "outid": "2f33c907",
+  "variant": "698e3b",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "698e3b-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "698e3b-c2",
+    "label": "false"
+   }
+  ],
+  "notes": "Counterpart given as the ContactEvent explicit-marking invariant (the README's softer counterpart), not MetGoalCheckbox or S.webapp.qualification."
+ },
+ {
+  "outid": "fd4eef6c",
+  "variant": "3a9735",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "3a9735-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "3a9735-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "68225569",
+  "variant": "bc8433",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "bc8433-c4",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "a62ec338",
+  "variant": "aaf530",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "eacba510",
+  "variant": "f80839",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "f80839-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "Same grounding as 5d1f4a42."
+ },
+ {
+  "outid": "ca4a8df7",
+  "variant": "22094b",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "22094b-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "22094b-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "c48187db",
+  "variant": "b6a5d0",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "b6a5d0-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "b6a5d0-c2",
+    "label": "false"
+   }
+  ],
+  "notes": "Hard call: F1 states only the 'any' vs count-only-matching-qualifications conflict (part of the manifest's 'cannot be recorded or matched'), not the qualifiedDepth enum; names no ContactEvent."
+ },
+ {
+  "outid": "065e8a31",
+  "variant": "e3bf46",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "e3bf46-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "e3bf46-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "e3bf46-c2",
+    "label": "false"
+   }
+  ],
+  "notes": "Hedged: 'may conflict with it or leave it undefined'."
+ },
+ {
+  "outid": "05e50e80",
+  "variant": "ee73ec",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "ee73ec-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "0ece7398",
+  "variant": "3a9735",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "3a9735-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "3a9735-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "Hard call: F1 hedges that it 'probably conflicts with any accept/redeem flow that shows the inviter's identity' without asserting or naming one. F1 mixes 3a9735-c1 (primary) with hedged 3a9735-c5."
+ },
+ {
+  "outid": "0fa88095",
+  "variant": "b7965d",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "b7965d-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "b7965d-c4",
+    "label": "false"
+   },
+   {
+    "claimId": "b7965d-c4",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "1d398354",
+  "variant": "b434a4",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "b434a4-c1",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "13f0533f",
+  "variant": "ee73ec",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "ee73ec-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "ee73ec-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "9b487302",
+  "variant": "27bc02",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "27bc02-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "27bc02-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "626891a9",
+  "variant": "95dd79",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "9d497ce7",
+  "variant": "45de63",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "45de63-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "3d6c1461",
+  "variant": "edd783",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "edd783-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "edd783-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "62614f3e",
+  "variant": "8fa895",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "8fa895-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "8fa895-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "8fa895-c4",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "6ff5aa24",
+  "variant": "95dd79",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "4aadd0e7",
+  "variant": "dfba1a",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "dfba1a-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "dfba1a-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "dfba1a-c4",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "45043bd3",
+  "variant": "b6a5d0",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "6001d554",
+  "variant": "bc8433",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "bc8433-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "bc8433-c4",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "bd445952",
+  "variant": "249a5b",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "249a5b-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "249a5b-c1",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "bc15f81c",
+  "variant": "6fa350",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "6fa350-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "6fa350-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "14fcd4bf",
+  "variant": "6fa350",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "6fa350-c1",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "e179c117",
+  "variant": "698e3b",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "698e3b-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "698e3b-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "ContactEvent invariant only."
+ },
+ {
+  "outid": "0af81682",
+  "variant": "8fa895",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 3,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "8fa895-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "8fa895-c1",
+    "label": "unclear"
+   }
+  ],
+  "notes": "F3 cites J.control.block/b5 'refused with no time bound'; softer step than e1. F1 grounded only in external source sections."
+ },
+ {
+  "outid": "c536ee49",
+  "variant": "b434a4",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "b434a4-c1",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "60897238",
+  "variant": "474d5e",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "474d5e-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "F2 also touches 474d5e-c2."
+ },
+ {
+  "outid": "b5acbf47",
+  "variant": "45de63",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "03e17fb0",
+  "variant": "aaf530",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "fce8252e",
+  "variant": "b7965d",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "b7965d-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "b7965d-c2",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "b7965d-c4",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "976178b7",
+  "variant": "125d6e",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": "F1 journey-only; F2 cites the affordance."
+ },
+ {
+  "outid": "a66072c0",
+  "variant": "46753b",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "46753b-c4",
+    "label": "false"
+   }
+  ],
+  "notes": "F2 also includes 46753b-c1."
+ },
+ {
+  "outid": "cf19bfc2",
+  "variant": "d1c15a",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "d1c15a-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "d1c15a-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "4434796d",
+  "variant": "22094b",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "22094b-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "22094b-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "22094b-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "8dcf53a0",
+  "variant": "b434a4",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "b434a4-c1",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "be8ba967",
+  "variant": "f80839",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "f80839-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": "F3 mixes f80839-c1 with a restatement."
+ },
+ {
+  "outid": "98069151",
+  "variant": "643d59",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "643d59-c3",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "643d59-c5",
+    "label": "unclear"
+   }
+  ],
+  "notes": "Hard call: hedged 'likely contradicts the core keep-in-touch goal flow'; supports it with contacts needing no linked account, but names neither P1 nor GD.contacts."
+ },
+ {
+  "outid": "db108cc0",
+  "variant": "dfba1a",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "dfba1a-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "dfba1a-c2",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "3711b6ed",
+  "variant": "08b2b8",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "08b2b8-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "08b2b8-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "GD.contacts premise only."
+ },
+ {
+  "outid": "2f654a7f",
+  "variant": "698e3b",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "698e3b-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": "F3 states the exact stale-MetGoalCheckbox inconsistency (dup)."
+ },
+ {
+  "outid": "179e3361",
+  "variant": "cfc784",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "287c7119",
+  "variant": "698e3b",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "698e3b-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "698e3b-c2",
+    "label": "false"
+   }
+  ],
+  "notes": "ContactEvent invariant only."
+ },
+ {
+  "outid": "ff708d2d",
+  "variant": "b6a5d0",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "b6a5d0-c1",
+    "label": "false"
+   }
+  ],
+  "notes": "Hard call: matching-rule conflict only, as c48187db; F2 says confirming against 'any' records 'any' without noticing the enum excludes it."
+ },
+ {
+  "outid": "ddf1bc81",
+  "variant": "04db7c",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "04db7c-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "04db7c-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "04db7c-c4",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "1eddfb3f",
+  "variant": "f381ab",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "f381ab-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "f381ab-c1",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "dcef7612",
+  "variant": "b434a4",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "150cc4cd",
+  "variant": "089273",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "089273-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "089273-c2",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "089273-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "F1 notes consumption but complains only about the missing link and checks."
+ },
+ {
+  "outid": "0608ba25",
+  "variant": "499fa7",
+  "class": "U",
+  "verdict": "clean",
+  "verdictCorrect": false,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "verdict clean, no findings"
+ },
+ {
+  "outid": "19c1ceb9",
+  "variant": "27bc02",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "27bc02-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "27bc02-c1",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "8331a8c7",
+  "variant": "5f4559",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "5f4559-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "5f4559-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "5f4559-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "da0b9512",
+  "variant": "249a5b",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": ""
+ },
+ {
+  "outid": "9c807746",
+  "variant": "b7965d",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "b7965d-c4",
+    "label": "false"
+   },
+   {
+    "claimId": "b7965d-c6",
+    "label": "false"
+   },
+   {
+    "claimId": "b7965d-c5",
+    "label": "false"
+   }
+  ],
+  "notes": "F2 also touches b7965d-c1."
+ },
+ {
+  "outid": "cdbaf078",
+  "variant": "5f4559",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "5f4559-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "5f4559-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "29ea4c5f",
+  "variant": "bc8433",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "bc8433-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "bc8433-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "d771ee37",
+  "variant": "cfc784",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "a9ffc884",
+  "variant": "499fa7",
+  "class": "U",
+  "verdict": "clean",
+  "verdictCorrect": false,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "verdict clean, no findings"
+ },
+ {
+  "outid": "3ebf2a6f",
+  "variant": "27bc02",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "27bc02-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "27bc02-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "d6ab2dd3",
+  "variant": "22094b",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "22094b-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "22094b-c1",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "e0bc408c",
+  "variant": "e3bf46",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "e3bf46-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "e3bf46-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "e3bf46-c2",
+    "label": "false"
+   }
+  ],
+  "notes": "Hedged: 'may conflict with any existing ordering rule there'."
+ },
+ {
+  "outid": "839b942c",
+  "variant": "95dd79",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "662cd8d8",
+  "variant": "8ac67f",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "8ac67f-c1",
+    "label": "real-preexisting"
+   },
+   {
+    "claimId": "8ac67f-c2",
+    "label": "unclear"
+   }
+  ],
+  "notes": "YAML comma finding, pre-existing"
+ },
+ {
+  "outid": "fb0b5344",
+  "variant": "ee73ec",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "ee73ec-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "ee73ec-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "353fb85d",
+  "variant": "bc8433",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "bc8433-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "54d958d3",
+  "variant": "125d6e",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": "Describes the affordance's 'nothing is revoked until confirmation' rule."
+ },
+ {
+  "outid": "eefccb54",
+  "variant": "04db7c",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": ""
+ },
+ {
+  "outid": "f6f60ea4",
+  "variant": "643d59",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "643d59-c2",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "643d59-c3",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": "F1 also contains 643d59-c1."
+ },
+ {
+  "outid": "17dd87ca",
+  "variant": "6fa350",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "6fa350-c1",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "be33ec36",
+  "variant": "f80839",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "f80839-c2",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "f80839-c1",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "0ec16022",
+  "variant": "edd783",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "cb74b7d7",
+  "variant": "499fa7",
+  "class": "U",
+  "verdict": "clean",
+  "verdictCorrect": false,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "verdict clean, no findings"
+ },
+ {
+  "outid": "618df661",
+  "variant": "9edff9",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "c448e145",
+  "variant": "249a5b",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "249a5b-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "249a5b-c1",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "5e18e657",
+  "variant": "3a9735",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "3a9735-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "3a9735-c2",
+    "label": "false"
+   }
+  ],
+  "notes": "Same wording issue as 62c5b110."
+ },
+ {
+  "outid": "b17ef3f6",
+  "variant": "cfc784",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "61942208",
+  "variant": "774614",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "0ad32cb8",
+  "variant": "9edff9",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "cd7c04d3",
+  "variant": "089273",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": "Cites S.webapp.authentication; F2 cites J.connect (dup)."
+ },
+ {
+  "outid": "d6f374fd",
+  "variant": "8ac67f",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "d067f065",
+  "variant": "d1c15a",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "d1c15a-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "d1c15a-c3",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "d1c15a-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "09994f8b",
+  "variant": "698e3b",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "698e3b-c2",
+    "label": "false"
+   }
+  ],
+  "notes": "F3 also includes 698e3b-c1."
+ },
+ {
+  "outid": "8bdbd67d",
+  "variant": "ee73ec",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "ee73ec-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "ee73ec-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "02bca05e",
+  "variant": "b6a5d0",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "a4001e2c",
+  "variant": "edd783",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "edd783-c1",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "a2980f2a",
+  "variant": "04db7c",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "04db7c-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "04db7c-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "04db7c-c4",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "670840e4",
+  "variant": "864bc6",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "864bc6-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "864bc6-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "864bc6-c4",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "3c73d19f",
+  "variant": "22094b",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "22094b-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "22094b-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "22094b-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "21d7ea41",
+  "variant": "22094b",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "22094b-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "22094b-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "485cab8e",
+  "variant": "249a5b",
+  "class": "control",
+  "verdict": "defect",
+  "verdictCorrect": false,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "249a5b-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "249a5b-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "249a5b-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "c48b582d",
+  "variant": "8fa895",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "8fa895-c4",
+    "label": "false"
+   },
+   {
+    "claimId": "8fa895-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "8fa895-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "3f8c31d3",
+  "variant": "774614",
+  "class": "U",
+  "verdict": "clean",
+  "verdictCorrect": false,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "verdict clean, no findings"
+ },
+ {
+  "outid": "af01c86a",
+  "variant": "cfc784",
+  "class": "control",
+  "verdict": "clean",
+  "verdictCorrect": true,
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "extras": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "a5bc3433",
+  "variant": "e3bf46",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "e3bf46-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "e3bf46-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "e3bf46-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "'No backing requirement' framing."
+ },
+ {
+  "outid": "8038ae66",
+  "variant": "5f4559",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "5f4559-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "5f4559-c5",
+    "label": "unclear"
+   },
+   {
+    "claimId": "5f4559-c1",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "6d4b903f",
+  "variant": "08b2b8",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "08b2b8-c1",
+    "label": "unclear"
+   },
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": "F1 cites ContactRecord/GD.contacts; F3 names J.control.disconnect d3/d4 (stale journey) but not the e1 end state."
+ },
+ {
+  "outid": "c88bf928",
+  "variant": "ee73ec",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "ee73ec-c1",
+    "label": "false"
+   },
+   {
+    "claimId": "ee73ec-c1",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "55b540d8",
+  "variant": "5cceea",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "5cceea-c1",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "c00423c4",
+  "variant": "864bc6",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "864bc6-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "864bc6-c4",
+    "label": "false"
+   }
+  ],
+  "notes": "Hard call: F1 says the redemption flow is still built around a QR or connection code the owner shares in person (J.connect/s3 content) but attributes it to operation.invite.create and names no journey."
+ },
+ {
+  "outid": "d85c46e2",
+  "variant": "b6a5d0",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "b69f511f",
+  "variant": "08b2b8",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   },
+   {
+    "claimId": "08b2b8-c1",
+    "label": "unclear"
+   }
+  ],
+  "notes": "F2 names the journey (d2-d4) as stale; matching F1 grounded only in GD.contacts/ContactRecord."
+ },
+ {
+  "outid": "dde96486",
+  "variant": "5f4559",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "5f4559-c2",
+    "label": "false"
+   },
+   {
+    "claimId": "5f4559-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "5f4559-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "6923dab5",
+  "variant": "edd783",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "edd783-c4",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "edd783-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "edd783-c3",
+    "label": "false"
+   }
+  ],
+  "notes": "Hard call: F1 'likely breaks any part of the spec that relies on the owner previewing the schedule before confirming' - hypothetical, names no counterpart. Scored not found; F1 counted as a vague seeded-adjacent claim, labelled under seeded-symptom."
+ },
+ {
+  "outid": "0f1cfd4a",
+  "variant": "f381ab",
+  "class": "U",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "extras": [
+   {
+    "claimId": "f381ab-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "f381ab-c2",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "3e4aae35",
+  "variant": "474d5e",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "474d5e-c2",
+    "label": "unclear"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "c30d61d6",
+  "variant": "dfba1a",
+  "class": "N",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "dfba1a-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "dfba1a-c2",
+    "label": "real-introduced"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "66d6956c",
+  "variant": "08b2b8",
+  "class": "F",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "extras": [
+   {
+    "claimId": "08b2b8-c3",
+    "label": "false"
+   },
+   {
+    "claimId": "08b2b8-c2",
+    "label": "false"
+   }
+  ],
+  "notes": "F2 also repeats 08b2b8-c1; F3 also mentions the stale journey."
+ },
+ {
+  "outid": "04dc8f5b",
+  "variant": "46753b",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "46753b-c1",
+    "label": "real-introduced"
+   },
+   {
+    "claimId": "46753b-c3",
+    "label": "unclear"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "38e8aa52",
+  "variant": "45de63",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "seeded",
+    "label": "dup-seeded"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "923f7657",
+  "variant": "474d5e",
+  "class": "I",
+  "verdict": "defect",
+  "verdictCorrect": true,
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "extras": [
+   {
+    "claimId": "474d5e-c3",
+    "label": "false"
+   }
+  ],
+  "notes": ""
+ }
+]

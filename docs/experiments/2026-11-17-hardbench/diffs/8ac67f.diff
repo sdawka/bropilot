@@ -1,0 +1,44 @@
+--- a/description.yaml
++++ b/description.yaml
+@@ -6,7 +6,7 @@
+   the goal. There are no streak penalties or public relationship scores.
+ features:
+   - { id: GD.contacts, name: Private contacts, summary: Keep a private contact record before any friend installs the app; optional channel and context., source: { doc: keep-in-touch-world-specification, section: "3" } }
+-  - { id: GD.goals, name: Cadence and depth, summary: An owner-only goal with an interval and a desired depth, with a schedule preview., source: { doc: keep-in-touch-world-specification, section: "3" } }
++  - { id: GD.goals, name: Cadence and depth, summary: An owner-only goal with an interval, chosen from presets or typed, and a desired depth, with a schedule preview., source: { doc: keep-in-touch-world-specification, section: "3" } }
+   - { id: GD.connect, name: Consented pair connections, summary: Invitation-based pairs formed by two explicit consents; either party can disconnect or block., source: { doc: keep-in-touch-world-specification, section: "3" } }
+   - { id: GD.prompts, name: Suggested next actions, summary: A finite Today view of at most five due suggestions; opening a channel never completes a goal., source: { doc: keep-in-touch-world-specification, section: "3" } }
+   - { id: GD.updates, name: Digests and photo suggestions (later), summary: Later digests and photo suggestions; realization deferred while the digest interpretation is unresolved., deferred: true, source: { doc: keep-in-touch-world-specification, section: "3" } }
+--- a/journeys/J.goals.yaml
++++ b/journeys/J.goals.yaml
+@@ -28,7 +28,7 @@
+   - S.webapp.qualification
+ - id: g3
+   actor: user
+-  action: Set interval (1-3650 days), desired depth (light, meaningful or shared-time), preferred channel
++  action: Set interval (a preset or 1-3650 days), desired depth (light, meaningful or shared-time), preferred channel
+     and enabled
+   kind: action
+   screen: screen.goal
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -37,7 +37,7 @@
+     hooks: [hook.webapp.outgoing.single]
+   - id: C.webapp.schedule.correct
+     title: Schedule correctness
+-    claim: "Fixed-clock fixtures cover zero logs, qualification, interval and depth changes, time zones, DST, snooze, pause and deleted events"
++    claim: "Fixed-clock fixtures cover zero logs, qualification, interval preset and depth changes, time zones, DST, snooze, pause and deleted events"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: entity
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -395,7 +395,7 @@
+             kind: component
+             name: IntervalField
+             cardinality: exactly one
+-            description: intervalDays from 1 through 3650
++            description: intervalDays from 1 through 3650; presets for weekly (7), fortnightly (14), monthly (30), quarterly (91) and yearly (365)
+           - id: component.GoalDepthField
+             kind: component
+             name: DepthField

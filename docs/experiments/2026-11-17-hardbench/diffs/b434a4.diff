@@ -1,0 +1,118 @@
+--- a/journeys/J.settings.timezone.yaml
++++ b/journeys/J.settings.timezone.yaml
+@@ -0,0 +1,45 @@
++id: J.settings.timezone
++name: Change my time zone
++actorGoal: Keep due dates right after moving to another time zone
++features:
++- GD.goals
++requirements:
++- S.webapp.due
++start: t1
++steps:
++- id: t1
++  actor: user
++  action: Open Settings
++  kind: action
++  screen: screen.settings
++  next:
++  - to: t2
++  requirementRefs:
++  - S.webapp.due
++- id: t2
++  actor: user
++  action: Choose a new time zone in ProfilePreferences and save
++  kind: action
++  screen: screen.settings
++  next:
++  - to: t3
++  requirementRefs:
++  - S.webapp.due
++- id: t3
++  actor: system
++  action: Update the owner's time zone
++  kind: action
++  screen: screen.settings
++  operation: operation.account.setTimeZone
++  next:
++  - to: e1
++  requirementRefs:
++  - S.webapp.due
++- id: e1
++  actor: user
++  action: Settings show the new time zone
++  kind: end
++  screen: screen.settings
++  next: []
++  requirementRefs:
++  - S.webapp.due
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -37,7 +37,7 @@
+     hooks: [hook.webapp.outgoing.single]
+   - id: C.webapp.schedule.correct
+     title: Schedule correctness
+-    claim: "Fixed-clock fixtures cover zero logs, qualification, interval and depth changes, time zones, DST, snooze, pause and deleted events"
++    claim: "Fixed-clock fixtures cover zero logs, qualification, interval and depth changes, time zones, owner time-zone changes, DST, snooze, pause and deleted events"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: entity
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -586,6 +586,17 @@
+         cardinality: exactly one
+         links:
+           - { rel: reads, to: entity.Account }
++        children:
++          - id: affordance.ProfilePreferences.changeTimeZone
++            kind: affordance
++            name: Change time zone
++            actor: ext.owner
++            trigger: Owner selects a new IANA time zone and saves
++            preconditions: [Owner session, Valid IANA time zone]
++            effects: [Invokes operation.account.setTimeZone]
++            failure: [Validation failure keeps entered values and renders one ErrorSummary]
++            links:
++              - { rel: invokes, to: operation.account.setTimeZone }
+       - id: component.NotificationPreferences
+         kind: component
+         name: NotificationPreferences
+@@ -960,6 +971,18 @@
+       - { rel: writes, to: entity.Suggestion }
+       - { rel: governs, to: policy.revocation, direction: in }
+       - { rel: governs, to: policy.authentication, direction: in } # S.webapp.operations: mutations authorize the authenticated owner
++  - id: operation.account.setTimeZone
++    kind: operation
++    name: Set time zone
++    parent: section.domain
++    description: Owner session and a valid IANA time zone. Update Account.timeZone; existing due dates are kept and only goals saved afterwards use the new zone
++    preconditions: [Owner session, Valid IANA time zone]
++    effects: [Update Account.timeZone, Keep existing due dates unchanged, Goals saved afterwards use the new zone]
++    failure: [Invalid time zone is rejected with a validation error, Stale version returns conflict]
++    links:
++      - { rel: writes, to: entity.Account }
++      - { rel: governs, to: policy.ownerOnly, direction: in }
++      - { rel: governs, to: policy.authentication, direction: in }
+   - id: operation.data.export
+     kind: operation
+     name: Export
+--- a/things/webapp/spec.yaml
++++ b/things/webapp/spec.yaml
+@@ -30,7 +30,8 @@
+       the app must use local calendar dates in the owner's IANA time zone. The anchor must be the latest qualifying
+       event date, or the goal creation date when none exists. dueDate must equal anchor plus intervalDays. A goal must
+       become due when today's date reaches dueDate, unless paused or snoozed until a later date. Revising a goal must
+-      not create a ContactEvent. Date and time-zone fixtures must cover daylight-saving changes.
++      not create a ContactEvent. When the owner changes time zone, every open goal's due date must be recomputed in the
++      new zone. Date and time-zone fixtures must cover daylight-saving changes and time-zone changes.
+     refines: [GD.goals, GD.prompts]
+     subjects: [entity.RelationshipGoal, entity.Suggestion, operation.goal.save]
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+@@ -86,6 +87,7 @@
+       - operation.connection.revoke
+       - operation.data.export
+       - operation.data.delete
++      - operation.account.setTimeZone
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+   - id: S.webapp.concurrency
+     thing: thing.webapp

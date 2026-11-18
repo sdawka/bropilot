@@ -1,0 +1,30 @@
+{
+ "variant": "125d6e",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "J.control.block.b2",
+    "J.control.block.b3",
+    "J.control.block.b6"
+   ],
+   "severity": "high",
+   "summary": "The journey now runs b3 (operation.connection.revoke) before the confirm/cancel branch b6, so revocation happens before the owner confirms; this contradicts the new rule that nothing is revoked until confirmation.",
+   "evidence": "b2 next: to b3; b3 operation: operation.connection.revoke, next: to b6; b6 'Confirm block or cancel in BlockConfirmDialog' vs ontology effect 'Nothing is revoked or recorded until the owner confirms in BlockConfirmDialog'"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.revocation.current",
+    "J.control.block.b6"
+   ],
+   "severity": "high",
+   "summary": "The cancel path (b6 -> e2) comes after revocation has already run in b3, so cancelling cannot leave sharing and pending jobs untouched as the updated criterion requires.",
+   "evidence": "criteria: 'Cancelling a block confirmation leaves sharing and pending jobs untouched'; journey: b3 revoke -> b6 { to: e2, when: cancel }"
+  }
+ ],
+ "unknownIds": [
+  "J.control.block.b2",
+  "J.control.block.b3",
+  "J.control.block.b6"
+ ]
+}

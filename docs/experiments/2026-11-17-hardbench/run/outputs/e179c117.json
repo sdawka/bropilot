@@ -1,0 +1,35 @@
+{
+ "variant": "698e3b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "screen.logContact",
+    "entity.ContactEvent",
+    "J.contact/c5"
+   ],
+   "severity": "high",
+   "summary": "Carrying over the previous log's 'Met this goal' choice can pre-check the box, so a new event may qualify the goal without an explicit owner action; this contradicts the ContactEvent qualification invariant and drops the former unchecked default.",
+   "evidence": "screen.logContact: \"channel, depth and the Met this goal choice carry over\" (removed: \"Met this goal defaults unchecked\") vs entity.ContactEvent invariant: \"Qualifies only when the owner explicitly marks that it met this goal\"; J.contact/c5: \"optionally mark Met this goal\""
+  },
+  {
+   "nodeIds": [
+    "J.contact/c4",
+    "screen.logContact"
+   ],
+   "severity": "low",
+   "summary": "The journey puts the form-prefill behaviour on step c4, which is a branch decision on screen.person, while the form itself is on screen.logContact in step c5.",
+   "evidence": "J.contact/c4: \"Log what happened? The form opens prefilled from the previous log\", stepScreen screen.person; J.contact/c5 stepScreen screen.logContact"
+  },
+  {
+   "nodeIds": [
+    "hook.webapp.screen.exact",
+    "C.webapp.screen.exact"
+   ],
+   "severity": "low",
+   "summary": "The hook fixture now covers log-form prefill, but the criterion it verifies still claims only composition, state and keyboard checks, so the hook and its criterion no longer match.",
+   "evidence": "hook fixture: \"protected browser fixture over all screens incl. log-form prefill\" vs C.webapp.screen.exact claim: \"checks loaded, empty, loading, error and validation compositions, login continuation and keyboard actions\""
+  }
+ ],
+ "unknownIds": []
+}

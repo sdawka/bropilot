@@ -1,0 +1,34 @@
+{
+ "variant": "089273",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.SignInContinue.continue",
+    "operation.invite.accept"
+   ],
+   "severity": "high",
+   "summary": "Continue now accepts the invitation, but it has no invokes link to operation.invite.accept and lacks that operation's preconditions and failure handling: valid unused credential, distinct invitee, no block, and concurrent redemption.",
+   "evidence": "Continue effects: 'Login continuation from an invitation accepts it for the invitee once sign-in succeeds'; preconditions only '[Not signed in]'; failure only 'Provider unavailable shows the shared ErrorSummary'. operation.invite.accept requires 'Signed-in distinct invitee, Valid unused credential, No block in either direction' and refuses self-connection or block. Only affordance.ConsentPanel.accept invokes operation.invite.accept."
+  },
+  {
+   "nodeIds": [
+    "component.SignInForm",
+    "screen.signin"
+   ],
+   "severity": "medium",
+   "summary": "SignInForm now names the inviter, which contradicts the sign-in screen's rule of no private content and its anonymous-only role.",
+   "evidence": "SignInForm: 'when opened from an invitation it names the inviter'; screen.signin: 'One SignInForm with one Continue control and one privacy link; no private content', roles: [anonymous]"
+  },
+  {
+   "nodeIds": [
+    "component.ConsentPanel",
+    "screen.invitation"
+   ],
+   "severity": "medium",
+   "summary": "ConsentPanel is now shown only to already-signed-in invitees, which conflicts with the invitation screen and the panel's cardinality, both of which require a ConsentPanel after every validation.",
+   "evidence": "ConsentPanel description: 'Shown to invitees who open the invitation while already signed in'; cardinality: 'exactly one after validation'; screen.invitation: 'Exactly InvitePreview and ConsentPanel after validation; Accept and Decline controls'"
+  }
+ ],
+ "unknownIds": []
+}

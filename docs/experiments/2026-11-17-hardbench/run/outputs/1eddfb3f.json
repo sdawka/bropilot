@@ -1,0 +1,33 @@
+{
+ "variant": "f381ab",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.SuggestionCard.logContact",
+    "screen.logContact"
+   ],
+   "severity": "high",
+   "summary": "The Log contact route moved to /people/:id/events/new, but the Today card's Log contact affordance still navigates to the removed /people/:id/log route.",
+   "evidence": "screen.logContact route: /people/:id/events/new; affordance.SuggestionCard.logContact effects: [Navigates to /people/:id/log]"
+  },
+  {
+   "nodeIds": [
+    "affordance.HistoryRow.open"
+   ],
+   "severity": "high",
+   "summary": "The new HistoryRow.open affordance navigates to /people/:id/events/:eventId, but no screen declares that route, so the revision target is undefined.",
+   "evidence": "effects: [Navigates to /people/:id/events/:eventId to revise the event] \u2014 screen routes are /signin, /today, /people, /people/:id, /people/:id/goal, /people/:id/events/new, /connect/:token, /settings"
+  },
+  {
+   "nodeIds": [
+    "hook.webapp.screen.exact",
+    "S.webapp.screens"
+   ],
+   "severity": "low",
+   "summary": "The browser fixture now claims to cover the /people/:id/events routes, including an event-revision route that is not among the screens listed in S.webapp.screens and has no screen node to test.",
+   "evidence": "fixture: \"protected browser fixture over all screens incl. /people/:id/events routes\""
+  }
+ ],
+ "unknownIds": []
+}

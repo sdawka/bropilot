@@ -1,0 +1,23 @@
+{
+ "variant": "22094b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.data.export"
+   ],
+   "severity": "medium",
+   "summary": "The Export interaction now promises that each exported contact includes recorded channels such as phone and email, but the operation it invokes (operation.data.export) was updated only for JSON/CSV format and states no such guarantee, so the two nodes are inconsistent.",
+   "evidence": "Interaction effects add '- Each exported contact includes the channels the owner recorded, such as phone and email' while operation.data.export effects become only '[Export authorized records as JSON or CSV, Export excludes other people's data]'"
+  },
+  {
+   "nodeIds": [
+    "operation.data.export"
+   ],
+   "severity": "low",
+   "summary": "The new channel-content requirement for exported contacts has no verification: the criteria fixture was extended only to cover the two formats, not the channel fields.",
+   "evidence": "fixture: \"export isolation in both formats, deletion purge and retention\""
+  }
+ ],
+ "unknownIds": []
+}

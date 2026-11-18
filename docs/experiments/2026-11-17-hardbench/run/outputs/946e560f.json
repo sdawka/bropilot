@@ -1,0 +1,36 @@
+{
+ "variant": "f80839",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export",
+    "operation.data.export",
+    "J.control.export/e1"
+   ],
+   "severity": "high",
+   "summary": "The new affordance effect exports each connection counterpart's display name and account email, which is another person's data and contradicts the operation's exclusion of other people's data and the journey's end state.",
+   "evidence": "affordance effect: \"The export also lists each active Connection with the counterpart's display name and account email\" vs operation.data.export effects: \"Export excludes other people's data\" and J.control.export/e1: \"Receive export excluding other people's data\""
+  },
+  {
+   "nodeIds": [
+    "component.ExportControls",
+    "operation.data.export",
+    "J.control.export/x4"
+   ],
+   "severity": "medium",
+   "summary": "Connections are now in the export scope, but operation.data.export has no reads link to a Connection entity and its effects do not mention connections, so the reference is missing.",
+   "evidence": "component.ExportControls description: \"One export of contacts, goals, events and connections\"; operation.data.export reads only entity.ContactRecord, entity.RelationshipGoal and entity.ContactEvent"
+  },
+  {
+   "nodeIds": [
+    "hook.webapp.lifecycle.data",
+    "policy.ownerOnly"
+   ],
+   "severity": "low",
+   "summary": "The test fixture now checks 'export isolation incl. connection list', which is self-contradictory because the connection list exposes counterpart account data that isolation is meant to exclude.",
+   "evidence": "fixture: \"export isolation incl. connection list, deletion purge and retention\""
+  }
+ ],
+ "unknownIds": []
+}

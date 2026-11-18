@@ -1,0 +1,38 @@
+{
+ "variant": "8fa895",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "J.control.block",
+    "operation.connection.revoke",
+    "entity.Block"
+   ],
+   "severity": "high",
+   "summary": "The block journey still promises a block that lasts until the user removes it, which contradicts the new rule that a block lapses automatically after 90 days.",
+   "evidence": "J.control.block actorGoal: 'Stop all app-mediated contact from one person until I remove the block'; e1: 'Block in force until removed' vs entity.Block invariant 'Lapses automatically 90 days after creation'"
+  },
+  {
+   "nodeIds": [
+    "entity.Block",
+    "affordance.ConnectionPanel.block",
+    "T4",
+    "P1"
+   ],
+   "severity": "medium",
+   "summary": "Expiring blocks automatically takes control away from the blocker: after 90 days the blocked person can invite again, and the spec gives no way to renew or extend a block, which works against the autonomy and unwanted-pressure goals.",
+   "evidence": "'A block prevents new app-mediated contact for 90 days, then lapses automatically'; C.webapp.revocation.current: 'A lapsed block restores invite eligibility'; P1: 'respecting both people's autonomy'; T4 outcome 'Less unwanted pressure'"
+  },
+  {
+   "nodeIds": [
+    "S.webapp.prompts",
+    "operation.connection.revoke",
+    "entity.RelationshipGoal"
+   ],
+   "severity": "medium",
+   "summary": "S.webapp.prompts now limits goal suppression to 'until the block lapses', but no operation or scheduled effect lifts the pause or restores suggestions when a block lapses, so this behaviour has no mechanism.",
+   "evidence": "S.webapp.prompts: 'pause the blocker's corresponding goal and suppress its suggestions until the block lapses' vs operation.connection.revoke effects: 'Blocking pauses the blocker's corresponding goal' (no lapse handling; RelationshipGoal.pausedAt has no auto-clear)"
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,35 @@
+{
+ "variant": "22094b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export",
+    "operation.data.export"
+   ],
+   "severity": "medium",
+   "summary": "The affordance now promises that exported contacts include recorded channels such as phone and email, but the operation it invokes defines no such effect, so the two contracts diverge.",
+   "evidence": "affordance effects: \"Each exported contact includes the channels the owner recorded, such as phone and email\"; operation.data.export effects: [\"Export authorized records as JSON or CSV\", \"Export excludes other people's data\"]"
+  },
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export",
+    "operation.data.export",
+    "C.webapp.lifecycle.data"
+   ],
+   "severity": "medium",
+   "summary": "Exporting contacts' phone numbers and email addresses arguably puts other people's personal contact details in the export, which conflicts with the rule that export excludes other people's data, and the spec elsewhere avoids carrying contact details.",
+   "evidence": "operation.data.export: \"Export excludes other people's data\"; C.webapp.lifecycle.data: \"Owner export excludes others' data\"; entity.NotificationJob invariant: \"containing a link without contact details\""
+  },
+  {
+   "nodeIds": [
+    "J.control.export/x4",
+    "C.webapp.lifecycle.data"
+   ],
+   "severity": "low",
+   "summary": "The new JSON/CSV format choice was not carried through: the journey's export step and the lifecycle criterion still describe a format-agnostic export, while the hook fixture now requires coverage of both formats.",
+   "evidence": "x4: \"Export authorized records of the authenticated owner only\"; C.webapp.lifecycle.data claim: \"Owner export excludes others' data...\"; hook fixture: \"export isolation in both formats\""
+  }
+ ],
+ "unknownIds": []
+}

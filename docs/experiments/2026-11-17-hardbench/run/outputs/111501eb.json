@@ -1,0 +1,36 @@
+{
+ "variant": "e3bf46",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "component.GoalPriorityField",
+    "entity.RelationshipGoal",
+    "screen.today",
+    "C.webapp.prompts.bounded"
+   ],
+   "severity": "medium",
+   "summary": "The change adds a Today ordering rule (high-priority suggestions first), but the Today screen, the bounded-prompts criterion (which defines which five of six due goals become ordered cards) and the prompts requirements are not updated, so the ordering and truncation behavior is unspecified and untested.",
+   "evidence": "GoalPriorityField: \"high-priority suggestions come first on Today\"; RelationshipGoal: \"Suggestions for high-priority goals are listed first on Today\"; C.webapp.prompts.bounded: \"Six due goals yield exactly five ordered cards\" (unchanged); screen.today description unchanged"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.schedule.correct"
+   ],
+   "severity": "medium",
+   "summary": "Priority-change coverage was added to the schedule-correctness criterion, but priority does not affect due dates or qualification under S.webapp.due and S.webapp.qualification, so the fixture claim tests the wrong concern while the ordering effect goes unverified.",
+   "evidence": "claim: \"Fixed-clock fixtures cover zero logs, qualification, interval, depth and priority changes...\"; S.webapp.due: \"dueDate must equal anchor plus intervalDays\" (no priority)"
+  },
+  {
+   "nodeIds": [
+    "entity.RelationshipGoal",
+    "S.webapp.qualification",
+    "component.GoalPriorityField"
+   ],
+   "severity": "low",
+   "summary": "The new priority field is required on the entity, but no requirement defines its domain or default: S.webapp.qualification and GD.goals still list only interval and depth, and the 'default normal' rule appears only in the component description.",
+   "evidence": "entity field: \"{ name: priority, type: \\\"enum high|normal\\\" }\" (not optional); S.webapp.qualification: \"an enabled goal must have intervalDays from 1 through 3650 and desiredDepth in light, meaningful or shared-time\"; PriorityField: \"default normal\""
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,38 @@
+{
+ "variant": "864bc6",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.invite",
+    "operation.invite.create",
+    "J.connect/s2"
+   ],
+   "severity": "high",
+   "summary": "The Invite affordance now says operation.invite.create emails the link to the contact's recorded address, but the operation itself was not updated: it takes no contact or recipient, has no delivery effect, no email precondition, no delivery-failure outcome and no link to ext.providers.",
+   "evidence": "affordance effects: 'Invokes operation.invite.create and emails the invitation link to the contact's recorded email address'; operation.invite.create effects: 'Generate at least 128 bits of randomness, Store only a token hash, Expire after 24 hours, Allow one successful acceptance'; its only precondition is 'Authenticated inviter'"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.connection.consent",
+    "evolution.3",
+    "evolution.4"
+   ],
+   "severity": "medium",
+   "summary": "Connection consent now depends on email delivery, but notification transport is only added in evolution.4, which depends on evolution.3; the acceptance criterion for evolution.3 therefore cannot pass without a later evolution, and its subject and sourceRefs (operation.invite.accept, S.webapp.operations/concurrency) say nothing about delivery.",
+   "evidence": "C.webapp.connection.consent claim: 'Invite fixture covers email delivery, ...'; evolution.4 intent: 'Add optional reminder transport...' dependsOn evolution.3; evolution.3 acceptance -> C.webapp.connection.consent"
+  },
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.invite",
+    "ext.providers",
+    "S.webapp.authentication",
+    "S.webapp.prompts"
+   ],
+   "severity": "medium",
+   "summary": "Emailing invitations sends a bearer-token link and the contact's private address to an external provider, and sends app mail to a non-owner; the spec has no rule for this, while its only notification rules cover owner reminders and token-leak protection.",
+   "evidence": "S.webapp.authentication: 'sensitive token routes must not leak tokens through analytics or referrers'; S.webapp.prompts: 'Optional external reminders ... limited to one owner notification per local day containing a link without contact details'; new link: affordance.ConnectionPanel.invite triggers ext.providers 'invitation email'"
+  }
+ ],
+ "unknownIds": []
+}

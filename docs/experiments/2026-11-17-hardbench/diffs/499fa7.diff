@@ -1,0 +1,42 @@
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -37,7 +37,7 @@
+     hooks: [hook.webapp.outgoing.single]
+   - id: C.webapp.schedule.correct
+     title: Schedule correctness
+-    claim: "Fixed-clock fixtures cover zero logs, qualification, interval and depth changes, time zones, DST, snooze, pause and deleted events"
++    claim: "Fixed-clock fixtures cover zero logs, qualification, interval and depth changes, the 365-day interval limit, time zones, DST, snooze, pause and deleted events"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: entity
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -395,7 +395,7 @@
+             kind: component
+             name: IntervalField
+             cardinality: exactly one
+-            description: intervalDays from 1 through 3650
++            description: intervalDays from 1 through 365, with weekly, monthly, quarterly and yearly presets
+           - id: component.GoalDepthField
+             kind: component
+             name: DepthField
+@@ -727,7 +727,7 @@
+       - { name: id, type: string }
+       - { name: ownerAccountId, type: "ref:entity.Account" }
+       - { name: contactRecordId, type: "ref:entity.ContactRecord" }
+-      - { name: intervalDays, type: "int 1..3650" }
++      - { name: intervalDays, type: "int 1..365" }
+       - { name: desiredDepth, type: "enum light|meaningful|shared-time" }
+       - { name: channel, type: string, optional: true }
+       - { name: anchorDate, type: local-date }
+--- a/things/webapp/spec.yaml
++++ b/things/webapp/spec.yaml
+@@ -15,7 +15,7 @@
+     thing: thing.webapp
+     title: Goal qualification
+     text: >-
+-      an enabled goal must have intervalDays from 1 through 3650 and desiredDepth in light, meaningful or shared-time.
++      an enabled goal must have intervalDays from 1 through 365 and desiredDepth in light, meaningful or shared-time.
+       These are the owner's labels, not a global quality ranking. A ContactEvent must qualify only when the owner
+       explicitly marks that it met this goal. The app must record the goal ID and desiredDepth at confirmation and
+       count only qualifications matching the current desiredDepth. Changing depth may change which historical events

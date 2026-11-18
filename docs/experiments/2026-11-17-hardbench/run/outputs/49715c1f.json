@@ -1,0 +1,26 @@
+{
+ "variant": "474d5e",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.NotificationJob",
+    "S.webapp.prompts",
+    "C.webapp.prompts.bounded"
+   ],
+   "severity": "high",
+   "summary": "The new NotificationJob invariant cancels quiet-hours jobs at delivery, but the requirement and criterion say such reminders must be deferred and delivered when quiet hours end.",
+   "evidence": "NotificationJob: \"A job whose delivery time falls inside the owner's quiet hours is cancelled at delivery\" vs S.webapp.prompts: \"A reminder that falls inside the owner's quiet hours must be deferred to the end of the quiet period\" and criterion: \"A reminder due during quiet hours is delivered when they end\""
+  },
+  {
+   "nodeIds": [
+    "component.NotificationPreferences",
+    "entity.Account"
+   ],
+   "severity": "low",
+   "summary": "NotificationPreferences is described as editing quiet hours but only has a reads link to Account and no affordance that writes quietHours.",
+   "evidence": "description: External reminder opt-in and quiet hours ... links: - { rel: reads, to: entity.Account }"
+  }
+ ],
+ "unknownIds": []
+}

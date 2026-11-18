@@ -1,0 +1,34 @@
+{
+ "variant": "dfba1a",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.resendInvite",
+    "entity.ConnectionInvite",
+    "operation.invite.create"
+   ],
+   "severity": "high",
+   "summary": "Resend invitation must show the pending invitation's original QR or connection code again, but the system stores only a token hash, so the original credential cannot be recovered.",
+   "evidence": "resendInvite effects: \"Shows the pending invitation's original QR or connection code again; no new invitation is created\" vs ConnectionInvite invariants: \"Stores only a token hash\" and operation.invite.create: \"Store only a token hash\""
+  },
+  {
+   "nodeIds": [
+    "J.connect"
+   ],
+   "severity": "high",
+   "summary": "J.connect step s1 now includes Resend, but s1 always leads to s2, which creates a new invitation, contradicting the resend affordance's 'no new invitation is created'.",
+   "evidence": "s1: \"Open Person and choose Invite, or Resend invitation while one is pending\" \u2192 next: s2 \"Create invitation: 128-bit credential, only a token hash stored...\" operation: operation.invite.create"
+  },
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.resendInvite",
+    "entity.ConnectionInvite"
+   ],
+   "severity": "medium",
+   "summary": "The resend precondition requires a pending invitation 'for this contact', but ConnectionInvite has no ContactRecord reference, so an invitation cannot be associated with a contact.",
+   "evidence": "preconditions: [A pending, unexpired invitation exists for this contact]; ConnectionInvite fields: id, inviterAccountId, tokenHash, expiresAt, state, boundAccountId (optional)"
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,26 @@
+{
+ "variant": "edd783",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.GoalForm.save",
+    "J.goals/e1",
+    "screen.goal"
+   ],
+   "severity": "medium",
+   "summary": "The new effect has SchedulePreview, which lives on screen.goal, show results after saving, but the goals journey's post-save end step lands on screen.person, which has no SchedulePreview.",
+   "evidence": "affordance.GoalForm.save effect: 'After saving, SchedulePreview shows the new due date and which past events now qualify'; J.goals/g5 next 'to: e1 when: save, interval valid'; J.goals/e1 stepScreen -> screen.person (components: PersonSummary, GoalPanel, ContactHistory, ...); screen.goal: 'Exactly PageHeading, GoalForm and SchedulePreview'"
+  },
+  {
+   "nodeIds": [
+    "affordance.GoalForm.save",
+    "operation.goal.save"
+   ],
+   "severity": "low",
+   "summary": "The affordance now promises that saving re-determines which past events qualify, but operation.goal.save only increments the version, recomputes due state and cancels jobs; qualification is set per event via 'Met this goal' at log time.",
+   "evidence": "affordance effect: 'which past events now qualify'; operation.goal.save effects: 'Increment goal version', 'Recompute due state', 'Cancel obsolete jobs', 'Revising a goal must not create a ContactEvent'; screen.logContact: 'Met this goal checkbox ... defaults unchecked'"
+  }
+ ],
+ "unknownIds": []
+}

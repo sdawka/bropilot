@@ -1,0 +1,32 @@
+{
+ "variant": "864bc6",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.invite",
+    "operation.invite.create"
+   ],
+   "severity": "high",
+   "summary": "The Invite affordance now says invitations go only by email and no QR or connection code is shown, but it still invokes operation.invite.create unchanged, so the operation and any redemption flow that depend on a displayed QR or connection code are now inconsistent with the UI.",
+   "evidence": "effects: - Invokes operation.invite.create and emails the invitation link to the contact's recorded email address - No QR or connection code is shown"
+  },
+  {
+   "nodeIds": [
+    "ext.providers"
+   ],
+   "severity": "medium",
+   "summary": "ext.providers now claims invitation emails as part of the modeled notification provider, but its source still points to section 2 of the world specification, which describes only owner-facing notifications; nothing establishes that sending email to a third party (the contact) is in scope or permitted.",
+   "evidence": "modeled: Identity, notification (owner reminders and invitation emails) and optional model providers ... source: { doc: keep-in-touch-world-specification, section: \"2\" }"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.connection.consent"
+   ],
+   "severity": "low",
+   "summary": "The criterion now requires the invite fixture to cover email delivery, but it only names delivery success; the new email-delivery failure path that shows the ErrorSummary and the new missing-email precondition are not covered.",
+   "evidence": "claim: \"Invite fixture covers email delivery, acceptance, expiry, replay, self-connection, block and simultaneous redemption\" vs failure: [..., Email delivery failure shows the shared ErrorSummary] and preconditions: [..., Contact has a recorded email address]"
+  }
+ ],
+ "unknownIds": []
+}

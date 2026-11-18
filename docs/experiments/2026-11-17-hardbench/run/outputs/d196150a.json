@@ -1,0 +1,35 @@
+{
+ "variant": "d1c15a",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ContactEventForm.save",
+    "component.EventDateTimeField",
+    "operation.contact.log"
+   ],
+   "severity": "high",
+   "summary": "The form now accepts a future event time as a planned meeting, but the operation it invokes still requires a nonfuture time and rejects future times.",
+   "evidence": "component.EventDateTimeField: 'a future time records a planned meeting'; affordance preconditions: 'Valid event time'; operation.contact.log preconditions: 'Nonfuture event time', failure: 'Future event time is rejected'"
+  },
+  {
+   "nodeIds": [
+    "J.contact/c4"
+   ],
+   "severity": "medium",
+   "summary": "Step c4 now offers a 'plan the next meeting' choice, but its branches are still only 'log contact' and 'skip logging', so no path exists for planning.",
+   "evidence": "action: 'Log what happened, or plan the next meeting?'; next: [c5 when 'log contact', e2 when 'skip logging']"
+  },
+  {
+   "nodeIds": [
+    "entity.ContactEvent",
+    "S.webapp.qualification",
+    "S.webapp.due"
+   ],
+   "severity": "medium",
+   "summary": "A new required 'planned' field and planned-event semantics were added to ContactEvent, but the requirements were not updated to say how planned events affect qualification, due-date anchoring or conversion once the time passes.",
+   "evidence": "entity.ContactEvent adds '{ name: planned, type: boolean }' and the invariant 'A planned event never qualifies before its time has passed'; S.webapp.qualification and S.webapp.due say nothing about planned events"
+  }
+ ],
+ "unknownIds": []
+}

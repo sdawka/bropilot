@@ -1,0 +1,35 @@
+{
+ "variant": "b7965d",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.nudge",
+    "entity.MessageDraft",
+    "policy.revocation"
+   ],
+   "severity": "high",
+   "summary": "The nudge adds app-mediated sending to another account, but no authorization policy governs the affordance or MessageDraft, and no send-time revocation check is modeled; every other stored entity has a governing policy.",
+   "evidence": "Links added: nudge writes entity.MessageDraft and MessageDraft storedIn binding.contactsStore; there is no 'governs' link to either. policy.revocation: 'Read and send authorization must check revocation against current authoritative state'; operation.connection.revoke: 'a block prevents new app-mediated contact until removed'."
+  },
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.nudge",
+    "entity.MessageDraft"
+   ],
+   "severity": "medium",
+   "summary": "The affordance's effect is delivery of a card to the recipient, but it only writes a draft; no send/deliver operation, delivery state or recipient-side surface is defined.",
+   "evidence": "effects: 'Delivers a short \"thinking of you\" card from the owner to the connected person inside the app'; the only link is 'writes entity.MessageDraft' (state: string, 'no autonomous send'); there is no operation link and no screen shows received nudges."
+  },
+  {
+   "nodeIds": [
+    "C.webapp.nudge.single",
+    "affordance.PersonActionBar.nudge"
+   ],
+   "severity": "medium",
+   "summary": "The new criterion and affordance have no requirement or source backing: the criterion has no sourceRefs, unlike its siblings, and the affordance omits source, while MessageDraft drops its provisional flag without a supporting spec section.",
+   "evidence": "C.webapp.nudge.single has no sourceRefs (C.webapp.contact.storage has 'sourceRefs: [S.webapp.operations]'); the nudge affordance has no 'source:' entry; the diff removes '- provisional: true' from entity.MessageDraft."
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,32 @@
+{
+ "variant": "bc8433",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.NotificationPreferences.sendTest"
+   ],
+   "severity": "high",
+   "summary": "The test reminder puts a real contact's name and phone number into an external notification sent through a third-party provider, which likely breaks the spec's privacy and minimal-content rules for external reminders.",
+   "evidence": "effects: - The test shows the next due person's name and phone number so the owner sees a realistic example; links: { rel: triggers, to: ext.providers, label: test reminder }"
+  },
+  {
+   "nodeIds": [
+    "affordance.NotificationPreferences.sendTest",
+    "evolution.4"
+   ],
+   "severity": "medium",
+   "summary": "The test reminder is gated on 'No owner reminder sent yet today' but the spec never says whether it counts toward the once-per-day reminder deduplication, so a test could suppress that day's real reminder, or the test could be blocked for no clear reason.",
+   "evidence": "preconditions: [External reminders enabled, No owner reminder sent yet today]; intent: ... cancellation, deduplication and retention fixtures"
+  },
+  {
+   "nodeIds": [
+    "affordance.NotificationPreferences.sendTest"
+   ],
+   "severity": "low",
+   "summary": "The affordance builds the test content from the next due Suggestion but does not say what happens when there is no due person.",
+   "evidence": "links: - { rel: reads, to: entity.Suggestion }; failure: [Provider unavailable shows the shared ErrorSummary]"
+  }
+ ],
+ "unknownIds": []
+}

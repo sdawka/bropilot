@@ -1,0 +1,25 @@
+{
+ "variant": "b434a4",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.account.setTimeZone",
+    "S.webapp.due"
+   ],
+   "severity": "high",
+   "summary": "The new operation keeps existing due dates unchanged and applies the new zone only to goals saved afterwards, which contradicts the revised requirement that every open goal's due date be recomputed in the new zone.",
+   "evidence": "operation: \"existing due dates are kept and only goals saved afterwards use the new zone\" / effects: [Keep existing due dates unchanged, Goals saved afterwards use the new zone]; S.webapp.due: \"When the owner changes time zone, every open goal's due date must be recomputed in the new zone.\""
+  },
+  {
+   "nodeIds": [
+    "J.settings.timezone",
+    "operation.account.setTimeZone"
+   ],
+   "severity": "medium",
+   "summary": "The journey's goal is to keep due dates right after moving, but the step and the operation it invokes leave existing due dates untouched, so the journey cannot meet its stated actorGoal.",
+   "evidence": "actorGoal: Keep due dates right after moving to another time zone; t3 operation: operation.account.setTimeZone (effects: Keep existing due dates unchanged)"
+  }
+ ],
+ "unknownIds": []
+}

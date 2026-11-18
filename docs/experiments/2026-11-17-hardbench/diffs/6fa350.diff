@@ -1,0 +1,61 @@
+--- a/journeys/J.control.export.yaml
++++ b/journeys/J.control.export.yaml
+@@ -39,7 +39,7 @@
+   - S.webapp.operations
+ - id: x4
+   actor: system
+-  action: Export authorized records of the authenticated owner only
++  action: Export authorized records of the authenticated owner only, with each contact's private notes
+   kind: action
+   screen: screen.settings
+   operation: operation.data.export
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -117,7 +117,7 @@
+     hooks: [hook.webapp.contact.save]
+   - id: C.webapp.contact.storage
+     title: Contact storage
+-    claim: "Checks owner and version constraints and authorized persistence through the declared storage binding"
++    claim: "Checks owner and version constraints, the private notes column and authorized persistence through the declared storage binding"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: entity
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -286,9 +286,11 @@
+         kind: component
+         name: PrivateNotes
+         cardinality: exactly one
+-        description: Owner-only notes; linking a ContactRecord to an Account never reveals them
++        description: Owner-only notes about the person, stored on the ContactRecord; linking a ContactRecord to an Account never reveals them
+         links:
++          - { rel: reads, to: entity.ContactRecord }
+           - { rel: reads, to: entity.ContactEvent }
++          - { rel: invokes, to: operation.contact.save }
+       - id: component.ConnectionPanel
+         kind: component
+         name: ConnectionPanel
+@@ -656,12 +658,14 @@
+       - { name: displayName, type: string }
+       - { name: channels, type: "list<json>", optional: true }
+       - { name: linkedAccountId, type: "ref:entity.Account", optional: true }
++      - { name: privateNotes, type: string, optional: true }
+       - { name: version, type: int }
+     invariants:
+       - Belongs to one owner
+       - Owner-only
+       - Linking to an Account does not transfer ownership or reveal notes
+       - At most one linked contact per owner and counterpart account
++      - Private notes are never included in an export
+     links:
+       - { rel: storedIn, to: binding.contactsStore }
+       - { rel: governs, to: policy.ownerOnly, direction: in }
+@@ -966,7 +970,7 @@
+     parent: section.domain
+     description: Owner reauthentication. Export authorized records
+     preconditions: [Owner reauthentication]
+-    effects: [Export authorized records, Export excludes other people's data]
++    effects: [Export authorized records, Each exported contact includes its private notes, Export excludes other people's data]
+     failure: [Reauthentication failure denies the export]
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:

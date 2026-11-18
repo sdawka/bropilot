@@ -1,0 +1,42 @@
+{
+ "variant": "643d59",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.goal.save",
+    "S.webapp.due",
+    "GD.goals",
+    "GD.contacts",
+    "evolution.2",
+    "evolution.3"
+   ],
+   "severity": "high",
+   "summary": "Saving a goal now requires an active Connection, which contradicts the product model of owner-only goals on private contacts kept before any friend installs the app, and breaks the evolution order where goals (evolution.2) ship before connections exist (evolution.3).",
+   "evidence": "New precondition: \"Active Connection with the contact's linked account\" and S.webapp.due: \"A goal may be saved only for a contact with an active Connection\". This conflicts with GD.contacts: \"Keep a private contact record before any friend installs the app\" and GD.goals: \"An owner-only goal\". Also evolution.3 (Consented pair connections) dependsOn evolution.2 (Goals)."
+  },
+  {
+   "nodeIds": [
+    "operation.goal.save",
+    "affordance.SuggestionCard.snooze",
+    "J.prompts/p5",
+    "J.prompts/p6",
+    "J.prompts/p7",
+    "operation.connection.revoke"
+   ],
+   "severity": "high",
+   "summary": "Snooze, pause and revise all go through operation.goal.save, so after a disconnect or block (or for any never-connected contact) an existing goal can no longer be snoozed, paused or revised.",
+   "evidence": "affordance.SuggestionCard.snooze invokes operation.goal.save. J.prompts/p5, p6 and p7 have stepOperation operation.goal.save. The new failure is \"A goal for an unconnected contact is refused\", while S.webapp.prompts says blocking \"must pause the blocker's corresponding goal\"."
+  },
+  {
+   "nodeIds": [
+    "operation.goal.save",
+    "affordance.GoalForm.save"
+   ],
+   "severity": "low",
+   "summary": "The operation description and the GoalForm Save failure list were not updated to match the new connection precondition.",
+   "evidence": "operation.goal.save description still reads \"Owned contact and valid interval.\" affordance.GoalForm.save failure lists only validation and stale-version failures, with no unconnected-contact refusal."
+  }
+ ],
+ "unknownIds": []
+}

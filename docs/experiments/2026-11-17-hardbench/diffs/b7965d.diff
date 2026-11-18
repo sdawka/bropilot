@@ -1,0 +1,112 @@
+--- a/evolutions/evolution.7.yaml
++++ b/evolutions/evolution.7.yaml
+@@ -0,0 +1,13 @@
++id: evolution.7
++title: Nudges
++intent: Let an owner send one connected person a short in-app nudge; single-recipient fixtures
++state: proposed
++kind: implementation
++affectedNodes:
++- affordance.PersonActionBar.nudge
++- entity.MessageDraft
++acceptanceCriteria:
++- C.webapp.nudge.single
++dependsOn:
++- evolution.3
++risk: medium
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -126,6 +126,16 @@
+     sourceRefs: [S.webapp.operations]
+     gates: [candidate, promotion]
+     hooks: [hook.webapp.contact.storage]
++  - id: C.webapp.nudge.single
++    title: Single-recipient nudge
++    claim: "A nudge reaches exactly one connected account and is refused after disconnect or block"
++    ownerKind: thing
++    ownerId: thing.webapp
++    subjectKind: affordance
++    subjectId: affordance.PersonActionBar.nudge
++    targetKind: artifact
++    gates: [candidate, promotion]
++    hooks: [hook.webapp.nudge.single]
+   - id: C.webapp.digest.private
+     title: Private digests (later)
+     claim: "Later digest specification; subscriber permissions, future-only editions, no shared replies and blocked or unsubscribed access. Applicable only after the module is enabled"
+@@ -280,6 +290,18 @@
+     triggers: [candidate, promotion]
+     inputs:
+       fixture: "owner and version constraints via binding.contactsStore"
++    timeoutMs: 60000
++    costTier: cheap
++    binding: defined
++  - id: hook.webapp.nudge.single
++    assay: webapp.nudge.single
++    criteria: [C.webapp.nudge.single]
++    tier: execution
++    engine: vitest
++    targetKind: artifact
++    triggers: [candidate, promotion]
++    inputs:
++      fixture: "one recipient, refused after disconnect or block"
+     timeoutMs: 60000
+     costTier: cheap
+     binding: defined
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -250,7 +250,7 @@
+     states: [loaded, loading, error]
+     description: >-
+       Exactly PersonSummary, GoalPanel, ContactHistory, PrivateNotes, ConnectionPanel and ActionBar. History has one
+-      row per event. Actions are Edit goal, Log contact and Open channel; connection status determines Invite,
++      row per event. Actions are Edit goal, Log contact, Nudge and Open channel; connection status determines Invite,
+       Disconnect or Block availability
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:
+@@ -333,7 +333,7 @@
+         kind: component
+         name: ActionBar
+         cardinality: exactly one
+-        description: Actions are Edit goal, Log contact and Open channel
++        description: Actions are Edit goal, Log contact, Nudge and Open channel
+         children:
+           - id: affordance.PersonActionBar.editGoal
+             kind: affordance
+@@ -365,6 +365,18 @@
+             source: { doc: keep-in-touch-world-specification, section: "6" }
+             links:
+               - { rel: references, to: ext.channels, label: opens the preferred channel }
++          - id: affordance.PersonActionBar.nudge
++            kind: affordance
++            name: Nudge
++            actor: ext.owner
++            trigger: Owner activates Nudge
++            preconditions: [Active Connection with this contact's linked account, No block in either direction]
++            effects:
++              - Delivers a short "thinking of you" card from the owner to the connected person inside the app
++              - Exactly one recipient; nothing is sent without this gesture
++            failure: [Not available when there is no active Connection]
++            links:
++              - { rel: writes, to: entity.MessageDraft }
+ 
+   - id: screen.goal
+     kind: screen
+@@ -811,8 +823,7 @@
+     kind: entity
+     name: MessageDraft
+     parent: section.domain
+-    provisional: true
+-    description: ID, author, exactly one recipient, body, approved attachments and state; no autonomous send
++    description: ID, author, exactly one recipient, body, approved attachments and state; no autonomous send. Used for nudges
+     source: { doc: keep-in-touch-world-specification, section: "5" }
+     fields:
+       - { name: id, type: string }
+@@ -822,6 +833,8 @@
+       - { name: approvedAttachments, type: "list<ref:entity.MediaAsset>", optional: true }
+       - { name: state, type: string }
+     invariants: [Exactly one recipient, No autonomous send]
++    links:
++      - { rel: storedIn, to: binding.contactsStore }
+   - id: entity.DigestEdition
+     kind: entity
+     name: DigestEdition

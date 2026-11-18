@@ -1,0 +1,36 @@
+{
+ "variant": "ee73ec",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.connection.revoke",
+    "affordance.ConnectionPanel.block",
+    "J.control.block/b2"
+   ],
+   "severity": "high",
+   "summary": "Owner reauthentication was added as a precondition of the shared 'Disconnect or block' operation, but the Block affordance and Block journey, which invoke the same operation, were not updated, so the spec now contradicts itself about whether blocking requires reauthentication.",
+   "evidence": "operation.connection.revoke preconditions: [Participant authority, Owner reauthentication]; affordance.ConnectionPanel.block trigger: 'Owner confirms Block', preconditions: [Contact is linked to an Account]; J.control.block/b2 action: 'Choose Block and confirm'"
+  },
+  {
+   "nodeIds": [
+    "J.control.disconnect/d2",
+    "J.control.disconnect/d3"
+   ],
+   "severity": "medium",
+   "summary": "Step d2 now requires reauthentication, but its branch still only has confirm and cancel outcomes, with no path for the reauthentication-failure denial that the affordance and operation now define.",
+   "evidence": "d2 action: 'Choose Disconnect, confirm and reauthenticate'; next: [{to: d3, when: confirm}, {to: e2, when: cancel}] vs failure: 'Reauthentication failure denies the disconnect'"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.revocation.current",
+    "S.webapp.concurrency",
+    "policy.revocation"
+   ],
+   "severity": "low",
+   "summary": "The revocation criterion now asserts a reauthentication rule that neither its source requirement (S.webapp.concurrency) nor its subject policy (policy.revocation) states, and it covers only Disconnect, although the operation now applies reauthentication to block as well.",
+   "evidence": "claim: '...Disconnect without fresh reauthentication is denied'; S.webapp.concurrency text mentions only redemption concurrency and revocation checks against current state"
+  }
+ ],
+ "unknownIds": []
+}

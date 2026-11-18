@@ -1,0 +1,65 @@
+--- a/evolutions/evolution.7.yaml
++++ b/evolutions/evolution.7.yaml
+@@ -0,0 +1,14 @@
++id: evolution.7
++title: One-tap join
++intent: Let an invitee who signs in from an invitation join in one step; consent and redemption fixtures
++state: proposed
++kind: implementation
++affectedNodes:
++- affordance.SignInContinue.continue
++- component.SignInForm
++- component.ConsentPanel
++acceptanceCriteria:
++- C.webapp.connection.consent
++dependsOn:
++- evolution.3
++risk: medium
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -14,7 +14,7 @@
+     hooks: [hook.webapp.private.owner]
+   - id: C.webapp.connection.consent
+     title: Connection consent
+-    claim: "Invite fixture covers acceptance, expiry, replay, self-connection, block and simultaneous redemption"
++    claim: "Invite fixture covers acceptance, including acceptance at sign-in, expiry, replay, self-connection, block and simultaneous redemption"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: operation
+@@ -171,7 +171,7 @@
+     targetKind: artifact
+     triggers: [candidate, promotion]
+     inputs:
+-      fixture: "invite state machine incl. concurrent redemption"
++      fixture: "invite state machine incl. concurrent redemption and acceptance at sign-in"
+     timeoutMs: 60000
+     costTier: cheap
+     binding: defined
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -24,7 +24,7 @@
+         kind: component
+         name: SignInForm
+         cardinality: exactly one
+-        description: One SignInForm
++        description: One SignInForm; when opened from an invitation it names the inviter and says that continuing accepts the invitation
+         source: { doc: keep-in-touch-world-specification, section: "6" }
+         children:
+           - id: component.SignInContinue
+@@ -41,7 +41,7 @@
+                 preconditions: [Not signed in]
+                 effects:
+                   - Starts sign-in with the pinned identity provider
+-                  - Login continuation preserves a validated invitation without consuming it
++                  - Login continuation from an invitation accepts it for the invitee once sign-in succeeds, so they land on the new connection
+                 failure: [Provider unavailable shows the shared ErrorSummary]
+                 source: { doc: keep-in-touch-world-specification, section: "6" }
+                 links:
+@@ -537,6 +537,7 @@
+         kind: component
+         name: ConsentPanel
+         cardinality: exactly one after validation
++        description: Shown to invitees who open the invitation while already signed in
+         children:
+           - id: affordance.ConsentPanel.accept
+             kind: affordance

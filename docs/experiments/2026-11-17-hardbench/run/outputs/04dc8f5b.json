@@ -1,0 +1,37 @@
+{
+ "variant": "46753b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.deleteContact",
+    "operation.contact.delete",
+    "C.webapp.lifecycle.data"
+   ],
+   "severity": "high",
+   "summary": "The new Delete contact affordance says deletion is immediate and irreversible, but the operation it invokes and the updated lifecycle criterion both say the contact stays restorable for 30 days.",
+   "evidence": "affordance: \"The contact, its goal and its history are deleted at once and cannot be restored\" vs operation.contact.delete: \"they stay restorable for 30 days and are then purged\" / criterion: \"A deleted contact stays restorable for 30 days\""
+  },
+  {
+   "nodeIds": [
+    "operation.contact.delete",
+    "screen.person",
+    "J.contacts.remove"
+   ],
+   "severity": "medium",
+   "summary": "The operation promises a 30-day owner restore, but the change adds no restore affordance, screen state or journey, so the restore effect has no way to be reached.",
+   "evidence": "effects: \"The owner can restore the contact for 30 days\"; the only new affordance is Delete contact, and J.contacts.remove ends at \"Contact no longer listed in People\" with no restore path"
+  },
+  {
+   "nodeIds": [
+    "operation.contact.delete",
+    "entity.RelationshipGoal",
+    "entity.ContactEvent"
+   ],
+   "severity": "medium",
+   "summary": "The operation soft-deletes the goal and events, but the change adds deletedAt only to ContactRecord, so RelationshipGoal and ContactEvent cannot record that deleted mark.",
+   "evidence": "\"Mark the ContactRecord with its goal and events deleted\"; the diff adds `{ name: deletedAt, type: timestamp, optional: true }` only to ContactRecord fields"
+  }
+ ],
+ "unknownIds": []
+}

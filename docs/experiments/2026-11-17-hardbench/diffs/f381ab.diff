@@ -1,0 +1,60 @@
+--- a/journeys/J.contact.yaml
++++ b/journeys/J.contact.yaml
+@@ -51,7 +51,7 @@
+   - S.webapp.qualification
+ - id: c5
+   actor: user
+-  action: Fill the contact event form and optionally mark Met this goal
++  action: Fill the contact event form at /people/:id/events/new and optionally mark Met this goal
+   kind: branch
+   screen: screen.logContact
+   operation: operation.contact.log
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -219,7 +219,7 @@
+     targetKind: artifact
+     triggers: [candidate, promotion]
+     inputs:
+-      fixture: "protected browser fixture over all screens"
++      fixture: "protected browser fixture over all screens incl. /people/:id/events routes"
+     timeoutMs: 120000
+     costTier: expensive
+     binding: defined
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -281,7 +281,16 @@
+             kind: component
+             name: HistoryRow
+             cardinality: 1 per event
+-            description: History has one row per event
++            description: History has one row per event; each row opens the event for revision
++            children:
++              - id: affordance.HistoryRow.open
++                kind: affordance
++                name: Open event
++                actor: ext.owner
++                trigger: Owner activates a history row
++                preconditions: [Owned contact, Owned event]
++                effects: [Navigates to /people/:id/events/:eventId to revise the event]
++                failure: [Another owner's event returns a non-revealing denial]
+       - id: component.PrivateNotes
+         kind: component
+         name: PrivateNotes
+@@ -349,7 +358,7 @@
+             actor: ext.owner
+             trigger: Owner activates Log contact
+             preconditions: [Owned contact]
+-            effects: [Navigates to /people/:id/log]
++            effects: [Navigates to /people/:id/events/new]
+             failure: []
+           - id: affordance.PersonActionBar.openChannel
+             kind: affordance
+@@ -444,7 +453,7 @@
+     kind: screen
+     name: Log contact
+     parent: section.ui
+-    route: /people/:id/log
++    route: /people/:id/events/new
+     roles: [owner]
+     states: [loaded, loading, error, validation-error, no-goal]
+     description: >-

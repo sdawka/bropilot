@@ -1,0 +1,25 @@
+{
+ "variant": "249a5b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "C.webapp.screen.people",
+    "hook.webapp.screen.people"
+   ],
+   "severity": "medium",
+   "summary": "The People screen criterion now claims a search state, but its only hook's fixture still covers just loaded, empty, loading, error and dialog, so the new claim has no executable evidence.",
+   "evidence": "claim: \"Refines C.webapp.screen.exact for loaded, empty, loading, error, search and dialog states\" vs hook.webapp.screen.people inputs: fixture: \"People states: loaded, empty, loading, error, dialog\""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.screen.people",
+    "screen.people"
+   ],
+   "severity": "low",
+   "summary": "The criterion references a 'search' state that screen.people does not declare, so the criterion's states no longer match the screen's state list.",
+   "evidence": "screen.people states: [loaded, loading, empty, error] vs claim \"... error, search and dialog states\""
+  }
+ ],
+ "unknownIds": []
+}

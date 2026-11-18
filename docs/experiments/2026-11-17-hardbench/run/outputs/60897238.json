@@ -1,0 +1,24 @@
+{
+ "variant": "474d5e",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.NotificationJob",
+    "C.webapp.prompts.bounded"
+   ],
+   "severity": "high",
+   "summary": "The NotificationJob invariant cancels jobs that fall in quiet hours, but the requirement and criterion say such reminders must be deferred and delivered when quiet hours end.",
+   "evidence": "ontology: \"A job whose delivery time falls inside the owner's quiet hours is cancelled at delivery\" vs spec: \"must be deferred to the end of the quiet period\" and criterion: \"A reminder due during quiet hours is delivered when they end\""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.prompts.bounded"
+   ],
+   "severity": "low",
+   "summary": "The quiet-hours clause was added to a criterion about bounded cards and deduplication, and nothing defines how deferral interacts with the one-notification-per-local-day limit.",
+   "evidence": "claim: \"Six due goals yield exactly five ordered cards... A reminder due during quiet hours is delivered when they end\""
+  }
+ ],
+ "unknownIds": []
+}

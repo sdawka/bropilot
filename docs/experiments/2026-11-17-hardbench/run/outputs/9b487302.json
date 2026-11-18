@@ -1,0 +1,35 @@
+{
+ "variant": "27bc02",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.AddContactDialog.save",
+    "component.AddContactBirthdayField",
+    "C.webapp.contact.save"
+   ],
+   "severity": "high",
+   "summary": "The Save affordance now requires a nonblank birthday as a precondition, which contradicts the birthday being optional everywhere else in the change.",
+   "evidence": "preconditions: [Owner session, Nonblank name, Nonblank birthday] vs. BirthdayField 'Optional birthday as month and day', C.webapp.contact.save 'an optional month-day birthday', and J.contacts/s3 'optional birthday'"
+  },
+  {
+   "nodeIds": [
+    "entity.ContactRecord",
+    "component.AddContactBirthdayField"
+   ],
+   "severity": "medium",
+   "summary": "The birthday field is typed local-date, a full calendar date, but the UI and criterion define it as month-day with an optional year, so a yearless birthday cannot be stored.",
+   "evidence": "entity.ContactRecord: '{ name: birthday, type: local-date, optional: true }' vs. BirthdayField: 'Optional birthday as month and day; the year may be left blank'"
+  },
+  {
+   "nodeIds": [
+    "operation.contact.save",
+    "C.webapp.contact.save"
+   ],
+   "severity": "low",
+   "summary": "The criterion now requires validating the birthday, but operation.contact.save, which is the operation that persists the record, was not updated to define any birthday validation or failure.",
+   "evidence": "C.webapp.contact.save: 'Validates nonblank name and an optional month-day birthday' while operation.contact.save preconditions remain [Owner session, Nonblank name] with no birthday validation failure listed"
+  }
+ ],
+ "unknownIds": []
+}

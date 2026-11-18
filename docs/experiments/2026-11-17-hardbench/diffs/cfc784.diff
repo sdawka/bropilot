@@ -1,0 +1,45 @@
+--- a/journeys/J.control.delete.yaml
++++ b/journeys/J.control.delete.yaml
+@@ -54,7 +54,7 @@
+   - S.webapp.concurrency
+ - id: z5
+   actor: system
+-  action: Owned live data purged within seven days; backup expiry follows the pinned retention policy
++  action: Owned live data purged within 72 hours; backup expiry follows the pinned retention policy
+   kind: wait
+   next:
+   - to: e1
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -82,7 +82,7 @@
+     hooks: [hook.webapp.revocation.current]
+   - id: C.webapp.lifecycle.data
+     title: Data lifecycle
+-    claim: "Owner export excludes others' data. Account deletion revokes sessions and jobs and meets live-data purge and retention contracts"
++    claim: "Owner export excludes others' data. Account deletion revokes sessions and jobs and meets the 72-hour live-data purge and retention contracts"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: operation
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -618,7 +618,7 @@
+             actor: ext.owner
+             trigger: Owner reauthenticates and confirms deletion
+             preconditions: [Owner reauthentication]
+-            effects: [Deletion revokes access immediately, cancels jobs and purges owned live data within seven days]
++            effects: [Deletion revokes access immediately, cancels jobs and purges owned live data within 72 hours]
+             failure: [Reauthentication failure denies the deletion]
+             links:
+               - { rel: invokes, to: operation.data.delete }
+@@ -979,9 +979,9 @@
+     kind: operation
+     name: Delete
+     parent: section.domain
+-    description: Owner reauthentication. Deletion revokes access immediately, cancels jobs and purges owned live data within seven days. Backup expiry follows a pinned retention policy disclosed separately
++    description: Owner reauthentication. Deletion revokes access immediately, cancels jobs and purges owned live data within 72 hours. Backup expiry follows a pinned retention policy disclosed separately
+     preconditions: [Owner reauthentication]
+-    effects: [Revoke access immediately, Cancel jobs, Purge owned live data within seven days, Backup expiry follows a pinned retention policy disclosed separately]
++    effects: [Revoke access immediately, Cancel jobs, Purge owned live data within 72 hours, Backup expiry follows a pinned retention policy disclosed separately]
+     failure: [Reauthentication failure denies the deletion]
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:

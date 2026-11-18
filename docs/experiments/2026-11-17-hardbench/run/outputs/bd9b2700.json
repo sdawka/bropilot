@@ -1,0 +1,34 @@
+{
+ "variant": "b7965d",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.MessageDraft",
+    "affordance.PersonActionBar.nudge",
+    "evolution.7"
+   ],
+   "severity": "high",
+   "summary": "The change drops the provisional flag on MessageDraft and puts it into active use for nudges with no source-spec backing; the world spec's section 6 action list (Edit goal, Log contact, Open channel) has no Nudge, yet the new nodes cite that section.",
+   "evidence": "-    provisional: true\n+    description: ... no autonomous send. Used for nudges; screen description changed to 'Actions are Edit goal, Log contact, Nudge and Open channel' while keeping source { doc: keep-in-touch-world-specification, section: \"6\" }"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.nudge.single"
+   ],
+   "severity": "medium",
+   "summary": "The new criterion has no sourceRefs, unlike the neighbouring criteria, so it cannot be traced to any spec section.",
+   "evidence": "- id: C.webapp.nudge.single ... ownerKind: thing ... gates: [candidate, promotion] (no sourceRefs line, whereas the preceding criterion has sourceRefs: [S.webapp.operations])"
+  },
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.nudge",
+    "C.webapp.nudge.single"
+   ],
+   "severity": "low",
+   "summary": "The affordance's failure list covers only a missing connection, not the block case that its precondition and the criterion both say must be refused.",
+   "evidence": "preconditions: [Active Connection with this contact's linked account, No block in either direction] ... failure: [Not available when there is no active Connection]; claim: \"... refused after disconnect or block\""
+  }
+ ],
+ "unknownIds": []
+}

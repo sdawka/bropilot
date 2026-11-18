@@ -1,0 +1,36 @@
+{
+ "variant": "3a9735",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.invite",
+    "GD.connect",
+    "screen.invitation"
+   ],
+   "severity": "high",
+   "summary": "The new rule hides the inviter until acceptance, which contradicts the Invitation screen's InvitePreview shown before Accept/Decline and leaves the invitee with no way to know whom they are consenting to connect with.",
+   "evidence": "Added: \"Opening the invitation does not reveal who sent it until it has been accepted\" / \"the inviter stays anonymous until acceptance\"; screen.invitation: \"Exactly InvitePreview and ConsentPanel after validation; Accept and Decline controls\""
+  },
+  {
+   "nodeIds": [
+    "GD.connect",
+    "policy.pairConsent",
+    "affordance.ConsentPanel.accept"
+   ],
+   "severity": "medium",
+   "summary": "Blind acceptance undermines the feature's \"two explicit consents\" model, because the invitee's acceptance no longer consents to a known counterpart, and no consent or policy node was updated to say what the invitee is agreeing to.",
+   "evidence": "GD.connect: \"pairs formed by two explicit consents; the inviter stays anonymous until acceptance\"; policy.pairConsent: \"creating the invitation and accepting it provide the two consents\""
+  },
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.invite",
+    "C.webapp.connection.consent"
+   ],
+   "severity": "low",
+   "summary": "The anonymity behaviour is placed on the inviter-side Invite affordance, even though it governs what the invitee sees on screen.invitation, and the new criterion clause is not reflected in that screen or in operation.invite.accept.",
+   "evidence": "affordance.ConnectionPanel.invite effects: \"Opening the invitation does not reveal who sent it until it has been accepted\"; screen.invitation and operation.invite.accept are unchanged"
+  }
+ ],
+ "unknownIds": []
+}

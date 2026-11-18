@@ -1,0 +1,70 @@
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -71,7 +71,7 @@
+     hooks: [hook.webapp.screen.exact]
+   - id: C.webapp.revocation.current
+     title: Current revocation
+-    claim: "Revoke access after a job is queued, then retry dispatch and access. No new authorized sharing may follow revocation"
++    claim: "Revoke access after a job is queued, then retry dispatch and access. No new authorized sharing may follow revocation. A lapsed block restores invite eligibility but not the previous pair"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: policy
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -324,7 +324,7 @@
+             trigger: Owner confirms Block
+             preconditions: [Contact is linked to an Account]
+             effects:
+-              - A block prevents new app-mediated contact until removed
++              - A block prevents new app-mediated contact for 90 days, then lapses automatically
+               - Pauses the blocker's corresponding goal and suppresses its suggestions
+             failure: [Not available when the contact has no linked account]
+             links:
+@@ -708,12 +708,13 @@
+     kind: entity
+     name: Block
+     parent: section.domain
+-    description: Blocker and blocked account IDs; overrides connection, sharing and subscription permissions
++    description: Blocker and blocked account IDs and an expiry 90 days after creation; overrides connection, sharing and subscription permissions while in force
+     source: { doc: keep-in-touch-world-specification, section: "5" }
+     fields:
+       - { name: blockerAccountId, type: "ref:entity.Account" }
+       - { name: blockedAccountId, type: "ref:entity.Account" }
+-    invariants: [Overrides connection, sharing and subscription permissions]
++      - { name: expiresAt, type: timestamp }
++    invariants: [Overrides connection, sharing and subscription permissions while in force, Lapses automatically 90 days after creation]
+     links:
+       - { rel: storedIn, to: binding.contactsStore }
+       - { rel: governs, to: policy.revocation, direction: in }
+@@ -946,9 +947,9 @@
+     kind: operation
+     name: Disconnect or block
+     parent: section.domain
+-    description: Participant authority. Revoke affected app sharing and cancel pending deliveries; a block prevents new app-mediated contact until removed
++    description: Participant authority. Revoke affected app sharing and cancel pending deliveries; a block prevents new app-mediated contact for 90 days
+     preconditions: [Participant authority]
+-    effects: [Revoke affected app sharing, Cancel pending deliveries, A block prevents new app-mediated contact until removed, Blocking pauses the blocker's corresponding goal]
++    effects: [Revoke affected app sharing, Cancel pending deliveries, A block prevents new app-mediated contact for 90 days, Blocking pauses the blocker's corresponding goal]
+     failure: [Non-participant is denied, Already delivered external messages or copied data cannot be retracted]
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:
+@@ -1012,7 +1013,7 @@
+     name: Current revocation
+     parent: section.authorization
+     mode: revocation
+-    description: Read and send authorization must check revocation against current authoritative state; a block overrides connection and sharing
++    description: Read and send authorization must check revocation against current authoritative state; a block overrides connection and sharing until it lapses
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+ 
+   # ---------------------------------------------------------------- Template shell links (nodes come from the template)
+--- a/things/webapp/spec.yaml
++++ b/things/webapp/spec.yaml
+@@ -41,7 +41,7 @@
+       Today must return at most five suggestions, ordered by effective due date then stable goal ID. There must be at
+       most one open suggestion per goal version and due cycle. Logging qualifying contact must resolve its suggestion.
+       Snoozing must update its effective due date; pausing must suppress prompts. Blocking a linked counterpart must
+-      pause the blocker's corresponding goal and suppress its suggestions. In-app reminders are required. Optional
++      pause the blocker's corresponding goal and suppress its suggestions until the block lapses. In-app reminders are required. Optional
+       external reminders, when enabled, must be limited to one owner notification per local day containing a link
+       without contact details. Reminder delivery must recheck preferences and cancellations.
+     refines: [GD.prompts]

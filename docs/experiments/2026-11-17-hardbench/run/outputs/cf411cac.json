@@ -1,0 +1,36 @@
+{
+ "variant": "27bc02",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.AddContactDialog.save",
+    "component.AddContactBirthdayField",
+    "C.webapp.contact.save"
+   ],
+   "severity": "high",
+   "summary": "The Save affordance now requires a nonblank birthday, which contradicts the birthday being optional everywhere else and would block saving contacts without one.",
+   "evidence": "preconditions: [Owner session, Nonblank name, Nonblank birthday] vs. BirthdayField 'Optional birthday as month and day' and criterion 'an optional month-day birthday'"
+  },
+  {
+   "nodeIds": [
+    "entity.ContactRecord",
+    "component.AddContactBirthdayField"
+   ],
+   "severity": "medium",
+   "summary": "The stored birthday type is a full local-date, but the UI lets the user leave the year blank, so a month-day birthday cannot be represented.",
+   "evidence": "{ name: birthday, type: local-date, optional: true } vs. 'Optional birthday as month and day; the year may be left blank'"
+  },
+  {
+   "nodeIds": [
+    "component.AddContactBirthdayField",
+    "operation.contact.save",
+    "J.contacts/s4"
+   ],
+   "severity": "low",
+   "summary": "The birthday field has cardinality 'exactly one' despite being optional, and neither operation.contact.save nor the journey's branch conditions cover the birthday validation the criterion now claims.",
+   "evidence": "cardinality: exactly one; operation.contact.save preconditions: [Owner session, Nonblank name]; s4 branches only 'save, name nonblank' / 'save, name blank'"
+  }
+ ],
+ "unknownIds": []
+}

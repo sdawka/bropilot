@@ -1,0 +1,35 @@
+{
+ "variant": "864bc6",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.invite",
+    "J.connect"
+   ],
+   "severity": "high",
+   "summary": "The Invite affordance now emails the link and explicitly shows no QR or connection code, but the J.connect journey still has the owner share the invitation by QR or connection code through an outside channel.",
+   "evidence": "Invite effects: \"No QR or connection code is shown\" vs J.connect s3: \"Share the invitation by QR or connection code through an outside channel\" (external: ext.channels)"
+  },
+  {
+   "nodeIds": [
+    "operation.invite.create",
+    "affordance.ConnectionPanel.invite",
+    "entity.ContactRecord"
+   ],
+   "severity": "medium",
+   "summary": "Email delivery is added only at the affordance: operation.invite.create has no email effect, no recipient-address input, no delivery-failure outcome and no link to ext.providers, and ContactRecord has no defined email field to back the new precondition.",
+   "evidence": "operation.invite.create effects: [Generate at least 128 bits of randomness, Store only a token hash, Expire after 24 hours, Allow one successful acceptance]; ContactRecord field: { name: channels, type: \"list<json>\", optional: true }"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.connection.consent",
+    "hook.webapp.connection.consent"
+   ],
+   "severity": "medium",
+   "summary": "The criterion now claims the fixture covers email delivery, but its only hook's fixture still describes just the invite state machine and concurrent redemption, so the new claim has no executable evidence.",
+   "evidence": "claim: \"Invite fixture covers email delivery, acceptance, ...\" vs hook inputs: fixture: \"invite state machine incl. concurrent redemption\""
+  }
+ ],
+ "unknownIds": []
+}

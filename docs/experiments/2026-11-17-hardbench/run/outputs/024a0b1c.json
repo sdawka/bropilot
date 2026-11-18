@@ -1,0 +1,16 @@
+{
+ "variant": "95dd79",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "thing.webapp",
+    "operation.goal.save"
+   ],
+   "severity": "medium",
+   "summary": "The new Snooze effect writes a goal attribute 'snoozedUntil' that the diff does not define anywhere, so it is likely a missing or broken reference to an undeclared entity field.",
+   "evidence": "+                  - Sets the goal's snoozedUntil to the chosen date"
+  }
+ ],
+ "unknownIds": []
+}

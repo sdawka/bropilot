@@ -1,0 +1,36 @@
+{
+ "variant": "d1c15a",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ContactEventForm.save",
+    "operation.contact.log"
+   ],
+   "severity": "high",
+   "summary": "The Log contact Save affordance now accepts future event times for planned meetings, but the operation it invokes still requires a nonfuture event time and rejects future times.",
+   "evidence": "Affordance: \"preconditions: [Owned contact, Valid event time]\" and \"Date and time; a future time records a planned meeting\"; operation.contact.log: \"preconditions: [Owned contact, Nonfuture event time]\" ... \"failure: [Future event time is rejected, ...]\""
+  },
+  {
+   "nodeIds": [
+    "c4",
+    "J.contact"
+   ],
+   "severity": "medium",
+   "summary": "Step c4 now offers to plan the next meeting, but none of its branches leads to a planning path; the only outcomes are log contact or skip logging.",
+   "evidence": "\"action: Log what happened, or plan the next meeting?\" with next: \"- to: c5 when: log contact\" and \"- to: e2 when: skip logging\""
+  },
+  {
+   "nodeIds": [
+    "entity.ContactEvent",
+    "S.webapp.qualification"
+   ],
+   "severity": "medium",
+   "summary": "The new planned-event concept is not defined anywhere: nothing says how the planned flag is set or cleared, and the Met this goal checkbox can still be checked for a future event, so the new invariant and S.webapp.qualification are not reconciled.",
+   "evidence": "\"- { name: planned, type: boolean }\"; \"A planned event never qualifies before its time has passed\"; S.webapp.qualification: \"A ContactEvent must qualify only when the owner explicitly marks that it met this goal\""
+  }
+ ],
+ "unknownIds": [
+  "c4"
+ ]
+}

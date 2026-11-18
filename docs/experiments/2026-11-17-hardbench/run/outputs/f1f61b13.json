@@ -1,0 +1,31 @@
+{
+ "variant": "6fa350",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.ContactRecord"
+   ],
+   "severity": "medium",
+   "summary": "The new invariant 'Private notes are never included in an export' directly contradicts operation.data.export's new effect 'Each exported contact includes its private notes' and J.control.export/x4's action exporting each contact's private notes.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "operation.data.export"
+   ],
+   "severity": "medium",
+   "summary": "The added effect requiring private notes in each exported contact conflicts with the ContactRecord invariant introduced in the same change forbidding notes in exports.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export"
+   ],
+   "severity": "medium",
+   "summary": "The affordance's effects were not updated and still say only 'Export authorized records of the authenticated owner only', so it no longer matches the operation and journey step that now include private notes.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

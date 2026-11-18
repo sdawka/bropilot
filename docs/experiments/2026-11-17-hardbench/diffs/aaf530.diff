@@ -1,0 +1,44 @@
+--- a/journeys/J.control.disconnect.yaml
++++ b/journeys/J.control.disconnect.yaml
+@@ -51,7 +51,7 @@
+   - S.webapp.concurrency
+ - id: e1
+   actor: system
+-  action: Pair no longer active; the private ContactRecord remains; delivered external messages are not
++  action: Pair no longer active; the private ContactRecord and its goal remain; delivered external messages are not
+     retracted
+   kind: end
+   next: []
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -71,7 +71,7 @@
+     hooks: [hook.webapp.screen.exact]
+   - id: C.webapp.revocation.current
+     title: Current revocation
+-    claim: "Revoke access after a job is queued, then retry dispatch and access. No new authorized sharing may follow revocation"
++    claim: "Revoke access after a job is queued, then retry dispatch and access. No new authorized sharing may follow revocation. Disconnect leaves private goals running; block pauses them"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: policy
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -313,7 +313,9 @@
+             actor: ext.owner
+             trigger: Owner confirms Disconnect
+             preconditions: [Active Connection with this contact's linked account]
+-            effects: [Removes shared capabilities while private records remain under the owner's control]
++            effects:
++              - Removes shared capabilities while private records remain under the owner's control
++              - The owner's goal and suggestions for this person keep running, since they are private
+             failure: [Not available when there is no active Connection]
+             links:
+               - { rel: invokes, to: operation.connection.revoke }
+@@ -948,7 +950,7 @@
+     parent: section.domain
+     description: Participant authority. Revoke affected app sharing and cancel pending deliveries; a block prevents new app-mediated contact until removed
+     preconditions: [Participant authority]
+-    effects: [Revoke affected app sharing, Cancel pending deliveries, A block prevents new app-mediated contact until removed, Blocking pauses the blocker's corresponding goal]
++    effects: [Revoke affected app sharing, Cancel pending deliveries, A block prevents new app-mediated contact until removed, Blocking pauses the blocker's corresponding goal, Disconnecting leaves the participant's private goal unchanged]
+     failure: [Non-participant is denied, Already delivered external messages or copied data cannot be retracted]
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:

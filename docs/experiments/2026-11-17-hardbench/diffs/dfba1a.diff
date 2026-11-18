@@ -1,0 +1,59 @@
+--- a/journeys/J.connect.yaml
++++ b/journeys/J.connect.yaml
+@@ -11,7 +11,7 @@
+ steps:
+ - id: s1
+   actor: user
+-  action: Open Person and choose Invite
++  action: Open Person and choose Invite, or Resend invitation while one is pending
+   kind: action
+   screen: screen.person
+   next:
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -14,7 +14,7 @@
+     hooks: [hook.webapp.private.owner]
+   - id: C.webapp.connection.consent
+     title: Connection consent
+-    claim: "Invite fixture covers acceptance, expiry, replay, self-connection, block and simultaneous redemption"
++    claim: "Invite fixture covers acceptance, expiry, replay, resend, self-connection, block and simultaneous redemption"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: operation
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -251,7 +251,7 @@
+     description: >-
+       Exactly PersonSummary, GoalPanel, ContactHistory, PrivateNotes, ConnectionPanel and ActionBar. History has one
+       row per event. Actions are Edit goal, Log contact and Open channel; connection status determines Invite,
+-      Disconnect or Block availability
++      Resend invitation, Disconnect or Block availability
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:
+       - { rel: serves, to: ext.owner }
+@@ -293,7 +293,7 @@
+         kind: component
+         name: ConnectionPanel
+         cardinality: exactly one
+-        description: Connection status determines Invite, Disconnect or Block availability
++        description: Connection status determines Invite, Resend invitation, Disconnect or Block availability
+         links:
+           - { rel: reads, to: entity.Connection }
+         children:
+@@ -307,6 +307,16 @@
+             failure: [Not available when already connected or blocked]
+             links:
+               - { rel: invokes, to: operation.invite.create }
++          - id: affordance.ConnectionPanel.resendInvite
++            kind: affordance
++            name: Resend invitation
++            actor: ext.owner
++            trigger: Owner activates Resend invitation
++            preconditions: [A pending, unexpired invitation exists for this contact]
++            effects: [Shows the pending invitation's original QR or connection code again; no new invitation is created]
++            failure: [Not available when the invitation has expired, been accepted or been revoked]
++            links:
++              - { rel: reads, to: entity.ConnectionInvite }
+           - id: affordance.ConnectionPanel.disconnect
+             kind: affordance
+             name: Disconnect

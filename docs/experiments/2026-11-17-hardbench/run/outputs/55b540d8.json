@@ -1,0 +1,34 @@
+{
+ "variant": "5cceea",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.HistoryRow.delete",
+    "S.webapp.qualification"
+   ],
+   "severity": "high",
+   "summary": "The new Delete event affordance leaves the schedule unchanged until the goal is next saved, but the spec requires deleting an event to recompute the schedule.",
+   "evidence": "affordance.HistoryRow.delete effects: \"The schedule is left as it is until the goal is next saved\" vs S.webapp.qualification: \"Editing or deleting an event must recompute the schedule.\""
+  },
+  {
+   "nodeIds": [
+    "affordance.HistoryRow.delete",
+    "operation.contact.log"
+   ],
+   "severity": "medium",
+   "summary": "The deferral contradicts the operation the affordance invokes, which recomputes affected goals on every change, and C.webapp.schedule.correct's deleted-events fixture would expect recomputation.",
+   "evidence": "operation.contact.log effects: \"Recompute affected goals without sending anything, ... Deleting an event removes it from history\"; C.webapp.schedule.correct claim: \"... snooze, pause and deleted events\""
+  },
+  {
+   "nodeIds": [
+    "operation.contact.log",
+    "affordance.HistoryRow.delete"
+   ],
+   "severity": "low",
+   "summary": "Deletion is folded into operation.contact.log, whose preconditions and failures only fit logging (nonfuture event time, future time rejected) and which declares no owned-event precondition.",
+   "evidence": "operation.contact.log preconditions: [Owned contact, Nonfuture event time]; affordance.HistoryRow.delete preconditions: [Owned contact, Owned event]"
+  }
+ ],
+ "unknownIds": []
+}

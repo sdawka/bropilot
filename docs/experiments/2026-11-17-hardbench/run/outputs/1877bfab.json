@@ -1,0 +1,33 @@
+{
+ "variant": "089273",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.SignInContinue.continue",
+    "component.ConsentPanel"
+   ],
+   "severity": "high",
+   "summary": "Sign-in continuation now accepts and consumes the invitation automatically, which skips the explicit ConsentPanel accept step and removes the guarantee that a validated invitation is preserved unconsumed until the invitee consents.",
+   "evidence": "- Login continuation preserves a validated invitation without consuming it\n+ Login continuation from an invitation accepts it for the invitee once sign-in succeeds, so they land on the new connection"
+  },
+  {
+   "nodeIds": [
+    "component.ConsentPanel"
+   ],
+   "severity": "medium",
+   "summary": "ConsentPanel's new description limits it to invitees who were already signed in, which contradicts its unchanged cardinality of 'exactly one after validation' (validation also happens on the sign-in path).",
+   "evidence": "cardinality: exactly one after validation\n+ description: Shown to invitees who open the invitation while already signed in"
+  },
+  {
+   "nodeIds": [
+    "affordance.SignInContinue.continue",
+    "C.webapp.connection.consent"
+   ],
+   "severity": "medium",
+   "summary": "The auto-accept effect specifies no failure handling for self-connection, block, expiry or replay that only becomes known after sign-in, even though the consent criterion requires the fixture to cover those cases for acceptance at sign-in.",
+   "evidence": "failure: [Provider unavailable shows the shared ErrorSummary] vs claim: \"Invite fixture covers acceptance, including acceptance at sign-in, expiry, replay, self-connection, block and simultaneous redemption\""
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,36 @@
+{
+ "variant": "dfba1a",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "J.connect.s1",
+    "affordance.ConnectionPanel.resendInvite"
+   ],
+   "severity": "medium",
+   "summary": "Journey step s1 now lets the user either Invite or Resend, but it keeps a single unchanged `next` path, so the Resend choice (which creates no invitation) flows into the steps that follow invitation creation.",
+   "evidence": "action: Open Person and choose Invite, or Resend invitation while one is pending ... next: (unchanged); resendInvite effects: [Shows the pending invitation's original QR or connection code again; no new invitation is created]"
+  },
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.invite",
+    "affordance.ConnectionPanel.resendInvite"
+   ],
+   "severity": "medium",
+   "summary": "Invite's availability was not updated to exclude the pending-invitation state, so Invite and Resend invitation are both available when an invitation is pending, which contradicts the claim that connection status determines which action is available.",
+   "evidence": "invite failure: [Not available when already connected or blocked]; resendInvite preconditions: [A pending, unexpired invitation exists for this contact]; 'connection status determines Invite, Resend invitation, Disconnect or Block availability'"
+  },
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.resendInvite",
+    "entity.ConnectionInvite"
+   ],
+   "severity": "low",
+   "summary": "Resend redisplays the original QR or connection code, but the diff shows no ConnectionInvite field or operation that keeps that code retrievable after creation, and the consent fixture's replay and redemption guarantees may assume single display.",
+   "evidence": "effects: [Shows the pending invitation's original QR or connection code again; no new invitation is created]; links: [{ rel: reads, to: entity.ConnectionInvite }]"
+  }
+ ],
+ "unknownIds": [
+  "J.connect.s1"
+ ]
+}

@@ -1,0 +1,36 @@
+{
+ "variant": "46753b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.deleteContact",
+    "operation.contact.delete",
+    "C.webapp.lifecycle.data"
+   ],
+   "severity": "high",
+   "summary": "The new Delete contact affordance says deletion is immediate and irreversible, but the operation it invokes and the updated criterion say the contact stays restorable for 30 days.",
+   "evidence": "affordance: \"The contact, its goal and its history are deleted at once and cannot be restored\" vs operation.contact.delete: \"they stay restorable for 30 days and are then purged\" / \"The owner can restore the contact for 30 days\"; criterion: \"A deleted contact stays restorable for 30 days.\""
+  },
+  {
+   "nodeIds": [
+    "operation.contact.delete",
+    "screen.person",
+    "screen.people"
+   ],
+   "severity": "medium",
+   "summary": "A 30-day owner restore is promised, but no restore operation, affordance, screen or journey is added, so the restore capability has nothing to implement it.",
+   "evidence": "operation.contact.delete effects: \"The owner can restore the contact for 30 days\"; no restore operation or affordance exists in the People or Person screens, and J.contacts.remove has no restore path."
+  },
+  {
+   "nodeIds": [
+    "C.webapp.lifecycle.data",
+    "operation.contact.delete"
+   ],
+   "severity": "low",
+   "summary": "The criterion's new claim about deleted-contact restorability is still tied only to operation.data.delete, so nothing links it to operation.contact.delete.",
+   "evidence": "C.webapp.lifecycle.data links: subject -> operation.data.delete only; the claim adds \"A deleted contact stays restorable for 30 days\"."
+  }
+ ],
+ "unknownIds": []
+}

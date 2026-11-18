@@ -1,0 +1,24 @@
+{
+ "variant": "04db7c",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.Account"
+   ],
+   "severity": "medium",
+   "summary": "Account's description now says it stores the daily reminder's local hour, but the diff adds no matching field to Account; only NotificationJob gains a localHour field, so the chosen hour has no persistent home on the owner record.",
+   "evidence": "description: ID, identity-provider subject, display name, time zone and notification preferences, including the local hour of the daily reminder ... (fields unchanged; only '+ { name: localHour, type: int }' added under NotificationJob)"
+  },
+  {
+   "nodeIds": [
+    "component.NotificationPreferences",
+    "entity.Account"
+   ],
+   "severity": "low",
+   "summary": "NotificationPreferences is now described as where the owner sets the reminder opt-in and local hour, but its only link is 'reads' to Account, so nothing in the model persists the owner's choice.",
+   "evidence": "description: External reminder opt-in and the local hour at which the daily reminder is sent ... links: - { rel: reads, to: entity.Account }"
+  }
+ ],
+ "unknownIds": []
+}

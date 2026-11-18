@@ -1,0 +1,32 @@
+{
+ "variant": "edd783",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.GoalForm.save"
+   ],
+   "severity": "medium",
+   "summary": "The change makes Save commit right away with no review step and repurposes SchedulePreview as a post-save display, which likely conflicts with SchedulePreview's existing role of previewing the schedule before the owner commits a goal edit.",
+   "evidence": "+ Invokes operation.goal.save as soon as Save is activated, without a separate review step / + After saving, SchedulePreview shows the new due date and which past events now qualify"
+  },
+  {
+   "nodeIds": [
+    "affordance.GoalForm.save"
+   ],
+   "severity": "low",
+   "summary": "The new post-save effect is stated unconditionally, but the same affordance's failure paths (validation failure, stale-version conflict) mean the save may not happen, so it is unclear what SchedulePreview shows then.",
+   "evidence": "effects: After saving, SchedulePreview shows the new due date... failure: Validation failure keeps entered values... Stale version returns conflict"
+  },
+  {
+   "nodeIds": [
+    "evolution.7",
+    "C.webapp.screen.exact"
+   ],
+   "severity": "low",
+   "summary": "The evolution is labeled 'implementation' and lists only GoalForm.save as affected, yet it changes user-visible behavior and edits the shared screen criterion and hook fixture, and it does not list SchedulePreview as affected.",
+   "evidence": "kind: implementation / affectedNodes: - affordance.GoalForm.save"
+  }
+ ],
+ "unknownIds": []
+}

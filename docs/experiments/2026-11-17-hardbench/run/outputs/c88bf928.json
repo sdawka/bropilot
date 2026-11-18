@@ -1,0 +1,34 @@
+{
+ "variant": "ee73ec",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.connection.revoke",
+    "affordance.ConnectionPanel.block",
+    "J.control.block/b2",
+    "J.control.block/b3"
+   ],
+   "severity": "high",
+   "summary": "Owner reauthentication was added as a precondition of the shared 'Disconnect or block' operation, but the Block affordance and Block journey still invoke it with only a confirmation, so Block now either always fails or contradicts the operation contract.",
+   "evidence": "operation.connection.revoke preconditions: [Participant authority, Owner reauthentication]; affordance.ConnectionPanel.block trigger: 'Owner confirms Block', preconditions: [Contact is linked to an Account]; J.control.block/b2 action: 'Choose Block and confirm' -> b3 stepOperation operation.connection.revoke"
+  },
+  {
+   "nodeIds": [
+    "J.control.disconnect/d2"
+   ],
+   "severity": "medium",
+   "summary": "Step d2 now includes reauthentication, but its branches cover only confirm and cancel, so there is no path for the new 'Reauthentication failure denies the disconnect' outcome.",
+   "evidence": "d2 action: 'Choose Disconnect, confirm and reauthenticate'; next: [{to: d3, when: confirm}, {to: e2, when: cancel}]; affordance failure: 'Reauthentication failure denies the disconnect'"
+  },
+  {
+   "nodeIds": [
+    "J.control.disconnect/d3"
+   ],
+   "severity": "low",
+   "summary": "The system step that performs the revoke still lists only the participant authority check and omits the newly required owner reauthentication check.",
+   "evidence": "d3 action: 'Participant authority checked; sharing revoked; pending deliveries cancelled' vs operation description 'Participant authority and owner reauthentication.'"
+  }
+ ],
+ "unknownIds": []
+}

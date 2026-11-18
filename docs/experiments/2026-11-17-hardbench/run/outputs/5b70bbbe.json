@@ -1,0 +1,35 @@
+{
+ "variant": "95dd79",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "things/webapp/ontology.yaml#Snooze"
+   ],
+   "severity": "medium",
+   "summary": "The new effect writes a goal attribute 'snoozedUntil' that the diff introduces without defining it on the goal entity or its save operation, so the reference is likely dangling.",
+   "evidence": "+ - Sets the goal's snoozedUntil to the chosen date"
+  },
+  {
+   "nodeIds": [
+    "things/webapp/ontology.yaml#Snooze"
+   ],
+   "severity": "low",
+   "summary": "The effect speaks of a 'chosen date' but the trigger only lets the owner pick a duration of 1, 3 or 7 days, and nothing says what the date is computed from (now, the current due date, or which time zone).",
+   "evidence": "trigger: Owner activates Snooze on a card and picks 1, 3 or 7 days ... Sets the goal's snoozedUntil to the chosen date"
+  },
+  {
+   "nodeIds": [
+    "things/webapp/ontology.yaml#Snooze",
+    "journeys/J.prompts.yaml#p5"
+   ],
+   "severity": "low",
+   "summary": "Snooze acts on a single suggestion, but the new effect stores the state on the goal, which mixes suggestion-level and goal-level scope.",
+   "evidence": "preconditions: [Open suggestion for an enabled goal] ... Sets the goal's snoozedUntil"
+  }
+ ],
+ "unknownIds": [
+  "journeys/J.prompts.yaml#p5",
+  "things/webapp/ontology.yaml#Snooze"
+ ]
+}

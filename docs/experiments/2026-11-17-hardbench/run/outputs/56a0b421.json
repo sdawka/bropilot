@@ -1,0 +1,38 @@
+{
+ "variant": "864bc6",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.invite",
+    "operation.invite.create",
+    "S.webapp.prompts",
+    "ext.providers"
+   ],
+   "severity": "high",
+   "summary": "The Invite affordance now has the app email a private contact through the notification provider, but the invoked operation defines no outbound send, and the spec limits external notifications to the owner.",
+   "evidence": "Affordance: 'Invokes operation.invite.create and emails the invitation link to the contact's recorded email address'. operation.invite.create effects list only token generation, hash storage, expiry and one acceptance. S.webapp.prompts: 'Optional external reminders ... limited to one owner notification per local day containing a link without contact details'."
+  },
+  {
+   "nodeIds": [
+    "C.webapp.connection.consent",
+    "evolution.3",
+    "evolution.4"
+   ],
+   "severity": "medium",
+   "summary": "Email delivery is now an acceptance criterion of evolution.3, but external notification transport only arrives in evolution.4, which depends on evolution.3, so evolution.3 cannot satisfy its own acceptance criterion.",
+   "evidence": "Criterion claim: 'Invite fixture covers email delivery, acceptance, ...'. evolution.3 acceptance includes C.webapp.connection.consent. evolution.4 intent: 'Add optional reminder transport', with dependsOn: evolution.3."
+  },
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.invite",
+    "component.AddContactChannelFields",
+    "entity.ContactRecord"
+   ],
+   "severity": "medium",
+   "summary": "Invite now requires a recorded email address, but its failure cases do not say what happens when the email is missing, and nothing says what happens to the invite already created when email delivery fails.",
+   "evidence": "Precondition added: 'Contact has a recorded email address'. Failure: 'Not available when already connected or blocked, Email delivery failure shows the shared ErrorSummary'. ChannelFields are 'Optional channel fields', and ContactRecord.channels is optional list<json> with no email field."
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,37 @@
+{
+ "variant": "f80839",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export",
+    "operation.data.export",
+    "C.webapp.lifecycle.data",
+    "J.control.export"
+   ],
+   "severity": "high",
+   "summary": "The new export effect includes the counterpart's display name and account email, which is other people's data and contradicts the rule that the export excludes other people's data.",
+   "evidence": "Added: 'The export also lists each active Connection with the counterpart's display name and account email' vs operation.data.export effects 'Export excludes other people's data', C.webapp.lifecycle.data 'Owner export excludes others' data', J.control.export e1 'Receive export excluding other people's data'"
+  },
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export",
+    "entity.Account"
+   ],
+   "severity": "medium",
+   "summary": "The export is said to include the counterpart's account email, but the Account entity defines no email field, so the reference points to data the model does not contain.",
+   "evidence": "entity.Account fields: id, identitySubject, displayName, timeZone, notificationPreferences; no email field"
+  },
+  {
+   "nodeIds": [
+    "operation.data.export",
+    "component.ExportControls",
+    "entity.Connection"
+   ],
+   "severity": "medium",
+   "summary": "The export now includes connections, but operation.data.export has no reads link to entity.Connection (or entity.Account), so the operation's data access is incomplete.",
+   "evidence": "operation.data.export links: reads entity.ContactRecord, entity.RelationshipGoal, entity.ContactEvent only; ExportControls description now says 'export of contacts, goals, events and connections'"
+  }
+ ],
+ "unknownIds": []
+}

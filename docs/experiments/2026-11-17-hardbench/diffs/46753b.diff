@@ -1,0 +1,149 @@
+--- a/journeys/J.contacts.remove.yaml
++++ b/journeys/J.contacts.remove.yaml
+@@ -0,0 +1,56 @@
++id: J.contacts.remove
++name: Delete a contact
++actorGoal: Remove someone I no longer want to keep in touch with
++features:
++- GD.contacts
++requirements:
++- S.webapp.operations
++start: r1
++steps:
++- id: r1
++  actor: user
++  action: Open Person
++  kind: action
++  screen: screen.person
++  next:
++  - to: r2
++  requirementRefs:
++  - S.webapp.operations
++- id: r2
++  actor: user
++  action: Choose Delete contact and confirm
++  kind: branch
++  screen: screen.person
++  next:
++  - to: r3
++    when: confirm
++  - to: e2
++    when: cancel
++  requirementRefs:
++  - S.webapp.operations
++- id: r3
++  actor: system
++  action: Contact, goal and history deleted; pending jobs cancelled
++  kind: action
++  screen: screen.person
++  operation: operation.contact.delete
++  next:
++  - to: e1
++  requirementRefs:
++  - S.webapp.operations
++- id: e1
++  actor: user
++  action: Contact no longer listed in People
++  kind: end
++  screen: screen.people
++  next: []
++  requirementRefs:
++  - S.webapp.operations
++- id: e2
++  actor: user
++  action: Contact unchanged
++  kind: end
++  screen: screen.person
++  next: []
++  requirementRefs:
++  - S.webapp.operations
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -82,7 +82,7 @@
+     hooks: [hook.webapp.revocation.current]
+   - id: C.webapp.lifecycle.data
+     title: Data lifecycle
+-    claim: "Owner export excludes others' data. Account deletion revokes sessions and jobs and meets live-data purge and retention contracts"
++    claim: "Owner export excludes others' data. A deleted contact stays restorable for 30 days. Account deletion revokes sessions and jobs and meets live-data purge and retention contracts"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: operation
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -250,7 +250,7 @@
+     states: [loaded, loading, error]
+     description: >-
+       Exactly PersonSummary, GoalPanel, ContactHistory, PrivateNotes, ConnectionPanel and ActionBar. History has one
+-      row per event. Actions are Edit goal, Log contact and Open channel; connection status determines Invite,
++      row per event. Actions are Edit goal, Log contact, Open channel and Delete contact; connection status determines Invite,
+       Disconnect or Block availability
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:
+@@ -333,7 +333,7 @@
+         kind: component
+         name: ActionBar
+         cardinality: exactly one
+-        description: Actions are Edit goal, Log contact and Open channel
++        description: Actions are Edit goal, Log contact, Open channel and Delete contact
+         children:
+           - id: affordance.PersonActionBar.editGoal
+             kind: affordance
+@@ -365,6 +365,18 @@
+             source: { doc: keep-in-touch-world-specification, section: "6" }
+             links:
+               - { rel: references, to: ext.channels, label: opens the preferred channel }
++          - id: affordance.PersonActionBar.deleteContact
++            kind: affordance
++            name: Delete contact
++            actor: ext.owner
++            trigger: Owner confirms Delete contact
++            preconditions: [Owned contact]
++            effects:
++              - Invokes operation.contact.delete
++              - The contact, its goal and its history are deleted at once and cannot be restored
++            failure: [Another owner's record returns a non-revealing denial]
++            links:
++              - { rel: invokes, to: operation.contact.delete }
+ 
+   - id: screen.goal
+     kind: screen
+@@ -657,6 +669,7 @@
+       - { name: channels, type: "list<json>", optional: true }
+       - { name: linkedAccountId, type: "ref:entity.Account", optional: true }
+       - { name: version, type: int }
++      - { name: deletedAt, type: timestamp, optional: true }
+     invariants:
+       - Belongs to one owner
+       - Owner-only
+@@ -879,6 +892,21 @@
+       - { rel: writes, to: entity.ContactRecord }
+       - { rel: governs, to: policy.ownerOnly, direction: in }
+       - { rel: governs, to: policy.authentication, direction: in } # S.webapp.operations: mutations authorize the authenticated owner
++  - id: operation.contact.delete
++    kind: operation
++    name: Delete private contact
++    parent: section.domain
++    description: Owned contact. Mark the ContactRecord, its goal and its events deleted; they stay restorable for 30 days and are then purged
++    preconditions: [Owned contact]
++    effects: [Mark the ContactRecord with its goal and events deleted, Cancel the contact's pending jobs, The owner can restore the contact for 30 days, Purge after 30 days]
++    failure: [Reads and writes to another owner's private records return a non-revealing denial]
++    links:
++      - { rel: writes, to: entity.ContactRecord }
++      - { rel: writes, to: entity.RelationshipGoal }
++      - { rel: writes, to: entity.ContactEvent }
++      - { rel: writes, to: entity.NotificationJob }
++      - { rel: governs, to: policy.ownerOnly, direction: in }
++      - { rel: governs, to: policy.authentication, direction: in }
+   - id: operation.goal.save
+     kind: operation
+     name: Save goal
+--- a/things/webapp/spec.yaml
++++ b/things/webapp/spec.yaml
+@@ -79,6 +79,7 @@
+     refines: [GD.contacts, GD.goals, GD.connect]
+     subjects:
+       - operation.contact.save
++      - operation.contact.delete
+       - operation.goal.save
+       - operation.contact.log
+       - operation.invite.create

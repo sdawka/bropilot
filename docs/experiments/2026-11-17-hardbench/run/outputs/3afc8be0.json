@@ -1,0 +1,35 @@
+{
+ "variant": "643d59",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.goal.save",
+    "requirement.webapp.goal-dates"
+   ],
+   "severity": "high",
+   "summary": "Saving a goal now requires an active Connection with the contact's linked account, which contradicts the product's model of goals on owner-held contact records: contacts without a linked account, or who haven't accepted an invitation, can no longer have any goal.",
+   "evidence": "preconditions: [Owned contact, Active Connection with the contact's linked account, Valid interval] / \"A goal may be saved only for a contact with an active Connection.\""
+  },
+  {
+   "nodeIds": [
+    "operation.goal.save"
+   ],
+   "severity": "medium",
+   "summary": "The operation's description was not updated and still says the only preconditions are an owned contact and a valid interval, so it contradicts the new Connection precondition.",
+   "evidence": "description: Owned contact and valid interval. Increment goal version, ... vs preconditions: [Owned contact, Active Connection with the contact's linked account, Valid interval]"
+  },
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.editGoal",
+    "J.goals"
+   ],
+   "severity": "medium",
+   "summary": "Edit goal is now gated on an accepted invitation, but the goals journey defines no alternate path or messaging for unconnected contacts, and existing goals on unconnected contacts become uneditable.",
+   "evidence": "action: Choose Edit goal (available once the person has accepted an invitation) / failure: [Not available until the person has accepted an invitation]"
+  }
+ ],
+ "unknownIds": [
+  "requirement.webapp.goal-dates"
+ ]
+}

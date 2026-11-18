@@ -1,0 +1,26 @@
+{
+ "variant": "22094b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export",
+    "operation.data.export"
+   ],
+   "severity": "medium",
+   "summary": "The new affordance effect puts other people's phone numbers and email addresses into the export, which conflicts with the invoked operation's rule that the export excludes other people's data, and the operation itself never mentions including channels.",
+   "evidence": "affordance.ExportControls.export effects: \"Each exported contact includes the channels the owner recorded, such as phone and email\" vs operation.data.export effects: \"Export excludes other people's data\""
+  },
+  {
+   "nodeIds": [
+    "J.control.export/x4",
+    "C.webapp.lifecycle.data",
+    "hook.webapp.lifecycle.data"
+   ],
+   "severity": "low",
+   "summary": "The new JSON/CSV format choice was added to x2, the affordance, the operation and the hook fixture, but the journey's export step and the lifecycle criterion still do not mention format, so the criterion doesn't cover the dual-format behavior its hook now tests.",
+   "evidence": "J.control.export/x4 action: \"Export authorized records of the authenticated owner only\"; C.webapp.lifecycle.data claim: \"Owner export excludes others' data...\" vs hook fixture: \"export isolation in both formats, deletion purge and retention\""
+  }
+ ],
+ "unknownIds": []
+}

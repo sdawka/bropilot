@@ -1,0 +1,25 @@
+{
+ "variant": "5cceea",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.HistoryRow.delete",
+    "operation.contact.log"
+   ],
+   "severity": "high",
+   "summary": "The new Delete affordance says the schedule is left stale after deleting an event, which contradicts operation.contact.log recomputing affected goals and the schedule-correctness criterion whose fixtures now cover event deletion.",
+   "evidence": "affordance effects: \"The schedule is left as it is until the goal is next saved\" vs operation.contact.log effects: \"Recompute affected goals without sending anything\"; criteria fixture: \"fixed-clock scheduling fixtures with IANA zones, DST and event deletion\" (acceptance C.webapp.schedule.correct)"
+  },
+  {
+   "nodeIds": [
+    "affordance.HistoryRow.delete",
+    "operation.contact.log"
+   ],
+   "severity": "medium",
+   "summary": "Deletion is routed through the log-contact operation, whose description and preconditions only cover persisting a new event with a nonfuture time and do not define removal semantics.",
+   "evidence": "operation.contact.log description: \"Owned contact, nonfuture event time. Persist event...\"; preconditions: [Owned contact, Nonfuture event time]; affordance preconditions: [Owned contact, Owned event] and effect \"Invokes operation.contact.log to remove the event\""
+  }
+ ],
+ "unknownIds": []
+}

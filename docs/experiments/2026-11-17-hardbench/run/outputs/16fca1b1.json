@@ -1,0 +1,24 @@
+{
+ "variant": "8ac67f",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "GD.goals"
+   ],
+   "severity": "high",
+   "summary": "The new GD.goals summary contains unquoted commas inside a YAML flow mapping, so the parser splits it into extra keys and truncates the summary to 'An owner-only goal with an interval', dropping depth and the schedule preview.",
+   "evidence": "Diff: `summary: An owner-only goal with an interval, chosen from presets or typed, and a desired depth, with a schedule preview.` inside `{ ... }`; rendered slice: `summary: An owner-only goal with an interval`"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.schedule.correct",
+    "component.GoalIntervalField"
+   ],
+   "severity": "low",
+   "summary": "The schedule criterion now names only 'interval preset' changes, so typed (non-preset) interval changes are no longer explicitly covered even though the field still accepts any value from 1 to 3650.",
+   "evidence": "claim: \"Fixed-clock fixtures cover zero logs, qualification, interval preset and depth changes, ...\" vs IntervalField: \"intervalDays from 1 through 3650; presets for ...\""
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,15 @@
+{
+ "variant": "474d5e",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "entity.NotificationJob"
+   ],
+   "severity": "medium",
+   "summary": "The new invariant says a job whose delivery time falls inside quiet hours is cancelled at delivery, which contradicts S.webapp.prompts and C.webapp.prompts.bounded, both of which require such reminders to be deferred and delivered when quiet hours end.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

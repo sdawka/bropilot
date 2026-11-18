@@ -1,0 +1,56 @@
+--- a/description.yaml
++++ b/description.yaml
+@@ -7,7 +7,7 @@
+ features:
+   - { id: GD.contacts, name: Private contacts, summary: Keep a private contact record before any friend installs the app; optional channel and context., source: { doc: keep-in-touch-world-specification, section: "3" } }
+   - { id: GD.goals, name: Cadence and depth, summary: An owner-only goal with an interval and a desired depth, with a schedule preview., source: { doc: keep-in-touch-world-specification, section: "3" } }
+-  - { id: GD.connect, name: Consented pair connections, summary: Invitation-based pairs formed by two explicit consents; either party can disconnect or block., source: { doc: keep-in-touch-world-specification, section: "3" } }
++  - { id: GD.connect, name: Consented pair connections, summary: Invitation-based pairs formed by two explicit consents; either party can disconnect, which removes that person, or block., source: { doc: keep-in-touch-world-specification, section: "3" } }
+   - { id: GD.prompts, name: Suggested next actions, summary: A finite Today view of at most five due suggestions; opening a channel never completes a goal., source: { doc: keep-in-touch-world-specification, section: "3" } }
+   - { id: GD.updates, name: Digests and photo suggestions (later), summary: Later digests and photo suggestions; realization deferred while the digest interpretation is unresolved., deferred: true, source: { doc: keep-in-touch-world-specification, section: "3" } }
+ commitments:
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -71,7 +71,7 @@
+     hooks: [hook.webapp.screen.exact]
+   - id: C.webapp.revocation.current
+     title: Current revocation
+-    claim: "Revoke access after a job is queued, then retry dispatch and access. No new authorized sharing may follow revocation"
++    claim: "Revoke access after a job is queued, then retry dispatch and access. No new authorized sharing may follow revocation. Disconnect removes the participant's own record, goal and history for that person"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: policy
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -311,9 +311,11 @@
+             kind: affordance
+             name: Disconnect
+             actor: ext.owner
+-            trigger: Owner confirms Disconnect
++            trigger: Owner confirms Disconnect after a warning that the person will be removed
+             preconditions: [Active Connection with this contact's linked account]
+-            effects: [Removes shared capabilities while private records remain under the owner's control]
++            effects:
++              - Removes shared capabilities
++              - Deletes the owner's private ContactRecord for this person with its goal and history, so ending a connection leaves no trace
+             failure: [Not available when there is no active Connection]
+             links:
+               - { rel: invokes, to: operation.connection.revoke }
+@@ -948,7 +950,7 @@
+     parent: section.domain
+     description: Participant authority. Revoke affected app sharing and cancel pending deliveries; a block prevents new app-mediated contact until removed
+     preconditions: [Participant authority]
+-    effects: [Revoke affected app sharing, Cancel pending deliveries, A block prevents new app-mediated contact until removed, Blocking pauses the blocker's corresponding goal]
++    effects: [Revoke affected app sharing, Cancel pending deliveries, A block prevents new app-mediated contact until removed, Blocking pauses the blocker's corresponding goal, Disconnecting deletes the participant's own ContactRecord with its goal and events for that person]
+     failure: [Non-participant is denied, Already delivered external messages or copied data cannot be retracted]
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:
+@@ -958,6 +960,8 @@
+       # S.webapp.prompts: "Blocking a linked counterpart must pause the blocker's corresponding goal and suppress its suggestions"
+       - { rel: writes, to: entity.RelationshipGoal }
+       - { rel: writes, to: entity.Suggestion }
++      - { rel: writes, to: entity.ContactRecord }
++      - { rel: writes, to: entity.ContactEvent }
+       - { rel: governs, to: policy.revocation, direction: in }
+       - { rel: governs, to: policy.authentication, direction: in } # S.webapp.operations: mutations authorize the authenticated owner
+   - id: operation.data.export

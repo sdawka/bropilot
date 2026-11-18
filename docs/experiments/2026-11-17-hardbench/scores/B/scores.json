@@ -1,0 +1,2227 @@
+[
+ {
+  "outid": "b0bea476",
+  "variant": "f381ab",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "28e7e172",
+  "variant": "8fa895",
+  "class": "F",
+  "found": true,
+  "rank": 2,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "[2] journey b5 states refusal without time limit; not e1 'until removed'"
+ },
+ {
+  "outid": "567ffeef",
+  "variant": "643d59",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "GD.contacts/GD.goals, not P1"
+ },
+ {
+  "outid": "afbcdb5e",
+  "variant": "aaf530",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "38ee5050",
+  "variant": "95dd79",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "12ef28cc",
+  "variant": "bc8433",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "asserts 'owner reminders should not carry contact details' without locating rule"
+ },
+ {
+  "outid": "dafb873f",
+  "variant": "dfba1a",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "59b9649d",
+  "variant": "249a5b",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "b3b0b3bf",
+  "variant": "5cceea",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "aab99379",
+  "variant": "e3bf46",
+  "class": "F",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "says screen.today/requirements not updated and ordering untraced; no conflict claimed"
+ },
+ {
+  "outid": "9aacf5df",
+  "variant": "089273",
+  "class": "F",
+  "found": true,
+  "rank": 2,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "[2] says sign-in invitees skip ConsentPanel Accept/Decline and weakens explicit consent; counterpart named is screen.invitation/policy.pairConsent, not S.webapp.authentication/J.connect/s6"
+ },
+ {
+  "outid": "ca4b7d15",
+  "variant": "46753b",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "d47f2fe9",
+  "variant": "22094b",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false",
+   "false"
+  ],
+  "notes": "owner's own recorded channels are not other people's data (manifest)"
+ },
+ {
+  "outid": "49715c1f",
+  "variant": "474d5e",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "ddbef2c9",
+  "variant": "5cceea",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "b4d3d400",
+  "variant": "f381ab",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "4903f16b",
+  "variant": "125d6e",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "210cb852",
+  "variant": "8fa895",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "J.control.block lasts until removed"
+ },
+ {
+  "outid": "f1f61b13",
+  "variant": "6fa350",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "5311924c",
+  "variant": "aaf530",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "12352e1f",
+  "variant": "46753b",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "870d3f16",
+  "variant": "6fa350",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "c00ec22e",
+  "variant": "d1c15a",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "a310b704",
+  "variant": "474d5e",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "33c338c3",
+  "variant": "b6a5d0",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "93b0cc35",
+  "variant": "46753b",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "e47da255",
+  "variant": "08b2b8",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "cites J.control.disconnect 'record remains'"
+ },
+ {
+  "outid": "1d5a67ff",
+  "variant": "dfba1a",
+  "class": "N",
+  "found": true,
+  "rank": 3,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "[3] no ConnectionInvite field keeps the code retrievable (cites entity.ConnectionInvite); hedged, no hash wording"
+ },
+ {
+  "outid": "0cd818dd",
+  "variant": "27bc02",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "72277e71",
+  "variant": "aaf530",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "3afc8be0",
+  "variant": "643d59",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "'product's model of goals on owner-held records'"
+ },
+ {
+  "outid": "36cd71c3",
+  "variant": "774614",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "clean"
+ },
+ {
+  "outid": "3954c306",
+  "variant": "499fa7",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "clean"
+ },
+ {
+  "outid": "2f282945",
+  "variant": "cfc784",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "8ebdb0da",
+  "variant": "9edff9",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "1877bfab",
+  "variant": "089273",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "describes 'validated invitation preserved unconsumed' = S.webapp.authentication text"
+ },
+ {
+  "outid": "3e91be6b",
+  "variant": "aaf530",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "da7269f2",
+  "variant": "089273",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "bypasses explicit ConsentPanel accept; no preserve-without-consume counterpart"
+ },
+ {
+  "outid": "33581166",
+  "variant": "04db7c",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false",
+   "false"
+  ],
+  "notes": "hour lives in notificationPreferences json; reads-only link is the pre-existing pattern for opt-in"
+ },
+ {
+  "outid": "66db0782",
+  "variant": "474d5e",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "e5b33ee1",
+  "variant": "45de63",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "8a89079b",
+  "variant": "e3bf46",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "S.webapp.prompts, SuggestionCollection"
+ },
+ {
+  "outid": "43a1e492",
+  "variant": "864bc6",
+  "class": "F",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "cites J.connect/s2 but complaint is operation not updated"
+ },
+ {
+  "outid": "f7fbc4f4",
+  "variant": "8ac67f",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "7c2a896e",
+  "variant": "499fa7",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "4b24f21e",
+  "variant": "8ac67f",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false"
+  ],
+  "notes": "'interval preset and depth changes' wording; no contradiction"
+ },
+ {
+  "outid": "024a0b1c",
+  "variant": "95dd79",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false"
+  ],
+  "notes": "snoozedUntil already declared on RelationshipGoal"
+ },
+ {
+  "outid": "56a0b421",
+  "variant": "864bc6",
+  "class": "F",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "ccaec884",
+  "variant": "249a5b",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "56585efe",
+  "variant": "edd783",
+  "class": "F",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "9cc1c657",
+  "variant": "08b2b8",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "conflict stated against GD.contacts, not the journey"
+ },
+ {
+  "outid": "f148d820",
+  "variant": "9edff9",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "0c3355dd",
+  "variant": "8fa895",
+  "class": "F",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "5996e108",
+  "variant": "774614",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "clean"
+ },
+ {
+  "outid": "d30e7bb6",
+  "variant": "864bc6",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "J.connect still shares by QR/code"
+ },
+ {
+  "outid": "212d724e",
+  "variant": "5f4559",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "7900cb29",
+  "variant": "5cceea",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "9578b41b",
+  "variant": "3a9735",
+  "class": "F",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "critiques uninformed consent; never says InvitePreview/s7 still reveal inviter"
+ },
+ {
+  "outid": "1b72e788",
+  "variant": "46753b",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "d1b7dc8d",
+  "variant": "774614",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "clean"
+ },
+ {
+  "outid": "64cccde2",
+  "variant": "f80839",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "111501eb",
+  "variant": "e3bf46",
+  "class": "F",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "unspecified/untested, no conflict"
+ },
+ {
+  "outid": "f19ee731",
+  "variant": "774614",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "clean"
+ },
+ {
+  "outid": "07992189",
+  "variant": "45de63",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "4ab04146",
+  "variant": "3a9735",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "InvitePreview cited"
+ },
+ {
+  "outid": "523310ec",
+  "variant": "643d59",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "P1 cited"
+ },
+ {
+  "outid": "8d44319c",
+  "variant": "5cceea",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "9ff6d8c5",
+  "variant": "9edff9",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "5b70bbbe",
+  "variant": "95dd79",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false",
+   "false",
+   "false"
+  ],
+  "notes": "snoozedUntil exists on goal; 'chosen date' from duration is underspecified wording, not conflict"
+ },
+ {
+  "outid": "16fca1b1",
+  "variant": "8ac67f",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "real",
+   "false"
+  ],
+  "notes": "[1] real: plain-scalar commas in flow mapping; YAML parses GD.goals summary as 'An owner-only goal with an interval' and drops 'desired depth' (base already truncated at the last comma)"
+ },
+ {
+  "outid": "bd9b2700",
+  "variant": "b7965d",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "5c7fe4df",
+  "variant": "125d6e",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "[1] journey-internal only; affordance named in [2]"
+ },
+ {
+  "outid": "578699c5",
+  "variant": "864bc6",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "no",
+  "controlFindings": null,
+  "notes": "hedged: 'operation and any redemption flow that depend on a displayed QR'; operation.invite.create has no QR text; s3 not named"
+ },
+ {
+  "outid": "75912da2",
+  "variant": "5cceea",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "946e560f",
+  "variant": "f80839",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "5d1f4a42",
+  "variant": "f80839",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "conflict stated against the affordance's own 'authenticated owner only' and x4, not the operation's exclusion rule"
+ },
+ {
+  "outid": "5960ecbb",
+  "variant": "04db7c",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false",
+   "false",
+   "false"
+  ],
+  "notes": "hook beyond claim is drift not conflict; criterion already gates evo.2 and covers owner reminders in base; missing range is not a conflict"
+ },
+ {
+  "outid": "45c4f4c8",
+  "variant": "04db7c",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false",
+   "false",
+   "false"
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "001ec5be",
+  "variant": "089273",
+  "class": "F",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "only ConsentPanel cardinality conflict and missing invokes link; never says auto-accept bypasses consent/preservation"
+ },
+ {
+  "outid": "feeafc8a",
+  "variant": "5f4559",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "58de7fd4",
+  "variant": "ee73ec",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "ab502b09",
+  "variant": "9edff9",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "59a29393",
+  "variant": "8ac67f",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "real"
+  ],
+  "notes": "YAML flow-mapping truncation, verified with yaml.safe_load"
+ },
+ {
+  "outid": "2235d7dd",
+  "variant": "643d59",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "GD.contacts/GD.goals"
+ },
+ {
+  "outid": "750712c0",
+  "variant": "499fa7",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "clean"
+ },
+ {
+  "outid": "805bd103",
+  "variant": "6fa350",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "a277570a",
+  "variant": "cfc784",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "8e799ee1",
+  "variant": "b434a4",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "dee0a010",
+  "variant": "125d6e",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "441d75c5",
+  "variant": "d1c15a",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "62c5b110",
+  "variant": "3a9735",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "points at InvitePreview on screen.invitation but claims nothing says what it shows (it says inviter is shown)"
+ },
+ {
+  "outid": "a9b08801",
+  "variant": "27bc02",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "962f35e3",
+  "variant": "698e3b",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "cites MetGoalCheckbox but frames 'defaults unchecked' as replaced rather than still stated"
+ },
+ {
+  "outid": "b5c99344",
+  "variant": "125d6e",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "[1] journey-internal; dialog named in [2]"
+ },
+ {
+  "outid": "cf411cac",
+  "variant": "27bc02",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "d8751f4e",
+  "variant": "bc8433",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "hedged: 'likely breaks the spec's privacy and minimal-content rules for external reminders'"
+ },
+ {
+  "outid": "de2fb073",
+  "variant": "45de63",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "8d9e63be",
+  "variant": "edd783",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "hedged 'likely', but names SchedulePreview's preview-before-commit role"
+ },
+ {
+  "outid": "f24dc213",
+  "variant": "d1c15a",
+  "class": "N",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "notes precondition loosened to 'Valid event time' but never the operation's nonfuture rule"
+ },
+ {
+  "outid": "d196150a",
+  "variant": "d1c15a",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "49c2a804",
+  "variant": "b7965d",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "069f999e",
+  "variant": "dfba1a",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "3b717fdf",
+  "variant": "f381ab",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "49358ef1",
+  "variant": "b7965d",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "S.webapp.scope cited"
+ },
+ {
+  "outid": "5405529e",
+  "variant": "f381ab",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "bcc5b1c7",
+  "variant": "b434a4",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "2f33c907",
+  "variant": "698e3b",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "ContactEvent explicit-mark invariant (secondary counterpart)"
+ },
+ {
+  "outid": "fd4eef6c",
+  "variant": "3a9735",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "InvitePreview shown before Accept/Decline"
+ },
+ {
+  "outid": "68225569",
+  "variant": "bc8433",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "a62ec338",
+  "variant": "aaf530",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "eacba510",
+  "variant": "f80839",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "same as 5d1f4a42"
+ },
+ {
+  "outid": "ca4a8df7",
+  "variant": "22094b",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false",
+   "false"
+  ],
+  "notes": "operation omitting a restatement is not a contradiction"
+ },
+ {
+  "outid": "c48187db",
+  "variant": "b6a5d0",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "counting-match conflict in S.webapp.qualification; never mentions ContactEvent.qualifiedDepth enum"
+ },
+ {
+  "outid": "065e8a31",
+  "variant": "e3bf46",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "hedged: Today screen and suggestion-ordering spec 'may conflict'"
+ },
+ {
+  "outid": "05e50e80",
+  "variant": "ee73ec",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "0ece7398",
+  "variant": "3a9735",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "hedged: 'probably conflicts with any accept/redeem flow that shows the inviter'; no node"
+ },
+ {
+  "outid": "0fa88095",
+  "variant": "b7965d",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "1d398354",
+  "variant": "b434a4",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "13f0533f",
+  "variant": "ee73ec",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "9b487302",
+  "variant": "27bc02",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "626891a9",
+  "variant": "95dd79",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "9d497ce7",
+  "variant": "45de63",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "3d6c1461",
+  "variant": "edd783",
+  "class": "F",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "62614f3e",
+  "variant": "8fa895",
+  "class": "F",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "6ff5aa24",
+  "variant": "95dd79",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "4aadd0e7",
+  "variant": "dfba1a",
+  "class": "N",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "45043bd3",
+  "variant": "b6a5d0",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "6001d554",
+  "variant": "bc8433",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "bd445952",
+  "variant": "249a5b",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false",
+   "false"
+  ],
+  "notes": "[2] criterion 'search' state absent from screen.people states, but base criterion already names 'dialog' which is also absent"
+ },
+ {
+  "outid": "bc15f81c",
+  "variant": "6fa350",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "14fcd4bf",
+  "variant": "6fa350",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "e179c117",
+  "variant": "698e3b",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "ContactEvent invariant"
+ },
+ {
+  "outid": "0af81682",
+  "variant": "8fa895",
+  "class": "F",
+  "found": true,
+  "rank": 3,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "[1] cites source sections; [3] b5 no time bound"
+ },
+ {
+  "outid": "c536ee49",
+  "variant": "b434a4",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "60897238",
+  "variant": "474d5e",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "b5acbf47",
+  "variant": "45de63",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "03e17fb0",
+  "variant": "aaf530",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "fce8252e",
+  "variant": "b7965d",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "976178b7",
+  "variant": "125d6e",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "names BlockConfirmDialog"
+ },
+ {
+  "outid": "a66072c0",
+  "variant": "46753b",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "cf19bfc2",
+  "variant": "d1c15a",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "4434796d",
+  "variant": "22094b",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false",
+   "false",
+   "false"
+  ],
+  "notes": "format choice is carried by the affordance effect"
+ },
+ {
+  "outid": "8dcf53a0",
+  "variant": "b434a4",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "be8ba967",
+  "variant": "f80839",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "98069151",
+  "variant": "643d59",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "hedged: 'likely contradicts the core goal flow which needs only an owned contact'"
+ },
+ {
+  "outid": "db108cc0",
+  "variant": "dfba1a",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "3711b6ed",
+  "variant": "08b2b8",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "GD.contacts premise"
+ },
+ {
+  "outid": "2f654a7f",
+  "variant": "698e3b",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "[1] cites MetGoalCheckbox (risk framing); [3] states the exact stale-component mismatch"
+ },
+ {
+  "outid": "179e3361",
+  "variant": "cfc784",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "287c7119",
+  "variant": "698e3b",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "ContactEvent invariant"
+ },
+ {
+  "outid": "ff708d2d",
+  "variant": "b6a5d0",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "counting-match conflict; [2] 'records the value any' but no enum/ContactEvent"
+ },
+ {
+  "outid": "ddf1bc81",
+  "variant": "04db7c",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false",
+   "false",
+   "false"
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "1eddfb3f",
+  "variant": "f381ab",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "SuggestionCard.logContact cited"
+ },
+ {
+  "outid": "dcef7612",
+  "variant": "b434a4",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "150cc4cd",
+  "variant": "089273",
+  "class": "F",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "missing invokes/preconditions; ConsentPanel cardinality"
+ },
+ {
+  "outid": "0608ba25",
+  "variant": "499fa7",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "clean"
+ },
+ {
+  "outid": "19c1ceb9",
+  "variant": "27bc02",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "8331a8c7",
+  "variant": "5f4559",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "da0b9512",
+  "variant": "249a5b",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "9c807746",
+  "variant": "b7965d",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "[2] conflicts with draft/no-autonomous-send semantics, not scope"
+ },
+ {
+  "outid": "cdbaf078",
+  "variant": "5f4559",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "ext.events cited"
+ },
+ {
+  "outid": "29ea4c5f",
+  "variant": "bc8433",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "d771ee37",
+  "variant": "cfc784",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "a9ffc884",
+  "variant": "499fa7",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "clean"
+ },
+ {
+  "outid": "3ebf2a6f",
+  "variant": "27bc02",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "d6ab2dd3",
+  "variant": "22094b",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false",
+   "false"
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "e0bc408c",
+  "variant": "e3bf46",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "hedged: 'may conflict with any existing ordering rule'"
+ },
+ {
+  "outid": "839b942c",
+  "variant": "95dd79",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "662cd8d8",
+  "variant": "8ac67f",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "real",
+   "false"
+  ],
+  "notes": "[1] YAML truncation real; [2] wording narrowing not a conflict"
+ },
+ {
+  "outid": "fb0b5344",
+  "variant": "ee73ec",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "353fb85d",
+  "variant": "bc8433",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "54d958d3",
+  "variant": "125d6e",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "describes 'nothing revoked until confirmation' rule"
+ },
+ {
+  "outid": "eefccb54",
+  "variant": "04db7c",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "f6f60ea4",
+  "variant": "643d59",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "GD.goals/GD.contacts 'before any friend installs' (P1 wording, P1 not named)"
+ },
+ {
+  "outid": "17dd87ca",
+  "variant": "6fa350",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "be33ec36",
+  "variant": "f80839",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "0ec16022",
+  "variant": "edd783",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "cb74b7d7",
+  "variant": "499fa7",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "clean"
+ },
+ {
+  "outid": "618df661",
+  "variant": "9edff9",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "c448e145",
+  "variant": "249a5b",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "real",
+   "false"
+  ],
+  "notes": "[1] real minor: C.webapp.screen.people now claims search state but hook.webapp.screen.people fixture enumerates 'loaded, empty, loading, error, dialog' without search; [2] same 'dialog' precedent as bd445952"
+ },
+ {
+  "outid": "5e18e657",
+  "variant": "3a9735",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "same as 62c5b110: InvitePreview named, content claimed unspecified"
+ },
+ {
+  "outid": "b17ef3f6",
+  "variant": "cfc784",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "61942208",
+  "variant": "774614",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "0ad32cb8",
+  "variant": "9edff9",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "cd7c04d3",
+  "variant": "089273",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": "cites S.webapp.authentication"
+ },
+ {
+  "outid": "d6f374fd",
+  "variant": "8ac67f",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "d067f065",
+  "variant": "d1c15a",
+  "class": "N",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "09994f8b",
+  "variant": "698e3b",
+  "class": "U",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "8bdbd67d",
+  "variant": "ee73ec",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "02bca05e",
+  "variant": "b6a5d0",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "a4001e2c",
+  "variant": "edd783",
+  "class": "F",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "a2980f2a",
+  "variant": "04db7c",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false",
+   "false",
+   "false"
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "670840e4",
+  "variant": "864bc6",
+  "class": "F",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "3c73d19f",
+  "variant": "22094b",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false",
+   "false",
+   "false"
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "21d7ea41",
+  "variant": "22094b",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false",
+   "false"
+  ],
+  "notes": ""
+ },
+ {
+  "outid": "485cab8e",
+  "variant": "249a5b",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [
+   "false",
+   "false",
+   "false"
+  ],
+  "notes": "[1] 'dialog' precedent; [2] hook broader than claim; [3] underspecified no-match state"
+ },
+ {
+  "outid": "c48b582d",
+  "variant": "8fa895",
+  "class": "F",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "3f8c31d3",
+  "variant": "774614",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "clean"
+ },
+ {
+  "outid": "af01c86a",
+  "variant": "cfc784",
+  "class": "control",
+  "found": null,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": [],
+  "notes": "clean"
+ },
+ {
+  "outid": "a5bc3433",
+  "variant": "e3bf46",
+  "class": "F",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "claims no backing requirement (wrong: prompts requirement defines ordering)"
+ },
+ {
+  "outid": "8038ae66",
+  "variant": "5f4559",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": "[2] browsers cannot read calendars - not the boundary conflict"
+ },
+ {
+  "outid": "6d4b903f",
+  "variant": "08b2b8",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "GD.contacts/ContactRecord; [3] journey d3/d4 not e1"
+ },
+ {
+  "outid": "c88bf928",
+  "variant": "ee73ec",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "55b540d8",
+  "variant": "5cceea",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "c00423c4",
+  "variant": "864bc6",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "no",
+  "controlFindings": null,
+  "notes": "hedged: operation.invite.create/'redemption flow' 'appear built around' QR shared in person; wrong node, s3 not named"
+ },
+ {
+  "outid": "d85c46e2",
+  "variant": "b6a5d0",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "b69f511f",
+  "variant": "08b2b8",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "GD.contacts/ContactRecord; [2] journey d2-d4 not e1"
+ },
+ {
+  "outid": "dde96486",
+  "variant": "5f4559",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "6923dab5",
+  "variant": "edd783",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "no",
+  "controlFindings": null,
+  "notes": "hedged: 'likely breaks any part of the spec that relies on previewing before confirming'; no node"
+ },
+ {
+  "outid": "0f1cfd4a",
+  "variant": "f381ab",
+  "class": "U",
+  "found": false,
+  "rank": null,
+  "grounded": null,
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "3e4aae35",
+  "variant": "474d5e",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "c30d61d6",
+  "variant": "dfba1a",
+  "class": "N",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "66d6956c",
+  "variant": "08b2b8",
+  "class": "F",
+  "found": true,
+  "rank": 1,
+  "grounded": "partial",
+  "controlFindings": null,
+  "notes": "GD.contacts/ContactRecord"
+ },
+ {
+  "outid": "04dc8f5b",
+  "variant": "46753b",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "38e8aa52",
+  "variant": "45de63",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ },
+ {
+  "outid": "923f7657",
+  "variant": "474d5e",
+  "class": "I",
+  "found": true,
+  "rank": 1,
+  "grounded": "yes",
+  "controlFindings": null,
+  "notes": ""
+ }
+]

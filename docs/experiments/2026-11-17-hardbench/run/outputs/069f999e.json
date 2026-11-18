@@ -1,0 +1,37 @@
+{
+ "variant": "dfba1a",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.resendInvite",
+    "entity.ConnectionInvite",
+    "operation.invite.create"
+   ],
+   "severity": "high",
+   "summary": "Resend invitation promises to show the original QR or connection code again, but the spec stores only a token hash, so the original credential cannot be recovered and shown.",
+   "evidence": "resendInvite effects: \"Shows the pending invitation's original QR or connection code again; no new invitation is created\" vs ConnectionInvite invariant \"Stores only a token hash\" and invite.create \"store only a token hash\""
+  },
+  {
+   "nodeIds": [
+    "J.connect/s1",
+    "J.connect/s2",
+    "affordance.ConnectionPanel.resendInvite"
+   ],
+   "severity": "medium",
+   "summary": "Journey step s1 now allows Resend, but it always continues to s2, which creates a new invitation; that contradicts Resend's rule that no new invitation is created.",
+   "evidence": "s1: \"choose Invite, or Resend invitation while one is pending\" next: s2; s2: \"Create invitation: 128-bit credential...\"; resendInvite: \"no new invitation is created\""
+  },
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.resendInvite",
+    "entity.ConnectionInvite",
+    "affordance.ConnectionPanel.invite"
+   ],
+   "severity": "low",
+   "summary": "Resend's precondition needs a pending invitation 'for this contact', but ConnectionInvite has no contact reference, and Invite's preconditions do not exclude a pending invitation, so availability between Invite and Resend is undefined.",
+   "evidence": "resendInvite preconditions: \"A pending, unexpired invitation exists for this contact\"; ConnectionInvite fields: id, inviterAccountId, tokenHash, expiresAt, state, boundAccountId; Invite preconditions: \"Contact is not connected\", \"No block in either direction\""
+  }
+ ],
+ "unknownIds": []
+}

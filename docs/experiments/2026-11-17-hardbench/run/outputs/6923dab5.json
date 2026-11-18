@@ -1,0 +1,34 @@
+{
+ "variant": "edd783",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.GoalForm.save",
+    "evolution.7"
+   ],
+   "severity": "medium",
+   "summary": "Save now commits immediately, so the schedule is only shown after saving; this likely breaks any part of the spec that relies on the owner previewing the schedule before confirming a goal change.",
+   "evidence": "\"Invokes operation.goal.save as soon as Save is activated, without a separate review step\" / \"After saving, SchedulePreview shows the new due date and which past events now qualify\""
+  },
+  {
+   "nodeIds": [
+    "evolution.7",
+    "affordance.GoalForm.save"
+   ],
+   "severity": "medium",
+   "summary": "The change gives SchedulePreview new post-save behavior, but evolution.7 lists only affordance.GoalForm.save in affectedNodes and does not declare SchedulePreview or its owning screen.",
+   "evidence": "affectedNodes:\n- affordance.GoalForm.save  vs. effect \"After saving, SchedulePreview shows the new due date and which past events now qualify\""
+  },
+  {
+   "nodeIds": [
+    "affordance.GoalForm.save",
+    "C.webapp.screen.exact"
+   ],
+   "severity": "low",
+   "summary": "The updated criterion and hook test only 'immediate goal save' and cannot detect a regression in the new post-save SchedulePreview display.",
+   "evidence": "claim: \"... immediate goal save, login continuation and keyboard actions\"; fixture: \"protected browser fixture over all screens incl. immediate goal save\""
+  }
+ ],
+ "unknownIds": []
+}

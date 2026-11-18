@@ -1,0 +1,39 @@
+{
+ "variant": "8fa895",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "S.webapp.prompts",
+    "operation.connection.revoke",
+    "affordance.ConnectionPanel.block",
+    "entity.RelationshipGoal"
+   ],
+   "severity": "medium",
+   "summary": "Prompts now require goal pause and suggestion suppression to last only 'until the block lapses', but nothing un-pauses the goal or restores suggestions when a block lapses, so the persisted pause outlives the block.",
+   "evidence": "S.webapp.prompts: \"pause the blocker's corresponding goal and suppress its suggestions until the block lapses\"; operation.connection.revoke effects: \"Blocking pauses the blocker's corresponding goal\" (writes RelationshipGoal.pausedAt), and no lapse-time operation, job or effect clears pausedAt or reopens suggestions."
+  },
+  {
+   "nodeIds": [
+    "entity.Block",
+    "affordance.ConnectionPanel.block",
+    "operation.connection.revoke",
+    "J.control.block/b5"
+   ],
+   "severity": "medium",
+   "summary": "Blocks now expire automatically after 90 days, and the blocker has no way to extend the block, renew it, or keep it indefinitely, so a blocked counterpart can invite again without the blocker doing anything; the block journey still states refusal without any time limit.",
+   "evidence": "Diff: \"A block prevents new app-mediated contact until removed\" -> \"for 90 days, then lapses automatically\"; J.control.block/b5: \"New invitations and acceptances between the two accounts are refused\" (no lapse); C.webapp.revocation.current: \"A lapsed block restores invite eligibility\"."
+  },
+  {
+   "nodeIds": [
+    "entity.Block",
+    "operation.connection.revoke",
+    "policy.revocation"
+   ],
+   "severity": "low",
+   "summary": "The 90-day expiry is new behaviour, but these nodes still cite the same source document sections that previously defined blocks as lasting until removed, so the spec no longer matches its cited source.",
+   "evidence": "entity.Block source: { doc: keep-in-touch-world-specification, section: \"5\" } unchanged, while description changed from \"overrides connection, sharing and subscription permissions\" to \"...an expiry 90 days after creation ... while in force\"."
+  }
+ ],
+ "unknownIds": []
+}

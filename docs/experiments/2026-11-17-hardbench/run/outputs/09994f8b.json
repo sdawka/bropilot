@@ -1,0 +1,36 @@
+{
+ "variant": "698e3b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "screen.logContact",
+    "component.MetGoalCheckbox"
+   ],
+   "severity": "high",
+   "summary": "The screen description now carries the previous log's Met this goal choice into the new form, but the unchanged MetGoalCheckbox node still says the checkbox defaults unchecked.",
+   "evidence": "screen.logContact: \"channel, depth and the Met this goal choice carry over\" vs component.MetGoalCheckbox: \"Met this goal defaults unchecked and is disabled when no current goal exists\""
+  },
+  {
+   "nodeIds": [
+    "screen.logContact",
+    "S.webapp.qualification",
+    "entity.ContactEvent",
+    "affordance.ContactEventForm.save"
+   ],
+   "severity": "high",
+   "summary": "Pre-checking Met this goal from the previous log lets an event qualify without the owner explicitly marking it, which undermines the requirement that qualification needs an explicit owner mark.",
+   "evidence": "S.webapp.qualification: \"A ContactEvent must qualify only when the owner explicitly marks that it met this goal\"; diff: \"the Met this goal choice carry over\""
+  },
+  {
+   "nodeIds": [
+    "J.contact",
+    "screen.logContact"
+   ],
+   "severity": "low",
+   "summary": "Journey step c4 says the form opens prefilled, but c4 is on screen.person and the form lives on screen.logContact; the spec also never says what the form contains when there is no previous log.",
+   "evidence": "c4: \"action: Log what happened? The form opens prefilled from the previous log ... screen: screen.person\""
+  }
+ ],
+ "unknownIds": []
+}

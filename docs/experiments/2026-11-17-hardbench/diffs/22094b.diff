@@ -1,0 +1,44 @@
+--- a/journeys/J.control.export.yaml
++++ b/journeys/J.control.export.yaml
+@@ -18,7 +18,7 @@
+   - S.webapp.screens
+ - id: x2
+   actor: user
+-  action: Choose Export in ExportControls and reauthenticate
++  action: Choose Export in ExportControls, pick JSON or CSV, and reauthenticate
+   kind: action
+   screen: screen.settings
+   next:
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -243,7 +243,7 @@
+     targetKind: artifact
+     triggers: [candidate, promotion]
+     inputs:
+-      fixture: "export isolation, deletion purge and retention"
++      fixture: "export isolation in both formats, deletion purge and retention"
+     timeoutMs: 60000
+     costTier: cheap
+     binding: defined
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -603,7 +603,9 @@
+             actor: ext.owner
+             trigger: Owner reauthenticates and activates Export
+             preconditions: [Owner reauthentication]
+-            effects: [Export authorized records of the authenticated owner only]
++            effects:
++              - Export authorized records of the authenticated owner only, as JSON or CSV
++              - Each exported contact includes the channels the owner recorded, such as phone and email
+             failure: [Reauthentication failure denies the export]
+             links:
+               - { rel: invokes, to: operation.data.export }
+@@ -966,7 +968,7 @@
+     parent: section.domain
+     description: Owner reauthentication. Export authorized records
+     preconditions: [Owner reauthentication]
+-    effects: [Export authorized records, Export excludes other people's data]
++    effects: [Export authorized records as JSON or CSV, Export excludes other people's data]
+     failure: [Reauthentication failure denies the export]
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:

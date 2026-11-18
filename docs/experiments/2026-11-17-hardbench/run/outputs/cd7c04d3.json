@@ -1,0 +1,36 @@
+{
+ "variant": "089273",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.SignInContinue.continue",
+    "S.webapp.authentication"
+   ],
+   "severity": "high",
+   "summary": "The sign-in continuation now accepts (consumes) the invitation, which contradicts the normative requirement that login continuation must preserve a validated invitation without consuming it.",
+   "evidence": "Diff: \"Login continuation from an invitation accepts it for the invitee once sign-in succeeds\" vs S.webapp.authentication: \"Login continuation must preserve a validated invitation without consuming it.\""
+  },
+  {
+   "nodeIds": [
+    "J.connect",
+    "affordance.SignInContinue.continue",
+    "component.ConsentPanel"
+   ],
+   "severity": "medium",
+   "summary": "The J.connect journey still routes signed-out invitees through sign-in with the invitation preserved and then to an explicit Accept/Decline step, which conflicts with one-tap acceptance at sign-in and the new ConsentPanel description limiting it to already-signed-in invitees.",
+   "evidence": "J.connect s6: \"Sign in; the validated invitation is preserved and not consumed\" -> s7 \"See who is inviting; Accept or Decline\"; ConsentPanel: \"Shown to invitees who open the invitation while already signed in\"."
+  },
+  {
+   "nodeIds": [
+    "affordance.SignInContinue.continue",
+    "operation.invite.accept",
+    "policy.pairConsent"
+   ],
+   "severity": "medium",
+   "summary": "Acceptance at sign-in bypasses the explicit Accept consent and the operation.invite.accept path (no invokes link, no block/self-connection/decline handling), weakening the explicit two-consent model the system relies on.",
+   "evidence": "policy.pairConsent: \"creating the invitation and accepting it provide the two consents\"; ConsentPanel.accept is the only affordance invoking operation.invite.accept, while the changed Continue affordance has only a references link to ext.providers."
+  }
+ ],
+ "unknownIds": []
+}

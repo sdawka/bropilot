@@ -1,0 +1,79 @@
+--- a/journeys/J.control.block.yaml
++++ b/journeys/J.control.block.yaml
+@@ -20,14 +20,11 @@
+   - S.webapp.operations
+ - id: b2
+   actor: user
+-  action: Choose Block and confirm
+-  kind: branch
++  action: Choose Block; BlockConfirmDialog opens
++  kind: action
+   screen: screen.person
+   next:
+   - to: b3
+-    when: confirm
+-  - to: e2
+-    when: cancel
+   requirementRefs:
+   - S.webapp.operations
+ - id: b3
+@@ -37,10 +34,22 @@
+   screen: screen.person
+   operation: operation.connection.revoke
+   next:
+-  - to: b4
++  - to: b6
+   requirementRefs:
+   - S.webapp.operations
+   - S.webapp.concurrency
++- id: b6
++  actor: user
++  action: Confirm block or cancel in BlockConfirmDialog
++  kind: branch
++  screen: screen.person
++  next:
++  - to: b4
++    when: confirm
++  - to: e2
++    when: cancel
++  requirementRefs:
++  - S.webapp.operations
+ - id: b4
+   actor: system
+   action: Blocker's corresponding goal paused and its suggestions suppressed
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -71,7 +71,7 @@
+     hooks: [hook.webapp.screen.exact]
+   - id: C.webapp.revocation.current
+     title: Current revocation
+-    claim: "Revoke access after a job is queued, then retry dispatch and access. No new authorized sharing may follow revocation"
++    claim: "Revoke access after a job is queued, then retry dispatch and access. No new authorized sharing may follow revocation. Cancelling a block confirmation leaves sharing and pending jobs untouched"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: policy
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -321,14 +321,21 @@
+             kind: affordance
+             name: Block
+             actor: ext.owner
+-            trigger: Owner confirms Block
++            trigger: Owner chooses Block, then Confirm block in BlockConfirmDialog
+             preconditions: [Contact is linked to an Account]
+             effects:
++              - Nothing is revoked or recorded until the owner confirms in BlockConfirmDialog
+               - A block prevents new app-mediated contact until removed
+               - Pauses the blocker's corresponding goal and suppresses its suggestions
+             failure: [Not available when the contact has no linked account]
+             links:
+               - { rel: invokes, to: operation.connection.revoke }
++          - id: component.BlockConfirmDialog
++            kind: component
++            name: BlockConfirmDialog
++            cardinality: 1 only while a block is being confirmed
++            states: [closed, open]
++            description: Explains what blocking changes, with Confirm block and Cancel
+       - id: component.PersonActionBar
+         kind: component
+         name: ActionBar

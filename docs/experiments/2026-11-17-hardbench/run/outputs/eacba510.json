@@ -1,0 +1,27 @@
+{
+ "variant": "f80839",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export",
+    "x4"
+   ],
+   "severity": "high",
+   "summary": "The new effect puts each connection counterpart's display name and account email in the export, which leaks another user's personal data and contradicts the 'authenticated owner only' isolation guarantee.",
+   "evidence": "effects: - Export authorized records of the authenticated owner only - The export also lists each active Connection with the counterpart's display name and account email"
+  },
+  {
+   "nodeIds": [
+    "ExportControls"
+   ],
+   "severity": "low",
+   "summary": "The component description lists 'connections' as an export category, but the affordance effect limits it to active Connections and adds counterpart identity fields, so the two scopes do not match.",
+   "evidence": "description: One export of contacts, goals, events and connections as a single JSON file"
+  }
+ ],
+ "unknownIds": [
+  "ExportControls",
+  "x4"
+ ]
+}

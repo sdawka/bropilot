@@ -1,0 +1,24 @@
+{
+ "variant": "f381ab",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.HistoryRow.open"
+   ],
+   "severity": "medium",
+   "summary": "The new HistoryRow open affordance navigates to /people/:id/events/:eventId, but the diff adds no screen with that route; the only route changed is screen.logContact, which moved to /people/:id/events/new.",
+   "evidence": "effects: [Navigates to /people/:id/events/:eventId to revise the event]  vs. only  route: /people/:id/events/new"
+  },
+  {
+   "nodeIds": [
+    "affordance.HistoryRow.open",
+    "component.HistoryRow"
+   ],
+   "severity": "medium",
+   "summary": "Revising an existing event is a new capability, but the diff adds no operation, screen state, or journey step for editing an event; the only referenced event operation is operation.contact.log, which creates one.",
+   "evidence": "description: History has one row per event; each row opens the event for revision  /  operation: operation.contact.log"
+  }
+ ],
+ "unknownIds": []
+}

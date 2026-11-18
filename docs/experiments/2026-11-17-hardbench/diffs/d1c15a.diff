@@ -1,0 +1,58 @@
+--- a/journeys/J.contact.yaml
++++ b/journeys/J.contact.yaml
+@@ -39,7 +39,7 @@
+   - S.webapp.qualification
+ - id: c4
+   actor: user
+-  action: Log what happened?
++  action: Log what happened, or plan the next meeting?
+   kind: branch
+   screen: screen.person
+   next:
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -37,7 +37,7 @@
+     hooks: [hook.webapp.outgoing.single]
+   - id: C.webapp.schedule.correct
+     title: Schedule correctness
+-    claim: "Fixed-clock fixtures cover zero logs, qualification, interval and depth changes, time zones, DST, snooze, pause and deleted events"
++    claim: "Fixed-clock fixtures cover zero logs, qualification, interval and depth changes, time zones, DST, snooze, pause, planned future events and deleted events"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: entity
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -468,7 +468,7 @@
+             kind: component
+             name: DateTimeField
+             cardinality: exactly one
+-            description: Date and time; a nonfuture event time is required
++            description: Date and time; a future time records a planned meeting
+           - id: component.EventChannelSelect
+             kind: component
+             name: ChannelSelect
+@@ -493,7 +493,7 @@
+             name: Save
+             actor: ext.owner
+             trigger: Owner activates Save
+-            preconditions: [Owned contact, Nonfuture event time]
++            preconditions: [Owned contact, Valid event time]
+             effects:
+               - Persist event; recompute affected goals without sending anything
+               - A ContactEvent must qualify only when the owner explicitly marks that it met this goal
+@@ -752,6 +752,7 @@
+       - { name: ownerAccountId, type: "ref:entity.Account" }
+       - { name: contactRecordId, type: "ref:entity.ContactRecord" }
+       - { name: occurredAt, type: timestamp }
++      - { name: planned, type: boolean }
+       - { name: channel, type: string }
+       - { name: selfReportedDepth, type: "enum light|meaningful|shared-time" }
+       - { name: privateNote, type: string, optional: true }
+@@ -761,6 +762,7 @@
+       - One contact target
+       - Qualifies only when the owner explicitly marks that it met this goal
+       - Records the goal ID and desiredDepth at confirmation
++      - A planned event never qualifies before its time has passed
+     links:
+       - { rel: storedIn, to: binding.contactsStore }
+       - { rel: governs, to: policy.ownerOnly, direction: in }

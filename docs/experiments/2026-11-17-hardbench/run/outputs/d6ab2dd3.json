@@ -1,0 +1,23 @@
+{
+ "variant": "22094b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export"
+   ],
+   "severity": "medium",
+   "summary": "The new effect says each exported contact includes recorded channels such as phone and email, but operation.data.export, which this affordance invokes, has no such effect, so the affordance promises behavior the operation does not define.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "affordance.ExportControls.export"
+   ],
+   "severity": "medium",
+   "summary": "Exporting other people's phone numbers and emails conflicts with the operation's effect that the export excludes other people's data, and the lifecycle criterion and hook fixture do not cover or reconcile channel inclusion.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

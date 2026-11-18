@@ -1,0 +1,63 @@
+--- a/journeys/J.goals.yaml
++++ b/journeys/J.goals.yaml
+@@ -19,7 +19,7 @@
+   - S.webapp.screens
+ - id: g2
+   actor: user
+-  action: Choose Edit goal
++  action: Choose Edit goal (available once the person has accepted an invitation)
+   kind: action
+   screen: screen.goal
+   next:
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -340,9 +340,9 @@
+             name: Edit goal
+             actor: ext.owner
+             trigger: Owner activates Edit goal
+-            preconditions: [Owned contact]
++            preconditions: [Owned contact, Active Connection with this contact's linked account]
+             effects: [Navigates to /people/:id/goal]
+-            failure: []
++            failure: [Not available until the person has accepted an invitation]
+           - id: affordance.PersonActionBar.logContact
+             kind: affordance
+             name: Log contact
+@@ -414,7 +414,7 @@
+             name: Save
+             actor: ext.owner
+             trigger: Owner activates Save
+-            preconditions: [Owned contact, Valid interval]
++            preconditions: [Owned contact, Active Connection with this contact's linked account, Valid interval]
+             effects:
+               - Invokes operation.goal.save
+               - Increment goal version, recompute due state and cancel obsolete jobs
+@@ -884,12 +884,13 @@
+     name: Save goal
+     parent: section.domain
+     description: Owned contact and valid interval. Increment goal version, recompute due state and cancel obsolete jobs
+-    preconditions: [Owned contact, Valid interval]
++    preconditions: [Owned contact, Active Connection with the contact's linked account, Valid interval]
+     effects: [Increment goal version, Recompute due state, Cancel obsolete jobs, Revising a goal must not create a ContactEvent]
+-    failure: [Invalid interval is rejected with a validation error, Stale version returns conflict]
++    failure: [Invalid interval is rejected with a validation error, A goal for an unconnected contact is refused, Stale version returns conflict]
+     source: { doc: keep-in-touch-world-specification, section: "6" }
+     links:
+       - { rel: reads, to: entity.ContactRecord }
++      - { rel: reads, to: entity.Connection }
+       - { rel: writes, to: entity.RelationshipGoal }
+       - { rel: writes, to: entity.Suggestion }
+       - { rel: writes, to: entity.NotificationJob }
+--- a/things/webapp/spec.yaml
++++ b/things/webapp/spec.yaml
+@@ -29,8 +29,8 @@
+     text: >-
+       the app must use local calendar dates in the owner's IANA time zone. The anchor must be the latest qualifying
+       event date, or the goal creation date when none exists. dueDate must equal anchor plus intervalDays. A goal must
+-      become due when today's date reaches dueDate, unless paused or snoozed until a later date. Revising a goal must
+-      not create a ContactEvent. Date and time-zone fixtures must cover daylight-saving changes.
++      become due when today's date reaches dueDate, unless paused or snoozed until a later date. A goal may be saved only
++      for a contact with an active Connection. Revising a goal must not create a ContactEvent. Date and time-zone fixtures must cover daylight-saving changes.
+     refines: [GD.goals, GD.prompts]
+     subjects: [entity.RelationshipGoal, entity.Suggestion, operation.goal.save]
+     source: { doc: keep-in-touch-world-specification, section: "6" }

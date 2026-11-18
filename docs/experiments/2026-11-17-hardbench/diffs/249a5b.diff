@@ -1,0 +1,49 @@
+--- a/journeys/J.contacts.yaml
++++ b/journeys/J.contacts.yaml
+@@ -10,7 +10,7 @@
+ steps:
+ - id: s1
+   actor: user
+-  action: Open People
++  action: Open People and optionally search by name, phone or email
+   kind: action
+   screen: screen.people
+   next:
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -93,7 +93,7 @@
+     hooks: [hook.webapp.lifecycle.data]
+   - id: C.webapp.screen.people
+     title: People screen
+-    claim: "Refines C.webapp.screen.exact for loaded, empty, loading, error and dialog states"
++    claim: "Refines C.webapp.screen.exact for loaded, empty, loading, error, search and dialog states"
+     ownerKind: thing
+     ownerId: thing.webapp
+     subjectKind: screen
+@@ -159,7 +159,7 @@
+     targetKind: artifact
+     triggers: [candidate, promotion]
+     inputs:
+-      fixture: "two-account API fixture incl. guessed ids and export"
++      fixture: "two-account API fixture incl. guessed ids, search and export"
+     timeoutMs: 60000
+     costTier: cheap
+     binding: defined
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -160,6 +160,7 @@
+         kind: component
+         name: SearchInput
+         cardinality: exactly one
++        description: Searches names and recorded channels, such as phone or email, of the owner's own contacts
+       - id: component.AddContact
+         kind: component
+         name: AddContact
+@@ -177,6 +178,7 @@
+         kind: component
+         name: ContactCollection
+         cardinality: exactly one
++        description: The owner's contacts, filtered by the current search
+         links:
+           - { rel: reads, to: entity.ContactRecord }
+         children:

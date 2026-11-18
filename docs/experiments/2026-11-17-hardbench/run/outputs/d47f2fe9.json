@@ -1,0 +1,24 @@
+{
+ "variant": "22094b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "operation.data.export"
+   ],
+   "severity": "high",
+   "summary": "The new effect has every exported contact carry the contact's own phone and email, which contradicts the export operation's rule that export excludes other people's data.",
+   "evidence": "Added: \"Each exported contact includes the channels the owner recorded, such as phone and email\" vs operation.data.export effects: \"Export excludes other people's data\""
+  },
+  {
+   "nodeIds": [
+    "operation.data.export",
+    "J.control.export"
+   ],
+   "severity": "low",
+   "summary": "The contact-channel inclusion effect was added only to the ExportControls behavior and not to operation.data.export or the export verification fixture, so the invoked operation does not cover it.",
+   "evidence": "operation.data.export effects: [Export authorized records as JSON or CSV, Export excludes other people's data]; fixture: \"export isolation in both formats, deletion purge and retention\""
+  }
+ ],
+ "unknownIds": []
+}

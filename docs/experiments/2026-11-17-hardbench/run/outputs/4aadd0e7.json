@@ -1,0 +1,36 @@
+{
+ "variant": "dfba1a",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "J.connect.s1",
+    "affordance.ConnectionPanel.resendInvite"
+   ],
+   "severity": "medium",
+   "summary": "Journey step s1 now merges Invite and Resend invitation into one step with the same successor, but Resend explicitly creates no new invitation, so the following steps (which proceed from invite creation) no longer fit the resend branch.",
+   "evidence": "action: Open Person and choose Invite, or Resend invitation while one is pending ... next: (unchanged)  vs  effects: [Shows the pending invitation's original QR or connection code again; no new invitation is created]"
+  },
+  {
+   "nodeIds": [
+    "affordance.ConnectionPanel.resendInvite",
+    "affordance.ConnectionPanel.invite"
+   ],
+   "severity": "low",
+   "summary": "Invite's availability was not updated for the new pending-invitation state, so Invite and Resend invitation can both be offered while an invitation is pending, which conflicts with 'connection status determines' which action is available.",
+   "evidence": "Invite failure: [Not available when already connected or blocked]; Resend preconditions: [A pending, unexpired invitation exists for this contact]"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.connection.consent",
+    "affordance.ConnectionPanel.resendInvite"
+   ],
+   "severity": "low",
+   "summary": "The consent criterion's subject is an operation and now claims resend coverage, but resend is modeled only as an affordance that reads entity.ConnectionInvite and invokes no operation, so nothing the criterion targets exercises resend.",
+   "evidence": "claim: \"Invite fixture covers acceptance, expiry, replay, resend, ...\" subjectKind: operation; resendInvite links: [{ rel: reads, to: entity.ConnectionInvite }]"
+  }
+ ],
+ "unknownIds": [
+  "J.connect.s1"
+ ]
+}

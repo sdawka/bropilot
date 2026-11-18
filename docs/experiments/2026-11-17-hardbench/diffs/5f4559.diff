@@ -1,0 +1,56 @@
+--- a/externals.yaml
++++ b/externals.yaml
+@@ -27,7 +27,7 @@
+   - id: ext.device
+     kind: device
+     name: Device
+-    modeled: Browser, device notification permissions and selected files; access to a phone gallery is a later capability
++    modeled: Browser, device notification permissions, read access to the device calendar and selected files; access to a phone gallery is a later capability
+     external: Device capabilities and permissions granted by the owner
+     source: { doc: keep-in-touch-world-specification, section: "2" }
+   - id: ext.providers
+--- a/things/webapp/criteria.yaml
++++ b/things/webapp/criteria.yaml
+@@ -207,7 +207,7 @@
+     targetKind: artifact
+     triggers: [candidate, promotion]
+     inputs:
+-      fixture: "six due goals yield five ordered cards"
++      fixture: "six due goals yield five ordered cards, incl. calendar reasons"
+     timeoutMs: 60000
+     costTier: cheap
+     binding: defined
+--- a/things/webapp/ontology.yaml
++++ b/things/webapp/ontology.yaml
+@@ -99,6 +99,7 @@
+                 kind: component
+                 name: Reason
+                 cardinality: exactly one per card
++                description: Why this person is suggested now, including an upcoming birthday or anniversary from the owner's calendar
+               - id: affordance.SuggestionCard.openPerson
+                 kind: affordance
+                 name: Open person
+@@ -586,6 +587,12 @@
+         cardinality: exactly one
+         links:
+           - { rel: reads, to: entity.Account }
++        children:
++          - id: component.CalendarAccessToggle
++            kind: component
++            name: CalendarAccessToggle
++            cardinality: exactly one
++            description: Allows reading birthdays and anniversaries from the device calendar; off by default
+       - id: component.NotificationPreferences
+         kind: component
+         name: NotificationPreferences
+@@ -768,7 +775,9 @@
+     kind: entity
+     name: Suggestion
+     parent: section.domain
+-    description: ID, goal version, reason, due date, target ContactRecord and state; does not itself contact anybody
++    description: >-
++      ID, goal version, reason, due date, target ContactRecord and state; does not itself contact anybody. The reason may
++      mention an upcoming birthday or anniversary read from the owner's device calendar
+     source: { doc: keep-in-touch-world-specification, section: "5" }
+     fields:
+       - { name: id, type: string }

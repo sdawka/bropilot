@@ -1,0 +1,31 @@
+{
+ "variant": "bc8433",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.NotificationPreferences.sendTest"
+   ],
+   "severity": "medium",
+   "summary": "The test reminder includes the next due person's name and phone number, contradicting S.webapp.prompts and the NotificationJob invariant that external reminders contain only a link without contact details.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "affordance.NotificationPreferences.sendTest"
+   ],
+   "severity": "medium",
+   "summary": "Sending a test reminder counts toward the one-owner-notification-per-local-day limit, so it would suppress that day's real reminder (or the real one would violate the limit), and no NotificationJob/deduplication path is specified for it.",
+   "evidence": ""
+  },
+  {
+   "nodeIds": [
+    "affordance.NotificationPreferences.sendTest"
+   ],
+   "severity": "medium",
+   "summary": "The affordance reads Suggestion and private contact data for an outbound provider message without any policy (ownerOnly/revocation) or preference recheck coverage, unlike other delivery paths.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

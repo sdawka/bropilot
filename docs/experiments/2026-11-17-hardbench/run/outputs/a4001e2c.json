@@ -1,0 +1,15 @@
+{
+ "variant": "edd783",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.GoalForm.save"
+   ],
+   "severity": "medium",
+   "summary": "The new effect says SchedulePreview, which is part of screen.goal, shows the new due date after saving. But journey step J.goals/g5 goes to J.goals/e1 on save, and e1's step screen is screen.person, so the user would no longer be on the screen that holds SchedulePreview.",
+   "evidence": ""
+  }
+ ],
+ "unknownIds": []
+}

@@ -1,0 +1,39 @@
+{
+ "variant": "125d6e",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "J.control.block.b3",
+    "J.control.block.b6",
+    "J.control.block.b2"
+   ],
+   "severity": "high",
+   "summary": "The journey now runs the revoke operation (b3) before the confirm/cancel branch (b6), so access is revoked even when the owner cancels.",
+   "evidence": "b2 next: to b3; b3 operation: operation.connection.revoke, next: to b6; b6: 'Confirm block or cancel in BlockConfirmDialog' with cancel -> e2"
+  },
+  {
+   "nodeIds": [
+    "component.BlockConfirmDialog",
+    "J.control.block.b3"
+   ],
+   "severity": "high",
+   "summary": "The Block affordance says nothing is revoked until confirmation, but the journey revokes before the confirm step.",
+   "evidence": "effects: 'Nothing is revoked or recorded until the owner confirms in BlockConfirmDialog' vs journey b2 -> b3 (operation.connection.revoke) -> b6 (confirm/cancel)"
+  },
+  {
+   "nodeIds": [
+    "C.webapp.revocation.current",
+    "J.control.block.b6"
+   ],
+   "severity": "medium",
+   "summary": "The updated criterion requires cancel to leave sharing untouched, but the journey's cancel path (b6 -> e2) comes after revocation has already run.",
+   "evidence": "claim: 'Cancelling a block confirmation leaves sharing and pending jobs untouched' vs b3 revoke preceding b6 cancel -> e2"
+  }
+ ],
+ "unknownIds": [
+  "J.control.block.b2",
+  "J.control.block.b3",
+  "J.control.block.b6"
+ ]
+}

@@ -1,0 +1,36 @@
+{
+ "variant": "46753b",
+ "verdict": "defect",
+ "findings": [
+  {
+   "nodeIds": [
+    "affordance.PersonActionBar.deleteContact",
+    "operation.contact.delete"
+   ],
+   "severity": "high",
+   "summary": "The Delete contact affordance says the contact, goal and history are deleted at once and cannot be restored, but the operation it invokes soft-deletes them and keeps them restorable for 30 days before purging.",
+   "evidence": "affordance: \"The contact, its goal and its history are deleted at once and cannot be restored\" vs operation.contact.delete: \"they stay restorable for 30 days and are then purged\" / \"The owner can restore the contact for 30 days\""
+  },
+  {
+   "nodeIds": [
+    "operation.contact.delete",
+    "C.webapp.lifecycle.data",
+    "J.contacts.remove"
+   ],
+   "severity": "medium",
+   "summary": "A 30-day owner restore is promised by the operation and the criterion, but no restore affordance, operation, screen or journey step exists, and J.contacts.remove describes the deletion as final.",
+   "evidence": "effects: \"The owner can restore the contact for 30 days\"; claim: \"A deleted contact stays restorable for 30 days\"; J.contacts.remove r3: \"Contact, goal and history deleted; pending jobs cancelled\""
+  },
+  {
+   "nodeIds": [
+    "C.webapp.lifecycle.data",
+    "hook.webapp.lifecycle.data",
+    "operation.contact.delete"
+   ],
+   "severity": "low",
+   "summary": "The contact-restore claim was added to a criterion whose subject is operation.data.delete and whose hook fixture covers only export and account-deletion purge, so operation.contact.delete has no criterion or hook that actually verifies it.",
+   "evidence": "subjectId: operation.data.delete; fixture: \"export isolation, deletion purge and retention\""
+  }
+ ],
+ "unknownIds": []
+}
