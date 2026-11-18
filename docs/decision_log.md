@@ -117,3 +117,7 @@ Decision (user): build one application first and extract the general ontology li
 ## 2026-11-17T09:05:00-06:00 — Spec linter slice: commit only, no PR
 
 Decision (user): for the spec linter slice and its kill test, commit to the branch without opening a PR; the kill-test design and seeding were left to Claude's judgement.
+
+## 2026-11-17T18:50:00-06:00 — Build the change-review command and a harder benchmark
+
+Decision (user): go ahead with the recommended next step after the three follow-up experiments: a change-review command (graph delta, slice, one model call) and a harder benchmark with multi-edit changes and counterparts several hops away.

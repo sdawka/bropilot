@@ -113,6 +113,17 @@ Not carried over: a cross link's `label` and `source`, whether `refines` came fr
 
 `npm run lint:system -- <system-dir> [--templates <dir>] [--json]` prints a summary line, then findings by level, with the input facts behind each flow finding; `--json` prints the Readiness. Without `--templates` it uses the nearest `packages/templates` above the system directory. It exits 1 on any error finding. The script runs the TypeScript sources on Node 24 with `--experimental-transform-types` and `bin/ts-resolve.mjs`, which resolves extensionless imports; no extra dependency.
 
+### Change review
+
+`review.ts` reviews one change to a system with a single model call over the text diff plus a graph slice around the changed nodes (the "diff + slice" arm of the 2026-11-17 experiment, `docs/experiments/2026-11-17-change-scoped-review-and-ledger.md`). The slice follows the pre-registered rule in `docs/experiments/2026-11-17-test-set/slice_preregistration.txt`:
+
+- `changedNodes(base, head, diffText?)`: added, removed and changed nodes, plus both endpoints of every added, removed or changed link, each with its reasons. When the graph delta is empty, the node ids that appear in the diff text.
+- `changeSlice(head, base, ids, { hops = 2, noExpand })`: the changed nodes, their full ancestor chains, their direct children and every node within two link hops in either direction (head's links plus links removed from base). Nodes of kind system, thing, section, template or kit can be reached but are not expanded. Each slice node records why it is included: changed, ancestor, child, hop-1 or hop-2.
+- `renderSlice` writes the slice as YAML; `buildReviewPrompt` builds the prompt (modes `slice`, `diff`, `whole`); `parseReview` validates the JSON reply (`verdict` defect or clean; findings with `nodeIds`, `severity`, `summary`, `evidence`), accepts fenced JSON and lists cited ids found in neither graph as `unknownIds`.
+- `reviewChange({ baseFiles, headFiles, templates, diffText, model })` combines these with the deterministic lint findings that are new in head. `model` is any `(prompt) => Promise<{ text, costUsd? }>`.
+
+`npm run -s review:change -- --head <dir> (--base <dir> | --base-ref <git ref>) [--templates <dir>] [--json] [--print-prompt] [--mode slice|diff|whole] [--model opus] [--reply findings|experiment]` builds the diff with `git diff --no-index`, rewriting paths to `a/` and `b/` so directory names never reach the model. `--base-ref` extracts that ref's copy of the head directory with `git archive`. `--print-prompt` prints the prompt and writes the slice stats to stderr without calling the model. The default model is the `claude` CLI in print mode with tools off, run from an empty temporary directory (`claude-model.ts`). `--reply experiment` uses the experiment's reply format word for word, so with the experiment's diffs the prompts match its prompts exactly. The command exits 1 when the verdict is defect or head has new error-level lint findings, and 2 on usage or load errors.
+
 ## Product specs
 
 Two templates that share no vocabulary with artyfact, evaluated by the same engine without engine changes.

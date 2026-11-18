@@ -8,3 +8,9 @@ export {
 } from "./packs";
 export { artyfactTemplateStore, readArtyfactTemplate, templateDir, type ArtyfactTemplateStore, type Files } from "./templates";
 export * as artyfactSchema from "./schema";
+export {
+  buildReviewPrompt, changedNodes, changeSlice, idsInText, lintGraph, parseReview, prepareReview, renderSlice, renderSpec, reviewChange, ReviewParseError, runReview,
+  REVIEW_SEVERITIES, SLICE_HOPS, SLICE_NO_EXPAND,
+  type ChangedNodes, type ChangeSlice, type ParsedReview, type PreparedReview, type PromptInput, type ReplyFormat, type ReviewFinding, type ReviewInput,
+  type ReviewMode, type ReviewModel, type ReviewResult, type ReviewStats, type Severity, type SliceOptions, type SliceReason,
+} from "./review";

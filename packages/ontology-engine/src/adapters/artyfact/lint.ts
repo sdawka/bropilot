@@ -5,13 +5,11 @@
  */
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { evaluate, type Readiness } from "../../evaluate/evaluate";
+import type { Readiness } from "../../evaluate/evaluate";
 import type { Finding } from "../../evaluate/findings";
-import { loadTemplate } from "../../meta/template";
-import { artyfactMetaStore } from "./convert";
 import { loadArtyfactSystem } from "./graph";
 import { readDir } from "./node";
-import { ARTYFACT_LINT, artyfactLint } from "./template";
+import { lintGraph } from "./review";
 
 const FLOW_PACK = "artyfact.flow@1";
 const LEVELS = ["error", "missing", "warning", "review", "info", "pass"] as const;
@@ -22,9 +20,7 @@ export interface LintResult { readiness: Readiness; nodes: number; links: number
 export function lintSystem(systemDir: string, templatesDir?: string): LintResult {
   const tpls = templatesDir ? readDir(templatesDir) : {};
   const graph = loadArtyfactSystem(readDir(systemDir), { templates: tpls });
-  const template = loadTemplate(artyfactLint, artyfactMetaStore(tpls));
-  // The loader names the genome; the lint template extends it with one pack, so the graph is re-pointed at it.
-  return { readiness: evaluate(template, { ...graph, template: ARTYFACT_LINT }), nodes: graph.nodes.length, links: graph.links.length };
+  return { readiness: lintGraph(graph, tpls), nodes: graph.nodes.length, links: graph.links.length };
 }
 
 const fact = (t: readonly unknown[]) => `${t[0]}(${t.slice(1).map((x) => JSON.stringify(x)).join(", ")})`;
@@ -46,14 +42,14 @@ export function formatLint({ readiness: r, nodes, links }: LintResult): string {
   return out.join("\n");
 }
 
-function findingLines(f: Finding): string[] {
+export function findingLines(f: Finding): string[] {
   const lines = [`  ${f.rule}  ${f.subject ?? "-"}  ${f.message}`];
   if (f.pack === FLOW_PACK) for (const t of [...new Set(f.facts.map(fact))]) lines.push(`      ${t}`);
   return lines;
 }
 
 /** Without `--templates`: the nearest `packages/templates` above the system directory, as in an artyfact checkout. */
-function guessTemplates(systemDir: string): string | undefined {
+export function guessTemplates(systemDir: string): string | undefined {
   for (let d = resolve(systemDir); ; d = dirname(d)) {
     const p = join(d, "packages", "templates");
     if (existsSync(p)) return p;
